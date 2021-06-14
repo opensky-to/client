@@ -1,0 +1,1 @@
+copy /Y "%1\app.config.%2" "%1\app.config"

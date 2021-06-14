@@ -1,0 +1,34 @@
+﻿======================================================================================================================
+StellarHeat Wix Dependency Harvester - HowTo                                                       Copyright LYIT 2016
+======================================================================================================================
+
+StellarHeat supports the following command line parameters:
+
+-dr:DIRECTORY_REFERENCE ................. Specifies the Wix DirectoryRef ID that the DLL files should be installed to.
+
+-cg:COMPONENT_GROUP ..................... Specifies the Wix ComponentGroup ID that will contain the DLL components.
+
+-dir:INPUT_DIRECTORY .................... Specifies an input directory to harvest DLL files from, this parameter can
+                                          be specified multiple times. Folders will be scanned recursively.
+
+-out:OUTPUT_FILE ........................ The file name of the WXS file to generate
+
+-verbose ................................ Print verbose harvesting details
+
+======================================================================================================================
+
+All paramter VARIABLES may be put in double quotes, directory structures containing white spaces MUST be put in quotes
+
+Example "PRE-BUILD" event command line for a Wix Project (see Project Properties -> Build Events), wrapped for clarity
+"..\..\StellarHeat\DevToolkit.StellarHeat.exe"
+       -dr:APPLICATIONFOLDER
+       -cg:ProductDllComponents
+       -dir:"..\..\..\Project1\bin\Release"
+       -dir:"..\..\..\Project2\bin\Release"
+       -out:"..\..\ProductDlls.wxs"
+
+=== START COPYING HERE - MAKE SURE TO KEEP SINGLE LINE! ==============================================================
+"..\..\StellarHeat\DevToolkit.StellarHeat.exe" -dr:APPLICATIONFOLDER -cg:ProductDllComponents -dir:"..\..\..\Project1\bin\Release" -dir:"..\..\..\Project2\bin\Release" -out:"..\..\ProductDlls.wxs"
+=== END COPYING HERE =================================================================================================
+
+>>> IMPORTANT: Don't forget to commit the StellarHeat folder to your repo if you are using a build server! <<<

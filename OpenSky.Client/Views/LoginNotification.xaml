@@ -1,0 +1,64 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="LoginNotification.xaml" company="OpenSky">
+  sushi.at for OpenSky 2021
+</copyright>
+<summary>
+  Login required notification window
+</summary>
+====================================================================================================================
+-->
+
+<Window x:Class="OpenSky.Client.Views.LoginNotification"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:models="clr-namespace:OpenSky.Client.Views.Models"
+        mc:Ignorable="d"
+        SizeToContent="WidthAndHeight" WindowStyle="None" Topmost="True"
+        ui:ThemeManager.IsThemeAware="True" AllowsTransparency="True" ShowInTaskbar="False"
+        Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}"
+        Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
+        FontFamily="/Fonts/#Montserrat" FontSize="13" Loaded="LoginNotificationOnLoaded">
+    <Window.DataContext>
+        <models:LoginNotificationViewModel CloseWindow="LoginNotificationViewModelOnCloseWindow" />
+    </Window.DataContext>
+    <Window.Resources>
+        <Storyboard x:Key="Rotate">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(RotateTransform.Angle)" RepeatBehavior="Forever">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:4" Value="360"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="1">
+            <Grid Margin="0,0,0,10">
+                <Image Grid.Row="0" Grid.Column="0" RenderTransformOrigin="0.5,0.5" Width="100" Height="100" x:Name="GearImage" Source="{StaticResource OpenskyLogoGradientOnly}">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <RotateTransform/>
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                    <Image.Triggers>
+                        <EventTrigger RoutedEvent="Window.Loaded">
+                            <BeginStoryboard Storyboard="{StaticResource Rotate}"/>
+                        </EventTrigger>
+                    </Image.Triggers>
+                </Image>
+                <Image Grid.Row="0" Grid.Column="0" Width="100" Height="100" Source="{StaticResource OpenskyLogoPlaneAndTrail}" />
+            </Grid>
+            <TextBlock TextWrapping="Wrap" MaxWidth="200" TextAlignment="Justify">The OpenSky airline management game client
+            requires you to login with your OpenSky account
+            before your can track your flights.</TextBlock>
+            <Button Style="{StaticResource OpenSkyButtonStyle}" HorizontalAlignment="Center" Margin="0,10,0,0" Command="{Binding LoginCommand}">Login to OpenSky</Button>
+        </StackPanel>
+    </Grid>
+</Window>
