@@ -18,7 +18,7 @@ insert_final_newline = false
 
 # Organize usings
 dotnet_separate_import_directive_groups = true
-file_header_template = --------------------------------------------------------------------------------------------------------------------\n<copyright file="{fileName}" company="OpenSky">\nOpenSky project 2021\n</copyright>\n--------------------------------------------------------------------------------------------------------------------\n
+file_header_template = --------------------------------------------------------------------------------------------------------------------\n<copyright file="{fileName}" company="OpenSky">\nOpenSky project 2021\n</copyright>\n--------------------------------------------------------------------------------------------------------------------
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = true:suggestion
