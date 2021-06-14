@@ -1,0 +1,40 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="Startup.xaml" company="OpenSky">
+  sushi.at for OpenSky 2021
+</copyright>
+<summary>
+  OpenSky client main wpf application configuration
+</summary>
+====================================================================================================================
+-->
+
+<Application x:Class="OpenSky.Client.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             StartupUri="Views/Startup.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemeResources RequestedTheme="Dark">
+                    <ui:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Dark">
+                            <ResourceDictionary.MergedDictionaries>
+                                <ui:ColorPaletteResources
+                                TargetTheme="Dark"
+                                Accent="#05826c"
+                                AltHigh="#404040"
+                                BaseHigh="#FFC9C9C9"/>
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                    </ui:ThemeResources.ThemeDictionaries>
+                </ui:ThemeResources>
+                <ui:XamlControlsResources />
+
+                <ResourceDictionary Source="VectorGraphics.xaml" />
+                <ResourceDictionary Source="OpenSkyStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

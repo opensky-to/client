@@ -1,0 +1,30 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="OpenSky.Client.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SettingsUpdateRequired" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OpenSkyApiToken" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OpenSkyRefreshToken" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OpenSkyUsername" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OpenSkyTokenExpiration" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OpenSkyRefreshTokenExpiration" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OpenSkyAPIUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:5000</Value>
+    </Setting>
+    <Setting Name="OpenSkyTokenUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:5001/apptoken/9CACF3C5-7F77-4F40-8DF0-933798960271</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

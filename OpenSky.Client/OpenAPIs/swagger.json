@@ -1,0 +1,2090 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenSky.API",
+    "version": "v1"
+  },
+  "paths": {
+    "/AircraftType": {
+      "post": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Adds a new aircraft type.",
+        "description": "sushi.at, 02/06/2021.",
+        "operationId": "AddAircraftType",
+        "requestBody": {
+          "description": "The new aircraft type to add.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Gets all enabled and current aircraft types.",
+        "description": "sushi.at, 02/06/2021.",
+        "operationId": "GetAircraftTypes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Updates an existing aircraft type.",
+        "description": "sushi.at, 11/06/2021.",
+        "operationId": "UpdateAircraftType",
+        "requestBody": {
+          "description": "The aircraft type to update.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/{typeID}": {
+      "delete": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Deletes the specified aircraft type.",
+        "description": "sushi.at, 11/06/2021.",
+        "operationId": "DeleteAircraftType",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/disable/{typeID}": {
+      "put": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Disables the specified aircraft type.",
+        "description": "sushi.at, 09/06/2021.",
+        "operationId": "DisableAircraftType",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/disableDetailedChecks/{typeID}": {
+      "put": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Disables the specified aircraft type's detailed checks (only to be used on patch days until a new aircraft type version can be created!).",
+        "description": "sushi.at, 09/06/2021.",
+        "operationId": "DisableAircraftTypeDetailedChecks",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/enable/{typeID}": {
+      "put": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Enables the specified aircraft type.",
+        "description": "sushi.at, 09/06/2021.",
+        "operationId": "EnableAircraftType",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/enableDetailedChecks/{typeID}": {
+      "put": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Enables the specified aircraft type's detailed checks (only to be used on patch days until a new aircraft type version can be created!).",
+        "description": "sushi.at, 09/06/2021.",
+        "operationId": "EnableAircraftTypeDetailedChecks",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/all": {
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Gets all aircraft types (including disabled and previous).",
+        "description": "sushi.at, 02/06/2021.",
+        "operationId": "GetAllAircraftTypes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets all available airports (ICAO code only).",
+        "description": "sushi.at, 02/05/2021.",
+        "operationId": "GetAirports",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport/{icao}": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets one specific airport.",
+        "description": "sushi.at, 03/05/2021.",
+        "operationId": "GetAirport",
+        "parameters": [
+          {
+            "name": "icao",
+            "in": "path",
+            "description": "The ICAO identifier of the airport.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/changePassword": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Change OpenSky user password.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The change password model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePassword"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePassword"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/forgotPassword": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Forgot password request from OpenSky user.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The forgot password model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/applicationToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get a new application API access token.",
+        "description": "sushi.at, 01/06/2021.",
+        "requestBody": {
+          "description": "The application token model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationToken"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationToken"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/userRoles": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Gets the roles of the current OpenSky user.",
+        "description": "sushi.at, 04/06/2021.",
+        "operationId": "GetUserRoles",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login to OpenSky API.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The login model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/refreshToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh OpenSky API JWT token using a single-use refresh token.",
+        "description": "sushi.at, 30/05/2021.",
+        "requestBody": {
+          "description": "The refresh token request model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register new OpenSky user.",
+        "description": "sushi.at, 06/05/2021.",
+        "requestBody": {
+          "description": "The register user model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUser"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUser"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/resendValidationEmail": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Re-send the email validation.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The resend validation email model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendValidationEmail"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendValidationEmail"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendValidationEmail"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/resetPassword": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Reset OpenSky user password.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The reset password model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/revokeAllTokens": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke all OpenSky refresh tokens.",
+        "description": "sushi.at, 31/05/2021.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/revokeToken": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke specified OpenSky refresh token.",
+        "description": "sushi.at, 31/05/2021.",
+        "requestBody": {
+          "description": "The revoke token model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeToken"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeToken"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/validateEmail": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Validate email address of previously registered OpenSky user.",
+        "description": "sushi.at, 08/05/2021.",
+        "requestBody": {
+          "description": "The validate email model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateEmail"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateEmail"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateEmail"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DataImport/status/{importID}": {
+      "get": {
+        "tags": [
+          "DataImport"
+        ],
+        "summary": "Get data import status.",
+        "description": "sushi.at, 12/05/2021.",
+        "operationId": "GetImportStatus",
+        "parameters": [
+          {
+            "name": "importID",
+            "in": "path",
+            "description": "Identifier for the import.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataImportStatusApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataImportStatusApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataImportStatusApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DataImport/littleNavmapMSFS": {
+      "post": {
+        "tags": [
+          "DataImport"
+        ],
+        "summary": "Post LittleNavmap MSFS sqlite database for import.",
+        "description": "sushi.at, 04/05/2021.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileUpload": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "fileUpload": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuidNullableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuidNullableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuidNullableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AircraftType": {
+        "required": [
+          "atcModel",
+          "atcType",
+          "category",
+          "engineType",
+          "name",
+          "simulator",
+          "uploaderID"
+        ],
+        "type": "object",
+        "properties": {
+          "atcModel": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the ATCModel property in the sim."
+          },
+          "atcType": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the ATCType property in the sim."
+          },
+          "category": {
+            "$ref": "#/components/schemas/AircraftTypeCategory"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Gets or sets the comments (moderation status, retired, needs fixing, etc.).",
+            "nullable": true
+          },
+          "detailedChecksDisabled": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the detailed checks are TEMPORARILY disabled - only\r\nuse this on patch days until a new version of the plane can be added."
+          },
+          "emptyWeight": {
+            "type": "number",
+            "description": "Gets or sets the empty weight in pounds.",
+            "format": "double"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft type is enabled."
+          },
+          "engineCount": {
+            "type": "integer",
+            "description": "Gets or sets the number of engines.",
+            "format": "int32"
+          },
+          "engineType": {
+            "$ref": "#/components/schemas/EngineType"
+          },
+          "flapsAvailable": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft has flaps."
+          },
+          "fuelTotalCapacity": {
+            "type": "number",
+            "description": "Gets or sets the fuel total capacity in gallons.",
+            "format": "double"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier.",
+            "format": "uuid"
+          },
+          "isGearRetractable": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft has retractable landing gear."
+          },
+          "isVanilla": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft is available in the vanilla sim or is\r\ncoming from a mod."
+          },
+          "isVariantOf": {
+            "type": "string",
+            "description": "Gets or sets the ID of the aircraft that this one is a variant of.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "lastEditedByID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the last edited by user.",
+            "nullable": true
+          },
+          "lastEditedByName": {
+            "type": "string",
+            "description": "Gets the name of the last edited by user.",
+            "nullable": true,
+            "readOnly": true
+          },
+          "maxGrossWeight": {
+            "type": "number",
+            "description": "Gets or sets the maximum gross weight in pounds.",
+            "format": "double"
+          },
+          "maxPrice": {
+            "type": "integer",
+            "description": "Gets or sets the maximum selling price.",
+            "format": "int32"
+          },
+          "minPrice": {
+            "type": "integer",
+            "description": "Gets or sets the minimum selling price.",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the name of the aircraft."
+          },
+          "needsCoPilot": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft needs a co-pilot."
+          },
+          "nextVersion": {
+            "type": "string",
+            "description": "Gets or sets the next version of this aircraft type - to migrate existing aircraft to this\r\nnew type.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "simulator": {
+            "$ref": "#/components/schemas/Simulator"
+          },
+          "uploaderID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the uploader user."
+          },
+          "uploaderName": {
+            "type": "string",
+            "description": "Gets the name of the uploader.",
+            "nullable": true,
+            "readOnly": true
+          },
+          "versionNumber": {
+            "type": "integer",
+            "description": "Gets or sets the version number of this type.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft type model."
+      },
+      "AircraftTypeCategory": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "description": "Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = Jet, 5 = NBAirliner, 6 = WBAirliner",
+        "format": "int32",
+        "x-enumNames": [
+          "SEP",
+          "MEP",
+          "SET",
+          "MET",
+          "Jet",
+          "NBAirliner",
+          "WBAirliner"
+        ],
+        "x-enum-varnames": [
+          "SEP",
+          "MEP",
+          "SET",
+          "MET",
+          "Jet",
+          "NBAirliner",
+          "WBAirliner"
+        ]
+      },
+      "AircraftTypeIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftType"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "Airport": {
+        "required": [
+          "hashCode",
+          "icao",
+          "longestRunwaySurface",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "altitude": {
+            "type": "integer",
+            "description": "Gets or sets the altitude of the airport in feet.",
+            "format": "int32"
+          },
+          "atisFrequency": {
+            "type": "integer",
+            "description": "Gets or sets the ATIS frequency (if available).",
+            "format": "int32",
+            "nullable": true
+          },
+          "city": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the city.",
+            "nullable": true
+          },
+          "gaRamps": {
+            "type": "integer",
+            "description": "Gets or sets the number of GA ramps.",
+            "format": "int32"
+          },
+          "gates": {
+            "type": "integer",
+            "description": "Gets or sets the number of gates.",
+            "format": "int32"
+          },
+          "hasAvGas": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the airport has AV gas for refueling."
+          },
+          "hashCode": {
+            "type": "string",
+            "description": "Gets or sets the hash code (SHA1 over all data columns to detect if record needs updating)."
+          },
+          "hasJetFuel": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the airport has jet fuel for refueling."
+          },
+          "icao": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the ICAO identifier of the airport."
+          },
+          "isClosed": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the airport is closed."
+          },
+          "isMilitary": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the airport is a military one."
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets or sets the latitude of the airport.",
+            "format": "double"
+          },
+          "longestRunwayLength": {
+            "type": "integer",
+            "description": "Gets or sets the length of the longest runway in feet.",
+            "format": "int32"
+          },
+          "longestRunwaySurface": {
+            "maxLength": 7,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the surface type of the longest runway (can be \"UNKNOWN\" in a few cases)."
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets or sets the longitude of the airport.",
+            "format": "double"
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the name."
+          },
+          "runwayCount": {
+            "type": "integer",
+            "description": "Gets or sets the number of runways.",
+            "format": "int32"
+          },
+          "towerFrequency": {
+            "type": "integer",
+            "description": "Gets or sets the tower frequency (if available).",
+            "format": "int32",
+            "nullable": true
+          },
+          "unicomFrequency": {
+            "type": "integer",
+            "description": "Gets or sets the unicom frequency (if available).",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Airport model."
+      },
+      "AirportApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Airport"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "ApplicationToken": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name of the application."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Application token model."
+      },
+      "ChangePassword": {
+        "required": [
+          "newPassword",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "description": "Gets or sets the password."
+          },
+          "password": {
+            "type": "string",
+            "description": "Gets or sets the password."
+          },
+          "resetTokens": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to reset all OpenSky api tokens."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Change password model."
+      },
+      "DataImportElement": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "integer",
+            "description": "Gets or sets the number of new records inserted.",
+            "format": "int32"
+          },
+          "percentDone": {
+            "type": "integer",
+            "description": "Gets the percent done.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "processed": {
+            "type": "integer",
+            "description": "Gets or sets the number of records processed.",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "description": "Gets or sets the number of skipped records.",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Gets or sets the total number of records to be processed.",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "description": "Gets or sets the number of updated records.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Data import element model."
+      },
+      "DataImportStatus": {
+        "type": "object",
+        "properties": {
+          "elements": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DataImportElement"
+            },
+            "description": "Gets or sets the elements.",
+            "nullable": true
+          },
+          "percentDone": {
+            "type": "integer",
+            "description": "Gets the percent done.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "processed": {
+            "type": "integer",
+            "description": "Gets or sets the number of records processed.",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Gets or sets the total number of records to be processed.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Data import status model."
+      },
+      "DataImportStatusApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DataImportStatus"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "EngineType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "Engine types (currently exactly matching SimConnect). 0 = Piston, 1 = Jet, 2 = None, 3 = HeloBellTurbine, 4 = Unsupported, 5 = Turboprop",
+        "format": "int32",
+        "x-enumNames": [
+          "Piston",
+          "Jet",
+          "None",
+          "HeloBellTurbine",
+          "Unsupported",
+          "Turboprop"
+        ],
+        "x-enum-varnames": [
+          "Piston",
+          "Jet",
+          "None",
+          "HeloBellTurbine",
+          "Unsupported",
+          "Turboprop"
+        ]
+      },
+      "ForgotPassword": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "format": "email"
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Forgot password model."
+      },
+      "GuidNullableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Gets or sets the embedded data of type T.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "Login": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Gets or sets the password."
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          },
+          "rememberMe": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to remember the user login (extends JWT token expiry)."
+          },
+          "username": {
+            "type": "string",
+            "description": "Gets or sets the username."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Login model."
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "expiration": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the expiration.",
+            "format": "date-time"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Gets or sets the refresh token.",
+            "nullable": true
+          },
+          "refreshTokenExpiration": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the refresh token expiration.",
+            "format": "date-time"
+          },
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the token.",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "description": "Gets or sets the username (in case the user logged in with the email address).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Login response model."
+      },
+      "LoginResponseApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LoginResponse"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "RefreshToken": {
+        "type": "object",
+        "properties": {
+          "refresh": {
+            "type": "string",
+            "description": "Gets or sets the refresh token.",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the token.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Refresh JWT token model."
+      },
+      "RefreshTokenResponse": {
+        "type": "object",
+        "properties": {
+          "expiration": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the expiration.",
+            "format": "date-time"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Gets or sets the refresh token.",
+            "nullable": true
+          },
+          "refreshTokenExpiration": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the refresh token expiration.",
+            "format": "date-time"
+          },
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the token.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Refresh token response model."
+      },
+      "RefreshTokenResponseApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RefreshTokenResponse"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "RegisterUser": {
+        "required": [
+          "email",
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Gets or sets the password."
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          },
+          "username": {
+            "maxLength": 15,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the username."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Register user model."
+      },
+      "ResendValidationEmail": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "format": "email"
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Resend validation email model."
+      },
+      "ResetPassword": {
+        "required": [
+          "email",
+          "password",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Gets or sets the password."
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          },
+          "resetTokens": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to reset all OpenSky api tokens."
+          },
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the token."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Reset password model."
+      },
+      "RevokeToken": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the OpenSky refresh token ID to invalidate."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Revoke token model."
+      },
+      "Simulator": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "description": "Simulators. 0 = MSFS",
+        "format": "int32",
+        "x-enumNames": [
+          "MSFS"
+        ],
+        "x-enum-varnames": [
+          "MSFS"
+        ]
+      },
+      "StringApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "StringIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "ValidateEmail": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "format": "email"
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "description": "Gets or sets the recaptcha token.",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "description": "Gets or sets the token."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Validate email model."
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT Authorization header using the Bearer scheme. \r\n\r\nEnter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: 'Bearer xxxxxxxxxxxxxxxxx'",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+    <Product Id="*" Name="OpenSky Airline Management Client" Language="1033" Version="!(bind.FileVersion.OpenSkyClientExeFile)" Manufacturer="OpenSky" UpgradeCode="CCF5B0C0-A037-4212-A489-5D4A273594B4">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+        <Icon Id="opensky.ico" SourceFile="..\OpenSky.Client\Resources\opensky.ico" />
+        <Property Id="ARPPRODUCTICON" Value="opensky.ico" />
+
+        <PropertyRef Id="WIX_EXT_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED" />
+        <Condition Message="This application requires .NET Framework 4.8.0. Please install the .NET Framework then run this installer again.">
+            Installed OR WIX_EXT_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED
+        </Condition>
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <MediaTemplate EmbedCab="yes" />
+
+        <Feature Id="ProductFeature" Title="OpenSky.Client" Level="1">
+            <ComponentGroupRef Id="OpenSky.Client" />
+            <ComponentGroupRef Id="OpenSky.Client.Libraries" />
+        </Feature>
+
+        <util:CloseApplication Id="CloseOpenSky.Client" Target="OpenSky.Client.exe" TerminateProcess="1" RebootPrompt="no" PromptToContinue="no" />
+    </Product>
+
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="OpenSkyFolder" Name="OpenSky">
+                    <Directory Id="INSTALLFOLDER" Name="Client" />
+                </Directory>
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="OpenSky"/>
+            </Directory>
+            <Directory Id="DesktopFolder" SourceName="Desktop" />
+        </Directory>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="OpenSky.Client" Directory="INSTALLFOLDER">
+            <Component Guid="{11D22428-631A-4DD4-B14D-E1A37F0F24C8}" Win64="yes">
+                <File Source="..\OpenSky.Client\bin\$(var.Configuration)\OpenSky.Client.exe" KeyPath="yes" Id="OpenSkyClientExeFile">
+                    <Shortcut Id="OpenSky.Client.Shortcut" Directory="ApplicationProgramsFolder" WorkingDirectory="INSTALLFOLDER" Name="OpenSky" Icon="opensky.ico" Advertise="yes" />
+                    <Shortcut Id="OpenSky.Client.DeskShortcut" Directory="DesktopFolder" WorkingDirectory="INSTALLFOLDER" Name="OpenSky" Icon="opensky.ico" Advertise="yes" />
+                </File>
+                <RemoveFolder Id="RemoveProgramMenuDir" Directory="ApplicationProgramsFolder" On="uninstall" />
+            </Component>
+            <Component Guid="{B4D24750-9BCC-415C-BA12-D0BD5D88E989}" Win64="yes">
+                <File Source="..\OpenSky.Client\bin\$(var.Configuration)\OpenSky.Client.exe.config" KeyPath="yes" />
+            </Component>
+            <Component Guid="{B34B224B-1270-4846-A8F9-AAC6719B8D8A}" Win64="yes">
+                <File Source="..\changelog.txt" KeyPath="yes" />
+            </Component>
+            <Component Id="RegistryEntries" Guid="{BA1582B4-6376-4354-BF12-614A7715CCAC}" Win64="yes">
+                <RegistryKey Root="HKCR" Key="opensky-client" Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Value="URL:opensky-client" />
+                    <RegistryValue Type="string" Name="URL Protocol" Value="" />
+                    <RegistryKey Key="shell\open\command">
+                        <RegistryValue Type="string" Value="&quot;[#OpenSkyClientExeFile]&quot; &quot;%1&quot;" />
+                    </RegistryKey>
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
