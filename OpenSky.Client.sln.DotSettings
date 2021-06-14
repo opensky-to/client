@@ -447,10 +447,9 @@
 	<s:Boolean x:Key="/Default/CodeStyle/CSharpUsing/QualifiedUsingAtNestedScope/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">--------------------------------------------------------------------------------------------------------------------&#xD;
 &lt;copyright file="$FILENAME$" company="OpenSky"&gt;&#xD;
-sushi.at for OpenSky $CURRENT_YEAR$&#xD;
+OpenSky project $CURRENT_YEAR$&#xD;
 &lt;/copyright&gt;&#xD;
---------------------------------------------------------------------------------------------------------------------&#xD;
-</s:String>
+--------------------------------------------------------------------------------------------------------------------</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Generate/=EqualityMembers/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityMembers/Options/=EqualityOperators/@EntryIndexedValue">False</s:String>
 	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityMembers/Options/=ImplementIEquatable/@EntryIndexedValue">False</s:String>

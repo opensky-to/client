@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AssemblyInfo.cs" company="OpenSky">
-// sushi.at for OpenSky 2021
+// OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ using System.Windows.Markup;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OpenSky")]
 [assembly: AssemblyProduct("OpenSky")]
-[assembly: AssemblyCopyright("sushi.at for OpenSky 2021")]
+[assembly: AssemblyCopyright("OpenSky project 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
