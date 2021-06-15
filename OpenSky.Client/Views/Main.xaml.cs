@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Startup.xaml.cs" company="OpenSky">
+// <copyright file="Main.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -7,58 +7,59 @@
 namespace OpenSky.Client.Views
 {
     using System;
-    using System.Windows.Media.Animation;
+    using System.Collections.Generic;
+    using System.Windows;
 
-    using JetBrains.Annotations;
+    using Dragablz;
+
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Pages;
+    using OpenSky.Client.Tools;
+    using OpenSky.Client.Views.Models;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// Startup window
+    /// Main OpenSky application window.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class Startup
+    public partial class Main
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
+        /// Initializes a new instance of the <see cref="Main"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 11/03/2021.
+        /// sushi.at, 15/06/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public Startup()
+        public Main()
         {
-            if (!StartupFailed)
-            {
-                if (Instance != null)
-                {
-                    throw new Exception("Only one instance of the startup window may be created!");
-                }
+            Instances.Add(this);
+            this.InitializeComponent();
 
-                Instance = this;
-                this.InitializeComponent();
+            if (Instances.Count == 1)
+            {
+                if (this.DataContext is MainViewModel vm)
+                {
+                    vm.Items.Add(new HeaderedItemViewModel("Hi there1", "This is a test", true));
+                    vm.Items.Add(new HeaderedItemViewModel("Hi there2", new Settings()));
+                    vm.Items.Add(new HeaderedItemViewModel("Hi there3", "This is a test"));
+
+                    //vm.ToolItems.Add(new HeaderedItemViewModel("Tool1", "This is a test"));
+                }
             }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the single instance of the startup window.
+        /// The single instance of this view.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        [CanBeNull]
-        public static Startup Instance { get; private set; }
+        public static List<Main> Instances { get; } = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether our application parent report a failed startup.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public static bool StartupFailed { get; set; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view model is done initializing the application and wants to close the splash screen
-        /// window.
+        /// Main on closed event.
         /// </summary>
         /// <remarks>
         /// sushi.at, 15/06/2021.
@@ -70,12 +71,20 @@ namespace OpenSky.Client.Views
         /// Event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void StartupViewModelOnCloseWindow(object sender, EventArgs e)
+        private void MainOnClosed(object sender, EventArgs e)
         {
-            if (this.Resources["HideWindow"] is Storyboard storyboard)
+            Instances.Remove(this);
+
+            if (Instances.Count == 0)
             {
-                storyboard.Begin();
+                UpdateGUIDelegate cleanUp = SleepScheduler.Shutdown;
+                ((App)Application.Current).RequestShutdown(cleanUp);
             }
+        }
+
+        private void TabablzControlOnIsDraggingWindowChanged(object sender, RoutedPropertyChangedEventArgs<bool> e)
+        {
+            this.Opacity = e.NewValue ? 0.5 : 1;
         }
     }
 }
