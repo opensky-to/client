@@ -1,0 +1,77 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="Main.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Main OpenSky application window
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyWindow x:Class="OpenSky.Client.Views.Main"
+                            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                            xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                            xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+                            xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
+                            xmlns:models="clr-namespace:OpenSky.Client.Views.Models"
+                            mc:Ignorable="d"
+                            Title="OpenSky" Height="800" Width="1200" Closed="MainOnClosed">
+    <Window.DataContext>
+        <models:MainViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
+            <DataTemplate DataType="{x:Type dragablz:HeaderedItemViewModel}">
+                <ContentControl Content="{Binding Content}" Margin="4 4 4 4" FontSize="27" />
+            </DataTemplate>
+            <Style TargetType="{x:Type dragablz:TabablzControl}" x:Key="TabablzControlStyle">
+                <Setter Property="ItemsSource" Value="{Binding Items}" />
+                <Setter Property="ClosingItemCallback" Value="{Binding ClosingTabItemHandler}" />
+                <Setter Property="ShowDefaultCloseButton" Value="True" />
+                <Setter Property="HeaderMemberPath" Value="Header" />
+                <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
+                <Setter Property="Margin" Value="0 8 0 0" />
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <dockablz:Layout Grid.Column="1" Partition="621A5E33-54F1-4936-95FD-357BCFFB12BA"
+                         FloatingItemHeaderMemberPath="Header"
+                         IsFloatDropZoneEnabled="False"
+                         FloatingItemsContainerMargin="8"
+                         FloatingItemsSource="{Binding ToolItems}"
+                         ClosingFloatingItemCallback="{Binding ClosingFloatingItemHandler}">
+
+            <!-- branch template lets dragablz create a new tab control after a window is split via docking -->
+            <dockablz:Layout.BranchTemplate>
+                <DataTemplate>
+                    <dragablz:TabablzControl Style="{StaticResource TabablzControlStyle}" Margin="8">
+                        <dragablz:TabablzControl.InterTabController>
+                            <dragablz:InterTabController InterTabClient="{Binding InterTabClient}" Partition="621A5E33-54F1-4936-95FD-357BCFFB12BA" />
+                        </dragablz:TabablzControl.InterTabController>
+                    </dragablz:TabablzControl>
+                </DataTemplate>
+            </dockablz:Layout.BranchTemplate>
+            <!-- a root, named tab control is needed, so when a tab is torn and a new window is created, the new target tab control can be identified -->
+            <dragablz:TabablzControl  Margin="8" x:Name="InitialTabablzControl"
+                                      FixedHeaderCount="1"
+                                      Style="{StaticResource TabablzControlStyle}"
+                                      AddLocationHint="After" 
+                                      IsDraggingWindowChanged="TabablzControlOnIsDraggingWindowChanged">
+                <dragablz:TabablzControl.InterTabController>
+                    <dragablz:InterTabController Partition="621A5E33-54F1-4936-95FD-357BCFFB12BA"  />
+                </dragablz:TabablzControl.InterTabController>
+            </dragablz:TabablzControl>
+        </dockablz:Layout>
+    </Grid>
+</controls:OpenSkyWindow>

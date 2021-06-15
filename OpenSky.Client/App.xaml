@@ -32,6 +32,8 @@
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
 
+                <!--<ResourceDictionary Source="MaterialDesign.xaml" />-->
+
                 <ResourceDictionary Source="VectorGraphics.xaml" />
                 <ResourceDictionary Source="OpenSkyStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
