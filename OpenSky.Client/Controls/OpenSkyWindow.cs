@@ -374,6 +374,14 @@ namespace OpenSky.Client.Controls
             }
             else
             {
+                if (this.WindowState == WindowState.Maximized)
+                {
+                    var mousePosition = this.PointToScreen(Mouse.GetPosition(this));
+                    this.WindowState = WindowState.Normal;
+                    this.Left = mousePosition.X - (this.Width / 2);
+                    this.Top = mousePosition.Y - 30; // Header is 60px tall
+                }
+
                 this.DragMove();
             }
         }
