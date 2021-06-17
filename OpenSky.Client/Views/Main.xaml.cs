@@ -10,9 +10,6 @@ namespace OpenSky.Client.Views
     using System.Collections.Generic;
     using System.Windows;
 
-    using Dragablz;
-
-    using OpenSky.Client.Pages;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views.Models;
 
@@ -38,14 +35,15 @@ namespace OpenSky.Client.Views
 
             if (Instances.Count == 1)
             {
-                if (this.DataContext is MainViewModel vm)
+                // We are the first window, tell the viewmodel to add the welcome view
+                if (this.DataContext is MainViewModel viewModel)
                 {
-                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there1", "This is a test", true));
-                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there2", new Settings()));
-                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there3", "This is a test"));
-
-                    //vm.ToolItems.Add(new HeaderedItemViewModel("Tool1", "This is a test"));
+                    viewModel.ShowWelcomePage();
                 }
+            }
+            else
+            {
+                this.NavigationView.IsPaneOpen = false;
             }
         }
 
@@ -81,9 +79,23 @@ namespace OpenSky.Client.Views
             }
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Tabablz control on is dragging window changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/06/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// A RoutedPropertyChangedEventArgs&lt;bool&gt; to process.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
         private void TabablzControlOnIsDraggingWindowChanged(object sender, RoutedPropertyChangedEventArgs<bool> e)
         {
-            this.Opacity = e.NewValue ? 0.5 : 1;
+            this.Opacity = e.NewValue ? 0.3 : 1;
         }
     }
 }
