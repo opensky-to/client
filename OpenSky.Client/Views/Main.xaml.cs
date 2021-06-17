@@ -12,7 +12,6 @@ namespace OpenSky.Client.Views
 
     using Dragablz;
 
-    using OpenSky.Client.Controls;
     using OpenSky.Client.Pages;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views.Models;
@@ -41,9 +40,9 @@ namespace OpenSky.Client.Views
             {
                 if (this.DataContext is MainViewModel vm)
                 {
-                    vm.Items.Add(new HeaderedItemViewModel("Hi there1", "This is a test", true));
-                    vm.Items.Add(new HeaderedItemViewModel("Hi there2", new Settings()));
-                    vm.Items.Add(new HeaderedItemViewModel("Hi there3", "This is a test"));
+                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there1", "This is a test", true));
+                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there2", new Settings()));
+                    vm.PageItems.Add(new HeaderedItemViewModel("Hi there3", "This is a test"));
 
                     //vm.ToolItems.Add(new HeaderedItemViewModel("Tool1", "This is a test"));
                 }

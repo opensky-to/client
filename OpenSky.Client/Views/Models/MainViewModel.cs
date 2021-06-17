@@ -7,12 +7,7 @@
 namespace OpenSky.Client.Views.Models
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     using Dragablz;
     using Dragablz.Dockablz;
@@ -30,67 +25,75 @@ namespace OpenSky.Client.Views.Models
     /// -------------------------------------------------------------------------------------------------
     public class MainViewModel : ViewModel
     {
-        private readonly IInterTabClient _interTabClient = new BoundExampleInterTabClient();
-        private readonly ObservableCollection<HeaderedItemViewModel> _items;
-        private readonly ObservableCollection<HeaderedItemViewModel> _toolItems = new();
-
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/06/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
         public MainViewModel()
         {
-            _items = new ObservableCollection<HeaderedItemViewModel>();
-
-
-            
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/06/2021.
+        /// </remarks>
+        /// <param name="items">
+        /// The initial page tab items to add.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
         public MainViewModel(params HeaderedItemViewModel[] items)
         {
-            _items = new ObservableCollection<HeaderedItemViewModel>(items);
+            this.PageItems = new ObservableCollection<HeaderedItemViewModel>(items);
         }
 
-        public ObservableCollection<HeaderedItemViewModel> Items
-        {
-            get { return _items; }
-        }
-
-        public static Guid TabPartition
-        {
-            get { return new Guid("2AE89D18-F236-4D20-9605-6C03319038E6"); }
-        }
-
-        public IInterTabClient InterTabClient
-        {
-            get { return _interTabClient; }
-        }
-
-        public ObservableCollection<HeaderedItemViewModel> ToolItems
-        {
-            get { return _toolItems; }
-        }
-
-        public ItemActionCallback ClosingTabItemHandler
-        {
-            get { return ClosingTabItemHandlerImpl; }
-        }
-
+        /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Callback to handle tab closing.
-        /// </summary>        
-        private static void ClosingTabItemHandlerImpl(ItemActionCallbackArgs<TabablzControl> args)
-        {
-            //in here you can dispose stuff or cancel the close
+        /// Gets the tab partition.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static Guid TabPartition => new("2AE89D18-F236-4D20-9605-6C03319038E6");
 
-            //here's your view model:
-            var viewModel = args.DragablzItem.DataContext as HeaderedItemViewModel;
-            Debug.Assert(viewModel != null);
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the closing floating item handler.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ClosingFloatingItemCallback ClosingFloatingItemHandler => ClosingFloatingItemHandlerImpl;
 
-            //here's how you can cancel stuff:
-            //args.Cancel(); 
-        }
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the closing tab item handler.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ItemActionCallback ClosingTabItemHandler => ClosingTabItemHandlerImpl;
 
-        public ClosingFloatingItemCallback ClosingFloatingItemHandler
-        {
-            get { return ClosingFloatingItemHandlerImpl; }
-        }
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the inter tab client.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public IInterTabClient InterTabClient { get; } = new OpenSkyInterTabClient();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the page items.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<HeaderedItemViewModel> PageItems { get; } = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the tool items.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<HeaderedItemViewModel> ToolItems { get; } = new();
 
         /// <summary>
         /// Callback to handle floating toolbar/MDI window closing.
@@ -100,9 +103,32 @@ namespace OpenSky.Client.Views.Models
             //in here you can dispose stuff or cancel the close
 
             //here's your view model: 
-            var disposable = args.DragablzItem.DataContext as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            //var disposable = args.DragablzItem.DataContext as IDisposable;
+            //if (disposable != null)
+            //    disposable.Dispose();
+
+            //here's how you can cancel stuff:
+            //args.Cancel(); 
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Callback to handle tab closing.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/06/2021.
+        /// </remarks>
+        /// <param name="args">
+        /// The arguments.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private static void ClosingTabItemHandlerImpl(ItemActionCallbackArgs<TabablzControl> args)
+        {
+            //in here you can dispose stuff or cancel the close
+
+            //here's your view model:
+            //var viewModel = args.DragablzItem.DataContext as HeaderedItemViewModel;
+            //Debug.Assert(viewModel != null);
 
             //here's how you can cancel stuff:
             //args.Cancel(); 

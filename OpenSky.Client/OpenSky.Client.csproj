@@ -102,7 +102,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\DragablzItemHelper.cs" />
+    <Compile Include="Controls\DragablzItemsControlEx.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Controls\TabablzControlEx.cs" />
+    <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />
     <Compile Include="OpenAPIs\swagger.cs" />
@@ -145,22 +149,26 @@
     <Compile Include="Views\Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Models\BoundExampleInterTabClient.cs" />
+    <Compile Include="Views\Models\OpenSkyInterTabClient.cs" />
     <Compile Include="Views\Models\LoginNotificationViewModel.cs" />
     <Compile Include="Views\Models\MainViewModel.cs" />
     <Compile Include="Views\Models\StartupViewModel.cs" />
     <Compile Include="Views\Startup.xaml.cs">
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
-    <Page Include="MaterialDesign.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="GridFilter.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OpenSkyStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TabControls.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -314,7 +322,6 @@
     <EmbeddedResource Include="Resources\OSdingdong.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Converters\" />
     <Folder Include="Models\" />
     <Folder Include="OpenAPIs\ModelExtensions\" />
   </ItemGroup>
