@@ -1,0 +1,23 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="Startup.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Welcome page
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Pages.Welcome"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OpenSky.Client.Pages"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+            <TextBlock>Welcome to OpenSky!</TextBlock>
+    </Grid>
+</UserControl>

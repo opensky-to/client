@@ -44,8 +44,7 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public INewTabHost<Window> GetNewHost(IInterTabClient interTabClient, object partition, TabablzControl source)
         {
-            var view = new Main();
-            // todo set hamburger menu to collapsed on default for new windows
+            var view = new Main { NavigationView = { IsPaneOpen = false } };
             return new NewTabHost<Window>(view, view.InitialTabablzControl);
         }
 
