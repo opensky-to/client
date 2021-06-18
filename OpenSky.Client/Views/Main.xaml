@@ -39,16 +39,11 @@
                 <Setter Property="ShowDefaultCloseButton" Value="True" />
                 <Setter Property="ShowDefaultAddButton" Value="True" />
                 <Setter Property="HeaderMemberPath" Value="Header" />
-                <Setter Property="MinWidth" Value="300" />
                 <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
         <Grid.Resources>
             <converters:NavigationViewBitmapIconConverter x:Key="NavigationViewBitmapIconConverter" />
             <DataTemplate x:Key="NavigationViewMenuItem" DataType="models:NavMenuItem">
@@ -70,10 +65,7 @@
                            SelectedItem="{Binding SelectedNavMenuItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            MenuItemTemplate="{StaticResource NavigationViewMenuItem}" FontFamily="/Fonts/#Montserrat">
 
-            
-        </ui:NavigationView>
-
-        <dockablz:Layout Grid.Column="1" Partition="2AE89D18-F236-4D20-9605-6C03319038E6"
+            <dockablz:Layout Partition="2AE89D18-F236-4D20-9605-6C03319038E6"
                          FloatingItemHeaderMemberPath="Header"
                          IsFloatDropZoneEnabled="False"
                          HorizontalAlignment="Stretch"
@@ -81,26 +73,28 @@
                          FloatingItemsSource="{Binding ToolItems}"
                          ClosingFloatingItemCallback="{Binding ClosingFloatingItemHandler}">
 
-            <!-- branch template lets dragablz create a new tab control after a window is split via docking -->
-            <dockablz:Layout.BranchTemplate>
-                <DataTemplate>
-                    <controls:TabablzControlEx Style="{StaticResource TabablzControlStyle}">
-                        <dragablz:TabablzControl.InterTabController>
-                            <dragablz:InterTabController InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
-                        </dragablz:TabablzControl.InterTabController>
-                    </controls:TabablzControlEx>
-                </DataTemplate>
-            </dockablz:Layout.BranchTemplate>
-            <!-- a root, named tab control is needed, so when a tab is torn and a new window is created, the new target tab control can be identified -->
-            <controls:TabablzControlEx x:Name="InitialTabablzControl"
+                <!-- branch template lets dragablz create a new tab control after a window is split via docking -->
+                <dockablz:Layout.BranchTemplate>
+                    <DataTemplate>
+                        <controls:TabablzControlEx Style="{StaticResource TabablzControlStyle}">
+                            <dragablz:TabablzControl.InterTabController>
+                                <dragablz:InterTabController InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
+                            </dragablz:TabablzControl.InterTabController>
+                        </controls:TabablzControlEx>
+                    </DataTemplate>
+                </dockablz:Layout.BranchTemplate>
+                <!-- a root, named tab control is needed, so when a tab is torn and a new window is created, the new target tab control can be identified -->
+                <controls:TabablzControlEx x:Name="InitialTabablzControl"
                                               FixedHeaderCount="1"
                                               Style="{StaticResource TabablzControlStyle}"
                                               AddLocationHint="After" 
                                               IsDraggingWindowChanged="TabablzControlOnIsDraggingWindowChanged">
-                <dragablz:TabablzControl.InterTabController>
-                    <dragablz:InterTabController Partition="621A5E33-54F1-4936-95FD-357BCFFB12BA"  />
-                </dragablz:TabablzControl.InterTabController>
-            </controls:TabablzControlEx>
-        </dockablz:Layout>
+                    <dragablz:TabablzControl.InterTabController>
+                        <dragablz:InterTabController Partition="2AE89D18-F236-4D20-9605-6C03319038E6"  />
+                    </dragablz:TabablzControl.InterTabController>
+                </controls:TabablzControlEx>
+            </dockablz:Layout>
+
+        </ui:NavigationView>
     </Grid>
 </controls:OpenSkyWindow>
