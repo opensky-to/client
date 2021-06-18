@@ -24,7 +24,7 @@ namespace OpenSky.Client.Views.Models
         /// Gets the children.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<NavMenuItem> Children { get; } = new();
+        public ObservableCollection<NavMenuItem> Children { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

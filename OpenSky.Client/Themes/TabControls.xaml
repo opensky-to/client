@@ -532,8 +532,7 @@
                             x:Name="contentPanel"
                             Grid.Row="1"
                             BorderBrush="#333"
-                            BorderThickness="1,0,1,1"
-                            CornerRadius="0,0,3,3"
+                            BorderThickness="10,0,0,0"
                             KeyboardNavigation.DirectionalNavigation="Contained"
                             KeyboardNavigation.TabIndex="3"
                             KeyboardNavigation.TabNavigation="Local">
@@ -542,7 +541,7 @@
                         <Border Grid.Row="0"
                                 Background="#333"
                                 BorderThickness="0"
-                                CornerRadius="3,3,0,0" />
+                                CornerRadius="0,0,0,0" />
                         <Grid
                             Grid.Row="0" x:Name="TabContainerGrid"
                             Background="Transparent"

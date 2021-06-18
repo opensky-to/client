@@ -10,10 +10,13 @@ namespace OpenSky.Client.Views.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
+    using System.Windows.Controls;
     using System.Windows.Input;
 
     using Dragablz;
     using Dragablz.Dockablz;
+
+    using ModernWpf.Controls.Primitives;
 
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Pages;
@@ -61,6 +64,14 @@ namespace OpenSky.Client.Views.Models
                     {
                         this.SelectedPage.Header = value.Name;
                         this.SelectedPage.Content = Activator.CreateInstance(value.PageType);
+                        //if (!string.IsNullOrEmpty(value.Icon))
+                        //{
+                        //    TabItemHelper.SetIcon();
+                        //}
+                        //else
+                        //{
+                        //    TabItemHelper.SetIcon(this.SelectedPage as TabItem, null);
+                        //}
                     }
                     else
                     {
@@ -153,7 +164,7 @@ namespace OpenSky.Client.Views.Models
                     return;
                 }
 
-                if (navigationItem.Children.Count > 0)
+                if (navigationItem.Children?.Count > 0)
                 {
                     this.SelectMatchingNavigationItem(navigationItem.Children, name);
                 }
@@ -170,19 +181,17 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public MainViewModel()
         {
-            var welcome = new NavMenuItem { Name = "Welcome", Icon = "home", PageType = typeof(Welcome) };
+            var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
-            var tools = new NavMenuItem { Name = "Tools" };
-            var dataImport = new NavMenuItem { Name = "Data import", PageType = typeof(DataImport) };
+            var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png" };
+            var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
             var airportManager = new NavMenuItem { Name = "Airport manager" };
             var aircraftManager = new NavMenuItem { Name = "Aircraft manager" };
-            tools.Children.Add(aircraftManager);
-            tools.Children.Add(airportManager);
-            tools.Children.Add(dataImport);
+            tools.Children = new ObservableCollection<NavMenuItem> { aircraftManager, airportManager, dataImport };
             this.NavigationItems.Add(tools);
 
-            var settings = new NavMenuItem { Name = "Settings", Icon = "settings", PageType = typeof(Settings) };
+            var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };
             this.NavigationFooterItems.Add(settings);
         }
 

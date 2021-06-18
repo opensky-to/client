@@ -107,6 +107,7 @@
     <Compile Include="Controls\OpenSkyWindow.cs" />
     <Compile Include="Controls\TabablzControlEx.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
+    <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />
     <Compile Include="OpenAPIs\swagger.cs" />
@@ -339,6 +340,18 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="OpenAPIs\ModelExtensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\OpenSkyLogo16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\tools16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\settings16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dataimport16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

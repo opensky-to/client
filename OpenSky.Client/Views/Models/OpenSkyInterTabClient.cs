@@ -44,7 +44,7 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public INewTabHost<Window> GetNewHost(IInterTabClient interTabClient, object partition, TabablzControl source)
         {
-            var view = new Main { NavigationView = { IsPaneOpen = false } };
+            var view = new Main();
             return new NewTabHost<Window>(view, view.InitialTabablzControl);
         }
 
