@@ -26,38 +26,30 @@
         <models:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <ResourceDictionary>
-            <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
-            <DataTemplate DataType="{x:Type dragablz:HeaderedItemViewModel}">
-                <ContentControl Content="{Binding Content}" Margin="4 4 4 4" FontSize="13" />
-            </DataTemplate>
-            <Style TargetType="{x:Type controls:TabablzControlEx}" x:Key="TabablzControlStyle" BasedOn="{StaticResource OpenSkyTabablzStyle}">
-                <Setter Property="ItemsSource" Value="{Binding PageItems}" />
-                <Setter Property="SelectedItem" Value="{Binding SelectedPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <Setter Property="NewItemFactory" Value="{Binding Factory}" />
-                <Setter Property="ClosingItemCallback" Value="{Binding ClosingTabItemHandler}" />
-                <Setter Property="ShowDefaultCloseButton" Value="True" />
-                <Setter Property="ShowDefaultAddButton" Value="True" />
-                <Setter Property="HeaderMemberPath" Value="Header" />
-                <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
-            </Style>
-        </ResourceDictionary>
-    </Window.Resources>
-    <Grid>
-        <Grid.Resources>
-            <converters:NavigationViewBitmapIconConverter x:Key="NavigationViewBitmapIconConverter" />
-            <DataTemplate x:Key="NavigationViewMenuItem" DataType="models:NavMenuItem">
-                <ui:NavigationViewItem 
+        <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
+        <Style TargetType="{x:Type controls:TabablzControlEx}" x:Key="TabablzControlStyle" BasedOn="{StaticResource OpenSkyTabablzStyle}">
+            <Setter Property="ItemsSource" Value="{Binding PageItems}" />
+            <Setter Property="SelectedItem" Value="{Binding SelectedPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Setter Property="NewItemFactory" Value="{Binding CloneTabFactory}" />
+            <Setter Property="ClosingItemCallback" Value="{Binding ClosingTabItemHandler}" />
+            <Setter Property="ShowDefaultCloseButton" Value="True" />
+            <Setter Property="ShowDefaultAddButton" Value="True" />
+            <Setter Property="HeaderMemberPath" Value="Header" />
+            <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
+        </Style>
+        <converters:NavigationViewBitmapIconConverter x:Key="NavigationViewBitmapIconConverter" />
+        <DataTemplate x:Key="NavigationViewMenuItem" DataType="models:NavMenuItem">
+            <ui:NavigationViewItem 
                     FontFamily="/Fonts/#Montserrat" 
                     Content="{Binding Name}" 
                     Icon="{Binding Icon, Converter={StaticResource NavigationViewBitmapIconConverter}}"
                     MenuItemsSource="{Binding Children}"
-                    SelectsOnInvoked="True"
-                    ToolTip="Test me"/>
-            </DataTemplate>
-            <!-- ReSharper disable once Xaml.RedundantResource -->
-            <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1a1e22" />
-        </Grid.Resources>
+                    SelectsOnInvoked="True" />
+        </DataTemplate>
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1a1e22" />
+    </Window.Resources>
+    <Grid>
         <ui:NavigationView Grid.Column="0" x:Name="NavigationView" 
                            IsBackButtonVisible="Collapsed" IsSettingsVisible="False" IsPaneOpen="True" CompactModeThresholdWidth="0" PaneTitle="Your airline name here"
                            MenuItemsSource="{Binding NavigationItems, Mode=OneWay}" 
@@ -76,7 +68,7 @@
                 <!-- branch template lets dragablz create a new tab control after a window is split via docking -->
                 <dockablz:Layout.BranchTemplate>
                     <DataTemplate>
-                        <controls:TabablzControlEx Style="{StaticResource TabablzControlStyle}">
+                        <controls:TabablzControlEx Style="{StaticResource TabablzControlStyle}" ItemContainerStyle="{StaticResource DefaultDragablzItemStyle}">
                             <dragablz:TabablzControl.InterTabController>
                                 <dragablz:InterTabController InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
                             </dragablz:TabablzControl.InterTabController>
@@ -90,7 +82,7 @@
                                               AddLocationHint="After" 
                                               IsDraggingWindowChanged="TabablzControlOnIsDraggingWindowChanged">
                     <dragablz:TabablzControl.InterTabController>
-                        <dragablz:InterTabController Partition="2AE89D18-F236-4D20-9605-6C03319038E6"  />
+                        <dragablz:InterTabController Partition="2AE89D18-F236-4D20-9605-6C03319038E6" InterTabClient="{Binding InterTabClient}" />
                     </dragablz:TabablzControl.InterTabController>
                 </controls:TabablzControlEx>
             </dockablz:Layout>

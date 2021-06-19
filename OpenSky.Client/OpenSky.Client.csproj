@@ -106,6 +106,7 @@
     <Compile Include="Controls\DragablzItemsControlEx.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
     <Compile Include="Controls\TabablzControlEx.cs" />
+    <Compile Include="Controls\TabItemEx.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />

@@ -21,6 +21,13 @@ namespace OpenSky.Client.Views.Models
     /// -------------------------------------------------------------------------------------------------
     public class OpenSkyInterTabClient : IInterTabClient
     {
+        private readonly MainViewModel viewModel;
+
+        public OpenSkyInterTabClient(MainViewModel viewModel)
+        {
+            this.viewModel = viewModel;
+        }
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Provide a new host window so a tab can be teared from an existing window into a new window.
