@@ -8,6 +8,7 @@ namespace OpenSky.Client.Views
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Windows;
 
     using OpenSky.Client.Tools;
@@ -96,6 +97,10 @@ namespace OpenSky.Client.Views
         private void TabablzControlOnIsDraggingWindowChanged(object sender, RoutedPropertyChangedEventArgs<bool> e)
         {
             this.Opacity = e.NewValue ? 0.3 : 1;
+
+
+            // todo move this to a proper method (event or something)
+            
         }
     }
 }
