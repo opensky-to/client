@@ -15,8 +15,6 @@
                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                             xmlns:controls="clr-namespace:OpenSky.Client.Controls"
-                            xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
-                            xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
                             xmlns:models="clr-namespace:OpenSky.Client.Views.Models"
                             xmlns:ui="http://schemas.modernwpf.com/2019"
                             xmlns:converters="clr-namespace:OpenSky.Client.Converters"
@@ -26,17 +24,6 @@
         <models:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
-        <Style TargetType="{x:Type controls:TabablzControlEx}" x:Key="TabablzControlStyle" BasedOn="{StaticResource OpenSkyTabablzStyle}">
-            <Setter Property="ItemsSource" Value="{Binding PageItems}" />
-            <Setter Property="SelectedItem" Value="{Binding SelectedPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Setter Property="NewItemFactory" Value="{Binding CloneTabFactory}" />
-            <Setter Property="ClosingItemCallback" Value="{Binding ClosingTabItemHandler}" />
-            <Setter Property="ShowDefaultCloseButton" Value="True" />
-            <Setter Property="ShowDefaultAddButton" Value="True" />
-            <Setter Property="HeaderMemberPath" Value="Header" />
-            <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
-        </Style>
         <converters:NavigationViewBitmapIconConverter x:Key="NavigationViewBitmapIconConverter" />
         <DataTemplate x:Key="NavigationViewMenuItem" DataType="models:NavMenuItem">
             <ui:NavigationViewItem 
@@ -52,41 +39,13 @@
     <Grid>
         <ui:NavigationView Grid.Column="0" x:Name="NavigationView" 
                            IsBackButtonVisible="Collapsed" IsSettingsVisible="False" IsPaneOpen="True" CompactModeThresholdWidth="0" PaneTitle="Your airline name here"
+                           ItemInvoked="NavigationView_OnItemInvoked"
                            MenuItemsSource="{Binding NavigationItems, Mode=OneWay}" 
                            FooterMenuItemsSource="{Binding NavigationFooterItems, Mode=OneWay}"
                            SelectedItem="{Binding SelectedNavMenuItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            MenuItemTemplate="{StaticResource NavigationViewMenuItem}" FontFamily="/Fonts/#Montserrat">
 
-            <dockablz:Layout Partition="2AE89D18-F236-4D20-9605-6C03319038E6"
-                         FloatingItemHeaderMemberPath="Header"
-                         IsFloatDropZoneEnabled="False"
-                         HorizontalAlignment="Stretch"
-                         VerticalAlignment="Stretch"
-                         FloatingItemsSource="{Binding ToolItems}"
-                         ClosingFloatingItemCallback="{Binding ClosingFloatingItemHandler}">
-
-                <!-- branch template lets dragablz create a new tab control after a window is split via docking -->
-                <dockablz:Layout.BranchTemplate>
-                    <DataTemplate>
-                        <controls:TabablzControlEx Style="{StaticResource TabablzControlStyle}" ItemContainerStyle="{StaticResource DefaultDragablzItemStyle}">
-                            <dragablz:TabablzControl.InterTabController>
-                                <dragablz:InterTabController InterTabClient="{Binding InterTabClient}" Partition="2AE89D18-F236-4D20-9605-6C03319038E6" />
-                            </dragablz:TabablzControl.InterTabController>
-                        </controls:TabablzControlEx>
-                    </DataTemplate>
-                </dockablz:Layout.BranchTemplate>
-                <!-- a root, named tab control is needed, so when a tab is torn and a new window is created, the new target tab control can be identified -->
-                <controls:TabablzControlEx x:Name="InitialTabablzControl"
-                                              FixedHeaderCount="1"
-                                              Style="{StaticResource TabablzControlStyle}"
-                                              AddLocationHint="After" 
-                                              IsDraggingWindowChanged="TabablzControlOnIsDraggingWindowChanged">
-                    <dragablz:TabablzControl.InterTabController>
-                        <dragablz:InterTabController Partition="2AE89D18-F236-4D20-9605-6C03319038E6" InterTabClient="{Binding InterTabClient}" />
-                    </dragablz:TabablzControl.InterTabController>
-                </controls:TabablzControlEx>
-            </dockablz:Layout>
-
+            <controls:DockingAdapter x:Name="DockingAdapter" ItemsSource="{Binding DockItems}" ActiveDocument="{Binding ActiveDocument, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </ui:NavigationView>
     </Grid>
 </controls:OpenSkyWindow>

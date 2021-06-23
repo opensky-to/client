@@ -8,8 +8,9 @@ namespace OpenSky.Client.Views
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Windows;
+
+    using ModernWpf.Controls;
 
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views.Models;
@@ -23,6 +24,13 @@ namespace OpenSky.Client.Views
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The last navigation item invoked Date/Time.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DateTime lastNavigationItemInvoked = DateTime.MinValue;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="Main"/> class.
         /// </summary>
         /// <remarks>
@@ -34,17 +42,30 @@ namespace OpenSky.Client.Views
             Instances.Add(this);
             this.InitializeComponent();
 
-            if (Instances.Count == 1)
+            if (!App.IsDesignMode)
             {
-                // We are the first window, tell the viewmodel to add the welcome view
-                if (this.DataContext is MainViewModel viewModel)
+                if (Instances.Count == 1)
                 {
-                    viewModel.ShowWelcomePage();
+                    // We are the first window, tell the viewmodel to add the welcome view
+                    if (this.DataContext is MainViewModel viewModel)
+                    {
+                        viewModel.ShowWelcomePage();
+                    }
                 }
-            }
-            else
-            {
-                this.NavigationView.IsPaneOpen = false;
+                else
+                {
+                    this.NavigationView.IsPaneOpen = false;
+
+                    // Add our docking manager as a valid target to the others and vice versa
+                    foreach (var instance in Instances)
+                    {
+                        if (instance != this)
+                        {
+                            instance.DockingAdapter.PART_DockingManager.AddToTargetManagersList(this.DockingAdapter.PART_DockingManager);
+                            this.DockingAdapter.PART_DockingManager.AddToTargetManagersList(instance.DockingAdapter.PART_DockingManager);
+                        }
+                    }
+                }
             }
         }
 
@@ -82,25 +103,25 @@ namespace OpenSky.Client.Views
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Tabablz control on is dragging window changed.
+        /// Navigation view on item invoked.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 17/06/2021.
+        /// sushi.at, 22/06/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
         /// </param>
-        /// <param name="e">
-        /// A RoutedPropertyChangedEventArgs&lt;bool&gt; to process.
+        /// <param name="args">
+        /// Navigation view item invoked event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void TabablzControlOnIsDraggingWindowChanged(object sender, RoutedPropertyChangedEventArgs<bool> e)
+        private void NavigationView_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            this.Opacity = e.NewValue ? 0.3 : 1;
-
-
-            // todo move this to a proper method (event or something)
-            
+            if (this.DataContext is MainViewModel viewModel && (DateTime.Now - this.lastNavigationItemInvoked).TotalMilliseconds > 500)
+            {
+                viewModel.NavigationItemInvoked(args.InvokedItemContainer?.DataContext as NavMenuItem);
+                this.lastNavigationItemInvoked = DateTime.Now;
+            }
         }
     }
 }
