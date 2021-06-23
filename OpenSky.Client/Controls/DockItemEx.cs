@@ -9,7 +9,6 @@ namespace OpenSky.Client.Controls
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows;
-    using System.Windows.Media;
 
     using JetBrains.Annotations;
 
@@ -27,6 +26,13 @@ namespace OpenSky.Client.Controls
     /// -------------------------------------------------------------------------------------------------
     public class DockItemEx : DockItem, INotifyPropertyChanged
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The document header property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty DocumentHeaderProperty = DependencyProperty.Register("DocumentHeader", typeof(DocumentHeaderEx), typeof(DockItemEx));
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Occurs when a property value changes.
@@ -55,34 +61,6 @@ namespace OpenSky.Client.Controls
             }
         }
 
-        ///// -------------------------------------------------------------------------------------------------
-        ///// <summary>
-        ///// Gets or sets the header.
-        ///// </summary>
-        ///// -------------------------------------------------------------------------------------------------
-        //public new string Header
-        //{
-        //    get => (string)this.GetValue(HeaderProperty);
-
-        //    set
-        //    {
-        //        if (Equals((string)this.GetValue(HeaderProperty), value))
-        //        {
-        //            return;
-        //        }
-
-        //        this.SetValue(HeaderProperty, value);
-        //        this.OnPropertyChanged();
-        //    }
-        //}
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The document header property.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty DocumentHeaderProperty = DependencyProperty.Register("DocumentHeader", typeof(DocumentHeaderEx), typeof(DockItemEx));
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the document header.
@@ -100,27 +78,6 @@ namespace OpenSky.Client.Controls
                 }
 
                 this.SetValue(DocumentHeaderProperty, value);
-                this.OnPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the icon.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public new Brush Icon
-        {
-            get => (Brush)this.GetValue(IconProperty);
-
-            set
-            {
-                if (Equals((Brush)this.GetValue(IconProperty), value))
-                {
-                    return;
-                }
-
-                this.SetValue(IconProperty, value);
                 this.OnPropertyChanged();
             }
         }

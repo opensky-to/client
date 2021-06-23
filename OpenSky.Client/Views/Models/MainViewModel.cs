@@ -12,8 +12,6 @@ namespace OpenSky.Client.Views.Models
     using System.Threading;
     using System.Windows;
     using System.Windows.Input;
-    using System.Windows.Media;
-    using System.Windows.Media.Imaging;
 
     using OpenSky.Client.Controls;
     using OpenSky.Client.MVVM;
@@ -38,6 +36,20 @@ namespace OpenSky.Client.Views.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DockItemEx activeDocument;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The last navigation item invoked Date/Time.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DateTime navigationItemLastActivated = DateTime.MinValue;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The navigation item last activated lock.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly object navigationItemLastActivatedLock = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -158,54 +170,99 @@ namespace OpenSky.Client.Views.Models
         {
             if (item != null)
             {
-                var origNavItem = this.selectedNavMenuItem;
-                var origActiveWindow = this.ActiveDocument;
-
-                if (item.PageType != null)
+                lock (this.navigationItemLastActivatedLock)
                 {
-                    var iconUri = !string.IsNullOrEmpty(item.Icon) ? $"pack://application:,,,/OpenSky.Client;component/{item.Icon}" : null;
-                    var iconBrush = !string.IsNullOrEmpty(iconUri) ? new ImageBrush(new BitmapImage(new Uri(iconUri))) : null;
-                    if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
+                    if ((DateTime.Now - this.navigationItemLastActivated).TotalMilliseconds < 100)
                     {
-                        if (this.ActiveDocument != null)
-                        {
-                            this.ActiveDocument.Header = item.Name;
-                            this.ActiveDocument.Icon = iconBrush;
-                            this.ActiveDocument.DocumentHeader = new DocumentHeaderEx(item.Name, iconUri);
-                            this.ActiveDocument.Content = (FrameworkElement)Activator.CreateInstance(item.PageType);
+                        // Don't double activate within 100ms
+                        return;
+                    }
 
-                            this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
-                            this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
-                        }
-                        else
+                    this.navigationItemLastActivated = DateTime.Now;
+
+                    var origNavItem = this.selectedNavMenuItem;
+                    var origActiveWindow = this.ActiveDocument;
+
+                    if (item.PageType != null)
+                    {
+                        var iconUri = !string.IsNullOrEmpty(item.Icon) ? $"pack://application:,,,/OpenSky.Client;component/{item.Icon}" : null;
+                        if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
                         {
+                            if (this.ActiveDocument is { State: DockState.Document })
+                            {
+                                this.ActiveDocument.Header = item.Name;
+                                this.ActiveDocument.DocumentHeader = new DocumentHeaderEx(item.Name, iconUri);
+                                this.ActiveDocument.Content = (FrameworkElement)Activator.CreateInstance(item.PageType);
+
+                                this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
+                                this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
+                            }
+                            else
+                            {
+                                var dockItem = new DockItemEx
+                                {
+                                    Header = item.Name,
+                                    DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                                    State = DockState.Document,
+                                    Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+
+                                    //CanDock = false
+                                };
+                                this.DockItems.Add(dockItem);
+                            }
+                        }
+                        else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                        {
+                            // Ctrl was held down, so add a new tab at the end
                             var dockItem = new DockItemEx
                             {
                                 Header = item.Name,
-                                Icon = iconBrush,
                                 DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
                                 State = DockState.Document,
                                 Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
-                                CanDock = false
+
+                                //CanDock = false
                             };
                             this.DockItems.Add(dockItem);
+                            this.ActiveDocument = origActiveWindow;
+
+                            new Thread(
+                                () =>
+                                {
+                                    Thread.Sleep(100);
+                                    this.selectedNavMenuItem = origNavItem;
+                                    this.NotifyPropertyChanged();
+                                }).Start();
+                        }
+                        else
+                        {
+                            // Shift was held down, create a new window and add tab to it
+                            var dockItem = new DockItemEx
+                            {
+                                Header = item.Name,
+                                DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                                State = DockState.Document,
+                                Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+
+                                //CanDock = false
+                            };
+                            var newWindow = new Main();
+                            newWindow.Show();
+                            if (newWindow.DataContext is MainViewModel vm)
+                            {
+                                vm.DockItems.Add(dockItem);
+                            }
+
+                            if (this.ActiveDocument != null)
+                            {
+                                this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
+                                this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
+                            }
                         }
                     }
-                    else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                    else
                     {
-                        // Ctrl was held down, so add a new tab at the end
-                        var dockItem = new DockItemEx
-                        {
-                            Header = item.Name,
-                            Icon = iconBrush,
-                            DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
-                            State = DockState.Document,
-                            Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
-                            CanDock = false
-                        };
-                        this.DockItems.Add(dockItem);
-                        this.ActiveDocument = origActiveWindow;
-
+                        // This is a category item, move selected back to current tab
                         new Thread(
                             () =>
                             {
@@ -214,42 +271,6 @@ namespace OpenSky.Client.Views.Models
                                 this.NotifyPropertyChanged();
                             }).Start();
                     }
-                    else
-                    {
-                        // Shift was held down, create a new window and add tab to it
-                        var dockItem = new DockItemEx
-                        {
-                            Header = item.Name,
-                            Icon = iconBrush,
-                            DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
-                            State = DockState.Document,
-                            Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
-                            CanDock = false
-                        };
-                        var newWindow = new Main();
-                        newWindow.Show();
-                        if (newWindow.DataContext is MainViewModel vm)
-                        {
-                            vm.DockItems.Add(dockItem);
-                        }
-
-                        if (this.ActiveDocument != null)
-                        {
-                            this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
-                            this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
-                        }
-                    }
-                }
-                else
-                {
-                    // This is a category item, move selected back to current tab
-                    new Thread(
-                        () =>
-                        {
-                            Thread.Sleep(100);
-                            this.selectedNavMenuItem = origNavItem;
-                            this.NotifyPropertyChanged();
-                        }).Start();
                 }
             }
         }
@@ -268,11 +289,11 @@ namespace OpenSky.Client.Views.Models
             var dockItem = new DockItemEx
             {
                 Header = "Welcome",
-                Icon = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/OpenSkyLogo16.png"))),
                 DocumentHeader = new DocumentHeaderEx("Welcome", "pack://application:,,,/OpenSky.Client;component/Resources/OpenSkyLogo16.png"),
                 State = DockState.Document,
                 Content = new Welcome(),
-                CanDock = false
+
+                //CanDock = false
             };
 
             this.DockItems.Add(dockItem);

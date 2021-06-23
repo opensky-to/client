@@ -20,6 +20,8 @@ namespace OpenSky.Client
     using OpenSky.Client.Properties;
     using OpenSky.Client.Tools;
 
+    using Syncfusion.SfSkinManager;
+
     using XDMessaging;
 
     /// -------------------------------------------------------------------------------------------------
@@ -56,6 +58,7 @@ namespace OpenSky.Client
         public App()
         {
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("***REMOVED***");
+            SfSkinManager.ApplyStylesOnApplication = false;
         }
 
         /// -------------------------------------------------------------------------------------------------

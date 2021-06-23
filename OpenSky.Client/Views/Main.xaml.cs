@@ -24,13 +24,6 @@ namespace OpenSky.Client.Views
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The last navigation item invoked Date/Time.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private DateTime lastNavigationItemInvoked = DateTime.MinValue;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="Main"/> class.
         /// </summary>
         /// <remarks>
@@ -117,10 +110,9 @@ namespace OpenSky.Client.Views
         /// -------------------------------------------------------------------------------------------------
         private void NavigationView_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (this.DataContext is MainViewModel viewModel && (DateTime.Now - this.lastNavigationItemInvoked).TotalMilliseconds > 500)
+            if (args.InvokedItemContainer?.DataContext is NavMenuItem menuItem && this.DataContext is MainViewModel viewModel)
             {
-                viewModel.NavigationItemInvoked(args.InvokedItemContainer?.DataContext as NavMenuItem);
-                this.lastNavigationItemInvoked = DateTime.Now;
+                viewModel.NavigationItemInvoked(menuItem);
             }
         }
     }
