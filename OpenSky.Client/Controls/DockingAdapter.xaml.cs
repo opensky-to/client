@@ -9,10 +9,14 @@ namespace OpenSky.Client.Controls
     using System;
     using System.Collections;
     using System.Collections.Specialized;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
+
+    using OpenSky.Client.Tools;
 
     using Syncfusion.SfSkinManager;
     using Syncfusion.Themes.MaterialDark.WPF;
@@ -52,7 +56,7 @@ namespace OpenSky.Client.Controls
             // ReSharper disable once PossibleNullReferenceException
             var themeSettings = new MaterialDarkThemeSettings
             {
-                PrimaryBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#08c6a4")),
+                PrimaryBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#05826c")),
                 PrimaryForeground = new SolidColorBrush(Colors.AntiqueWhite),
                 BodyFontSize = 15,
                 HeaderFontSize = 18,
@@ -175,7 +179,6 @@ namespace OpenSky.Client.Controls
                             DockingManager.SetCanDock(control, element.CanDock);
                             DockingManager.SetCanClose(control, element.CanClose);
                             DockingManager.SetCanFloat(control, element.CanFloat);
-                            DockingManager.SetIcon(control, element.Icon);
                             if (element.State == DockState.Document)
                             {
                                 DockingManager.SetState(control, DockState.Document);
@@ -203,11 +206,6 @@ namespace OpenSky.Client.Controls
                                 if (args.PropertyName == nameof(DockItemEx.Content))
                                 {
                                     control.Content = element.Content;
-                                }
-
-                                if (args.PropertyName == nameof(DockItemEx.Icon))
-                                {
-                                    DockingManager.SetIcon(control, element.Icon);
                                 }
                             };
 
@@ -322,7 +320,6 @@ namespace OpenSky.Client.Controls
                         DockingManager.SetCanDock(control, element.CanDock);
                         DockingManager.SetCanClose(control, element.CanClose);
                         DockingManager.SetCanFloat(control, element.CanFloat);
-                        DockingManager.SetIcon(control, element.Icon);
                         if (element.State == DockState.Document)
                         {
                             DockingManager.SetState(control, DockState.Document);
@@ -333,17 +330,19 @@ namespace OpenSky.Client.Controls
                             if (args.PropertyName == nameof(DockItemEx.DocumentHeader))
                             {
                                 DockingManager.SetHeader(control, element.DocumentHeader);
-                                DockingManager.SelectTab(control);
+                                this.PART_DockingManager.ActiveWindow = null;
+
+                                new Thread(
+                                    () =>
+                                    {
+                                        UpdateGUIDelegate reselect = () => this.PART_DockingManager.ActiveWindow = control;
+                                        this.Dispatcher.BeginInvoke(reselect);
+                                    }).Start();
                             }
 
                             if (args.PropertyName == nameof(DockItemEx.Content))
                             {
                                 control.Content = element.Content;
-                            }
-
-                            if (args.PropertyName == nameof(DockItemEx.Icon))
-                            {
-                                DockingManager.SetIcon(control, element.Icon);
                             }
                         };
 
@@ -373,7 +372,7 @@ namespace OpenSky.Client.Controls
             {
                 foreach (var item in this.ItemsSource)
                 {
-                    if (item is DockItemEx { State: DockState.Document } dockItem)
+                    if (item is DockItemEx dockItem)
                     {
                         if (Equals(dockItem.Content, contentControl.Content))
                         {
@@ -441,6 +440,120 @@ namespace OpenSky.Client.Controls
             if (this.PART_DockingManager.DocContainer is DocumentContainer docContainer)
             {
                 docContainer.AddTabDocumentAtLast = true;
+            }
+
+            this.PART_DockingManager.DocumentCloseButtonType = CloseButtonType.Individual;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Docking manager close all tabs.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/06/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close tab event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void PART_DockingManager_OnCloseAllTabs(object sender, CloseTabEventArgs e)
+        {
+            Debug.WriteLine(e.ClosingTabItems);
+
+            foreach (var closingTabItem in e.ClosingTabItems)
+            {
+                if (closingTabItem is ContentControl { Content: ContentPresenter { Content: ContentControl contentControl } })
+                    foreach (var item in this.ItemsSource)
+                    {
+                        if (item is DockItemEx dockItem)
+                        {
+                            if (Equals(dockItem.Content, contentControl.Content))
+                            {
+                                this.ItemsSource.Remove(dockItem);
+                                break;
+                            }
+                        }
+                    }
+            }
+
+            if (this.ItemsSource.Count == 0)
+            {
+                this.ActiveDocument = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Docking manager close all other tabs.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/06/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close tab event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void PART_DockingManager_OnCloseOtherTabs(object sender, CloseTabEventArgs e)
+        {
+            Debug.WriteLine(e.ClosingTabItems);
+
+            foreach (var closingTabItem in e.ClosingTabItems)
+            {
+                if (closingTabItem is ContentControl { Content: ContentPresenter { Content: ContentControl contentControl } })
+                    foreach (var item in this.ItemsSource)
+                    {
+                        if (item is DockItemEx dockItem)
+                        {
+                            if (Equals(dockItem.Content, contentControl.Content))
+                            {
+                                this.ItemsSource.Remove(dockItem);
+                                break;
+                            }
+                        }
+                    }
+            }
+
+            if (this.ItemsSource.Count == 0)
+            {
+                this.ActiveDocument = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Docking manager document/tab state changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/06/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Dock state event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void PART_DockingManager_OnDockStateChanged(FrameworkElement sender, DockStateEventArgs e)
+        {
+            if (sender is ContentControl contentControl)
+            {
+                foreach (var item in this.ItemsSource)
+                {
+                    if (item is DockItemEx dockItem)
+                    {
+                        if (Equals(dockItem.Content, contentControl.Content))
+                        {
+                            dockItem.State = e.NewState;
+                            break;
+                        }
+                    }
+                }
             }
         }
 

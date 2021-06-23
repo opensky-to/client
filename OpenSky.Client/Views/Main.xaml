@@ -43,6 +43,7 @@
                            MenuItemsSource="{Binding NavigationItems, Mode=OneWay}" 
                            FooterMenuItemsSource="{Binding NavigationFooterItems, Mode=OneWay}"
                            SelectedItem="{Binding SelectedNavMenuItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           Focusable="False"
                            MenuItemTemplate="{StaticResource NavigationViewMenuItem}" FontFamily="/Fonts/#Montserrat">
 
             <controls:DockingAdapter x:Name="DockingAdapter" ItemsSource="{Binding DockItems}" ActiveDocument="{Binding ActiveDocument, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
