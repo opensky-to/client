@@ -9,26 +9,17 @@ namespace OpenSky.Client.Views.Models
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Globalization;
     using System.Threading;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Input;
     using System.Windows.Media;
-
-    using Dragablz;
-    using Dragablz.Dockablz;
-
-    using ModernWpf.Controls;
-    using ModernWpf.Controls.Primitives;
+    using System.Windows.Media.Imaging;
 
     using OpenSky.Client.Controls;
-    using OpenSky.Client.Converters;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Pages;
-    using OpenSky.Client.Tools;
 
-    using Layout = Dragablz.Dockablz.Layout;
+    using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -43,17 +34,17 @@ namespace OpenSky.Client.Views.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The active document.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DockItemEx activeDocument;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The selected navigation menu item.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private NavMenuItem selectedNavMenuItem;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The selected page.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private TabItemEx selectedPage;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -65,8 +56,6 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public MainViewModel()
         {
-            this.InterTabClient = new OpenSkyInterTabClient(this);
-
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
@@ -83,69 +72,41 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 17/06/2021.
-        /// </remarks>
-        /// <param name="items">
-        /// The initial page tab items to add.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        //public MainViewModel(params TabItem[] items)
-        //{
-        //    this.PageItems = new ObservableCollection<TabItem>(items);
-        //}
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the tab partition.
+        /// Gets or sets the active document.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static Guid TabPartition => new("2AE89D18-F236-4D20-9605-6C03319038E6");
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the clone tab factory.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Func<TabItem> CloneTabFactory
+        public DockItemEx ActiveDocument
         {
-            get
-            {
-                return () =>
-                {
-                    // todo implement icons for both those cases
-                    if (this.SelectedPage != null)
-                    {
-                        return new TabItemEx(this.SelectedPage.Header, Activator.CreateInstance(this.SelectedPage.Content.GetType()), false, this.SelectedPage.Icon);
-                    }
+            get => this.activeDocument;
 
-                    return new TabItemEx("Welcome", new Welcome(), true, "/Resources/OpenSkyLogo16.png");
-                };
+            set
+            {
+                if (Equals(this.activeDocument, value))
+                {
+                    return;
+                }
+
+                this.activeDocument = value;
+                this.NotifyPropertyChanged();
+
+                if (value != null)
+                {
+                    this.SelectMatchingNavigationItem(this.NavigationItems, value.Header);
+                    this.SelectMatchingNavigationItem(this.NavigationFooterItems, value.Header);
+                }
+                else
+                {
+                    this.SelectedNavMenuItem = null;
+                }
             }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the closing floating item handler.
+        /// Gets the dock items.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ClosingFloatingItemCallback ClosingFloatingItemHandler => ClosingFloatingItemHandlerImpl;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the closing tab item handler.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ItemActionCallback ClosingTabItemHandler => ClosingTabItemHandlerImpl;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the inter tab client.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public IInterTabClient InterTabClient { get; }
+        public ObservableCollection<DockItemEx> DockItems { get; } = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -163,13 +124,6 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the page items.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<TabItemEx> PageItems { get; } = new();
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the selected navigation menu item.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -184,38 +138,106 @@ namespace OpenSky.Client.Views.Models
                     return;
                 }
 
-                var origValue = this.selectedNavMenuItem;
                 this.selectedNavMenuItem = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
-                if (value.PageType != null)
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Navigation item was invoked.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/06/2021.
+        /// </remarks>
+        /// <param name="item">
+        /// The item.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void NavigationItemInvoked(NavMenuItem item)
+        {
+            if (item != null)
+            {
+                var origNavItem = this.selectedNavMenuItem;
+                var origActiveWindow = this.ActiveDocument;
+
+                if (item.PageType != null)
                 {
+                    var iconUri = !string.IsNullOrEmpty(item.Icon) ? $"pack://application:,,,/OpenSky.Client;component/{item.Icon}" : null;
+                    var iconBrush = !string.IsNullOrEmpty(iconUri) ? new ImageBrush(new BitmapImage(new Uri(iconUri))) : null;
                     if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
                     {
-                        this.SelectedPage.Header = value.Name;
-                        this.SelectedPage.Content = Activator.CreateInstance(value.PageType);
-                        this.SelectedPage.Icon = value.Icon;
+                        if (this.ActiveDocument != null)
+                        {
+                            this.ActiveDocument.Header = item.Name;
+                            this.ActiveDocument.Icon = iconBrush;
+                            this.ActiveDocument.DocumentHeader = new DocumentHeaderEx(item.Name, iconUri);
+                            this.ActiveDocument.Content = (FrameworkElement)Activator.CreateInstance(item.PageType);
 
-                        // Force content refresh of selected tab by switching to another
-                        // todo there has to be a better way to do this
-                        this.SelectedPage.IsSelected = false;
-                        var x = new TabItemEx(null, null, true);
-                        this.PageItems.Add(x);
-                        this.PageItems.Remove(x);
-                        this.SelectedPage.IsSelected = true;
+                            this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
+                            this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
+                        }
+                        else
+                        {
+                            var dockItem = new DockItemEx
+                            {
+                                Header = item.Name,
+                                Icon = iconBrush,
+                                DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                                State = DockState.Document,
+                                Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+                                CanDock = false
+                            };
+                            this.DockItems.Add(dockItem);
+                        }
                     }
-                    else
+                    else if (Keyboard.IsKeyDown(Key.LeftCtrl))
                     {
-                        // Ctrl or shift was held down, so add a new tab at the end
-                        var tabItem = new TabItemEx(value.Name, Activator.CreateInstance(value.PageType), false, value.Icon);
-                        this.PageItems.Add(tabItem);
+                        // Ctrl was held down, so add a new tab at the end
+                        var dockItem = new DockItemEx
+                        {
+                            Header = item.Name,
+                            Icon = iconBrush,
+                            DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                            State = DockState.Document,
+                            Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+                            CanDock = false
+                        };
+                        this.DockItems.Add(dockItem);
+                        this.ActiveDocument = origActiveWindow;
 
                         new Thread(
                             () =>
                             {
                                 Thread.Sleep(100);
-                                this.selectedNavMenuItem = origValue;
+                                this.selectedNavMenuItem = origNavItem;
                                 this.NotifyPropertyChanged();
                             }).Start();
+                    }
+                    else
+                    {
+                        // Shift was held down, create a new window and add tab to it
+                        var dockItem = new DockItemEx
+                        {
+                            Header = item.Name,
+                            Icon = iconBrush,
+                            DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                            State = DockState.Document,
+                            Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+                            CanDock = false
+                        };
+                        var newWindow = new Main();
+                        newWindow.Show();
+                        if (newWindow.DataContext is MainViewModel vm)
+                        {
+                            vm.DockItems.Add(dockItem);
+                        }
+
+                        if (this.ActiveDocument != null)
+                        {
+                            this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
+                            this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
+                        }
                     }
                 }
                 else
@@ -225,48 +247,12 @@ namespace OpenSky.Client.Views.Models
                         () =>
                         {
                             Thread.Sleep(100);
-                            this.selectedNavMenuItem = origValue;
+                            this.selectedNavMenuItem = origNavItem;
                             this.NotifyPropertyChanged();
                         }).Start();
                 }
-
-                this.NotifyPropertyChanged();
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the selected page.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public TabItemEx SelectedPage
-        {
-            get => this.selectedPage;
-
-            set
-            {
-                if (Equals(this.selectedPage, value))
-                {
-                    return;
-                }
-
-                this.selectedPage = value;
-                this.NotifyPropertyChanged();
-
-                if (value != null)
-                {
-                    this.SelectMatchingNavigationItem(this.NavigationItems, (string)value.Header);
-                    this.SelectMatchingNavigationItem(this.NavigationFooterItems, (string)value.Header);
-                }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the tool items.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<TabItemEx> ToolItems { get; } = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -279,49 +265,33 @@ namespace OpenSky.Client.Views.Models
         public void ShowWelcomePage()
         {
             this.SelectMatchingNavigationItem(this.NavigationItems, "Welcome");
-            var tabItem = new TabItemEx("Welcome", new Welcome(), true, "/Resources/OpenSkyLogo16.png");
-            this.PageItems.Add(tabItem);
-        }
+            var dockItem = new DockItemEx
+            {
+                Header = "Welcome",
+                Icon = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/OpenSkyLogo16.png"))),
+                DocumentHeader = new DocumentHeaderEx("Welcome", "pack://application:,,,/OpenSky.Client;component/Resources/OpenSkyLogo16.png"),
+                State = DockState.Document,
+                Content = new Welcome(),
+                CanDock = false
+            };
 
-        /// <summary>
-        /// Callback to handle floating toolbar/MDI window closing.
-        /// </summary>        
-        private static void ClosingFloatingItemHandlerImpl(ItemActionCallbackArgs<Layout> args)
-        {
-            //in here you can dispose stuff or cancel the close
-
-            //here's your view model: 
-            //var disposable = args.DragablzItem.DataContext as IDisposable;
-            //if (disposable != null)
-            //    disposable.Dispose();
-
-            //here's how you can cancel stuff:
-            //args.Cancel(); 
+            this.DockItems.Add(dockItem);
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Callback to handle tab closing.
+        /// Select matching navigation item.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 17/06/2021.
+        /// sushi.at, 23/06/2021.
         /// </remarks>
-        /// <param name="args">
-        /// The arguments.
+        /// <param name="menuItems">
+        /// The menu items.
+        /// </param>
+        /// <param name="name">
+        /// The name of the item to search for.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private static void ClosingTabItemHandlerImpl(ItemActionCallbackArgs<TabablzControl> args)
-        {
-            //in here you can dispose stuff or cancel the close
-
-            //here's your view model:
-            //var viewModel = args.DragablzItem.DataContext as HeaderedItemViewModel;
-            //Debug.Assert(viewModel != null);
-
-            //here's how you can cancel stuff:
-            //args.Cancel(); 
-        }
-
         private void SelectMatchingNavigationItem(IEnumerable<NavMenuItem> menuItems, string name)
         {
             foreach (var navigationItem in menuItems)

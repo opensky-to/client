@@ -7,6 +7,7 @@
 namespace OpenSky.Client
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
@@ -43,6 +44,26 @@ namespace OpenSky.Client
         /// -------------------------------------------------------------------------------------------------
         [CanBeNull]
         private Delegate afterShutdownCleanUpCodeDelegate;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Initializes a new instance of the <see cref="App"/> class.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/06/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public App()
+        {
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("***REMOVED***");
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether this application is in design mode.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static bool IsDesignMode => DesignerProperties.GetIsInDesignMode(new DependencyObject());
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

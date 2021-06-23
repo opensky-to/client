@@ -82,9 +82,12 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         public OpenSkyWindow()
         {
-            // Set our custom window style
-            this.Style = this.FindResource("OpenSkyWindowStyle") as Style;
-            this.PreviewMouseMove += this.OnPreviewMouseMove;
+            if (!App.IsDesignMode)
+            {
+                // Set our custom window style
+                this.Style = this.FindResource("OpenSkyWindowStyle") as Style;
+                this.PreviewMouseMove += this.OnPreviewMouseMove;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -187,34 +190,37 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         public override void OnApplyTemplate()
         {
-            if (this.GetTemplateChild("MinimizeButton") is Button minimizeButton)
+            if (!App.IsDesignMode)
             {
-                minimizeButton.Click += this.MinimizeClick;
-            }
-
-            if (this.GetTemplateChild("MaximizeButton") is Button maximizebutton)
-            {
-                maximizebutton.Click += this.MaximizeClick;
-            }
-
-            if (this.GetTemplateChild("CloseButton") is Button closeButton)
-            {
-                closeButton.Click += this.CloseClick;
-            }
-
-            if (this.GetTemplateChild("MoveWindow") is Rectangle moveWindow)
-            {
-                moveWindow.MouseLeftButtonDown += this.MoveWindowMouseLeftButtonDown;
-            }
-
-            if (this.GetTemplateChild("resizeGrid") is Grid resizeGrid)
-            {
-                foreach (UIElement element in resizeGrid.Children)
+                if (this.GetTemplateChild("MinimizeButton") is Button minimizeButton)
                 {
-                    if (element is Rectangle resizeRectangle)
+                    minimizeButton.Click += this.MinimizeClick;
+                }
+
+                if (this.GetTemplateChild("MaximizeButton") is Button maximizebutton)
+                {
+                    maximizebutton.Click += this.MaximizeClick;
+                }
+
+                if (this.GetTemplateChild("CloseButton") is Button closeButton)
+                {
+                    closeButton.Click += this.CloseClick;
+                }
+
+                if (this.GetTemplateChild("MoveWindow") is Rectangle moveWindow)
+                {
+                    moveWindow.MouseLeftButtonDown += this.MoveWindowMouseLeftButtonDown;
+                }
+
+                if (this.GetTemplateChild("resizeGrid") is Grid resizeGrid)
+                {
+                    foreach (UIElement element in resizeGrid.Children)
                     {
-                        resizeRectangle.PreviewMouseDown += this.ResizeRectanglePreviewMouseDown;
-                        resizeRectangle.MouseMove += this.ResizeRectangleMouseMove;
+                        if (element is Rectangle resizeRectangle)
+                        {
+                            resizeRectangle.PreviewMouseDown += this.ResizeRectanglePreviewMouseDown;
+                            resizeRectangle.MouseMove += this.ResizeRectangleMouseMove;
+                        }
                     }
                 }
             }
