@@ -16,6 +16,7 @@ namespace OpenSky.Client.Views.Models
     using OpenSky.Client.Controls;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Pages;
+    using OpenSky.Client.Tools;
 
     using Syncfusion.Windows.Tools.Controls;
 
@@ -80,7 +81,25 @@ namespace OpenSky.Client.Views.Models
 
             var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };
             this.NavigationFooterItems.Add(settings);
+
+            this.OpenInNewTabCommand = new Command(this.OpenInNewTab);
+            this.OpenInNewWindowCommand = new Command(this.OpenInNewWindow);
         }
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the open in new tab command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command OpenInNewTabCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the open in new window command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command OpenInNewWindowCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -157,6 +176,60 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Open menu item in new tab.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/06/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The command parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void OpenInNewTab(object parameter)
+        {
+            if (parameter is NavMenuItem item)
+            {
+                this.NavigationItemInvoked(item, true, false);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Open menu item in new window.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/06/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The command parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void OpenInNewWindow(object parameter)
+        {
+            if (parameter is NavMenuItem item)
+            {
+                this.NavigationItemInvoked(item, false, true);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Navigation menu item invoked.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/06/2021.
+        /// </remarks>
+        /// <param name="item">
+        /// The item.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void NavigationItemInvoked(NavMenuItem item)
+        {
+            this.NavigationItemInvoked(item, Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl), Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift));
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Navigation item was invoked.
         /// </summary>
         /// <remarks>
@@ -165,8 +238,14 @@ namespace OpenSky.Client.Views.Models
         /// <param name="item">
         /// The item.
         /// </param>
+        /// <param name="ctrl">
+        /// True if CTRL key was pressed.
+        /// </param>
+        /// <param name="shift">
+        /// True if SHIFT key was pressed.
+        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public void NavigationItemInvoked(NavMenuItem item)
+        public void NavigationItemInvoked(NavMenuItem item, bool ctrl, bool shift)
         {
             if (item != null)
             {
@@ -186,7 +265,7 @@ namespace OpenSky.Client.Views.Models
                     if (item.PageType != null)
                     {
                         var iconUri = !string.IsNullOrEmpty(item.Icon) ? $"pack://application:,,,/OpenSky.Client;component/{item.Icon}" : null;
-                        if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
+                        if (!ctrl && !shift)
                         {
                             if (this.ActiveDocument is { State: DockState.Document })
                             {
@@ -211,7 +290,7 @@ namespace OpenSky.Client.Views.Models
                                 this.DockItems.Add(dockItem);
                             }
                         }
-                        else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                        else if (ctrl)
                         {
                             // Ctrl was held down, so add a new tab at the end
                             var dockItem = new DockItemEx
@@ -236,28 +315,33 @@ namespace OpenSky.Client.Views.Models
                         }
                         else
                         {
-                            // Shift was held down, create a new window and add tab to it
-                            var dockItem = new DockItemEx
+                            // Shift was held down, create a new window and add tab to it, pass this to the dispatcher as this operation takes a bit and would otherwise exceed 100ms
+                            UpdateGUIDelegate createNewWindow = () =>
                             {
-                                Header = item.Name,
-                                DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
-                                State = DockState.Document,
-                                Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
+                                var dockItem = new DockItemEx
+                                {
+                                    Header = item.Name,
+                                    DocumentHeader = new DocumentHeaderEx(item.Name, iconUri),
+                                    State = DockState.Document,
+                                    Content = (FrameworkElement)Activator.CreateInstance(item.PageType),
 
-                                //CanDock = false
+                                    //CanDock = false
+                                };
+                                var newWindow = new Main();
+                                if (newWindow.DataContext is MainViewModel vm)
+                                {
+                                    vm.DockItems.Add(dockItem);
+                                }
+
+                                newWindow.Show();
+
+                                if (this.ActiveDocument != null)
+                                {
+                                    this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
+                                    this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
+                                }
                             };
-                            var newWindow = new Main();
-                            newWindow.Show();
-                            if (newWindow.DataContext is MainViewModel vm)
-                            {
-                                vm.DockItems.Add(dockItem);
-                            }
-
-                            if (this.ActiveDocument != null)
-                            {
-                                this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
-                                this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
-                            }
+                            Application.Current.Dispatcher.BeginInvoke(createNewWindow);
                         }
                     }
                     else

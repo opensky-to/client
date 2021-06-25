@@ -108,6 +108,7 @@
     <Compile Include="Controls\DockItemEx.cs" />
     <Compile Include="Controls\DocumentHeaderEx.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
