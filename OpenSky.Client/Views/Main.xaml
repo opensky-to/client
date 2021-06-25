@@ -19,6 +19,7 @@
                             xmlns:ui="http://schemas.modernwpf.com/2019"
                             xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                             mc:Ignorable="d"
+                            x:Name="MainWindow"
                             Title="OpenSky" Height="800" Width="1400" Closed="MainOnClosed" HorizontalScrollBar="False" VerticalScrollBar="False">
     <Window.DataContext>
         <models:MainViewModel />
@@ -27,11 +28,49 @@
         <converters:NavigationViewBitmapIconConverter x:Key="NavigationViewBitmapIconConverter" />
         <DataTemplate x:Key="NavigationViewMenuItem" DataType="models:NavMenuItem">
             <ui:NavigationViewItem 
+                    x:Name="NavigationViewItem"    
                     FontFamily="/Fonts/#Montserrat" 
-                    Content="{Binding Name}" 
                     Icon="{Binding Icon, Converter={StaticResource NavigationViewBitmapIconConverter}}"
                     MenuItemsSource="{Binding Children}"
-                    SelectsOnInvoked="True" />
+                    SelectsOnInvoked="True">
+                <ui:NavigationViewItem.Content>
+                    <Grid x:Name="RootGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                        <Button x:Name="NewTabButton" Grid.Column="1" ToolTip="Open in new tab" 
+                                Command="{Binding Source={x:Reference MainWindow}, Path=DataContext.(models:MainViewModel.OpenInNewTabCommand)}"
+                                CommandParameter="{Binding .}">
+                            <Image Width="16" Height="16" Source="{StaticResource OpenTab}" />
+                        </Button>
+                        <Button x:Name="NewWindowButton" Grid.Column="2" ToolTip="Open in new window"
+                                Command="{Binding Source={x:Reference MainWindow}, Path=DataContext.(models:MainViewModel.OpenInNewWindowCommand)}"
+                                CommandParameter="{Binding .}">
+                            <Image Width="16" Height="16" Source="{StaticResource OpenWindow}" />
+                        </Button>
+                        <Grid.Resources>
+                            <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+                            <Style TargetType="{x:Type Button}" BasedOn="{StaticResource DefaultButtonStyle}">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Resources>
+                                    <converters:NavMenuHasChildrenConverter x:Key="NavMenuHasChildrenConverter" />
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=NavigationViewItem, Path=IsMouseOver}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=., Converter={StaticResource NavMenuHasChildrenConverter}}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Resources>
+                    </Grid>
+                </ui:NavigationViewItem.Content>
+            </ui:NavigationViewItem>
         </DataTemplate>
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1a1e22" />
