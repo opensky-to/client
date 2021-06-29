@@ -8,6 +8,7 @@ namespace OpenSky.Client.Views.Models
 {
     using System;
     using System.Reflection;
+    using System.Threading;
 
     using JetBrains.Annotations;
 
@@ -15,21 +16,25 @@ namespace OpenSky.Client.Views.Models
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     The startup view model.
+    /// The startup view model.
     /// </summary>
     /// <remarks>
-    ///     sushi.at, 11/03/2021.
+    /// sushi.at, 11/03/2021.
     /// </remarks>
+    /// <seealso cref="T:OpenSky.Client.MVVM.ViewModel"/>
     /// -------------------------------------------------------------------------------------------------
     public class StartupViewModel : ViewModel
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        ///     Initializes a new instance of the <see cref="StartupViewModel" /> class.
+        /// Initializes a new instance of the <see cref="StartupViewModel"/> class.
         /// </summary>
         /// <remarks>
-        ///     sushi.at, 12/03/2021.
+        /// sushi.at, 15/06/2021.
         /// </remarks>
+        /// <exception cref="Exception">
+        /// Thrown when an exception error condition occurs.
+        /// </exception>
         /// -------------------------------------------------------------------------------------------------
 
         // ReSharper disable NotNullMemberIsNotInitialized
@@ -38,20 +43,57 @@ namespace OpenSky.Client.Views.Models
             if (!Startup.StartupFailed)
             {
                 if (Instance != null)
+                {
                     throw new Exception("Only one instance of the startup view model may be created!");
+                }
 
                 Instance = this;
-                if (!UserSessionService.Instance.IsUserLoggedIn)
-                    LoginNotification.Open();
             }
 
             // Initialize commands
-            // todo
+            this.StartupChecksCommand = new AsynchronousCommand(this.StartupChecks);
+            this.StartupChecksCommand.DoExecute(null);
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        ///     Gets the single instance of the startup view model.
+        /// Startup checks.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 15/06/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void StartupChecks()
+        {
+            var checksStarted = DateTime.Now;
+
+            // Is no user logged in?
+            if (!UserSessionService.Instance.IsUserLoggedIn)
+            {
+                this.StartupChecksCommand.ReportProgress(() => LoginNotification.Open());
+            }
+
+            // todo other checks
+
+            // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
+            Thread.Sleep(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds);
+            this.StartupChecksCommand.ReportProgress(() =>
+            {
+                new Main().Show();
+                this.CloseWindow?.Invoke(this, EventArgs.Empty);
+            });
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the startup checks command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand StartupChecksCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the single instance of the startup view model.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [CanBeNull]
@@ -59,9 +101,16 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        ///     Gets the version string of the application assembly.
+        /// Gets the version string of the application assembly.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string VersionString => $"v{Assembly.GetExecutingAssembly().GetName().Version}";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Occurs when the view model wants to close the window.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public event EventHandler CloseWindow;
     }
 }

@@ -1,0 +1,65 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="DockingAdapter.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  MVVM Docking adapter for docking manager
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.DockingAdapter"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                 xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 mc:Ignorable="d" 
+                 d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.MaterialDark.Wpf;component/dockingmanager/dockingmanager.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="OpenSkyDocumentTabItemStyle" TargetType="{x:Type syncfusion:TabItemExt}" BasedOn="{StaticResource SyncfusionDocumentTabItemExtStyle}">
+                <Setter Property="Height" Value="32"></Setter>
+            </Style>
+            <DataTemplate x:Key="DocumentTabHeaderItemTemplate" DataType="{x:Type controls:DocumentHeaderEx}">
+                <DataTemplate.Resources>
+                    <Style TargetType="Image">
+                        <Setter Property="Stretch" Value="Fill" />
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </DataTemplate.Resources>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Width="16" Height="16" SnapsToDevicePixels="True" Source="{Binding Icon}" />
+                    <TextBlock Grid.Column="1" Margin="5 0" VerticalAlignment="Center" Text ="{Binding Text}"/>
+                </Grid>
+            </DataTemplate>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <!-- ReSharper disable once InconsistentNaming -->
+        <syncfusion:DockingManager x:Name="PART_DockingManager"
+                                   UseDocumentContainer="True"
+                                   CloseTabOnMiddleClick="True"
+                                   Loaded="PART_DockingManager_Loaded"
+                                   CloseButtonClick="PART_DockingManager_CloseButtonClick"
+                                   WindowClosing="PART_DockingManager_OnWindowClosing"
+                                   CloseAllTabs="PART_DockingManager_OnCloseAllTabs"
+                                   CloseOtherTabs="PART_DockingManager_OnCloseOtherTabs"
+                                   ActiveWindowChanged="PART_DockingManager_ActiveWindowChanged"
+                                   UseNativeFloatWindow="False"
+                                   DockStateChanged="PART_DockingManager_OnDockStateChanged"
+                                   DocumentTabItemStyle="{StaticResource OpenSkyDocumentTabItemStyle}"
+                                   syncfusion:DocumentContainer.HeaderTemplate="{StaticResource DocumentTabHeaderItemTemplate}">
+        </syncfusion:DockingManager>
+    </Grid>
+</UserControl>
