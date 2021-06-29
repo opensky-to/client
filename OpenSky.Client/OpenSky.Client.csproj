@@ -138,6 +138,7 @@
     <Compile Include="Pages\DataImport.xaml.cs">
       <DependentUpon>DataImport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\SettingsViewModel.cs" />
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
