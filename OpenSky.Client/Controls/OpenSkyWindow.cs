@@ -11,6 +11,7 @@ namespace OpenSky.Client.Controls
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Forms;
     using System.Windows.Input;
     using System.Windows.Interop;
     using System.Windows.Shapes;
@@ -356,7 +357,80 @@ namespace OpenSky.Client.Controls
         /// </returns>
         /// -------------------------------------------------------------------------------------------------
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 msg, IntPtr wParam, IntPtr lParam);
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// An application-defined function that processes messages sent to a window. The WNDPROC type defines a pointer to this callback function.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/03/2021.
+        /// </remarks>
+        /// <param name="hwnd">
+        /// A handle to the window.
+        /// </param>
+        /// <param name="msg">
+        /// The message.
+        /// </param>
+        /// <param name="wParam">
+        /// Additional message information. The contents of this parameter depend on the value of the uMsg parameter.
+        /// </param>
+        /// <param name="lParam">
+        /// Additional message information. The contents of this parameter depend on the value of the uMsg parameter.
+        /// </param>
+        /// <param name="handled">
+        /// [in,out] True if handled.
+        /// </param>
+        /// <returns>
+        /// An IntPtr set to zero.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        private static IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                // WM_GETMINMAXINFO
+                case 0x0024:
+                    WmGetMinMaxInfo(hwnd, lParam);
+                    handled = true;
+                    break;
+            }
+
+            return (IntPtr)0;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sent to a window when the size or position of the window is about to change. An application
+        /// can use this message to override the window's default maximized size and position, or its
+        /// default minimum or maximum tracking size.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/03/2021.
+        /// </remarks>
+        /// <param name="hwnd">
+        /// A handle to the window.
+        /// </param>
+        /// <param name="lParam">
+        /// A pointer to a MINMAXINFO structure that contains the default maximized position and
+        /// dimensions, and the default minimum and maximum tracking sizes. An application can override
+        /// the defaults by setting the members of this structure.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private static void WmGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
+        {
+            var mmi = (MINMAXINFO)Marshal.PtrToStructure(lParam, typeof(MINMAXINFO));
+
+            // Adjust the maximized size and position to fit the work area of the correct monitor
+            var currentScreen = Screen.FromHandle(hwnd);
+            var workArea = currentScreen.WorkingArea;
+            var monitorArea = currentScreen.Bounds;
+            mmi.ptMaxPosition.x = Math.Abs(workArea.Left - monitorArea.Left);
+            mmi.ptMaxPosition.y = Math.Abs(workArea.Top - monitorArea.Top);
+            mmi.ptMaxSize.x = Math.Abs(workArea.Right - workArea.Left);
+            mmi.ptMaxSize.y = Math.Abs(workArea.Bottom - workArea.Top);
+            Marshal.StructureToPtr(mmi, lParam, true);
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -431,6 +505,7 @@ namespace OpenSky.Client.Controls
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             this.hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+            this.hwndSource?.AddHook(WindowProc);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -451,33 +526,18 @@ namespace OpenSky.Client.Controls
         {
             if (sender is Rectangle rectangle && this.ResizeMode == ResizeMode.CanResize)
             {
-                switch (rectangle.Name)
+                this.Cursor = rectangle.Name switch
                 {
-                    case "top":
-                        this.Cursor = Cursors.SizeNS;
-                        break;
-                    case "bottom":
-                        this.Cursor = Cursors.SizeNS;
-                        break;
-                    case "left":
-                        this.Cursor = Cursors.SizeWE;
-                        break;
-                    case "right":
-                        this.Cursor = Cursors.SizeWE;
-                        break;
-                    case "topLeft":
-                        this.Cursor = Cursors.SizeNWSE;
-                        break;
-                    case "topRight":
-                        this.Cursor = Cursors.SizeNESW;
-                        break;
-                    case "bottomLeft":
-                        this.Cursor = Cursors.SizeNESW;
-                        break;
-                    case "bottomRight":
-                        this.Cursor = Cursors.SizeNWSE;
-                        break;
-                }
+                    "top" => Cursors.SizeNS,
+                    "bottom" => Cursors.SizeNS,
+                    "left" => Cursors.SizeWE,
+                    "right" => Cursors.SizeWE,
+                    "topLeft" => Cursors.SizeNWSE,
+                    "topRight" => Cursors.SizeNESW,
+                    "bottomLeft" => Cursors.SizeNESW,
+                    "bottomRight" => Cursors.SizeNWSE,
+                    _ => this.Cursor
+                };
             }
         }
 
@@ -551,6 +611,113 @@ namespace OpenSky.Client.Controls
         private void ResizeWindow(ResizeDirection direction)
         {
             SendMessage(this.hwndSource.Handle, 0x112, (IntPtr)(61440 + direction), IntPtr.Zero);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Contains information about a window's maximized size and position and its minimum and maximum tracking size.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/03/2021.
+        /// </remarks>
+        /// <seealso cref="T:System.Windows.Window"/>
+        /// -------------------------------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential)]
+
+        // ReSharper disable once InconsistentNaming
+        public struct MINMAXINFO
+        {
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// Reserved; do not use.
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT ptReserved;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// The maximized width (x member) and the maximized height (y member) of the window. For top-
+            /// level windows, this value is based on the width of the primary monitor.
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT ptMaxSize;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// The position of the left side of the maximized window (x member) and the position of the top
+            /// of the maximized window (y member). For top-level windows, this value is based on the
+            /// position of the primary monitor.
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT ptMaxPosition;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// The minimum tracking width (x member) and the minimum tracking height (y member) of the
+            /// window. This value can be obtained programmatically from the system metrics SM_CXMINTRACK and
+            /// SM_CYMINTRACK (see the GetSystemMetrics function).
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT ptMinTrackSize;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// The maximum tracking width (x member) and the maximum tracking height (y member) of the
+            /// window. This value is based on the size of the virtual screen and can be obtained
+            /// programmatically from the system metrics SM_CXMAXTRACK and SM_CYMAXTRACK (see the
+            /// GetSystemMetrics function).
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT ptMaxTrackSize;
+        };
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The POINT structure defines the x- and y-coordinates of a point.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/03/2021.
+        /// </remarks>
+        /// <seealso cref="T:System.Windows.Window"/>
+        /// -------------------------------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential)]
+
+        // ReSharper disable once InconsistentNaming
+        public struct POINT
+        {
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// Specifies the x-coordinate of the point.
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public int x;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// Specifies the y-coordinate of the point.
+            /// </summary>
+            /// -------------------------------------------------------------------------------------------------
+            public int y;
+
+            /// -------------------------------------------------------------------------------------------------
+            /// <summary>
+            /// Construct a point of coordinates (x,y).
+            /// </summary>
+            /// <remarks>
+            /// sushi.at, 24/03/2021.
+            /// </remarks>
+            /// <param name="x">
+            /// x coordinate of point.
+            /// </param>
+            /// <param name="y">
+            /// y coordinate of point.
+            /// </param>
+            /// -------------------------------------------------------------------------------------------------
+            public POINT(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
         }
     }
 }
