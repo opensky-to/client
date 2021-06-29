@@ -32,8 +32,9 @@
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
 
-                <ResourceDictionary Source="VectorGraphics.xaml" />
-                <ResourceDictionary Source="OpenSkyStyles.xaml" />
+                <ResourceDictionary Source="Themes/VectorGraphics.xaml" />
+                <ResourceDictionary Source="Themes/OpenSkyStyles.xaml" />
+                <ResourceDictionary Source="Themes/GridFilter.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

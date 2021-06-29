@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Views
 {
     using System;
+    using System.Windows.Media.Animation;
 
     using JetBrains.Annotations;
 
@@ -53,5 +54,28 @@ namespace OpenSky.Client.Views
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static bool StartupFailed { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The view model is done initializing the application and wants to close the splash screen
+        /// window.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 15/06/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void StartupViewModelOnCloseWindow(object sender, EventArgs e)
+        {
+            if (this.Resources["HideWindow"] is Storyboard storyboard)
+            {
+                storyboard.Begin();
+            }
+        }
     }
 }

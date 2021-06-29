@@ -102,7 +102,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\DockingAdapter.xaml.cs">
+      <DependentUpon>DockingAdapter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DockItemEx.cs" />
+    <Compile Include="Controls\DocumentHeaderEx.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
+    <Compile Include="Converters\InvertThicknessConverter.cs" />
+    <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />
     <Compile Include="OpenAPIs\swagger.cs" />
@@ -126,6 +134,15 @@
     <Compile Include="Native\PInvoke\Structs\Rect.cs" />
     <Compile Include="Native\PInvoke\User32.cs" />
     <Compile Include="Native\Taskbar.cs" />
+    <Compile Include="Pages\DataImport.xaml.cs">
+      <DependentUpon>DataImport.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Settings.xaml.cs">
+      <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Welcome.xaml.cs">
+      <DependentUpon>Welcome.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
     <Compile Include="Tools\MultiSelectExtension.cs" />
@@ -139,16 +156,41 @@
     <Compile Include="Views\LoginNotification.xaml.cs">
       <DependentUpon>LoginNotification.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Main.xaml.cs">
+      <DependentUpon>Main.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Models\NavMenuItem.cs" />
     <Compile Include="Views\Models\LoginNotificationViewModel.cs" />
+    <Compile Include="Views\Models\MainViewModel.cs" />
     <Compile Include="Views\Models\StartupViewModel.cs" />
     <Compile Include="Views\Startup.xaml.cs">
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
-    <Page Include="OpenSkyStyles.xaml">
+    <Page Include="Controls\DockingAdapter.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="VectorGraphics.xaml">
+    <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Welcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\GridFilter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\OpenSkyStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\VectorGraphics.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -160,6 +202,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Main.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Startup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -277,6 +323,21 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
+      <Version>19.1.0.69</Version>
+    </PackageReference>
+    <PackageReference Include="Syncfusion.Shared.WPF">
+      <Version>19.1.0.69</Version>
+    </PackageReference>
+    <PackageReference Include="Syncfusion.Themes.FluentDark.WPF">
+      <Version>19.1.0.69</Version>
+    </PackageReference>
+    <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
+      <Version>19.1.0.69</Version>
+    </PackageReference>
+    <PackageReference Include="Syncfusion.Tools.WPF">
+      <Version>19.1.0.69</Version>
+    </PackageReference>
     <PackageReference Include="XDMessaging.Lite">
       <Version>5.0.6</Version>
     </PackageReference>
@@ -291,9 +352,20 @@
     <EmbeddedResource Include="Resources\OSdingdong.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Converters\" />
     <Folder Include="Models\" />
     <Folder Include="OpenAPIs\ModelExtensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\OpenSkyLogo16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\tools16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\settings16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dataimport16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
