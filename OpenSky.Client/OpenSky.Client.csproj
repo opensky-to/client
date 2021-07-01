@@ -108,6 +108,7 @@
     </Compile>
     <Compile Include="Controls\DockItemEx.cs" />
     <Compile Include="Controls\DocumentHeaderEx.cs" />
+    <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Pages\DataImport.xaml.cs">
       <DependentUpon>DataImport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\DataImportViewModel.cs" />
     <Compile Include="Pages\Models\SettingsViewModel.cs" />
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
@@ -297,7 +299,7 @@
       <Version>1.3.3</Version>
     </PackageReference>
     <PackageReference Include="DataGridExtensions">
-      <Version>2.5.3</Version>
+      <Version>2.5.5</Version>
     </PackageReference>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf">
       <Version>1.1.0</Version>
@@ -326,19 +328,22 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.FluentDark.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
+    </PackageReference>
+    <PackageReference Include="TomsToolbox.Wpf">
+      <Version>2.5.5</Version>
     </PackageReference>
     <PackageReference Include="XDMessaging.Lite">
       <Version>5.0.6</Version>
