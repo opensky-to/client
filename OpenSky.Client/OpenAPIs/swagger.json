@@ -1163,6 +1163,38 @@
           }
         }
       }
+    },
+    "/WorldPopulation": {
+      "get": {
+        "tags": [
+          "WorldPopulation"
+        ],
+        "summary": "Get world population overview.",
+        "description": "sushi.at, 02/07/2021.",
+        "operationId": "GetWorldPopulationOverview",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1554,6 +1586,23 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "AirportSize": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "string",
+            "description": "Gets or sets the size.",
+            "nullable": true
+          },
+          "airports": {
+            "type": "integer",
+            "description": "Gets or sets the number of airports.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Airport counts by size."
       },
       "ApplicationToken": {
         "required": [
@@ -3011,6 +3060,55 @@
         },
         "additionalProperties": false,
         "description": "Validate email model."
+      },
+      "WorldPopulationOverview": {
+        "type": "object",
+        "properties": {
+          "totalAirports": {
+            "type": "integer",
+            "description": "Gets or sets the total number of airports.",
+            "format": "int32"
+          },
+          "airportSizes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirportSize"
+            },
+            "description": "Gets or sets a list grouping airports by size.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "World population overview model."
+      },
+      "WorldPopulationOverviewApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WorldPopulationOverview"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       }
     },
     "securitySchemes": {
