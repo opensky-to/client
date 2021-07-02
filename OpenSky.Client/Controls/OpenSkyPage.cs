@@ -6,13 +6,9 @@
 
 namespace OpenSky.Client.Controls
 {
-    using System;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Media;
-
-    using ModernWpf;
-    using ModernWpf.Controls;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -27,6 +23,34 @@ namespace OpenSky.Client.Controls
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The horizontal scroll bar property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty HorizontalScrollBarProperty = DependencyProperty.Register("HorizontalScrollBar", typeof(bool), typeof(OpenSkyPage), new UIPropertyMetadata(true));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The loading text property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty LoadingTextProperty = DependencyProperty.Register("LoadingText", typeof(string), typeof(OpenSkyPage), new UIPropertyMetadata(string.Empty, LoadingTextPropertyChangedCallback));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The show loading property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty ShowLoadingProperty = DependencyProperty.Register("ShowLoading", typeof(bool), typeof(OpenSkyPage), new UIPropertyMetadata(false));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The vertical scroll bar property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty VerticalScrollBarProperty = DependencyProperty.Register("VerticalScrollBar", typeof(bool), typeof(OpenSkyPage), new UIPropertyMetadata(true));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="OpenSkyPage"/> class.
         /// </summary>
         /// <remarks>
@@ -35,35 +59,86 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         public OpenSkyPage()
         {
-            var uiThemeResources = new ThemeResources { RequestedTheme = ApplicationTheme.Dark };
-            var darkDictionary = new ResourceDictionary();
-            darkDictionary.MergedDictionaries.Add(
-                new ColorPaletteResources
-                {
-                    TargetTheme = ApplicationTheme.Dark,
-                    Accent = (Color?)ColorConverter.ConvertFromString("#05826c"),
-                    AltHigh = (Color?)ColorConverter.ConvertFromString("#404040"),
-                    BaseHigh = (Color?)ColorConverter.ConvertFromString("#FFC9C9C9")
-                });
-            uiThemeResources.ThemeDictionaries.Add("Dark", darkDictionary);
+            if (!App.IsDesignMode)
+            {
+                this.Style = this.FindResource("OpenSkyPageStyle") as Style;
+            }
+        }
 
-            var xamlControls = new XamlControlsResources();
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the horizontal scroll bar is enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public bool HorizontalScrollBar
+        {
+            get => (bool)this.GetValue(HorizontalScrollBarProperty);
+            set => this.SetValue(HorizontalScrollBarProperty, value);
+        }
 
-            var vectorGraphics = new ResourceDictionary { Source = new Uri("/OpenSky.Client;component/Themes/VectorGraphics.xaml", UriKind.RelativeOrAbsolute) };
-            var openSkyStyles = new ResourceDictionary { Source = new Uri("/OpenSky.Client;component/Themes/OpenSkyStyles.xaml", UriKind.RelativeOrAbsolute) };
-            var gridFilter = new ResourceDictionary { Source = new Uri("/OpenSky.Client;component/Themes/GridFilter.xaml", UriKind.RelativeOrAbsolute) };
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the loading text (setting a non-empty string will trigger the loading overlay to
+        /// be displayed).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public string LoadingText
+        {
+            get => (string)this.GetValue(LoadingTextProperty);
+            set => this.SetValue(LoadingTextProperty, value);
+        }
 
-            this.Resources.MergedDictionaries.Add(uiThemeResources);
-            this.Resources.MergedDictionaries.Add(xamlControls);
-            this.Resources.MergedDictionaries.Add(vectorGraphics);
-            this.Resources.MergedDictionaries.Add(openSkyStyles);
-            this.Resources.MergedDictionaries.Add(gridFilter);
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether to show the loading overlay.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public bool ShowLoading
+        {
+            get => (bool)this.GetValue(ShowLoadingProperty);
+            set => this.SetValue(ShowLoadingProperty, value);
+        }
 
-            this.FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Montserrat");
-            this.FontSize = 13;
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the vertical scroll bar is enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public bool VerticalScrollBar
+        {
+            get => (bool)this.GetValue(VerticalScrollBarProperty);
+            set => this.SetValue(VerticalScrollBarProperty, value);
+        }
 
-            // ReSharper disable once PossibleNullReferenceException
-            this.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#c2c2c2"));
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Callback, called when the loading text property changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 04/06/2021.
+        /// </remarks>
+        /// <param name="d">
+        /// A DependencyObject to process.
+        /// </param>
+        /// <param name="e">
+        /// Dependency property changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private static void LoadingTextPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is string text)
+            {
+                d.SetValue(ShowLoadingProperty, !string.IsNullOrEmpty(text));
+            }
+
+            if (e.NewValue == null)
+            {
+                d.SetValue(ShowLoadingProperty, false);
+            }
         }
     }
 }

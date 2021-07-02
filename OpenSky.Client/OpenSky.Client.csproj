@@ -113,6 +113,7 @@
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
+    <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />
     <Compile Include="OpenAPIs\swagger.cs" />
