@@ -6,6 +6,9 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System.Windows.Controls;
+    using System.Windows.Controls.Primitives;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
     /// Data import page.
@@ -24,6 +27,14 @@ namespace OpenSky.Client.Pages
         public DataImport()
         {
             this.InitializeComponent();
+        }
+
+        private void TextBoxBaseOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBoxBase textBox)
+            {
+                textBox.ScrollToEnd();
+            }
         }
     }
 }

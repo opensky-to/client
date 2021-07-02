@@ -24,7 +24,7 @@
     <StackPanel Orientation="Vertical" Margin="15" Grid.IsSharedSizeScope="True">
         <GroupBox>
             <GroupBox.Header>
-                <TextBlock FontSize="15" FontWeight="DemiBold">OpenSky Account</TextBlock>
+                <TextBlock FontWeight="DemiBold">OpenSky Account</TextBlock>
             </GroupBox.Header>
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
