@@ -1,7 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="http://schemas.modernwpf.com/2019"
-                    xmlns:controls="clr-namespace:OpenSky.Client.Controls">
+                    xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:converters="clr-namespace:OpenSky.Client.Converters">
 
     <!-- OPENSKY COLOR STYLE DEFINITIONS -->
     <Color x:Key="OpenSkyTeal">#05826c</Color>
@@ -26,6 +28,57 @@
     <SolidColorBrush x:Key="OpenSkySimBriefBrush" Color="{StaticResource OpenSkySimBrief}" />
     <Color x:Key="OpenSkySimBriefText">White</Color>
     <SolidColorBrush x:Key="OpenSkySimBriefTextBrush" Color="{StaticResource OpenSkySimBriefText}" />
+
+    <syncfusion:ChartColorModel x:Key="OpenSkyTealChartColors">
+        <syncfusion:ChartColorModel.CustomBrushes>
+            <SolidColorBrush Color="#0aa88c" />
+            <SolidColorBrush Color="#05826c" />
+            <SolidColorBrush Color="#047762" />
+            <SolidColorBrush Color="#046957" />
+            <SolidColorBrush Color="#045849" />
+            <SolidColorBrush Color="#034c3f" />
+            <SolidColorBrush Color="#023b31" />
+            <SolidColorBrush Color="#012c25" />
+            <SolidColorBrush Color="#011d18" />
+        </syncfusion:ChartColorModel.CustomBrushes>
+    </syncfusion:ChartColorModel>
+
+    <syncfusion:ChartColorModel x:Key="DarkChartColors">
+        <syncfusion:ChartColorModel.CustomBrushes>
+            <SolidColorBrush Color="#05826c" />
+            <SolidColorBrush Color="DarkGreen" />
+            <SolidColorBrush Color="DarkSlateBlue" />
+            <SolidColorBrush Color="DarkRed" />
+            <SolidColorBrush Color="DodgerBlue" />
+            <SolidColorBrush Color="DarkOrange" />
+            <SolidColorBrush Color="DarkCyan" />
+            <SolidColorBrush Color="DarkMagenta" />
+        </syncfusion:ChartColorModel.CustomBrushes>
+    </syncfusion:ChartColorModel>
+
+    <DataTemplate x:Key="PieChartValueLabelTemplate" DataType="{x:Type syncfusion:ChartPieAdornment}">
+        <DataTemplate.Resources>
+            <converters:PieChartValueAdornerLabelConverter x:Key="PieChartValueAdornerLabelConverter" />
+            <converters:PieChartColorConverter x:Key="PieChartColorConverter" />
+        </DataTemplate.Resources>
+        <Border Background="{Binding Path=., Converter={StaticResource PieChartColorConverter}}" CornerRadius="2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="3,1" Text="{Binding Item, Converter={StaticResource PieChartValueAdornerLabelConverter}}" FontSize="11" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PieChartValueLabelOthersTemplate" DataType="{x:Type syncfusion:ChartPieAdornment}">
+        <DataTemplate.Resources>
+            <converters:PieChartValueAdornerLabelConverter x:Key="PieChartValueAdornerLabelConverter" />
+            <converters:PieChartColorConverter x:Key="PieChartColorConverter" />
+        </DataTemplate.Resources>
+        <Border Background="{Binding Path=., Converter={StaticResource PieChartColorConverter}}" CornerRadius="2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="3,1" Text="{Binding Item, Converter={StaticResource PieChartValueAdornerLabelConverter}, ConverterParameter=others}" FontSize="11" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 
     <Style x:Key="OpenSkyRedButtonStyle" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />

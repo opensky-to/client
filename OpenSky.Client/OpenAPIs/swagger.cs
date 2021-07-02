@@ -2585,21 +2585,6 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Airport counts by size.</summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class AirportSize 
-    {
-        /// <summary>Gets or sets the size.</summary>
-        [Newtonsoft.Json.JsonProperty("size", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Size { get; set; }
-    
-        /// <summary>Gets or sets the number of airports.</summary>
-        [Newtonsoft.Json.JsonProperty("airports", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Airports { get; set; }
-    
-    
-    }
-    
     /// <summary>Application token model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class ApplicationToken 
@@ -3431,6 +3416,21 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>Pie chart value.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class PieChartValue 
+    {
+        /// <summary>Gets or sets the key.</summary>
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Key { get; set; }
+    
+        /// <summary>Gets or sets the value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Value { get; set; }
+    
+    
+    }
+    
     /// <summary>General purpose enum for handling different states of an entity Import, queued tasks etc... 0 = NeedsHandling, 1 = Queued, 2 = Finished, 3 = Failed</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum ProcessingStatus
@@ -3681,13 +3681,45 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class WorldPopulationOverview 
     {
+        /// <summary>Gets or sets a pie chart series for aircraft categories.</summary>
+        [Newtonsoft.Json.JsonProperty("aircraftCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> AircraftCategories { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for airport sizes.</summary>
+        [Newtonsoft.Json.JsonProperty("airportSizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> AirportSizes { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for approach types.</summary>
+        [Newtonsoft.Json.JsonProperty("approachTypes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> ApproachTypes { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for fuel availability at airports.</summary>
+        [Newtonsoft.Json.JsonProperty("fuelAvailability", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> FuelAvailability { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for runway lights.</summary>
+        [Newtonsoft.Json.JsonProperty("runwayLights", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> RunwayLights { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for runway surfaces.</summary>
+        [Newtonsoft.Json.JsonProperty("runwaySurfaces", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> RunwaySurfaces { get; set; }
+    
+        /// <summary>Gets or sets the total number of aircraft.</summary>
+        [Newtonsoft.Json.JsonProperty("totalAircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalAircraft { get; set; }
+    
         /// <summary>Gets or sets the total number of airports.</summary>
         [Newtonsoft.Json.JsonProperty("totalAirports", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalAirports { get; set; }
     
-        /// <summary>Gets or sets a list grouping airports by size.</summary>
-        [Newtonsoft.Json.JsonProperty("airportSizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<AirportSize> AirportSizes { get; set; }
+        /// <summary>Gets or sets the total number of approaches.</summary>
+        [Newtonsoft.Json.JsonProperty("totalApproaches", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalApproaches { get; set; }
+    
+        /// <summary>Gets or sets the total number of runways.</summary>
+        [Newtonsoft.Json.JsonProperty("totalRunways", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalRunways { get; set; }
     
     
     }

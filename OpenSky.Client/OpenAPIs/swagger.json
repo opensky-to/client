@@ -1587,23 +1587,6 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
-      "AirportSize": {
-        "type": "object",
-        "properties": {
-          "size": {
-            "type": "string",
-            "description": "Gets or sets the size.",
-            "nullable": true
-          },
-          "airports": {
-            "type": "integer",
-            "description": "Gets or sets the number of airports.",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Airport counts by size."
-      },
       "ApplicationToken": {
         "required": [
           "name"
@@ -2761,6 +2744,23 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "PieChartValue": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Gets or sets the key.",
+            "nullable": true
+          },
+          "value": {
+            "type": "integer",
+            "description": "Gets or sets the value.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Pie chart value."
+      },
       "ProcessingStatus": {
         "enum": [
           0,
@@ -3064,18 +3064,73 @@
       "WorldPopulationOverview": {
         "type": "object",
         "properties": {
+          "aircraftCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for aircraft categories.",
+            "nullable": true
+          },
+          "airportSizes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for airport sizes.",
+            "nullable": true
+          },
+          "approachTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for approach types.",
+            "nullable": true
+          },
+          "fuelAvailability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for fuel availability at airports.",
+            "nullable": true
+          },
+          "runwayLights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for runway lights.",
+            "nullable": true
+          },
+          "runwaySurfaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for runway surfaces.",
+            "nullable": true
+          },
+          "totalAircraft": {
+            "type": "integer",
+            "description": "Gets or sets the total number of aircraft.",
+            "format": "int32"
+          },
           "totalAirports": {
             "type": "integer",
             "description": "Gets or sets the total number of airports.",
             "format": "int32"
           },
-          "airportSizes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AirportSize"
-            },
-            "description": "Gets or sets a list grouping airports by size.",
-            "nullable": true
+          "totalApproaches": {
+            "type": "integer",
+            "description": "Gets or sets the total number of approaches.",
+            "format": "int32"
+          },
+          "totalRunways": {
+            "type": "integer",
+            "description": "Gets or sets the total number of runways.",
+            "format": "int32"
           }
         },
         "additionalProperties": false,
