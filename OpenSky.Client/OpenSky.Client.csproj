@@ -110,6 +110,7 @@
     <Compile Include="Controls\DocumentHeaderEx.cs" />
     <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Converters\AirportSizeAdornerConverter.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
@@ -142,11 +143,15 @@
     </Compile>
     <Compile Include="Pages\Models\DataImportViewModel.cs" />
     <Compile Include="Pages\Models\SettingsViewModel.cs" />
+    <Compile Include="Pages\Models\WorldPopulationViewModel.cs" />
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\WorldPopulation.xaml.cs">
+      <DependentUpon>WorldPopulation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
@@ -180,6 +185,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Welcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\WorldPopulation.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -328,13 +337,13 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Syncfusion.SfChart.WPF">
+      <Version>19.2.0.44</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
       <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.2.0.44</Version>
-    </PackageReference>
-    <PackageReference Include="Syncfusion.Themes.FluentDark.WPF">
       <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
@@ -377,6 +386,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\dataimport16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\world16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

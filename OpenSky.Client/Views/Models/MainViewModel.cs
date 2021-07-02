@@ -69,19 +69,34 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public MainViewModel()
         {
+            // Build main menu
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
-            var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png" };
-            var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
-            var airportManager = new NavMenuItem { Name = "Airport manager" };
-            var aircraftManager = new NavMenuItem { Name = "Aircraft manager" };
-            tools.Children = new ObservableCollection<NavMenuItem> { aircraftManager, airportManager, dataImport };
-            this.NavigationItems.Add(tools);
+            var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
+            if (UserSessionService.Instance.IsAdmin)
+            {
+                var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
+                tools.Children.Add(dataImport);
+
+                var worldPopulation = new NavMenuItem { Name = "World population", Icon = "/Resources/world16.png", PageType = typeof(WorldPopulation) };
+                tools.Children.Add(worldPopulation);
+            }
+
+            if (UserSessionService.Instance.IsModerator)
+            {
+                // todo
+            }
+
+            if (tools.Children.Count > 0)
+            {
+                this.NavigationItems.Add(tools);
+            }
 
             var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };
             this.NavigationFooterItems.Add(settings);
 
+            // Create commands
             this.OpenInNewTabCommand = new Command(this.OpenInNewTab);
             this.OpenInNewWindowCommand = new Command(this.OpenInNewWindow);
         }
