@@ -110,10 +110,11 @@
     <Compile Include="Controls\DocumentHeaderEx.cs" />
     <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
-    <Compile Include="Converters\AirportSizeAdornerConverter.cs" />
+    <Compile Include="Converters\PieChartValueAdornerLabelConverter.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
+    <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />

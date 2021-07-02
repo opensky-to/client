@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AirportSizeAdornerConverter.cs" company="OpenSky">
+// <copyright file="PieChartValueAdornerLabelConverter.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -10,7 +10,6 @@ namespace OpenSky.Client.Converters
     using System.Collections.Generic;
     using System.Globalization;
     using System.Windows.Data;
-    using System.Windows.Documents;
 
     using OpenSkyApi;
 
@@ -23,7 +22,7 @@ namespace OpenSky.Client.Converters
     /// </remarks>
     /// <seealso cref="T:System.Windows.Data.IValueConverter"/>
     /// -------------------------------------------------------------------------------------------------
-    public class AirportSizeAdornerConverter : IValueConverter
+    public class PieChartValueAdornerLabelConverter : IValueConverter
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -52,19 +51,33 @@ namespace OpenSky.Client.Converters
         /// -------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is AirportSize airportSize)
+            if (value is PieChartValue chartValue)
             {
-                return $"{airportSize.Size}: {airportSize.Airports}";
+                return $"{chartValue.Key}: {chartValue.Value}";
             }
 
             if (value is List<object> list)
             {
+                if (parameter is "others" && list.Count > 2)
+                {
+                    var totalValue = 0;
+                    foreach (var obj in list)
+                    {
+                        if (obj is PieChartValue chartValueFromList)
+                        {
+                            totalValue += chartValueFromList.Value;
+                        }
+                    }
+
+                    return $"Others: {totalValue}";
+                }
+
                 var labels = string.Empty;
                 foreach (var obj in list)
                 {
-                    if (obj is AirportSize airportSizeFromList)
+                    if (obj is PieChartValue chartValueFromList)
                     {
-                        labels += $"{airportSizeFromList.Size}: {airportSizeFromList.Airports}, ";
+                        labels += $"{chartValueFromList.Key}: {chartValueFromList.Value}, ";
                     }
                 }
 
