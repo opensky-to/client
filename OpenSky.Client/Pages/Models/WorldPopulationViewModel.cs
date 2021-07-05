@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Windows;
 
@@ -27,6 +28,41 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The world population overview.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private WorldPopulationOverview overview;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The manual populate ICAO string.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string populateICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The populate result.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string populateResult;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The selected failed airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Airport selectedFailedAirport;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="WorldPopulationViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -35,16 +71,25 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         public WorldPopulationViewModel()
         {
-            this.RefreshOverviewCommand = new AsynchronousCommand(this.RefreshOverview);
+            // Initialize data structures
+            this.UnprocessedAirports = new ObservableCollection<Airport>();
+            this.FailedAirports = new ObservableCollection<Airport>();
 
-            this.RefreshOverviewCommand.DoExecute(null);
+            // Create commands
+            this.RefreshViewCommand = new AsynchronousCommand(this.RefreshView);
+            this.PopulateSelectedFailedCommand = new Command(this.PopulateSelectedFailed, false);
+            this.PopulateAirportCommand = new AsynchronousCommand(this.PopulateAirport, false);
+
+            this.RefreshViewCommand.DoExecute(null);
         }
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The loading text.
+        /// Gets the failed airports.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private string loadingText;
+        public ObservableCollection<Airport> FailedAirports { get; }
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the loading text.
@@ -68,63 +113,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Refreshes the world population overview.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 02/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void RefreshOverview()
-        {
-            this.LoadingText = "Refreshing world population overview";
-            try
-            {
-                var result = OpenSkyService.Instance.GetWorldPopulationOverviewAsync().Result;
-                if (!result.IsError)
-                {
-                    this.Overview = result.Data;
-                }
-                else
-                {
-                    this.RefreshOverviewCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error refreshing world population overview: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing world population overview", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.RefreshOverviewCommand, "Error refreshing world population overview");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the refresh overview command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshOverviewCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The world population overview.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private WorldPopulationOverview overview;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the world population overview.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -141,6 +129,256 @@ namespace OpenSky.Client.Pages.Models
 
                 this.overview = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the populate airport command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand PopulateAirportCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ICAO identifier to manually populate.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string PopulateICAO
+        {
+            get => this.populateICAO;
+
+            set
+            {
+                if (Equals(this.populateICAO, value))
+                {
+                    return;
+                }
+
+                this.populateICAO = value;
+                this.NotifyPropertyChanged();
+                this.PopulateAirportCommand.CanExecute = !string.IsNullOrEmpty(value);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the populate result.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string PopulateResult
+        {
+            get => this.populateResult;
+
+            set
+            {
+                if (Equals(this.populateResult, value))
+                {
+                    return;
+                }
+
+                this.populateResult = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the populate selected failed airport command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command PopulateSelectedFailedCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the refresh view command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshViewCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected failed airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Airport SelectedFailedAirport
+        {
+            get => this.selectedFailedAirport;
+
+            set
+            {
+                if (Equals(this.selectedFailedAirport, value))
+                {
+                    return;
+                }
+
+                this.selectedFailedAirport = value;
+                this.NotifyPropertyChanged();
+                this.PopulateSelectedFailedCommand.CanExecute = value != null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the unprocessed airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Airport> UnprocessedAirports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Populate airport specified by ICAO.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 05/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void PopulateAirport()
+        {
+            this.LoadingText = $"Populating airport {this.PopulateICAO}...";
+            try
+            {
+                this.PopulateResult = string.Empty;
+                var result = OpenSkyService.Instance.PopulateAirportAsync(this.PopulateICAO).Result;
+                if (!result.IsError)
+                {
+                    this.PopulateResult = result.Data;
+                }
+                else
+                {
+                    this.PopulateAirportCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error populating airport: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error populating airport", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshViewCommand, "Error populating airport");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Populate selected failed airport.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 05/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void PopulateSelectedFailed()
+        {
+            this.PopulateICAO = this.SelectedFailedAirport.Icao;
+            this.PopulateAirportCommand.DoExecute(null);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refreshes the world population view.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 02/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshView()
+        {
+            this.LoadingText = "Refreshing world population";
+            try
+            {
+                var overviewResult = OpenSkyService.Instance.GetWorldPopulationOverviewAsync().Result;
+                if (!overviewResult.IsError)
+                {
+                    this.Overview = overviewResult.Data;
+                }
+                else
+                {
+                    this.RefreshViewCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing world population overview: " + overviewResult.Message);
+                            if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
+                            {
+                                Debug.WriteLine(overviewResult.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing world population overview", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+
+                var failedAirportsResult = OpenSkyService.Instance.GetAirportsWithPopulationStatusAsync(ProcessingStatus.Failed, 50).Result;
+                if (!failedAirportsResult.IsError)
+                {
+                    this.RefreshViewCommand.ReportProgress(
+                        () =>
+                        {
+                            this.FailedAirports.Clear();
+                            foreach (var airport in failedAirportsResult.Data)
+                            {
+                                this.FailedAirports.Add(airport);
+                            }
+                        });
+                }
+                else
+                {
+                    this.RefreshViewCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing failed airports: " + overviewResult.Message);
+                            if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
+                            {
+                                Debug.WriteLine(overviewResult.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing failed airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+
+                var unprocessedAirportsResult = OpenSkyService.Instance.GetAirportsWithPopulationStatusAsync(ProcessingStatus.NeedsHandling, 50).Result;
+                if (!unprocessedAirportsResult.IsError)
+                {
+                    this.RefreshViewCommand.ReportProgress(
+                        () =>
+                        {
+                            this.UnprocessedAirports.Clear();
+                            foreach (var airport in unprocessedAirportsResult.Data)
+                            {
+                                this.UnprocessedAirports.Add(airport);
+                            }
+                        });
+                }
+                else
+                {
+                    this.RefreshViewCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing unprocessed airports: " + overviewResult.Message);
+                            if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
+                            {
+                                Debug.WriteLine(overviewResult.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing unprocessed airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshViewCommand, "Error refreshing world population");
+            }
+            finally
+            {
+                this.LoadingText = null;
             }
         }
     }

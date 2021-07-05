@@ -389,38 +389,6 @@
         }
       }
     },
-    "/Airport": {
-      "get": {
-        "tags": [
-          "Airport"
-        ],
-        "summary": "Gets all available airports (ICAO code only).",
-        "description": "sushi.at, 02/05/2021.",
-        "operationId": "GetAirports",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/Airport/{icao}": {
       "get": {
         "tags": [
@@ -457,6 +425,92 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AirportApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets all available airports (ICAO code only).",
+        "description": "sushi.at, 02/05/2021.",
+        "operationId": "GetAirports",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport/{status}/{maxResults}": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets airports with the specified population status up to the specified max result count.",
+        "description": "sushi.at, 05/07/2021.",
+        "operationId": "GetAirportsWithPopulationStatus",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "path",
+            "description": "The status. 0 = NeedsHandling, 1 = Queued, 2 = Finished, 3 = Failed",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProcessingStatus"
+            }
+          },
+          {
+            "name": "maxResults",
+            "in": "path",
+            "description": "(Optional) The maximum results (default 50).",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
                 }
               }
             }
@@ -1195,6 +1249,49 @@
           }
         }
       }
+    },
+    "/WorldPopulation/populate/{icao}": {
+      "post": {
+        "tags": [
+          "WorldPopulation"
+        ],
+        "summary": "Manually request to populate an airport and return info text results.",
+        "description": "sushi.at, 05/07/2021.",
+        "operationId": "PopulateAirport",
+        "parameters": [
+          {
+            "name": "icao",
+            "in": "path",
+            "description": "The icao of the airport to populate.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1563,6 +1660,40 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/Airport"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "AirportIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Airport"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
           },
           "errorDetails": {
             "type": "string",
@@ -3070,6 +3201,14 @@
               "$ref": "#/components/schemas/PieChartValue"
             },
             "description": "Gets or sets a pie chart series for aircraft categories.",
+            "nullable": true
+          },
+          "aircraftOwner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for aircraft ownership.",
             "nullable": true
           },
           "airportSizes": {
