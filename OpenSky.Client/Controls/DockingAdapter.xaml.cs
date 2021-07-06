@@ -168,7 +168,11 @@ namespace OpenSky.Client.Controls
                 if (e.NewValue != null)
                 {
                     // Process items in new source
-                    ((DocumentContainer)this.PART_DockingManager.DocContainer).AddTabDocumentAtLast = true;
+                    if (this.PART_DockingManager.DocContainer != null)
+                    {
+                        ((DocumentContainer)this.PART_DockingManager.DocContainer).AddTabDocumentAtLast = true;
+                    }
+
                     var count = 0;
                     foreach (var item in (IList)e.NewValue)
                     {

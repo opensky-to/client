@@ -72,11 +72,13 @@ namespace OpenSky.Client.Views.Models
             {
                 this.StartupChecksCommand.ReportProgress(() => LoginNotification.Open());
             }
-
-            // todo other checks
+            else
+            {
+                _ = UserSessionService.Instance.UpdateUserRoles().Result;
+            }
 
             // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
-            Thread.Sleep(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds);
+            Thread.Sleep(Math.Max(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds, 0));
             this.StartupChecksCommand.ReportProgress(() =>
             {
                 new Main().Show();

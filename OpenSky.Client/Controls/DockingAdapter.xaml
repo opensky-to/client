@@ -59,7 +59,8 @@
                                    UseNativeFloatWindow="False"
                                    DockStateChanged="PART_DockingManager_OnDockStateChanged"
                                    DocumentTabItemStyle="{StaticResource OpenSkyDocumentTabItemStyle}"
-                                   syncfusion:DocumentContainer.HeaderTemplate="{StaticResource DocumentTabHeaderItemTemplate}">
+                                   syncfusion:DocumentContainer.HeaderTemplate="{StaticResource DocumentTabHeaderItemTemplate}"
+                                   Background="#1a1e22">
         </syncfusion:DockingManager>
     </Grid>
 </UserControl>
