@@ -84,6 +84,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Speech" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -107,10 +108,14 @@
     </Compile>
     <Compile Include="Controls\DockItemEx.cs" />
     <Compile Include="Controls\DocumentHeaderEx.cs" />
+    <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Converters\PieChartValueAdornerLabelConverter.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
+    <Compile Include="Converters\PieChartColorConverter.cs" />
+    <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="OpenAPIs\OpenSkyService.cs" />
     <Compile Include="OpenAPIs\OpenSkyServiceBase.cs" />
     <Compile Include="OpenAPIs\swagger.cs" />
@@ -137,11 +142,17 @@
     <Compile Include="Pages\DataImport.xaml.cs">
       <DependentUpon>DataImport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\DataImportViewModel.cs" />
+    <Compile Include="Pages\Models\SettingsViewModel.cs" />
+    <Compile Include="Pages\Models\WorldPopulationViewModel.cs" />
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\WorldPopulation.xaml.cs">
+      <DependentUpon>WorldPopulation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
@@ -175,6 +186,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Welcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\WorldPopulation.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -295,7 +310,7 @@
       <Version>1.3.3</Version>
     </PackageReference>
     <PackageReference Include="DataGridExtensions">
-      <Version>2.5.3</Version>
+      <Version>2.5.5</Version>
     </PackageReference>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf">
       <Version>1.1.0</Version>
@@ -323,20 +338,26 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Syncfusion.SfChart.WPF">
+      <Version>19.2.0.44</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.1.0.69</Version>
-    </PackageReference>
-    <PackageReference Include="Syncfusion.Themes.FluentDark.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.1.0.69</Version>
+      <Version>19.2.0.44</Version>
+    </PackageReference>
+    <PackageReference Include="System.Data.SQLite">
+      <Version>1.0.114.4</Version>
+    </PackageReference>
+    <PackageReference Include="TomsToolbox.Wpf">
+      <Version>2.5.5</Version>
     </PackageReference>
     <PackageReference Include="XDMessaging.Lite">
       <Version>5.0.6</Version>
@@ -366,6 +387,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\dataimport16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\world16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

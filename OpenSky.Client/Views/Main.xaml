@@ -73,7 +73,7 @@
             </ui:NavigationViewItem>
         </DataTemplate>
         <!-- ReSharper disable once Xaml.RedundantResource -->
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1a1e22" />
+        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#111418" />
     </Window.Resources>
     <Grid>
         <ui:NavigationView Grid.Column="0" x:Name="NavigationView" 
