@@ -5,6 +5,333 @@
     "version": "v1"
   },
   "paths": {
+    "/Account/accountOverview": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Gets the user's account overview including profile image.",
+        "description": "sushi.at, 11/07/2021.",
+        "operationId": "GetAccountOverview",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOverviewApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOverviewApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOverviewApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Account/linkedAccounts": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Gets the user's linked accounts.",
+        "description": "sushi.at, 11/07/2021.",
+        "operationId": "GetLinkedAccounts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkedAccountsApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkedAccountsApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkedAccountsApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Updates user's linked accounts.",
+        "description": "sushi.at, 11/07/2021.",
+        "operationId": "UpdateLinkedAccounts",
+        "requestBody": {
+          "description": "The linked accounts.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkedAccounts"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkedAccounts"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkedAccounts"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Account/profileImage": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Upload profile image.",
+        "description": "sushi.at, 12/07/2021.",
+        "operationId": "UploadProfileImage",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileUpload": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "fileUpload": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Aircraft/{registry}": {
+      "get": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Get the aircraft record for the specified registry.",
+        "description": "sushi.at, 19/07/2021.",
+        "operationId": "GetAircraft",
+        "parameters": [
+          {
+            "name": "registry",
+            "in": "path",
+            "description": "The registry.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Aircraft/atAirport/{icao}": {
+      "get": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Get the aircraft at a given airport.",
+        "description": "sushi.at, 19/07/2021.",
+        "operationId": "GetAircraftAtAirport",
+        "parameters": [
+          {
+            "name": "icao",
+            "in": "path",
+            "description": "The icao of the airport.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Aircraft/myAircraft": {
+      "get": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Get the player owned aircraft.",
+        "description": "sushi.at, 19/07/2021.",
+        "operationId": "GetMyAircraft",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Aircraft/purchase/{registry}": {
+      "post": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Purchase specified aircraft.",
+        "description": "sushi.at, 19/07/2021.",
+        "operationId": "PurchaseAircraft",
+        "parameters": [
+          {
+            "name": "registry",
+            "in": "path",
+            "description": "The registry of the aircraft to purchase.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/AircraftType": {
       "post": {
         "tags": [
@@ -511,6 +838,38 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Authentication/tokens": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get the current OpenSky tokens.",
+        "description": "sushi.at, 12/07/2021.",
+        "operationId": "GetTokens",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenIEnumerableApiResponse"
                 }
               }
             }
@@ -1040,6 +1399,57 @@
         }
       }
     },
+    "/Authentication/revokeTokenByName": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke specified OpenSky refresh token using name and expiry.",
+        "description": "sushi.at, 12/07/2021.",
+        "requestBody": {
+          "description": "The revoke token by name model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenByName"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenByName"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenByName"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Authentication/validateEmail": {
       "post": {
         "tags": [
@@ -1296,6 +1706,176 @@
   },
   "components": {
     "schemas": {
+      "AccountOverview": {
+        "type": "object",
+        "properties": {
+          "joined": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of when the user joined.",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the account name.",
+            "nullable": true
+          },
+          "profileImage": {
+            "type": "string",
+            "description": "Gets or sets the profile image.",
+            "format": "byte",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Account overview model."
+      },
+      "AccountOverviewApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AccountOverview"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "Aircraft": {
+        "required": [
+          "airportICAO"
+        ],
+        "type": "object",
+        "properties": {
+          "airportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airport ICAO the plane is located at, note this is the departure airport if\r\nthe aircraft currently is flying."
+          },
+          "fuel": {
+            "type": "number",
+            "description": "Gets or sets the current fuel in gallons.",
+            "format": "double"
+          },
+          "ownerID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the user that owns this aircraft (NULL if no user owner).",
+            "nullable": true
+          },
+          "purchasePrice": {
+            "type": "integer",
+            "description": "Gets or sets the purchase price for the aircraft. Null if not available for purchase.",
+            "format": "int32",
+            "nullable": true
+          },
+          "registry": {
+            "maxLength": 10,
+            "minLength": 5,
+            "type": "string",
+            "description": "Gets or sets the aircraft registration.",
+            "nullable": true
+          },
+          "rentPrice": {
+            "type": "integer",
+            "description": "Gets or sets the rent price per flight hour for the aircraft. Null if not available for rent.",
+            "format": "int32",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/AircraftType"
+          },
+          "typeID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the aircraft type.",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft model."
+      },
+      "AircraftApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Aircraft"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "AircraftIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Aircraft"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "AircraftType": {
         "required": [
           "atcModel",
@@ -1463,10 +2043,11 @@
           4,
           5,
           6,
-          7
+          7,
+          8
         ],
         "type": "integer",
-        "description": "Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = Jet, 5 = Regional, 6 = NBAirliner, 7 = WBAirliner",
+        "description": "Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = Jet, 5 = Regional, 6 = NBAirliner, 7 = WBAirliner, 8 = Helicopter",
         "format": "int32",
         "x-enumNames": [
           "SEP",
@@ -1476,7 +2057,8 @@
           "Jet",
           "Regional",
           "NBAirliner",
-          "WBAirliner"
+          "WBAirliner",
+          "Helicopter"
         ],
         "x-enum-varnames": [
           "SEP",
@@ -1486,7 +2068,8 @@
           "Jet",
           "Regional",
           "NBAirliner",
-          "WBAirliner"
+          "WBAirliner",
+          "Helicopter"
         ]
       },
       "AircraftTypeIEnumerableApiResponse": {
@@ -2786,6 +3369,52 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "LinkedAccounts": {
+        "type": "object",
+        "properties": {
+          "bingMapsKey": {
+            "type": "string",
+            "description": "Gets or sets the Bing maps API key.",
+            "nullable": true
+          },
+          "simbriefUsername": {
+            "type": "string",
+            "description": "Gets or sets the Simbrief username.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Linked accounts and keys model."
+      },
+      "LinkedAccountsApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LinkedAccounts"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "Login": {
         "required": [
           "password",
@@ -3088,6 +3717,23 @@
         "additionalProperties": false,
         "description": "Revoke token model."
       },
+      "RevokeTokenByName": {
+        "type": "object",
+        "properties": {
+          "expiry": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the expiry.",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Revoke token by name and expiry model."
+      },
       "Simulator": {
         "enum": [
           0
@@ -3140,6 +3786,67 @@
             "type": "array",
             "items": {
               "type": "string"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "expiry": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the expiry of the token.",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name of the token (ex. website, agent-msfs, etc.).",
+            "nullable": true
+          },
+          "tokenGeo": {
+            "type": "string",
+            "description": "Gets or sets the geo location (country) the token was created from.",
+            "nullable": true
+          },
+          "tokenIP": {
+            "type": "string",
+            "description": "Gets or sets the IP address the token was created from.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Token model."
+      },
+      "TokenIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Token"
             },
             "description": "Gets or sets the embedded data of type T.",
             "nullable": true

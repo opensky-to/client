@@ -139,9 +139,13 @@
     <Compile Include="Native\PInvoke\Structs\Rect.cs" />
     <Compile Include="Native\PInvoke\User32.cs" />
     <Compile Include="Native\Taskbar.cs" />
+    <Compile Include="Pages\Aircraft.xaml.cs">
+      <DependentUpon>Aircraft.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\DataImport.xaml.cs">
       <DependentUpon>DataImport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\AircraftViewModel.cs" />
     <Compile Include="Pages\Models\DataImportViewModel.cs" />
     <Compile Include="Pages\Models\SettingsViewModel.cs" />
     <Compile Include="Pages\Models\WorldPopulationViewModel.cs" />
@@ -178,6 +182,10 @@
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\DockingAdapter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Aircraft.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -390,6 +398,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\world16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\aircraft16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

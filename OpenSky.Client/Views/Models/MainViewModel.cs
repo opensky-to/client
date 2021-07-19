@@ -73,6 +73,9 @@ namespace OpenSky.Client.Views.Models
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
+            var aircraft = new NavMenuItem { Name = "Aircraft", Icon = "/Resources/aircraft16.png", PageType = typeof(Aircraft) };
+            this.NavigationItems.Add(aircraft);
+
             var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
             if (UserSessionService.Instance.IsAdmin)
             {
