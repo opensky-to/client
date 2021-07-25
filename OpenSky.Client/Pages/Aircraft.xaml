@@ -21,6 +21,7 @@
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       mc:Ignorable="d"
                       LoadingText="{Binding LoadingText}"
+                      VerticalScrollBar="False" HorizontalScrollBar="False"
                       d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:AircraftViewModel />
@@ -80,16 +81,16 @@
                 <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="20,0,0,0">Within NM of airport</RadioButton>
                 <TextBox Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Margin="20,0,0,0" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666" />
                 <RadioButton IsChecked="{Binding CountryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Margin="20,0,0,0">Country</RadioButton>
-                <ComboBox Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,0,0,0" ItemsSource="{Binding Countries}" SelectedItem="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <syncfusion:SfTextBoxExt Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,0,0,0" AutoCompleteSource="{Binding Countries}" Text="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoCompleteMode="SuggestAppend" SuggestionMode="Contains" ShowClearButton="True" ShowDropDownButton="True" Watermark="Type to search..." />
+
                 <TextBlock Grid.Row="4" Grid.Column="2" VerticalAlignment="Center">Other filters</TextBlock>
                 <CheckBox IsChecked="{Binding OnlyVanillaChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" Margin="20,0,0,0">Only vanilla aircraft</CheckBox>
-                <ComboBox Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <ComboBox.Items>
-                        <ComboBoxItem IsSelected="True">All simulators</ComboBoxItem>
-                    </ComboBox.Items>
-                </ComboBox>
+                <Grid Grid.Row="6" Grid.Column="2" Margin="20,0,0,0">
+                    <ComboBox x:Name="SimCombo"  VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All simulators" ui:ControlHelper.PlaceholderForeground="#666" />
+                    <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
+                </Grid>
                 <StackPanel Grid.Row="7" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource OpenSkyButtonStyle}">Search</Button>
+                    <Button Style="{StaticResource OpenSkyButtonStyle}" Command="{Binding SearchCommand}">Search</Button>
                     <Button Margin="5,0,0,0" Command="{Binding ResetSearchCommand}">Reset</Button>
                 </StackPanel>
             </Grid>
@@ -98,6 +99,36 @@
             <GroupBox.Header>
                 <TextBlock FontWeight="DemiBold">Available Aircraft</TextBlock>
             </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                    <ui:CommandBar.PrimaryCommands>
+                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the list of existing aircraft types [F5]" Command="{Binding RefreshTypesCommand}" />
+                    </ui:CommandBar.PrimaryCommands>
+                </ui:CommandBar>
+                <DataGrid
+                    Grid.Row="1"
+                    ItemsSource="{Binding Aircraft}"
+
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTextColumn Header="Max Gross" Binding="{Binding Type.MaxGrossWeight}" />
+                        <DataGridTextColumn Header="Fuel" Binding="{Binding Fuel}" />
+                        <DataGridTextColumn Header="Fuel Capacity" Binding="{Binding Type.FuelTotalCapacity}" />
+                        <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice}" />
+                        <DataGridTextColumn Header="Rent Price" Binding="{Binding RentPrice}" />
+                        <DataGridTextColumn Header="Owner" Binding="{Binding OwnerID}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </GroupBox>
     </Grid>
 </controls:OpenSkyPage>
