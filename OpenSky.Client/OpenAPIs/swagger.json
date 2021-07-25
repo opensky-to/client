@@ -1882,6 +1882,7 @@
           "atcType",
           "category",
           "engineType",
+          "manufacturer",
           "name",
           "simulator",
           "uploaderID"
@@ -1974,6 +1975,12 @@
             "nullable": true,
             "readOnly": true
           },
+          "manufacturer": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the manufacturer."
+          },
           "maxGrossWeight": {
             "type": "number",
             "description": "Gets or sets the maximum gross weight in pounds.",
@@ -2047,29 +2054,29 @@
           8
         ],
         "type": "integer",
-        "description": "Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = Jet, 5 = Regional, 6 = NBAirliner, 7 = WBAirliner, 8 = Helicopter",
+        "description": "Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = JET, 5 = REG, 6 = NBA, 7 = WBA, 8 = HEL",
         "format": "int32",
         "x-enumNames": [
           "SEP",
           "MEP",
           "SET",
           "MET",
-          "Jet",
-          "Regional",
-          "NBAirliner",
-          "WBAirliner",
-          "Helicopter"
+          "JET",
+          "REG",
+          "NBA",
+          "WBA",
+          "HEL"
         ],
         "x-enum-varnames": [
           "SEP",
           "MEP",
           "SET",
           "MET",
-          "Jet",
-          "Regional",
-          "NBAirliner",
-          "WBAirliner",
-          "Helicopter"
+          "JET",
+          "REG",
+          "NBA",
+          "WBA",
+          "HEL"
         ]
       },
       "AircraftTypeIEnumerableApiResponse": {
