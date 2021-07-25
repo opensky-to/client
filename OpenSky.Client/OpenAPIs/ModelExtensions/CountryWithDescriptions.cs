@@ -802,7 +802,7 @@ namespace OpenSky.Client.OpenAPIs.ModelExtensions
         /// The country.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private CountryComboItem(CountryWithDescriptions country)
+        public CountryComboItem(CountryWithDescriptions country)
         {
             this.Country = (Country)country;
             this.Description = country.GetDescription();
@@ -841,6 +841,59 @@ namespace OpenSky.Client.OpenAPIs.ModelExtensions
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// <param name="obj">
+        /// The object to compare with the current object.
+        /// </param>
+        /// <returns>
+        /// <see langword="true" /> if the specified object  is equal to the current object; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        /// <seealso cref="M:System.Object.Equals(object)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return this.Equals((CountryComboItem)obj);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// <returns>
+        /// A hash code for the current object.
+        /// </returns>
+        /// <seealso cref="M:System.Object.GetHashCode()"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override int GetHashCode()
+        {
+            return (int)this.Country;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <remarks>
@@ -854,6 +907,26 @@ namespace OpenSky.Client.OpenAPIs.ModelExtensions
         public override string ToString()
         {
             return $"{this.Country} - {this.Description}";
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// <param name="other">
+        /// The country combo item to compare to this object.
+        /// </param>
+        /// <returns>
+        /// <see langword="true" /> if the specified object  is equal to the current object; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        protected bool Equals(CountryComboItem other)
+        {
+            return this.Country == other.Country;
         }
     }
 }
