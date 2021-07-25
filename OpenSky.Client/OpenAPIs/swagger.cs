@@ -3441,6 +3441,12 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("lastEditedByName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LastEditedByName { get; set; }
     
+        /// <summary>Gets or sets the manufacturer.</summary>
+        [Newtonsoft.Json.JsonProperty("manufacturer", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(50)]
+        public string Manufacturer { get; set; }
+    
         /// <summary>Gets or sets the maximum gross weight in pounds.</summary>
         [Newtonsoft.Json.JsonProperty("maxGrossWeight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double MaxGrossWeight { get; set; }
@@ -3492,7 +3498,7 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = Jet, 5 = Regional, 6 = NBAirliner, 7 = WBAirliner, 8 = Helicopter</summary>
+    /// <summary>Values that represent aircraft type categories. 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = JET, 5 = REG, 6 = NBA, 7 = WBA, 8 = HEL</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum AircraftTypeCategory
     {
@@ -3504,15 +3510,15 @@ namespace OpenSkyApi
     
         MET = 3,
     
-        Jet = 4,
+        JET = 4,
     
-        Regional = 5,
+        REG = 5,
     
-        NBAirliner = 6,
+        NBA = 6,
     
-        WBAirliner = 7,
+        WBA = 7,
     
-        Helicopter = 8,
+        HEL = 8,
     
     }
     
