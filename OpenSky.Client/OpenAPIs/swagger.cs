@@ -3283,6 +3283,10 @@ namespace OpenSkyApi
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string OwnerID { get; set; }
     
+        /// <summary>Gets the owner name.</summary>
+        [Newtonsoft.Json.JsonProperty("ownerName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string OwnerName { get; set; }
+    
         /// <summary>Gets or sets the purchase price for the aircraft. Null if not available for purchase.</summary>
         [Newtonsoft.Json.JsonProperty("purchasePrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? PurchasePrice { get; set; }

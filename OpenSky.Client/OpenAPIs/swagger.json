@@ -1782,6 +1782,12 @@
             "description": "Gets or sets the identifier of the user that owns this aircraft (NULL if no user owner).",
             "nullable": true
           },
+          "ownerName": {
+            "type": "string",
+            "description": "Gets the owner name.",
+            "nullable": true,
+            "readOnly": true
+          },
           "purchasePrice": {
             "type": "integer",
             "description": "Gets or sets the purchase price for the aircraft. Null if not available for purchase.",

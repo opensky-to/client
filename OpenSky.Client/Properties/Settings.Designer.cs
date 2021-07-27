@@ -110,5 +110,29 @@ namespace OpenSky.Client.Properties {
                 return ((string)(this["OpenSkyTokenUrl"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int WeightUnit {
+            get {
+                return ((int)(this["WeightUnit"]));
+            }
+            set {
+                this["WeightUnit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FuelUnit {
+            get {
+                return ((int)(this["FuelUnit"]));
+            }
+            set {
+                this["FuelUnit"] = value;
+            }
+        }
     }
 }
