@@ -456,7 +456,7 @@ namespace OpenSky.Client.Pages.Models
             var filtered = new List<Aircraft>();
             foreach (var ac in aircraft)
             {
-                if (this.AircraftCategoryChecked && ac.Type.Category != this.AircraftTypeCategory.AircraftTypeCategory)
+                if (this.AircraftCategoryChecked && this.AircraftTypeCategory != null && ac.Type.Category != this.AircraftTypeCategory.AircraftTypeCategory)
                 {
                     continue;
                 }
@@ -716,7 +716,7 @@ namespace OpenSky.Client.Pages.Models
 
                 if (!string.IsNullOrEmpty(value))
                 {
-                    this.CountryChecked = true;
+                    // todo this.CountryChecked = true;
                 }
             }
         }
@@ -788,19 +788,14 @@ namespace OpenSky.Client.Pages.Models
 
                     // Filter aircraft types to this manufacturer
                     this.AircraftTypes.Clear();
-                    if (this.AircraftTypeCategory != null)
+                    foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Manufacturer.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
                     {
-                        foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Category == this.AircraftTypeCategory.AircraftTypeCategory && t.Manufacturer.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
+                        if (this.AircraftTypeCategory != null && this.AircraftTypeCategory.AircraftTypeCategory != aircraftType.Category)
                         {
-                            this.AircraftTypes.Add(aircraftType);
+                            continue;
                         }
-                    }
-                    else
-                    {
-                        foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Manufacturer.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
-                        {
-                            this.AircraftTypes.Add(aircraftType);
-                        }
+
+                        this.AircraftTypes.Add(aircraftType);
                     }
 
                     // Check if the current name is still in the filtered list
@@ -811,23 +806,16 @@ namespace OpenSky.Client.Pages.Models
                 }
                 else
                 {
-                    if (this.AircraftTypeCategory != null)
+                    // Restore the full list of aircraft types (except where other filters already removed them)
+                    this.AircraftTypes.Clear();
+                    foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
                     {
-                        // Restore the list of aircraft types matching the still selected category
-                        this.AircraftTypes.Clear();
-                        foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Category == this.AircraftTypeCategory.AircraftTypeCategory).OrderBy(t => t.Name))
+                        if (this.AircraftTypeCategory != null && this.AircraftTypeCategory.AircraftTypeCategory != aircraftType.Category)
                         {
-                            this.AircraftTypes.Add(aircraftType);
+                            continue;
                         }
-                    }
-                    else
-                    {
-                        // Restore the full list of aircraft types
-                        this.AircraftTypes.Clear();
-                        foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
-                        {
-                            this.AircraftTypes.Add(aircraftType);
-                        }
+
+                        this.AircraftTypes.Add(aircraftType);
                     }
                 }
             }
@@ -855,6 +843,42 @@ namespace OpenSky.Client.Pages.Models
                 if (!string.IsNullOrEmpty(value))
                 {
                     this.AircraftNameChecked = true;
+
+                    // Filter aircraft types to match the current name
+                    this.AircraftTypes.Clear();
+                    foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Name.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
+                    {
+                        if (this.AircraftTypeCategory != null && this.AircraftTypeCategory.AircraftTypeCategory != aircraftType.Category)
+                        {
+                            continue;
+                        }
+
+                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                        {
+                            continue;
+                        }
+
+                        this.AircraftTypes.Add(aircraftType);
+                    }
+                }
+                else
+                {
+                    // Restore the full list of aircraft types (except where other filters already removed them)
+                    this.AircraftTypes.Clear();
+                    foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
+                    {
+                        if (this.AircraftTypeCategory != null && this.AircraftTypeCategory.AircraftTypeCategory != aircraftType.Category)
+                        {
+                            continue;
+                        }
+
+                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                        {
+                            continue;
+                        }
+
+                        this.AircraftTypes.Add(aircraftType);
+                    }
                 }
             }
         }
@@ -877,7 +901,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.nmRadius = value;
                 this.NotifyPropertyChanged();
-                this.WithinNmAirportChecked = true;
+                // todo this.WithinNmAirportChecked = true;
             }
         }
 
@@ -1006,5 +1030,7 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+
     }
 }

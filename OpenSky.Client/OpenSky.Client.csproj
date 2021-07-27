@@ -108,6 +108,9 @@
     </Compile>
     <Compile Include="Controls\DockItemEx.cs" />
     <Compile Include="Controls\DocumentHeaderEx.cs" />
+    <Compile Include="Controls\AircraftFuelAsProgressbar.xaml.cs">
+      <DependentUpon>AircraftFuelAsProgressbar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
     <Compile Include="Converters\NullItemToVisibilityConverter.cs" />
@@ -117,7 +120,10 @@
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
+    <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Models\Enums\FuelUnit.cs" />
+    <Compile Include="Models\Enums\WeightUnit.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\AircraftType.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\AircraftTypeCategoryWithDescriptions.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\CountryWithDescriptions.cs" />
@@ -187,6 +193,10 @@
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\DockingAdapter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AircraftFuelAsProgressbar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -388,9 +398,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\OSdingdong.wav" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\OpenSkyLogo16.png" />
   </ItemGroup>

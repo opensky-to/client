@@ -56,6 +56,12 @@
         </syncfusion:ChartColorModel.CustomBrushes>
     </syncfusion:ChartColorModel>
 
+    <Style x:Key="DatagridCellRightAlign">
+        <Setter Property="Control.HorizontalAlignment" Value="Right" />
+        <Setter Property="Control.VerticalAlignment" Value="Center" />
+        <Setter Property="Control.Margin" Value="15,0" />
+    </Style>
+
     <DataTemplate x:Key="PieChartValueLabelTemplate" DataType="{x:Type syncfusion:ChartPieAdornment}">
         <DataTemplate.Resources>
             <converters:PieChartValueAdornerLabelConverter x:Key="PieChartValueAdornerLabelConverter" />
