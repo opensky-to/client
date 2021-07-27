@@ -12,6 +12,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Linq;
     using System.Windows;
+    using System.Windows.Forms;
 
     using OpenSky.Client.MVVM;
     using OpenSky.Client.OpenAPIs.ModelExtensions;
@@ -64,6 +65,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string airportIcao;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// List of all aircraft types received from the API, with no filters applied.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private ICollection<AircraftType> allAircraftTypes;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -210,296 +218,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Clears the simulator.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void ClearSimulator()
-        {
-            this.Simulator = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the simulators.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Simulator> Simulators { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the countries.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<CountryComboItem> Countries { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Clear the aircraft type category.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void ClearCategory()
-        {
-            this.AircraftTypeCategory = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the clear simulator command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command ClearSimulatorCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the clear category command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command ClearCategoryCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Reset the search form.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void ResetSearch()
-        {
-            this.AircraftTypeCategory = null;
-            this.Manufacturer = string.Empty;
-            this.Name = string.Empty;
-            this.AllAircraftTypesChecked = true;
-
-            this.PurchaseChecked = true;
-            this.RentChecked = true;
-
-            this.AirportIcao = string.Empty;
-            this.NmRadius = 100;
-            this.Country = null;
-            this.AtAirportChecked = true;
-
-            this.OnlyVanillaChecked = true;
-            this.Simulator = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the aircraft type categories.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<AircraftTypeCategoryComboItem> TypeCategories { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets a list of types of aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<AircraftType> AircraftTypes { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the manufacturers list.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<string> Manufacturers { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// List of all aircraft types received from the API, with no filters applied.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private ICollection<AircraftType> allAircraftTypes;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Refresh aircraft types.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 21/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void RefreshTypes()
-        {
-            this.LoadingText = "Refreshing aircraft types";
-            try
-            {
-                var result = OpenSkyService.Instance.GetAircraftTypesAsync().Result;
-                if (!result.IsError)
-                {
-                    this.RefreshTypesCommand.ReportProgress(
-                        () =>
-                        {
-                            this.allAircraftTypes = result.Data;
-
-                            this.Manufacturers.Clear();
-                            foreach (var typeManufacturer in result.Data.Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
-                            {
-                                this.Manufacturers.Add(typeManufacturer);
-                            }
-
-                            this.AircraftTypes.Clear();
-                            foreach (var aircraftType in result.Data.OrderBy(t => t.Name))
-                            {
-                                this.AircraftTypes.Add(aircraftType);
-                            }
-                        });
-                }
-                else
-                {
-                    this.RefreshTypesCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error refreshing aircraft types: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft types", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.RefreshTypesCommand, "Error refreshing aircraft types");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Searches for aircraft matching our search criteria.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/07/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void Search()
-        {
-            this.LoadingText = "Searching for aircraft...";
-            try
-            {
-                if (this.AtAirportChecked)
-                {
-                    // This one is easy as one airport will never contain huge amounts of aircraft
-                    if (string.IsNullOrEmpty(this.AirportIcao))
-                    {
-                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No airport ICAO code specified.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
-                        return;
-                    }
-
-                    var result = OpenSkyService.Instance.GetAircraftAtAirportAsync(this.AirportIcao).Result;
-                    if (!result.IsError)
-                    {
-                        this.SearchCommand.ReportProgress(
-                            () =>
-                            {
-                                this.Aircraft.Clear();
-                                foreach (var aircraft in this.ProcessAircraftSearchResult(result.Data))
-                                {
-                                    this.Aircraft.Add(aircraft);
-                                }
-                            });
-                    }
-                    else
-                    {
-                        this.SearchCommand.ReportProgress(
-                            () =>
-                            {
-                                Debug.WriteLine("Error searching for aircraft: " + result.Message);
-                                if (!string.IsNullOrEmpty(result.ErrorDetails))
-                                {
-                                    Debug.WriteLine(result.ErrorDetails);
-                                }
-
-                                ModernWpf.MessageBox.Show(result.Message, "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.SearchCommand, "Error searching for aircraft");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Processes aircraft search result and applies custom filters.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/07/2021.
-        /// </remarks>
-        /// <param name="aircraft">
-        /// The aircraft list to filter.
-        /// </param>
-        /// <returns>
-        /// The aircraft from the original collection matching the currently selected filter options.
-        /// </returns>
-        /// -------------------------------------------------------------------------------------------------
-        private IEnumerable<Aircraft> ProcessAircraftSearchResult(IEnumerable<Aircraft> aircraft)
-        {
-            var filtered = new List<Aircraft>();
-            foreach (var ac in aircraft)
-            {
-                if (this.AircraftCategoryChecked && this.AircraftTypeCategory != null && ac.Type.Category != this.AircraftTypeCategory.AircraftTypeCategory)
-                {
-                    continue;
-                }
-
-                if (this.AircraftManufacturerChecked && !ac.Type.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
-                {
-                    continue;
-                }
-
-                if (this.AircraftNameChecked && !ac.Type.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant()))
-                {
-                    continue;
-                }
-
-                if (this.PurchaseChecked && !ac.PurchasePrice.HasValue)
-                {
-                    continue;
-                }
-
-                if (this.RentChecked && !ac.RentPrice.HasValue)
-                {
-                    continue;
-                }
-
-                if (this.OnlyVanillaChecked && !ac.Type.IsVanilla)
-                {
-                    continue;
-                }
-
-                if (this.Simulator.HasValue && ac.Type.Simulator != this.Simulator.Value)
-                {
-                    continue;
-                }
-
-                filtered.Add(ac);
-            }
-
-
-            return filtered;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets a value indicating whether "aircraft category" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -598,13 +316,13 @@ namespace OpenSky.Client.Pages.Models
                     }
 
                     // Check if the current manufacturer is still in the filtered list
-                    if (this.Manufacturer != null && !this.Manufacturers.Any(m => m.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant())))
+                    if (!string.IsNullOrEmpty(this.Manufacturer) && !this.Manufacturers.Any(m => m.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant())))
                     {
                         this.Manufacturer = string.Empty;
                     }
 
                     // Check if the current name is still in the filtered list
-                    if (this.Name != null && !this.AircraftTypes.Any(t => t.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant())))
+                    if (!string.IsNullOrEmpty(this.Name) && !this.AircraftTypes.Any(t => t.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant())))
                     {
                         this.Name = string.Empty;
                     }
@@ -626,6 +344,13 @@ namespace OpenSky.Client.Pages.Models
                 }
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a list of types of aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftType> AircraftTypes { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -697,6 +422,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the clear category command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearCategoryCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear simulator command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearSimulatorCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the countries.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<CountryComboItem> Countries { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the currently selected country, or NULL if no country is selected.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -716,7 +462,23 @@ namespace OpenSky.Client.Pages.Models
 
                 if (!string.IsNullOrEmpty(value))
                 {
-                    // todo this.CountryChecked = true;
+                    // Filter countries list to match current country text
+                    this.Countries.Clear();
+                    foreach (var countryItem in CountryComboItem.GetCountryComboItems().Where(c => c.ToString().ToLowerInvariant().Contains(value.ToLowerInvariant())))
+                    {
+                        this.Countries.Add(countryItem);
+                    }
+
+                    this.CountryChecked = true;
+                }
+                else
+                {
+                    // Restore all countries
+                    this.Countries.Clear();
+                    foreach (var countryItem in CountryComboItem.GetCountryComboItems())
+                    {
+                        this.Countries.Add(countryItem);
+                    }
                 }
             }
         }
@@ -786,6 +548,14 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.AircraftManufacturerChecked = true;
 
+                    // Filter list of manufacturers to match current matching text
+                    this.Manufacturers.Clear();
+                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer).Distinct()
+                                                         .Where(m => m.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(m => m))
+                    {
+                        this.Manufacturers.Add(typeManufacturer);
+                    }
+
                     // Filter aircraft types to this manufacturer
                     this.AircraftTypes.Clear();
                     foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Manufacturer.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
@@ -799,13 +569,20 @@ namespace OpenSky.Client.Pages.Models
                     }
 
                     // Check if the current name is still in the filtered list
-                    if (!this.AircraftTypes.Any(t => t.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant())))
+                    if (!string.IsNullOrEmpty(this.Name) && !this.AircraftTypes.Any(t => t.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant())))
                     {
                         this.Name = string.Empty;
                     }
                 }
                 else
                 {
+                    // Restore full list of manufacturers (except where other filters already removed them)
+                    this.Manufacturers.Clear();
+                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                    {
+                        this.Manufacturers.Add(typeManufacturer);
+                    }
+
                     // Restore the full list of aircraft types (except where other filters already removed them)
                     this.AircraftTypes.Clear();
                     foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
@@ -820,6 +597,13 @@ namespace OpenSky.Client.Pages.Models
                 }
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the manufacturers list.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> Manufacturers { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -901,6 +685,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.nmRadius = value;
                 this.NotifyPropertyChanged();
+
                 // todo this.WithinNmAirportChecked = true;
             }
         }
@@ -1012,6 +797,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Simulator> Simulators { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft type categories.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftTypeCategoryComboItem> TypeCategories { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets a value indicating whether "within nm of airport" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1031,6 +830,327 @@ namespace OpenSky.Client.Pages.Models
             }
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Clear the aircraft type category.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearCategory()
+        {
+            this.AircraftTypeCategory = null;
+        }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Clears the simulator.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearSimulator()
+        {
+            this.Simulator = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Processes aircraft search result and applies custom filters.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// <param name="aircraft">
+        /// The aircraft list to filter.
+        /// </param>
+        /// <returns>
+        /// The aircraft from the original collection matching the currently selected filter options.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        private IEnumerable<Aircraft> ProcessAircraftSearchResult(IEnumerable<Aircraft> aircraft)
+        {
+            var filtered = new List<Aircraft>();
+            foreach (var ac in aircraft)
+            {
+                if (this.AircraftCategoryChecked && this.AircraftTypeCategory != null && ac.Type.Category != this.AircraftTypeCategory.AircraftTypeCategory)
+                {
+                    continue;
+                }
+
+                if (this.AircraftManufacturerChecked && !ac.Type.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                {
+                    continue;
+                }
+
+                if (this.AircraftNameChecked && !ac.Type.Name.ToLowerInvariant().Contains(this.Name.ToLowerInvariant()))
+                {
+                    continue;
+                }
+
+                if (this.PurchaseChecked && !ac.PurchasePrice.HasValue)
+                {
+                    continue;
+                }
+
+                if (this.RentChecked && !ac.RentPrice.HasValue)
+                {
+                    continue;
+                }
+
+                if (this.OnlyVanillaChecked && !ac.Type.IsVanilla)
+                {
+                    continue;
+                }
+
+                if (this.Simulator.HasValue && ac.Type.Simulator != this.Simulator.Value)
+                {
+                    continue;
+                }
+
+                filtered.Add(ac);
+            }
+
+            return filtered;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refresh aircraft types.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 21/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshTypes()
+        {
+            this.LoadingText = "Refreshing aircraft types";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAircraftTypesAsync().Result;
+                if (!result.IsError)
+                {
+                    this.RefreshTypesCommand.ReportProgress(
+                        () =>
+                        {
+                            this.allAircraftTypes = result.Data;
+
+                            this.Manufacturers.Clear();
+                            foreach (var typeManufacturer in result.Data.Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                            {
+                                this.Manufacturers.Add(typeManufacturer);
+                            }
+
+                            this.AircraftTypes.Clear();
+                            foreach (var aircraftType in result.Data.OrderBy(t => t.Name))
+                            {
+                                this.AircraftTypes.Add(aircraftType);
+                            }
+                        });
+                }
+                else
+                {
+                    this.RefreshTypesCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing aircraft types: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft types", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshTypesCommand, "Error refreshing aircraft types");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Reset the search form.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ResetSearch()
+        {
+            this.AircraftTypeCategory = null;
+            this.Manufacturer = string.Empty;
+            this.Name = string.Empty;
+            this.AllAircraftTypesChecked = true;
+
+            this.PurchaseChecked = true;
+            this.RentChecked = true;
+
+            this.AirportIcao = string.Empty;
+            this.NmRadius = 100;
+            this.Country = null;
+            this.AtAirportChecked = true;
+
+            this.OnlyVanillaChecked = true;
+            this.Simulator = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The location column visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility locationColumnVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the location column visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility LocationColumnVisibility
+        {
+            get => this.locationColumnVisibility;
+        
+            set
+            {
+                if(Equals(this.locationColumnVisibility, value))
+                {
+                   return;
+                }
+        
+                this.locationColumnVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Searches for aircraft matching our search criteria.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void Search()
+        {
+            this.LoadingText = "Searching for aircraft...";
+            try
+            {
+                AircraftIEnumerableApiResponse result = null;
+                if (this.AtAirportChecked)
+                {
+                    // This one is easy as one airport will never contain huge amounts of aircraft
+                    if (string.IsNullOrEmpty(this.AirportIcao))
+                    {
+                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No airport ICAO code specified.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        return;
+                    }
+
+                    this.LocationColumnVisibility = Visibility.Collapsed;
+                    result = OpenSkyService.Instance.GetAircraftAtAirportAsync(this.AirportIcao).Result;
+                }
+
+                if (this.CountryChecked)
+                {
+                    // Country search needs a bit of preparation to build search criteria from selections
+                    if (string.IsNullOrEmpty(this.Country))
+                    {
+                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No country selected.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        return;
+                    }
+
+                    var countryCode = this.Country.Split('-')[0].Trim();
+                    if (!Enum.TryParse(countryCode, out Country parsedCountry))
+                    {
+                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Could not parse country string.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        return;
+                    }
+
+                    var searchCriteria = new AircraftSearchInCountry
+                    {
+                        Country = parsedCountry,
+                        MaxResults = 100,
+                        FilterByCategory = false
+                    };
+
+                    if (this.AllAircraftTypesChecked)
+                    {
+                        MessageBoxResult? answer = null;
+                        this.SearchCommand.ReportProgress(()=>
+                        {
+                            answer = ModernWpf.MessageBox.Show("Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?", "Aircraft search", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        }, true);
+                        if (answer is not MessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (this.AircraftCategoryChecked)
+                    {
+                        searchCriteria.Category = this.AircraftTypeCategory.AircraftTypeCategory;
+                        searchCriteria.FilterByCategory = true;
+                    }
+
+                    if (this.AircraftManufacturerChecked)
+                    {
+                        searchCriteria.Manufacturer = this.Manufacturer;
+                    }
+
+                    if (this.AircraftNameChecked)
+                    {
+                        searchCriteria.Name = this.Name;
+                    }
+
+                    this.LocationColumnVisibility = Visibility.Visible;
+                    result = OpenSkyService.Instance.SearchAircraftInCountryAsync(searchCriteria).Result;
+                }
+
+                if (result != null)
+                {
+                    if (!result.IsError)
+                    {
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                this.Aircraft.Clear();
+                                foreach (var aircraft in this.ProcessAircraftSearchResult(result.Data))
+                                {
+                                    this.Aircraft.Add(aircraft);
+                                }
+                            });
+                    }
+                    else
+                    {
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error searching for aircraft: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                ModernWpf.MessageBox.Show(result.Message, "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SearchCommand, "Error searching for aircraft");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
     }
 }

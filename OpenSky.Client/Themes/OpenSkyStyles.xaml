@@ -3,7 +3,8 @@
                     xmlns:ui="http://schemas.modernwpf.com/2019"
                     xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-                    xmlns:converters="clr-namespace:OpenSky.Client.Converters">
+                    xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                    xmlns:themes="clr-namespace:OpenSky.Client.Themes">
 
     <!-- OPENSKY COLOR STYLE DEFINITIONS -->
     <Color x:Key="OpenSkyTeal">#05826c</Color>
@@ -28,6 +29,8 @@
     <SolidColorBrush x:Key="OpenSkySimBriefBrush" Color="{StaticResource OpenSkySimBrief}" />
     <Color x:Key="OpenSkySimBriefText">White</Color>
     <SolidColorBrush x:Key="OpenSkySimBriefTextBrush" Color="{StaticResource OpenSkySimBriefText}" />
+
+        
 
     <syncfusion:ChartColorModel x:Key="OpenSkyTealChartColors">
         <syncfusion:ChartColorModel.CustomBrushes>
@@ -297,6 +300,7 @@
                     </ui:ThemeResources>
                     <ui:XamlControlsResources />
 
+                    <themes:FontOverrides FontFamily="Montserrat" />
                     <ResourceDictionary Source="VectorGraphics.xaml" />
                     <ResourceDictionary Source="OpenSkyStyles.xaml" />
                     <ResourceDictionary Source="GridFilter.xaml" />

@@ -16,11 +16,9 @@
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
-                      xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
-                      xmlns:system="clr-namespace:System;assembly=mscorlib"
                       mc:Ignorable="d"
                       LoadingText="{Binding LoadingText}"
                       VerticalScrollBar="False" HorizontalScrollBar="False"
@@ -31,9 +29,6 @@
     <UserControl.Resources>
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
-        <DataTemplate x:Key="TextBlockTemplate" DataType="{x:Type system:String}">
-            <TextBlock FontFamily="/Fonts/#Montserrat" FontSize="13" Text="{Binding .}" />
-        </DataTemplate>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -80,8 +75,8 @@
                 </DockPanel>
                 <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3" IsEnabled="False">Within NM</RadioButton>
                 <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666" />
-                <RadioButton IsChecked="{Binding CountryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3" IsEnabled="False">Country</RadioButton>
-                <syncfusion:SfTextBoxExt Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" AutoCompleteSource="{Binding Countries}" Text="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoCompleteMode="SuggestAppend" SuggestionMode="Contains" ShowClearButton="True" ShowDropDownButton="True" Watermark="Type to search..." />
+                <RadioButton IsChecked="{Binding CountryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Country</RadioButton>
+                <ui:AutoSuggestBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Countries}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                 <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Type of Aircraft</TextBlock>
                 <RadioButton GroupName="AircraftType" IsChecked="{Binding AllAircraftTypesChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">All</RadioButton>
@@ -91,8 +86,7 @@
                     <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=CategoryCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearCategoryCommand}" />
                 </Grid>
                 <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftManufacturerChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Manufacturer</RadioButton>
-                <!--<syncfusion:SfTextBoxExt Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" AutoCompleteSource="{Binding Manufacturers}" Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoCompleteMode="Suggest" SuggestionMode="Contains" ShowClearButton="True" ShowDropDownButton="True" Watermark="Type to search..." />-->
-                <ui:AutoSuggestBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Manufacturers}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemTemplate="{StaticResource TextBlockTemplate}" />
+                <ui:AutoSuggestBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Manufacturers}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftNameChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Name</RadioButton>
                 <ui:AutoSuggestBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding AircraftTypes}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -142,6 +136,7 @@
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding LocationColumnVisibility}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
                         <DataGridTextColumn Header="Max Gross" Binding="{Binding Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N0|true}" ElementStyle="{StaticResource DatagridCellRightAlign}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" />
