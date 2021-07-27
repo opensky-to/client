@@ -169,6 +169,7 @@
     <Compile Include="Pages\WorldPopulation.xaml.cs">
       <DependentUpon>WorldPopulation.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Themes\FontOverrides.cs" />
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
     <Compile Include="Tools\MultiSelectExtension.cs" />
