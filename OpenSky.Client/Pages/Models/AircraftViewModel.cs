@@ -12,7 +12,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Linq;
     using System.Windows;
-    using System.Windows.Forms;
 
     using OpenSky.Client.MVVM;
     using OpenSky.Client.OpenAPIs.ModelExtensions;
@@ -89,6 +88,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The available aircraft groupbox header.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string availableAircraftHeader = "Available Aircraft";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The currently selected country, or NULL if no country is selected.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -107,6 +113,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The location column visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility locationColumnVisibility = Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -138,17 +151,31 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True if "purchase and rent" checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool purchaseAndRentChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// True if "purchase" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool purchaseChecked = true;
+        private bool purchaseChecked;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// True if "rent" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool rentChecked = true;
+        private bool rentChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The selected aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Aircraft selectedAircraft;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -181,6 +208,7 @@ namespace OpenSky.Client.Pages.Models
             this.Countries = new ObservableCollection<CountryComboItem>();
             this.Simulators = new ObservableCollection<Simulator>();
             this.Aircraft = new ObservableCollection<Aircraft>();
+            this.Aircraft.CollectionChanged += (_, _) => { this.AvailableAircraftHeader = $"Available Aircraft ({this.Aircraft.Count})"; };
 
             // Add initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -204,6 +232,8 @@ namespace OpenSky.Client.Pages.Models
             this.ClearSimulatorCommand = new Command(this.ClearSimulator);
             this.ResetSearchCommand = new Command(this.ResetSearch);
             this.SearchCommand = new AsynchronousCommand(this.Search);
+            this.PurchaseCommand = new AsynchronousCommand(this.PurchaseAircraft);
+            // todo implement renting when available
 
             // Fire off initial commands
             this.RefreshTypesCommand.DoExecute(null);
@@ -422,6 +452,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the available aircraft groupbox header.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AvailableAircraftHeader
+        {
+            get => this.availableAircraftHeader;
+
+            set
+            {
+                if (Equals(this.availableAircraftHeader, value))
+                {
+                    return;
+                }
+
+                this.availableAircraftHeader = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the clear category command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -521,6 +572,27 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 this.loadingText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the location column visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility LocationColumnVisibility
+        {
+            get => this.locationColumnVisibility;
+
+            set
+            {
+                if (Equals(this.locationColumnVisibility, value))
+                {
+                    return;
+                }
+
+                this.locationColumnVisibility = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -713,6 +785,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets a value indicating whether "purchase and rent" checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool PurchaseAndRentChecked
+        {
+            get => this.purchaseAndRentChecked;
+
+            set
+            {
+                if (Equals(this.purchaseAndRentChecked, value))
+                {
+                    return;
+                }
+
+                this.purchaseAndRentChecked = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets a value indicating whether "purchase" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -731,6 +824,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the purchase command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand PurchaseCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -773,6 +873,28 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand SearchCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Aircraft SelectedAircraft
+        {
+            get => this.selectedAircraft;
+
+            set
+            {
+                if (Equals(this.selectedAircraft, value))
+                {
+                    return;
+                }
+
+                this.selectedAircraft = value;
+                this.NotifyPropertyChanged();
+                this.PurchaseCommand.CanExecute = value?.PurchasePrice.HasValue == true;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -900,6 +1022,11 @@ namespace OpenSky.Client.Pages.Models
                     continue;
                 }
 
+                if (this.PurchaseAndRentChecked && !ac.PurchasePrice.HasValue && !ac.RentPrice.HasValue)
+                {
+                    continue;
+                }
+
                 if (this.OnlyVanillaChecked && !ac.Type.IsVanilla)
                 {
                     continue;
@@ -918,6 +1045,71 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Purchase the selected aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void PurchaseAircraft()
+        {
+            if (this.SelectedAircraft == null)
+            {
+                return;
+            }
+
+            MessageBoxResult? answer = null;
+            this.PurchaseCommand.ReportProgress(
+                () =>
+                {
+                    answer = ModernWpf.MessageBox.Show(
+                        $"Are you sure you want to purchase this aircraft?\r\n\r\nRegistration: {this.SelectedAircraft.Registry}\r\nType: {this.SelectedAircraft.Type.Name}\r\nLocation: {this.SelectedAircraft.AirportICAO}\r\nPrice: {this.SelectedAircraft.PurchasePrice:C0}",
+                        "Aircraft purchase",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                },
+                true);
+            if (answer is not MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = "Purchasing aircraft...";
+            try
+            {
+                var result = OpenSkyService.Instance.PurchaseAircraftAsync(this.SelectedAircraft.Registry).Result;
+                if (!result.IsError)
+                {
+                    this.PurchaseCommand.ReportProgress(
+                        () => { ModernWpf.MessageBox.Show(result.Message, "Aircraft purchase", MessageBoxButton.OK, MessageBoxImage.Information); });
+                }
+                else
+                {
+                    this.PurchaseCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error purchasing aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error purchasing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.PurchaseCommand, "Error purchasing aircraft");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Refresh aircraft types.
         /// </summary>
         /// <remarks>
@@ -926,7 +1118,7 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RefreshTypes()
         {
-            this.LoadingText = "Refreshing aircraft types";
+            this.LoadingText = "Refreshing aircraft types...";
             try
             {
                 var result = OpenSkyService.Instance.GetAircraftTypesAsync().Result;
@@ -1000,34 +1192,9 @@ namespace OpenSky.Client.Pages.Models
 
             this.OnlyVanillaChecked = true;
             this.Simulator = null;
-        }
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The location column visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility locationColumnVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the location column visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility LocationColumnVisibility
-        {
-            get => this.locationColumnVisibility;
-        
-            set
-            {
-                if(Equals(this.locationColumnVisibility, value))
-                {
-                   return;
-                }
-        
-                this.locationColumnVisibility = value;
-                this.NotifyPropertyChanged();
-            }
+            this.Aircraft.Clear();
+            this.AvailableAircraftHeader = "Available Aircraft";
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1077,16 +1244,23 @@ namespace OpenSky.Client.Pages.Models
                     {
                         Country = parsedCountry,
                         MaxResults = 100,
-                        FilterByCategory = false
+                        FilterByCategory = false,
+                        OnlyVanilla = this.OnlyVanillaChecked
                     };
 
                     if (this.AllAircraftTypesChecked)
                     {
                         MessageBoxResult? answer = null;
-                        this.SearchCommand.ReportProgress(()=>
-                        {
-                            answer = ModernWpf.MessageBox.Show("Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?", "Aircraft search", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        }, true);
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show(
+                                    "Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?",
+                                    "Aircraft search",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question);
+                            },
+                            true);
                         if (answer is not MessageBoxResult.Yes)
                         {
                             return;
