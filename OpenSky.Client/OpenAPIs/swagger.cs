@@ -3468,6 +3468,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
     
+        /// <summary>Gets or sets a value indicating whether to only include vanilla aircraft in the search results.</summary>
+        [Newtonsoft.Json.JsonProperty("onlyVanilla", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool OnlyVanilla { get; set; }
+    
     
     }
     

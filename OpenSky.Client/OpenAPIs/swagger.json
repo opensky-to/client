@@ -1961,6 +1961,10 @@
             "type": "string",
             "description": "Gets or sets the type name.",
             "nullable": true
+          },
+          "onlyVanilla": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to only include vanilla aircraft in the search results."
           }
         },
         "additionalProperties": false,

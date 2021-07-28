@@ -71,10 +71,18 @@
                 <RadioButton IsChecked="{Binding AtAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">At airport</RadioButton>
                 <DockPanel Grid.Row="1" Grid.Column="1" Margin="20,3, 0, 3">
                     <Button DockPanel.Dock="Right" Margin="5,0,0,0" IsEnabled="False">Search</Button>
-                    <TextBox VerticalAlignment="Center" Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox VerticalAlignment="Center" Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </DockPanel>
                 <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3" IsEnabled="False">Within NM</RadioButton>
-                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666" />
+                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
                 <RadioButton IsChecked="{Binding CountryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Country</RadioButton>
                 <ui:AutoSuggestBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Countries}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -91,8 +99,11 @@
                 <ui:AutoSuggestBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding AircraftTypes}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                 <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Availability</TextBlock>
-                <CheckBox IsChecked="{Binding PurchaseChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="10" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Purchase</CheckBox>
-                <CheckBox IsChecked="{Binding RentChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3">Rent</CheckBox>
+                <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <RadioButton GroupName="Availability" IsChecked="{Binding PurchaseChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="40" Margin="20,3,0,3">Purchase</RadioButton>
+                    <RadioButton GroupName="Availability" IsChecked="{Binding RentChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="40" Margin="20,3,0,3">Rent</RadioButton>
+                    <RadioButton GroupName="Availability" IsChecked="{Binding PurchaseAndRentChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,3,0,3">Purchase and rent</RadioButton>
+                </StackPanel>
 
                 <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Other filters</TextBlock>
                 <CheckBox IsChecked="{Binding OnlyVanillaChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="12" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Only vanilla</CheckBox>
@@ -109,7 +120,7 @@
         </GroupBox>
         <GroupBox Grid.Column="1">
             <GroupBox.Header>
-                <TextBlock FontWeight="DemiBold">Available Aircraft</TextBlock>
+                <TextBlock FontWeight="DemiBold" Text="{Binding AvailableAircraftHeader}" />
             </GroupBox.Header>
             <Grid>
                 <Grid.RowDefinitions>
@@ -118,13 +129,24 @@
                 </Grid.RowDefinitions>
                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
                     <ui:CommandBar.PrimaryCommands>
-                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the list of existing aircraft types [F5]" Command="{Binding RefreshTypesCommand}" />
+                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the search results [F5]" Command="{Binding SearchCommand}" />
+                        <ui:AppBarButton Label="Purchase" ToolTip="Purchase the selected aircraft" Command="{Binding PurchaseCommand}">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE7BF;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
+                        <ui:AppBarButton Label="Rent" ToolTip="Rent the selected aircraft" IsEnabled="False">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE709;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
+                <FrameworkElement Grid.Row="1" x:Name="LocationVisibilityProxy" Visibility="{Binding LocationColumnVisibility}" />
                 <DataGrid
                     Grid.Row="1"
                     ItemsSource="{Binding Aircraft}"
-
+                    SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
@@ -136,9 +158,8 @@
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding LocationColumnVisibility}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding Source={x:Reference LocationVisibilityProxy}, Path=Visibility}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
-                        <DataGridTextColumn Header="Max Gross" Binding="{Binding Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N0|true}" ElementStyle="{StaticResource DatagridCellRightAlign}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" />
                         <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice, StringFormat=C0}" ElementStyle="{StaticResource DatagridCellRightAlign}" />
                         <DataGridTextColumn Header="Rent Price" Binding="{Binding RentPrice, StringFormat=C0}" ElementStyle="{StaticResource DatagridCellRightAlign}" />
