@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Aircraft.xaml.cs" company="OpenSky">
+// <copyright file="AircraftMarket.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -10,20 +10,20 @@ namespace OpenSky.Client.Pages
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// Aircraft page.
+    /// Aircraft market page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class Aircraft
+    public partial class AircraftMarket
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="Aircraft"/> class.
+        /// Initializes a new instance of the <see cref="AircraftMarket"/> class.
         /// </summary>
         /// <remarks>
         /// sushi.at, 19/07/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public Aircraft()
+        public AircraftMarket()
         {
             this.InitializeComponent();
         }

@@ -73,8 +73,11 @@ namespace OpenSky.Client.Views.Models
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
-            var aircraft = new NavMenuItem { Name = "Aircraft", Icon = "/Resources/aircraft16.png", PageType = typeof(Aircraft) };
-            this.NavigationItems.Add(aircraft);
+            var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
+            this.NavigationItems.Add(myFleet);
+
+            var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
+            this.NavigationItems.Add(aircraftMarket);
 
             var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
             if (UserSessionService.Instance.IsAdmin)
