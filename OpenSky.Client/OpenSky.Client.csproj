@@ -113,6 +113,9 @@
     </Compile>
     <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
+    <Compile Include="Controls\SkybucksCurrency.xaml.cs">
+      <DependentUpon>SkybucksCurrency.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\NullItemToVisibilityConverter.cs" />
     <Compile Include="Converters\PieChartValueAdornerLabelConverter.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />
@@ -150,16 +153,20 @@
     <Compile Include="Native\PInvoke\Structs\Rect.cs" />
     <Compile Include="Native\PInvoke\User32.cs" />
     <Compile Include="Native\Taskbar.cs" />
-    <Compile Include="Pages\Aircraft.xaml.cs">
-      <DependentUpon>Aircraft.xaml</DependentUpon>
+    <Compile Include="Pages\AircraftMarket.xaml.cs">
+      <DependentUpon>AircraftMarket.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\DataImport.xaml.cs">
       <DependentUpon>DataImport.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Models\AircraftViewModel.cs" />
+    <Compile Include="Pages\Models\AircraftMarketViewModel.cs" />
     <Compile Include="Pages\Models\DataImportViewModel.cs" />
+    <Compile Include="Pages\Models\MyFleetViewModel.cs" />
     <Compile Include="Pages\Models\SettingsViewModel.cs" />
     <Compile Include="Pages\Models\WorldPopulationViewModel.cs" />
+    <Compile Include="Pages\MyFleet.xaml.cs">
+      <DependentUpon>MyFleet.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
@@ -201,11 +208,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Aircraft.xaml">
+    <Page Include="Controls\SkybucksCurrency.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AircraftMarket.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MyFleet.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -334,7 +349,7 @@
       <Version>1.3.3</Version>
     </PackageReference>
     <PackageReference Include="DataGridExtensions">
-      <Version>2.5.5</Version>
+      <Version>2.5.12</Version>
     </PackageReference>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf">
       <Version>1.1.0</Version>
@@ -363,28 +378,28 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.2.0.48</Version>
+      <Version>19.2.0.62</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
-      <Version>1.0.114.4</Version>
+      <Version>1.0.115</Version>
     </PackageReference>
     <PackageReference Include="TomsToolbox.Wpf">
-      <Version>2.5.5</Version>
+      <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="XDMessaging.Lite">
       <Version>5.0.6</Version>
@@ -399,7 +414,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\OSdingdong.wav" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\aircraftmarket16.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\OpenSkyLogo16.png" />
   </ItemGroup>
@@ -417,6 +434,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\aircraft16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\skybucks16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

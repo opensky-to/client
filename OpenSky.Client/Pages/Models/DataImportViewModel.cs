@@ -590,7 +590,7 @@ namespace OpenSky.Client.Pages.Models
                 command.Dispose();
             }
 
-            this.LittleNavmapMSFSLogText += "Cleaning up database to reduce file size...";
+            this.LittleNavmapMSFSLogText += "Cleaning up database to reduce file size...\r\n";
             var vacuumCommand = new SQLiteCommand("vacuum", connection);
             vacuumCommand.ExecuteNonQuery();
             vacuumCommand.Dispose();
@@ -618,7 +618,7 @@ namespace OpenSky.Client.Pages.Models
             try
             {
                 Debug.WriteLine("Uploading Little Navmap MSFS sqlite database...");
-                this.LittleNavmapMSFSLogText += "Uploading Little Navmap MSFS sqlite database...";
+                this.LittleNavmapMSFSLogText += "Uploading Little Navmap MSFS sqlite database...\r\n";
                 var fileParamter = new FileParameter(File.OpenRead(fileName), fileName, "application/x-sqlite3");
                 var result = OpenSkyService.Instance.LittleNavmapMSFSAsync(fileParamter).Result;
                 if (!result.IsError)

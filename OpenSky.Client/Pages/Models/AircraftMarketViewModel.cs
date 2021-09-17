@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AircraftViewModel.cs" company="OpenSky">
+// <copyright file="AircraftMarketViewModel.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,14 +21,14 @@ namespace OpenSky.Client.Pages.Models
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Aircraft view model.
+    /// Aircraft market view model.
     /// </summary>
     /// <remarks>
     /// sushi.at, 19/07/2021.
     /// </remarks>
     /// <seealso cref="T:OpenSky.Client.MVVM.ViewModel"/>
     /// -------------------------------------------------------------------------------------------------
-    public class AircraftViewModel : ViewModel
+    public class AircraftMarketViewModel : ViewModel
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -193,13 +193,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="AircraftViewModel"/> class.
+        /// Initializes a new instance of the <see cref="AircraftMarketViewModel"/> class.
         /// </summary>
         /// <remarks>
         /// sushi.at, 19/07/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public AircraftViewModel()
+        public AircraftMarketViewModel()
         {
             // Initialize data structures
             this.TypeCategories = new ObservableCollection<AircraftTypeCategoryComboItem>();

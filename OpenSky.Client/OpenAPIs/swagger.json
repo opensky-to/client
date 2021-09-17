@@ -384,6 +384,58 @@
         }
       }
     },
+    "/Aircraft": {
+      "put": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Updates the specified aircraft (user editable properties only)",
+        "description": "sushi.at, 17/09/2021.",
+        "operationId": "UpdateAircraft",
+        "requestBody": {
+          "description": "The update aircraft.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAircraft"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAircraft"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAircraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/AircraftType": {
       "post": {
         "tags": [
@@ -1826,6 +1878,13 @@
             "type": "number",
             "description": "Gets or sets the current fuel in gallons.",
             "format": "double"
+          },
+          "name": {
+            "maxLength": 30,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the user-chosen name of the aircraft.",
+            "nullable": true
           },
           "ownerID": {
             "maxLength": 255,
@@ -3971,6 +4030,39 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "UpdateAircraft": {
+        "required": [
+          "registry"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 30,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the user-chosen name of the aircraft.",
+            "nullable": true
+          },
+          "purchasePrice": {
+            "type": "integer",
+            "description": "Gets or sets the purchase price.",
+            "format": "int32",
+            "nullable": true
+          },
+          "registry": {
+            "type": "string",
+            "description": "Gets or sets the registry of the aircraft to update."
+          },
+          "rentPrice": {
+            "type": "integer",
+            "description": "Gets or sets the rent price.",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Update aircraft model."
       },
       "ValidateEmail": {
         "required": [
