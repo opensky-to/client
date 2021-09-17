@@ -18,6 +18,7 @@
         <Feature Id="ProductFeature" Title="OpenSky.Client" Level="1">
             <ComponentGroupRef Id="OpenSky.Client" />
             <ComponentGroupRef Id="OpenSky.Client.Libraries" />
+            <ComponentGroupRef Id="OpenSky.Fonts" />
         </Feature>
 
         <util:CloseApplication Id="CloseOpenSky.Client" Target="OpenSky.Client.exe" TerminateProcess="1" RebootPrompt="no" PromptToContinue="no" />
@@ -34,6 +35,7 @@
                 <Directory Id="ApplicationProgramsFolder" Name="OpenSky"/>
             </Directory>
             <Directory Id="DesktopFolder" SourceName="Desktop" />
+            <Directory Id="FontsFolder" />
         </Directory>
     </Fragment>
 
@@ -60,6 +62,28 @@
                         <RegistryValue Type="string" Value="&quot;[#OpenSkyClientExeFile]&quot; &quot;%1&quot;" />
                     </RegistryKey>
                 </RegistryKey>
+            </Component>
+        </ComponentGroup>
+        <ComponentGroup Id="OpenSky.Fonts" Directory="FontsFolder">
+            <Component Id="Montserrat.Font" Guid="{6C74DD55-C57A-469F-BBD5-C8EA4C941726}" Win64="yes">
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Black.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-BlackItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Bold.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-BoldItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-ExtraBold.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-ExtraBoldItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-ExtraLight.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-ExtraLightItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Italic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Light.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-LightItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Medium.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-MediumItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Regular.ttf" TrueType="yes" KeyPath="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-SemiBold.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-SemiBoldItalic.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-Thin.ttf" TrueType="yes" />
+                <File Source="..\OpenSky.Client\Fonts\Montserrat-ThinItalic.ttf" TrueType="yes" />
             </Component>
         </ComponentGroup>
     </Fragment>

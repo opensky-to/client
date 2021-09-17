@@ -57,6 +57,7 @@
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="SeparatorBrush" Value="{DynamicResource GridLinesBrush}" />
         <Setter Property="Padding" Value="12,0,0,0" />
+        <Setter Property="FontFamily" Value="/Fonts/#Montserrat" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="MinHeight" Value="32" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />

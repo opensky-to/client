@@ -1,0 +1,180 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="AircraftMarket.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Aircraft market page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.AircraftMarket"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                      xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+                      xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                      xmlns:ui="http://schemas.modernwpf.com/2019"
+                      xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                      mc:Ignorable="d"
+                      LoadingText="{Binding LoadingText}"
+                      VerticalScrollBar="False" HorizontalScrollBar="False"
+                      d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <models:AircraftMarketViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+    </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding SearchCommand}" />
+    </UserControl.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Grid.Column="0">
+            <GroupBox.Header>
+                <TextBlock FontWeight="DemiBold">Search for Aircraft</TextBlock>
+            </GroupBox.Header>
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="280" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold">Location</TextBlock>
+                <RadioButton IsChecked="{Binding AtAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">At airport</RadioButton>
+                <DockPanel Grid.Row="1" Grid.Column="1" Margin="20,3, 0, 3">
+                    <Button DockPanel.Dock="Right" Margin="5,0,0,0" IsEnabled="False">Search</Button>
+                    <TextBox VerticalAlignment="Center" Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </DockPanel>
+                <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3" IsEnabled="False">Within NM</RadioButton>
+                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+                <RadioButton IsChecked="{Binding CountryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Country</RadioButton>
+                <ui:AutoSuggestBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Countries}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Type of Aircraft</TextBlock>
+                <RadioButton GroupName="AircraftType" IsChecked="{Binding AllAircraftTypesChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">All</RadioButton>
+                <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftCategoryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Category</RadioButton>
+                <Grid Grid.Row="6" Grid.Column="1" Margin="20,3,0,3">
+                    <ComboBox x:Name="CategoryCombo" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeCategories}" SelectedItem="{Binding AircraftTypeCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All categories" ui:ControlHelper.PlaceholderForeground="#666" />
+                    <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=CategoryCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearCategoryCommand}" />
+                </Grid>
+                <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftManufacturerChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Manufacturer</RadioButton>
+                <ui:AutoSuggestBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Manufacturers}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftNameChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Name</RadioButton>
+                <ui:AutoSuggestBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding AircraftTypes}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Availability</TextBlock>
+                <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <RadioButton GroupName="Availability" IsChecked="{Binding PurchaseChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="40" Margin="20,3,0,3">Purchase</RadioButton>
+                    <RadioButton GroupName="Availability" IsChecked="{Binding RentChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="40" Margin="20,3,0,3">Rent</RadioButton>
+                    <RadioButton GroupName="Availability" IsChecked="{Binding PurchaseAndRentChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,3,0,3">Purchase and rent</RadioButton>
+                </StackPanel>
+
+                <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Other filters</TextBlock>
+                <CheckBox IsChecked="{Binding OnlyVanillaChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="12" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Only vanilla</CheckBox>
+                <Grid Grid.Row="12" Grid.Column="1" Margin="20,3,0,3">
+                    <ComboBox x:Name="SimCombo"  VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#666" />
+                    <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
+                </Grid>
+
+                <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Style="{StaticResource OpenSkyButtonStyle}" Command="{Binding SearchCommand}">Search</Button>
+                    <Button Margin="5,0,0,0" Command="{Binding ResetSearchCommand}">Reset</Button>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="1">
+            <GroupBox.Header>
+                <TextBlock FontWeight="DemiBold" Text="{Binding AvailableAircraftHeader}" />
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                    <ui:CommandBar.PrimaryCommands>
+                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the search results [F5]" Command="{Binding SearchCommand}" />
+                        <ui:AppBarButton Label="Purchase" ToolTip="Purchase the selected aircraft" Command="{Binding PurchaseCommand}">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE7BF;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
+                        <ui:AppBarButton Label="Rent" ToolTip="Rent the selected aircraft" IsEnabled="False">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE709;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
+                    </ui:CommandBar.PrimaryCommands>
+                </ui:CommandBar>
+                <FrameworkElement Grid.Row="1" x:Name="LocationVisibilityProxy" Visibility="{Binding LocationColumnVisibility}" />
+                <DataGrid
+                    Grid.Row="1"
+                    ItemsSource="{Binding Aircraft}"
+                    SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    >
+                    <DataGrid.Resources>
+                        <DataTemplate x:Key="FuelCellTemplate" DataType="openSkyApi:Aircraft">
+                            <controls:AircraftFuelAsProgressbar Aircraft="{Binding .}" NumericValuesVisibility="Visible" Margin="15,0" />
+                        </DataTemplate>
+                        <DataTemplate x:Key="PurchasePriceCellTemplate" DataType="openSkyApi:Aircraft">
+                            <controls:SkybucksCurrency Currency="{Binding PurchasePrice}" Margin="15,0" />
+                        </DataTemplate>
+                        <DataTemplate x:Key="RentPriceCellTemplate" DataType="openSkyApi:Aircraft">
+                            <controls:SkybucksCurrency Currency="{Binding RentPrice}" Margin="15,0" />
+                        </DataTemplate>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding Source={x:Reference LocationVisibilityProxy}, Path=Visibility}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
+                        <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />
+                        <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" />
+                        <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</controls:OpenSkyPage>
