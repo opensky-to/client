@@ -7,12 +7,14 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Windows;
 
     using JetBrains.Annotations;
 
+    using OpenSky.Client.Models.Enums;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
 
@@ -31,10 +33,24 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The fuel unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private FuelUnit fuelUnit;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Are there changes to the settings to be saved?
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private bool isDirty;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The weight unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private WeightUnit weightUnit;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -46,14 +62,31 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         public SettingsViewModel()
         {
+            // Create data structures
+            this.WeightUnits = new ObservableCollection<WeightUnit>();
+            this.FuelUnits = new ObservableCollection<FuelUnit>();
+
+            // Add initial values
+            foreach (WeightUnit unit in Enum.GetValues(typeof(WeightUnit)))
+            {
+                this.WeightUnits.Add(unit);
+            }
+
+            foreach (FuelUnit unit in Enum.GetValues(typeof(FuelUnit)))
+            {
+                this.FuelUnits.Add(unit);
+            }
+
             // Create command first so that IsDirty can set the CanExecute property
             this.SaveSettingsCommand = new Command(this.SaveSettings, false);
             this.RestoreDefaultsCommand = new Command(this.RestoreDefaults);
             this.LoginOpenSkyUserCommand = new Command(this.LoginOpenSkyUser, !this.UserSession.IsUserLoggedIn);
             this.LogoutOpenSkyUserCommand = new AsynchronousCommand(this.LogoutOpenSkyUser, this.UserSession.IsUserLoggedIn);
 
-            // Load settings (todo)
+            // Load settings
             Properties.Settings.Default.Reload();
+            this.WeightUnit = (WeightUnit)Properties.Settings.Default.WeightUnit;
+            this.FuelUnit = (FuelUnit)Properties.Settings.Default.FuelUnit;
 
             // Make sure we are notified if the UserSession service changes user logged in status
             this.UserSession.PropertyChanged += this.UserSessionPropertyChanged;
@@ -61,6 +94,35 @@ namespace OpenSky.Client.Pages.Models
             // No changes, just us loading
             this.IsDirty = false;
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the fuel unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public FuelUnit FuelUnit
+        {
+            get => this.fuelUnit;
+
+            set
+            {
+                if (Equals(this.fuelUnit, value))
+                {
+                    return;
+                }
+
+                this.fuelUnit = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the fuel units.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<FuelUnit> FuelUnits { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -120,6 +182,35 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public UserSessionService UserSession => UserSessionService.Instance;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the weight unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public WeightUnit WeightUnit
+        {
+            get => this.weightUnit;
+
+            set
+            {
+                if (Equals(this.weightUnit, value))
+                {
+                    return;
+                }
+
+                this.weightUnit = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the weight units.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<WeightUnit> WeightUnits { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -185,7 +276,8 @@ namespace OpenSky.Client.Pages.Models
             {
                 Debug.WriteLine("Resetting settings to defaults...");
 
-                // todo
+                this.WeightUnit = WeightUnit.lbs;
+                this.FuelUnit = FuelUnit.gal;
             }
         }
 
@@ -202,7 +294,8 @@ namespace OpenSky.Client.Pages.Models
             Debug.WriteLine("Saving user settings...");
             try
             {
-                // todo
+                Properties.Settings.Default.WeightUnit = (int)this.WeightUnit;
+                Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
 
                 Properties.Settings.Default.Save();
                 this.IsDirty = false;

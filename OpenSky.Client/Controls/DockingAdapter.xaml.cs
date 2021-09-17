@@ -53,20 +53,23 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         public DockingAdapter()
         {
-            // ReSharper disable once PossibleNullReferenceException
+            // ReSharper disable PossibleNullReferenceException
             var themeSettings = new MaterialDarkThemeSettings
             {
                 PrimaryBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#05826c")),
-                PrimaryForeground = new SolidColorBrush(Colors.AntiqueWhite),
-                BodyFontSize = 15,
+                PrimaryForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC9C9C9")),
+                PrimaryColorForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC9C9C9")),
+                
+                BodyFontSize = 14,
                 HeaderFontSize = 18,
                 SubHeaderFontSize = 17,
                 TitleFontSize = 17,
                 SubTitleFontSize = 16,
-                BodyAltFontSize = 15,
-                FontFamily = new FontFamily("Montserrat")
+                BodyAltFontSize = 14,
+                FontFamily = new FontFamily("Montserrat"),
             };
-
+            
+            // ReSharper restore PossibleNullReferenceException
             SfSkinManager.RegisterThemeSettings("MaterialDark", themeSettings);
 
             this.InitializeComponent();

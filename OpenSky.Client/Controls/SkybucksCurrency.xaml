@@ -1,0 +1,28 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="SkybucksCurrency.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Skybucks currency control
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.SkybucksCurrency"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 mc:Ignorable="d" 
+                 d:DesignHeight="16" d:DesignWidth="200">
+    <UserControl.Resources>
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+    </UserControl.Resources>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Image Width="16" Height="16" Source="/Resources/skybucks16.png" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, Converter={StaticResource NullItemToVisibilityConverter}}" />
+        <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, StringFormat=N0}" />
+    </StackPanel>
+</UserControl>

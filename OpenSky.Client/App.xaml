@@ -13,6 +13,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:themes="clr-namespace:OpenSky.Client.Themes"
              StartupUri="Views/Startup.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -25,13 +26,14 @@
                                 TargetTheme="Dark"
                                 Accent="#05826c"
                                 AltHigh="#404040"
-                                BaseHigh="#FFC9C9C9"/>
+                                BaseHigh="#FFC9C9C9" />
                             </ResourceDictionary.MergedDictionaries>
                         </ResourceDictionary>
                     </ui:ThemeResources.ThemeDictionaries>
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
 
+                <themes:FontOverrides FontFamily="Consolas" />
                 <ResourceDictionary Source="Themes/VectorGraphics.xaml" />
                 <ResourceDictionary Source="Themes/OpenSkyStyles.xaml" />
                 <ResourceDictionary Source="Themes/GridFilter.xaml" />
