@@ -16,7 +16,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                  xmlns:controls="clr-namespace:OpenSky.Client.Controls"
-                 mc:Ignorable="d" 
+                 mc:Ignorable="d" HorizontalScrollBar="False"
                  d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:SettingsViewModel />
@@ -64,6 +64,22 @@
                 <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">Fuel:</TextBlock>
                 <ComboBox Grid.Column="1" Grid.Row="0" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding WeightUnits}" SelectedItem="{Binding WeightUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <ComboBox Grid.Column="1" Grid.Row="1" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding FuelUnits}" SelectedItem="{Binding FuelUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </GroupBox>
+        <GroupBox>
+            <GroupBox.Header>
+                <TextBlock FontWeight="DemiBold">Local Airport Package File</TextBlock>
+            </GroupBox.Header>
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Vertical" Grid.Column="0">
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,20">This package is required to display airports on maps efficiently and should be automatically updated every time you start the OpenSky client.</TextBlock>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding AirportPackageFileInfo}" />
+                </StackPanel>
+                <Button Margin="20,0,0,0" Style="{StaticResource OpenSkyButtonStyle}" Grid.Column="1" Command="{Binding DownloadAirportPackageCommand}">Download</Button>
             </Grid>
         </GroupBox>
         <StackPanel Orientation="Horizontal" Margin="5,10,5,0">

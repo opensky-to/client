@@ -131,6 +131,7 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshDataImportsCommand = new AsynchronousCommand(this.RefreshDataImports);
             this.ClearDataImportSelectionCommand = new Command(this.ClearDataImportSelection);
             this.BrowseLittleNavmapMSFSCommand = new AsynchronousCommand(this.BrowseLittleNavmapMSFS);
+            this.GenerateClientAirportPackageCommand = new AsynchronousCommand(this.GenerateClientAirportPackage);
 
             this.RefreshDataImportsCommand.DoExecute(null);
         }
@@ -155,6 +156,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<DataImport> DataImports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the generate client airport package command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GenerateClientAirportPackageCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -511,6 +519,50 @@ namespace OpenSky.Client.Pages.Models
             this.ImportStatusDetails = updateText;
             this.ProgressMax = status.Total;
             this.ProgressValue = status.Processed;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Send a request to the OpenSky server to generate a new client airport package.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 21/09/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GenerateClientAirportPackage()
+        {
+            this.LoadingText = "Generating client airport package";
+            try
+            {
+                var result = OpenSkyService.Instance.CreateAirportClientPackageAsync().Result;
+                if (!result.IsError)
+                {
+                    this.GenerateClientAirportPackageCommand.ReportProgress(
+                        () => { ModernWpf.MessageBox.Show(result.Message, "Generate airport package", MessageBoxButton.OK, MessageBoxImage.Information); });
+                }
+                else
+                {
+                    this.GenerateClientAirportPackageCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error generating client airport package: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error generating client airport package", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshDataImportsCommand, "Error generating client airport package");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
