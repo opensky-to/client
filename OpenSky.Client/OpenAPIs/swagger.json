@@ -820,6 +820,68 @@
         }
       }
     },
+    "/Airport/clientPackage": {
+      "post": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Creates a new airport client package.",
+        "description": "sushi.at, 21/09/2021.",
+        "operationId": "CreateAirportClientPackage",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets the latest airport client package.",
+        "description": "sushi.at, 21/09/2021.",
+        "operationId": "GetAirportClientPackage",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportClientPackageApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportClientPackageApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportClientPackageApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Airport/{icao}": {
       "get": {
         "tags": [
@@ -856,6 +918,38 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AirportApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport/clientPackageHash": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Gets the latest airport client package hash.",
+        "description": "sushi.at, 21/09/2021.",
+        "operationId": "GetAirportClientPackageHash",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
                 }
               }
             }
@@ -922,6 +1016,49 @@
               "type": "integer",
               "format": "int32",
               "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirportIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airport/search/{searchString}": {
+      "get": {
+        "tags": [
+          "Airport"
+        ],
+        "summary": "Searches for airports using ICAO, name or city and return the first 50 results.",
+        "description": "sushi.at, 21/09/2021.",
+        "operationId": "SearchAirport",
+        "parameters": [
+          {
+            "name": "searchString",
+            "in": "path",
+            "description": "The search string.",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -2400,6 +2537,60 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/Airport"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "AirportClientPackage": {
+        "required": [
+          "creationTime",
+          "package",
+          "packageHash"
+        ],
+        "type": "object",
+        "properties": {
+          "creationTime": {
+            "type": "string",
+            "description": "Gets or sets the creation time of the package.",
+            "format": "date-time"
+          },
+          "package": {
+            "type": "string",
+            "description": "Gets or sets the package contents (g-zipped, base64 encoded)."
+          },
+          "packageHash": {
+            "type": "string",
+            "description": "Gets or sets the package hash (SHA-256, base64 encoded)"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Airport client package model."
+      },
+      "AirportClientPackageApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AirportClientPackage"
           },
           "errorDetails": {
             "type": "string",

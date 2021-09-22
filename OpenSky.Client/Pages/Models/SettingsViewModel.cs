@@ -33,6 +33,13 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Information string describing the airport package file.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string airportPackageFileInfo = "???";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The fuel unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -82,6 +89,8 @@ namespace OpenSky.Client.Pages.Models
             this.RestoreDefaultsCommand = new Command(this.RestoreDefaults);
             this.LoginOpenSkyUserCommand = new Command(this.LoginOpenSkyUser, !this.UserSession.IsUserLoggedIn);
             this.LogoutOpenSkyUserCommand = new AsynchronousCommand(this.LogoutOpenSkyUser, this.UserSession.IsUserLoggedIn);
+            this.RefreshAirportPackageInfoCommand = new AsynchronousCommand(this.RefreshAirportPackageInfo);
+            this.DownloadAirportPackageCommand = new AsynchronousCommand(this.DownloadAirportPackage);
 
             // Load settings
             Properties.Settings.Default.Reload();
@@ -93,7 +102,38 @@ namespace OpenSky.Client.Pages.Models
 
             // No changes, just us loading
             this.IsDirty = false;
+
+            // Load the initial airport package file info
+            this.RefreshAirportPackageInfoCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the information string describing the airport package file.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AirportPackageFileInfo
+        {
+            get => this.airportPackageFileInfo;
+
+            set
+            {
+                if (Equals(this.airportPackageFileInfo, value))
+                {
+                    return;
+                }
+
+                this.airportPackageFileInfo = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the download airport package command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand DownloadAirportPackageCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -162,6 +202,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh airport package information command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshAirportPackageInfoCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the restore defaults command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -214,6 +261,36 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Download airport package.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 21/09/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DownloadAirportPackage()
+        {
+            try
+            {
+                if (AirportPackageClientHandler.IsPackageUpToDate())
+                {
+                    this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show("The package file is up-to-date, no download is required.", "Airport package", MessageBoxButton.OK, MessageBoxImage.Information));
+                }
+                else
+                {
+                    AirportPackageClientHandler.DownloadPackage();
+                    this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Successfully downloaded new package file.", "Airport package", MessageBoxButton.OK, MessageBoxImage.Information));
+                    this.RefreshAirportPackageInfoCommand.DoExecute(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show($"Error downloading airport package file.\r\n\r\n{ex.Message}", "Airport package", MessageBoxButton.OK, MessageBoxImage.Error));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Login OpenSky user.
         /// </summary>
         /// <remarks>
@@ -259,6 +336,42 @@ namespace OpenSky.Client.Pages.Models
             }
 
             this.UserSession.Logout();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refreshes the airport package info string.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 21/09/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshAirportPackageInfo()
+        {
+            try
+            {
+                if (AirportPackageClientHandler.IsPackageAvailable())
+                {
+                    if (AirportPackageClientHandler.IsPackageUpToDate())
+                    {
+                        var package = AirportPackageClientHandler.GetPackage();
+                        this.AirportPackageFileInfo = $"The package file is up-to-date.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                    }
+                    else
+                    {
+                        var package = AirportPackageClientHandler.GetPackage();
+                        this.AirportPackageFileInfo = $"A newer package file is available, please download it using the button on the right.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                    }
+                }
+                else
+                {
+                    this.AirportPackageFileInfo = "The file is missing, please download it using the button on the right.";
+                }
+            }
+            catch (Exception ex)
+            {
+                this.AirportPackageFileInfo = $"ERROR: {ex.Message}";
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -325,12 +438,28 @@ namespace OpenSky.Client.Pages.Models
         {
             if (e.PropertyName == nameof(this.UserSession.IsUserLoggedIn))
             {
+                // Update login/logout buttons
                 UpdateGUIDelegate updateCommands = () =>
                 {
                     this.LoginOpenSkyUserCommand.CanExecute = !this.UserSession.IsUserLoggedIn;
                     this.LogoutOpenSkyUserCommand.CanExecute = this.UserSession.IsUserLoggedIn;
                 };
                 Application.Current.Dispatcher.BeginInvoke(updateCommands);
+
+                // Check if we have the current client airport package file, after silently trying to download it
+                if (this.UserSession.IsUserLoggedIn)
+                {
+                    try
+                    {
+                        AirportPackageClientHandler.DownloadPackage();
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
+
+                    this.RefreshAirportPackageInfoCommand.DoExecute(null);
+                }
             }
         }
     }

@@ -125,6 +125,9 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Models\AirportClientPackageEntry.cs" />
+    <Compile Include="Models\AirportClientPackageRoot.cs" />
+    <Compile Include="Tools\AirportPackageClientHandler.cs" />
     <Compile Include="Models\Enums\FuelUnit.cs" />
     <Compile Include="Models\Enums\WeightUnit.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\AircraftType.cs" />
@@ -177,6 +180,7 @@
       <DependentUpon>WorldPopulation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Themes\FontOverrides.cs" />
+    <Compile Include="Tools\CompressionExtensions.cs" />
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
     <Compile Include="Tools\MultiSelectExtension.cs" />
