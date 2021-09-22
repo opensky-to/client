@@ -13,6 +13,7 @@ namespace OpenSky.Client.Views.Models
     using JetBrains.Annotations;
 
     using OpenSky.Client.MVVM;
+    using OpenSky.Client.Tools;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -75,7 +76,16 @@ namespace OpenSky.Client.Views.Models
             else
             {
                 _ = UserSessionService.Instance.UpdateUserRoles().Result;
+                try
+                {
+                    AirportPackageClientHandler.DownloadPackage();
+                }
+                catch
+                {
+                    // Ignore here
+                }
             }
+
 
             // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
             Thread.Sleep(Math.Max(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds, 0));
