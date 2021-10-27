@@ -75,6 +75,9 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard" />
     <Reference Include="System" />
@@ -273,6 +276,7 @@
     <Page Remove="Properties\DesignTimeResources.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SyncfusionLicenseRegister.bat" />
     <Resource Include="Fonts\Montserrat-Black.ttf" />
     <Resource Include="Fonts\Montserrat-BlackItalic.ttf" />
     <Resource Include="Fonts\Montserrat-Bold.ttf" />
@@ -303,7 +307,7 @@
       <SourceUri>http://localhost:5000/swagger/v1/swagger.json</SourceUri>
       <Options>/ClientBaseClass:OpenSkyServiceBase /UseHttpRequestMessageCreationMethod:true</Options>
     </None>
-    <None Include="pre-build.bat" />
+    <None Include="configuration.bat" />
     <None Include="Properties\DesignTimeResources.xaml">
       <ContainsDesignTimeResources>True</ContainsDesignTimeResources>
       <SubType>Designer</SubType>
@@ -332,9 +336,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
@@ -382,28 +383,28 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.2.0.62</Version>
+      <Version>19.3.0.47</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.115</Version>
     </PackageReference>
     <PackageReference Include="TomsToolbox.Wpf">
-      <Version>2.7.2</Version>
+      <Version>2.7.3</Version>
     </PackageReference>
     <PackageReference Include="XDMessaging.Lite">
       <Version>5.0.6</Version>
@@ -444,6 +445,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)pre-build.bat" "$(ProjectDir)" "$(ConfigurationName)"</PreBuildEvent>
+    <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"
+call "$(ProjectDir)SyncfusionLicenseRegister.bat" PreBuild "$(ProjectDir)App.xaml.cs"
+
+</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>"$(ProjectDir)SyncfusionLicenseRegister.bat" PostBuild "$(ProjectDir)App.xaml.cs"</PostBuildEvent>
   </PropertyGroup>
 </Project>

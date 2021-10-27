@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="App.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
@@ -57,7 +57,7 @@ namespace OpenSky.Client
         /// -------------------------------------------------------------------------------------------------
         public App()
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("***REMOVED***");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("##SyncfusionLicense##");
             SfSkinManager.ApplyStylesOnApplication = false;
         }
 
