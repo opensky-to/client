@@ -276,6 +276,7 @@
     <Page Remove="Properties\DesignTimeResources.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="SyncfusionLicenseRegister.bat" />
     <Resource Include="Fonts\Montserrat-Black.ttf" />
     <Resource Include="Fonts\Montserrat-BlackItalic.ttf" />
