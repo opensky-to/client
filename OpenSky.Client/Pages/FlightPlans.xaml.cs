@@ -1,27 +1,31 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="WorldPopulation.xaml.cs" company="OpenSky">
+// <copyright file="FlightPlans.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Pages
 {
+    using System.Windows;
+
+    using OpenSky.Client.Pages.Models;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// World population page.
+    /// Flight plans page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class WorldPopulation
+    public partial class FlightPlans
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorldPopulation"/> class.
+        /// Initializes a new instance of the <see cref="FlightPlans"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 02/07/2021.
+        /// sushi.at, 28/10/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public WorldPopulation()
+        public FlightPlans()
         {
             this.InitializeComponent();
         }
@@ -41,6 +45,28 @@ namespace OpenSky.Client.Pages
         public override void PassPageParameter(object parameter)
         {
             // No parameters supported
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Flight plans on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void FlightPlansOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is FlightPlansViewModel viewModel)
+            {
+                viewModel.SetViewReference(this);
+            }
         }
     }
 }

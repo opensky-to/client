@@ -130,6 +130,14 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
+    <Compile Include="Pages\FlightPlan.xaml.cs">
+      <DependentUpon>FlightPlan.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\FlightPlans.xaml.cs">
+      <DependentUpon>FlightPlans.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
     <Compile Include="Tools\AirportPackageClientHandler.cs" />
     <Compile Include="Models\Enums\FuelUnit.cs" />
     <Compile Include="Models\Enums\WeightUnit.cs" />
@@ -224,6 +232,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FlightPlan.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FlightPlans.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -443,6 +459,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\skybucks16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\plan16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

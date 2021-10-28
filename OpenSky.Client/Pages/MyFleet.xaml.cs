@@ -25,5 +25,22 @@ namespace OpenSky.Client.Pages
         {
             this.InitializeComponent();
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Method that receives an optional page parameter when the page is opened.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The parameter.
+        /// </param>
+        /// <seealso cref="M:OpenSky.Client.Controls.OpenSkyPage.PassPageParameter(object)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override void PassPageParameter(object parameter)
+        {
+            // No parameters supported
+        }
     }
 }

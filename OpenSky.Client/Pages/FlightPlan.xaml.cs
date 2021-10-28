@@ -1,27 +1,29 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="WorldPopulation.xaml.cs" company="OpenSky">
+// <copyright file="FlightPlan.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Pages
 {
+    using OpenSky.Client.Pages.Models;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// World population page.
+    /// Flight plan page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class WorldPopulation
+    public partial class FlightPlan
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorldPopulation"/> class.
+        /// Initializes a new instance of the <see cref="FlightPlan"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 02/07/2021.
+        /// sushi.at, 28/10/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public WorldPopulation()
+        public FlightPlan()
         {
             this.InitializeComponent();
         }
@@ -40,7 +42,10 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void PassPageParameter(object parameter)
         {
-            // No parameters supported
+            if (this.DataContext is FlightPlanViewModel viewModel && parameter is OpenSkyApi.FlightPlan flightPlan)
+            {
+                viewModel.LoadFlightPlan(flightPlan);
+            }
         }
     }
 }

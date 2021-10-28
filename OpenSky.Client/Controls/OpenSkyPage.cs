@@ -19,7 +19,7 @@ namespace OpenSky.Client.Controls
     /// </remarks>
     /// <seealso cref="T:System.Windows.Controls.UserControl"/>
     /// -------------------------------------------------------------------------------------------------
-    public class OpenSkyPage : UserControl
+    public abstract class OpenSkyPage : UserControl
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -57,7 +57,7 @@ namespace OpenSky.Client.Controls
         /// sushi.at, 01/07/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public OpenSkyPage()
+        protected OpenSkyPage()
         {
             if (!App.IsDesignMode)
             {
@@ -113,6 +113,19 @@ namespace OpenSky.Client.Controls
             get => (bool)this.GetValue(VerticalScrollBarProperty);
             set => this.SetValue(VerticalScrollBarProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Method that receives an optional page parameter when the page is opened.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public abstract void PassPageParameter(object parameter);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

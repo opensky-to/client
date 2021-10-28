@@ -73,6 +73,9 @@ namespace OpenSky.Client.Views.Models
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
+            var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
+            this.NavigationItems.Add(plans);
+
             var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
             this.NavigationItems.Add(myFleet);
 
@@ -265,8 +268,11 @@ namespace OpenSky.Client.Views.Models
         /// <param name="shift">
         /// True if SHIFT key was pressed.
         /// </param>
+        /// <param name="switchToNewTab">
+        /// (Optional) True to switch to new tab.
+        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public void NavigationItemInvoked(NavMenuItem item, bool ctrl, bool shift)
+        public void NavigationItemInvoked(NavMenuItem item, bool ctrl, bool shift, bool switchToNewTab = false)
         {
             if (item != null)
             {
@@ -293,6 +299,10 @@ namespace OpenSky.Client.Views.Models
                                 this.ActiveDocument.Header = item.Name;
                                 this.ActiveDocument.DocumentHeader = new DocumentHeaderEx(item.Name, iconUri);
                                 this.ActiveDocument.Content = (FrameworkElement)Activator.CreateInstance(item.PageType);
+                                if (item.Parameter != null && this.ActiveDocument.Content is OpenSkyPage page)
+                                {
+                                    page.PassPageParameter(item.Parameter);
+                                }
 
                                 this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
                                 this.SelectMatchingNavigationItem(this.NavigationFooterItems, this.ActiveDocument.Header);
@@ -309,6 +319,10 @@ namespace OpenSky.Client.Views.Models
                                     //CanDock = false
                                 };
                                 this.DockItems.Add(dockItem);
+                                if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                                {
+                                    page.PassPageParameter(item.Parameter);
+                                }
                             }
                         }
                         else if (ctrl)
@@ -324,15 +338,27 @@ namespace OpenSky.Client.Views.Models
                                 //CanDock = false
                             };
                             this.DockItems.Add(dockItem);
-                            this.ActiveDocument = origActiveWindow;
+                            if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                            {
+                                page.PassPageParameter(item.Parameter);
+                            }
 
-                            new Thread(
-                                () =>
-                                {
-                                    Thread.Sleep(100);
-                                    this.selectedNavMenuItem = origNavItem;
-                                    this.NotifyPropertyChanged();
-                                }).Start();
+                            if (!switchToNewTab)
+                            {
+                                this.ActiveDocument = origActiveWindow;
+
+                                new Thread(
+                                    () =>
+                                    {
+                                        Thread.Sleep(100);
+                                        this.selectedNavMenuItem = origNavItem;
+                                        this.NotifyPropertyChanged();
+                                    }).Start();
+                            }
+                            else
+                            {
+                                this.ActiveDocument = dockItem;
+                            }
                         }
                         else
                         {
@@ -348,6 +374,11 @@ namespace OpenSky.Client.Views.Models
 
                                     //CanDock = false
                                 };
+                                if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                                {
+                                    page.PassPageParameter(item.Parameter);
+                                }
+
                                 var newWindow = new Main();
                                 if (newWindow.DataContext is MainViewModel vm)
                                 {
