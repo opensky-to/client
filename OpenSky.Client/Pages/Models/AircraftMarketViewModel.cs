@@ -1077,7 +1077,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Purchasing aircraft...";
             try
             {
-                var result = OpenSkyService.Instance.PurchaseAircraftAsync(this.SelectedAircraft.Registry).Result;
+                var result = OpenSkyService.Instance.PurchaseAircraftAsync(this.SelectedAircraft.Registry, false).Result;
                 if (!result.IsError)
                 {
                     this.PurchaseCommand.ReportProgress(
