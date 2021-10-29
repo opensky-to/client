@@ -12,6 +12,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Windows;
 
     using OpenSky.Client.Controls;
+    using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -75,7 +76,7 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void NewPlan()
         {
-            var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = "New flight plan", Parameter = new FlightPlan { Id = Guid.NewGuid() } };
+            var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = "New flight plan", Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = new Random().Next(1, 9999), PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)) } };
             Main mainWindow = null;
             foreach (var instance in Main.Instances)
             {

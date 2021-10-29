@@ -22,7 +22,67 @@
     <UserControl.DataContext>
         <models:FlightPlanViewModel />
     </UserControl.DataContext>
-    <Grid>
-            <TextBlock>TODO</TextBlock>
-    </Grid>
+    <StackPanel Orientation="Vertical">
+        <GroupBox>
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Flight Basics</TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0">Airline?</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="1">Flight#</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="2">Origin</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="3">Destination</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="4">Alternate</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="5">Date</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="6" Grid.ColumnSpan="2">Time (Utc)</TextBlock>
+
+                <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding PlannedDepartureTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </GroupBox>
+        <GroupBox>
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft</TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0">Aircraft</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="1">Fuel</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="2">Payload</TextBlock>
+
+                <ComboBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                
+                <TextBlock Grid.Row="1" Grid.Column="2">TODO</TextBlock>
+            </Grid>
+        </GroupBox>
+    </StackPanel>
 </controls:OpenSkyPage>
