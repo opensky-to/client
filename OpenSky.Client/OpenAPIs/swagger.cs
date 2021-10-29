@@ -5471,10 +5471,8 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class FlightPlan 
     {
-        /// <summary>Gets or sets the aircraft registry.</summary>
-        [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.StringLength(10, MinimumLength = 5)]
-        public string AircraftRegistry { get; set; }
+        [Newtonsoft.Json.JsonProperty("aircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Aircraft Aircraft { get; set; }
     
         /// <summary>Gets or sets the alternate airport ICAO code.</summary>
         [Newtonsoft.Json.JsonProperty("alternateICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5486,11 +5484,22 @@ namespace OpenSkyApi
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string DestinationICAO { get; set; }
     
-        /// <summary>Gets or sets the flight number.</summary>
-        [Newtonsoft.Json.JsonProperty("flightNumber", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(7, MinimumLength = 1)]
-        public string FlightNumber { get; set; }
+        /// <summary>Gets or sets the identifier of the dispatcher.</summary>
+        [Newtonsoft.Json.JsonProperty("dispatcherID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(255)]
+        public string DispatcherID { get; set; }
+    
+        /// <summary>Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).</summary>
+        [Newtonsoft.Json.JsonProperty("dispatcherName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string DispatcherName { get; set; }
+    
+        /// <summary>Gets or sets the dispatcher remarks.</summary>
+        [Newtonsoft.Json.JsonProperty("dispatcherRemarks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string DispatcherRemarks { get; set; }
+    
+        /// <summary>Gets or sets the flight number (1-9999).</summary>
+        [Newtonsoft.Json.JsonProperty("flightNumber", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int FlightNumber { get; set; }
     
         /// <summary>Gets or sets the fuel in gallons.</summary>
         [Newtonsoft.Json.JsonProperty("fuelGallons", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5509,6 +5518,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("originICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string OriginICAO { get; set; }
+    
+        /// <summary>Gets or sets the planned departure time.</summary>
+        [Newtonsoft.Json.JsonProperty("plannedDepartureTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset PlannedDepartureTime { get; set; }
     
         /// <summary>Gets or sets the UTC offset for the flight.</summary>
         [Newtonsoft.Json.JsonProperty("utcOffset", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

@@ -127,9 +127,11 @@
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
     <Compile Include="Pages\FlightPlan.xaml.cs">
       <DependentUpon>FlightPlan.xaml</DependentUpon>
     </Compile>

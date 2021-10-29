@@ -77,6 +77,7 @@
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
                         <DataGridTextColumn Header="Condition(todo)" />
                         <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />

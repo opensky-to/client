@@ -4024,17 +4024,12 @@
       },
       "FlightPlan": {
         "required": [
-          "flightNumber",
           "id"
         ],
         "type": "object",
         "properties": {
-          "aircraftRegistry": {
-            "maxLength": 10,
-            "minLength": 5,
-            "type": "string",
-            "description": "Gets or sets the aircraft registry.",
-            "nullable": true
+          "aircraft": {
+            "$ref": "#/components/schemas/Aircraft"
           },
           "alternateICAO": {
             "maxLength": 5,
@@ -4050,11 +4045,27 @@
             "description": "Gets or sets destination airport ICAO code.",
             "nullable": true
           },
-          "flightNumber": {
-            "maxLength": 7,
-            "minLength": 1,
+          "dispatcherID": {
+            "maxLength": 255,
+            "minLength": 0,
             "type": "string",
-            "description": "Gets or sets the flight number."
+            "description": "Gets or sets the identifier of the dispatcher.",
+            "nullable": true
+          },
+          "dispatcherName": {
+            "type": "string",
+            "description": "Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).",
+            "nullable": true
+          },
+          "dispatcherRemarks": {
+            "type": "string",
+            "description": "Gets or sets the dispatcher remarks.",
+            "nullable": true
+          },
+          "flightNumber": {
+            "type": "integer",
+            "description": "Gets or sets the flight number (1-9999).",
+            "format": "int32"
           },
           "fuelGallons": {
             "type": "number",
@@ -4077,6 +4088,11 @@
             "type": "string",
             "description": "Gets or sets the origin airport ICAO code.",
             "nullable": true
+          },
+          "plannedDepartureTime": {
+            "type": "string",
+            "description": "Gets or sets the planned departure time.",
+            "format": "date-time"
           },
           "utcOffset": {
             "type": "number",
