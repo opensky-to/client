@@ -53,12 +53,17 @@
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
                     >
+                    <DataGrid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditPlanCommand}" />
+                    </DataGrid.InputBindings>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Flight#" Binding="{Binding FlightNumber}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding PlannedDepartureTime.DateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                        <DataGridTextColumn Header="Flight#" Binding="{Binding FlightNumber}" />
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Alternate" Binding="{Binding AlternateICAO}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Utc Offset" Binding="{Binding UtcOffset}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

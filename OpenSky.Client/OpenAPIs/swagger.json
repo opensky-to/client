@@ -4052,6 +4052,11 @@
             "description": "Gets or sets the identifier of the dispatcher.",
             "nullable": true
           },
+          "fullFlightNumber": {
+            "type": "string",
+            "description": "Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).",
+            "nullable": true
+          },
           "dispatcherName": {
             "type": "string",
             "description": "Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).",

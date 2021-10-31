@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
     using System.Diagnostics;
@@ -30,17 +31,24 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The selected aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Aircraft selectedAircraft;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The alternate icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string alternateICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The departure hour.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int departureHour;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The departure minute.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int departureMinute;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -114,17 +122,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Aircraft selectedAircraft;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The UTC offset.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private double utcOffset;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the aircraft list.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Aircraft> Aircraft { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -138,50 +146,78 @@ namespace OpenSky.Client.Pages.Models
         {
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
+            this.UtcOffsets = new SortedSet<double>();
+
+            // Populate UTC offsets from time zones
+            foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
+            {
+                this.UtcOffsets.Add(timeZone.BaseUtcOffset.TotalHours);
+            }
 
             // Create commands
             this.RefreshAircraftCommand = new AsynchronousCommand(this.RefreshAircraft);
-
-            // Fire off initial commands
-            this.RefreshAircraftCommand.DoExecute(null);
+            this.ClearAircraftCommand = new Command(this.ClearAircraft);
+            this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan);
         }
 
-        private void RefreshAircraft()
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the UTC offsets.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public SortedSet<double> UtcOffsets { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Saves the flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SaveFlightPlan()
         {
-            this.LoadingText = "Refreshing aircraft...";
+            this.LoadingText = "Saving flight plan...";
             try
             {
-                var result = OpenSkyService.Instance.GetMyAircraftAsync().Result;
+                var flightPlan = new FlightPlan
+                {
+                    Id = this.ID,
+                    FlightNumber = this.FlightNumber,
+                    OriginICAO = this.OriginICAO,
+                    DestinationICAO = this.DestinationICAO,
+                    AlternateICAO = this.AlternateICAO,
+                    Aircraft = this.SelectedAircraft,
+                    DispatcherRemarks = this.DispatcherRemarks,
+                    FuelGallons = this.FuelGallons,
+                    IsAirlineFlight = this.IsAirlineFlight,
+                    PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
+                    UtcOffset = this.UtcOffset
+                };
+
+                var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
                 if (!result.IsError)
                 {
-                    this.RefreshAircraftCommand.ReportProgress(
-                        () =>
-                        {
-                            this.Aircraft.Clear();
-                            foreach (var aircraft in result.Data)
-                            {
-                                this.Aircraft.Add(aircraft);
-                            }
-                        });
+
                 }
                 else
                 {
-                    this.RefreshAircraftCommand.ReportProgress(
+                    this.SaveCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error refreshing aircraft: " + result.Message);
+                            Debug.WriteLine("Error saving flight plan: " + result.Message);
                             if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshAircraftCommand, "Error refreshing aircraft");
+                ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
             }
             finally
             {
@@ -191,31 +227,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the refresh aircraft command.
+        /// Gets the save command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshAircraftCommand { get; }
+        public AsynchronousCommand SaveCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the selected aircraft.
+        /// Gets the aircraft list.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public Aircraft SelectedAircraft
-        {
-            get => this.selectedAircraft;
-
-            set
-            {
-                if (Equals(this.selectedAircraft, value))
-                {
-                    return;
-                }
-
-                this.selectedAircraft = value;
-                this.NotifyPropertyChanged();
-            }
-        }
+        public ObservableCollection<Aircraft> Aircraft { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -234,6 +256,99 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 this.alternateICAO = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the departure hour.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Range(0, 23)]
+        public int DepartureHour
+        {
+            get => this.departureHour;
+
+            set
+            {
+                if (Equals(this.departureHour, value))
+                {
+                    return;
+                }
+
+                this.departureHour = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payload weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double PayloadWeight
+        {
+            get
+            {
+                // TODO Calculate the payload weight
+                return 0;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the fuel weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double FuelWeight
+        {
+            get
+            {
+                // TODO this should come from aircraft type?
+                return (this.FuelGallons ?? 0) * 6;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the zero fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the gross weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double GrossWeight => this.ZeroFuelWeight + this.FuelWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the departure minute.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Range(0, 59)]
+        public int DepartureMinute
+        {
+            get => this.departureMinute;
+
+            set
+            {
+                if (Equals(this.departureMinute, value))
+                {
+                    return;
+                }
+
+                this.departureMinute = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -339,8 +454,15 @@ namespace OpenSky.Client.Pages.Models
                     return;
                 }
 
+                if (value.HasValue && value > (this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0))
+                {
+                    value = this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0;
+                }
+
                 this.fuelGallons = value;
                 this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.FuelWeight));
+                this.NotifyPropertyChanged(nameof(this.GrossWeight));
             }
         }
 
@@ -451,6 +573,45 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Aircraft SelectedAircraft
+        {
+            get => this.selectedAircraft;
+
+            set
+            {
+                if (Equals(this.selectedAircraft, value))
+                {
+                    return;
+                }
+
+                this.selectedAircraft = value;
+                if (value != null)
+                {
+                    this.FuelGallons = value.Fuel;
+                }
+                else
+                {
+                    this.FuelGallons = null;
+                }
+
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
+                this.NotifyPropertyChanged(nameof(this.GrossWeight));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the UTC offset.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -497,63 +658,77 @@ namespace OpenSky.Client.Pages.Models
             this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
             this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
             this.UtcOffset = flightPlan.UtcOffset;
+
+            this.RefreshAircraftCommand.DoExecute(null);
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The departure hour.
+        /// Clears the selected aircraft.
         /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private int departureHour;
+        private void ClearAircraft()
+        {
+            this.SelectedAircraft = null;
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the departure hour.
+        /// Refreshes the list of available aircraft.
         /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        [Range(0, 23)]
-        public int DepartureHour
+        private void RefreshAircraft()
         {
-            get => this.departureHour;
-
-            set
+            this.LoadingText = "Refreshing aircraft...";
+            try
             {
-                if (Equals(this.departureHour, value))
+                var currentSelection = this.SelectedAircraft;
+                var result = OpenSkyService.Instance.GetMyAircraftAsync().Result;
+                if (!result.IsError)
                 {
-                    return;
-                }
+                    this.RefreshAircraftCommand.ReportProgress(
+                        () =>
+                        {
+                            this.Aircraft.Clear();
+                            foreach (var aircraft in result.Data)
+                            {
+                                this.Aircraft.Add(aircraft);
+                            }
 
-                this.departureHour = value;
-                this.NotifyPropertyChanged();
+                            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
+                            {
+                                this.SelectedAircraft = currentSelection;
+                            }
+                        });
+                }
+                else
+                {
+                    this.RefreshAircraftCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
             }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The departure minute.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private int departureMinute;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the departure minute.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [Range(0, 59)]
-        public int DepartureMinute
-        {
-            get => this.departureMinute;
-
-            set
+            catch (Exception ex)
             {
-                if (Equals(this.departureMinute, value))
-                {
-                    return;
-                }
-
-                this.departureMinute = value;
-                this.NotifyPropertyChanged();
+                ex.HandleApiCallException(this.RefreshAircraftCommand, "Error refreshing aircraft");
+            }
+            finally
+            {
+                this.LoadingText = null;
             }
         }
     }

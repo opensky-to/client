@@ -119,6 +119,7 @@
     <Compile Include="Controls\SkybucksCurrency.xaml.cs">
       <DependentUpon>SkybucksCurrency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\NullItemToEnabledConverter.cs" />
     <Compile Include="Converters\NullItemToVisibilityConverter.cs" />
     <Compile Include="Converters\PieChartValueAdornerLabelConverter.cs" />
     <Compile Include="Converters\NavMenuHasChildrenConverter.cs" />

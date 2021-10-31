@@ -11,7 +11,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
-    using OpenSky.Client.Controls;
     using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
@@ -47,6 +46,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private FlightPlans viewReference;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="FlightPlansViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -61,6 +67,8 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.RefreshPlansCommand = new AsynchronousCommand(this.RefreshPlans);
             this.NewPlanCommand = new Command(this.NewPlan);
+            this.EditPlanCommand = new Command(this.EditPlan);
+            this.DeletePlanCommand = new AsynchronousCommand(this.DeletePlan, false);
 
             // Fire off initial commands
             this.RefreshPlansCommand.DoExecute(null);
@@ -68,45 +76,30 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Creates a new flight plan and opens the editing view for the user.
+        /// Deletes the selected flight plan.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 28/10/2021.
+        /// sushi.at, 31/10/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void NewPlan()
+        private void DeletePlan()
         {
-            var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = "New flight plan", Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = new Random().Next(1, 9999), PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)) } };
-            Main mainWindow = null;
-            foreach (var instance in Main.Instances)
-            {
-                foreach (var dockItem in instance.DockingAdapter.ItemsSource)
-                {
-                    Debug.WriteLine(dockItem);
-                    if (dockItem is DockItemEx itemEx)
-                    {
-                        Debug.WriteLine(itemEx.Content);
-                        if (itemEx.Content == this.viewReference)
-                        {
-                            mainWindow = instance;
-                        }
-                    }
-                }
-            }
-
-            mainWindow ??= Main.Instances[0];
-            if (mainWindow.DataContext is MainViewModel viewModel)
-            {
-                viewModel.NavigationItemInvoked(navMenuItem, true, false, true);
-            }
+            // todo
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the new plan command.
+        /// Gets the edit plan command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public Command NewPlanCommand { get; }
+        public Command EditPlanCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the delete plan command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand DeletePlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -128,6 +121,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the new plan command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command NewPlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -162,6 +162,58 @@ namespace OpenSky.Client.Pages.Models
                 this.selectedFlightPlan = value;
                 this.NotifyPropertyChanged();
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
+        /// case the user has multiple open windows)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="view">
+        /// The view reference.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetViewReference(FlightPlans view)
+        {
+            this.viewReference = view;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Edit the selected flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void EditPlan()
+        {
+            if (this.SelectedFlightPlan != null)
+            {
+                var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"Flight plan  {this.SelectedFlightPlan.FullFlightNumber}", Parameter = this.SelectedFlightPlan };
+                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Creates a new flight plan and opens the editing view for the user.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void NewPlan()
+        {
+            var navMenuItem = new NavMenuItem
+            {
+                Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = "New flight plan",
+                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = new Random().Next(1, 9999), PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)) }
+            };
+            Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -214,29 +266,5 @@ namespace OpenSky.Client.Pages.Models
                 this.LoadingText = null;
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(FlightPlans view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private FlightPlans viewReference;
     }
 }
