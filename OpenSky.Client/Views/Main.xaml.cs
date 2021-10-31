@@ -12,6 +12,7 @@ namespace OpenSky.Client.Views
 
     using ModernWpf.Controls;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views.Models;
 
@@ -68,6 +69,45 @@ namespace OpenSky.Client.Views
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static List<Main> Instances { get; } = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Activates the specified navigation menu item in the same main window that contains the
+        /// specified source view.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// <param name="sourceView">
+        /// Source view.
+        /// </param>
+        /// <param name="navMenuItem">
+        /// The navigation menu item.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public static void ActivateNavMenuItemInSameViewAs(FrameworkElement sourceView, NavMenuItem navMenuItem)
+        {
+            Main mainWindow = null;
+            foreach (var instance in Instances)
+            {
+                foreach (var dockItem in instance.DockingAdapter.ItemsSource)
+                {
+                    if (dockItem is DockItemEx itemEx)
+                    {
+                        if (itemEx.Content == sourceView)
+                        {
+                            mainWindow = instance;
+                        }
+                    }
+                }
+            }
+
+            mainWindow ??= Instances[0];
+            if (mainWindow.DataContext is MainViewModel viewModel)
+            {
+                viewModel.NavigationItemInvoked(navMenuItem, true, false, true);
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

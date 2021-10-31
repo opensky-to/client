@@ -5489,6 +5489,10 @@ namespace OpenSkyApi
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string DispatcherID { get; set; }
     
+        /// <summary>Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).</summary>
+        [Newtonsoft.Json.JsonProperty("fullFlightNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FullFlightNumber { get; set; }
+    
         /// <summary>Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).</summary>
         [Newtonsoft.Json.JsonProperty("dispatcherName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DispatcherName { get; set; }
