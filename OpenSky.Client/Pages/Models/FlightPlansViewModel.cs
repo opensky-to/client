@@ -76,16 +76,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Deletes the selected flight plan.
+        /// Gets the delete plan command.
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 31/10/2021.
-        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void DeletePlan()
-        {
-            // todo
-        }
+        public AsynchronousCommand DeletePlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -93,13 +87,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command EditPlanCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the delete plan command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand DeletePlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -161,6 +148,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedFlightPlan = value;
                 this.NotifyPropertyChanged();
+                this.DeletePlanCommand.CanExecute = this.SelectedFlightPlan != null;
             }
         }
 
@@ -179,6 +167,63 @@ namespace OpenSky.Client.Pages.Models
         public void SetViewReference(FlightPlans view)
         {
             this.viewReference = view;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Deletes the selected flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DeletePlan()
+        {
+            if (this.SelectedFlightPlan == null)
+            {
+                return;
+            }
+
+            MessageBoxResult? answer = null;
+            this.DeletePlanCommand.ReportProgress(
+                () => { answer = ModernWpf.MessageBox.Show($"Are you sure you want to delete the flight plan {this.SelectedFlightPlan.FullFlightNumber}?", "Delete flight plan?", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                true);
+            if (answer is not MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = $"Deleting flight plan {this.SelectedFlightPlan.FullFlightNumber}...";
+            try
+            {
+                var result = OpenSkyService.Instance.DeleteFlightPlanAsync(this.SelectedFlightPlan.Id).Result;
+                if (!result.IsError)
+                {
+                    this.DeletePlanCommand.ReportProgress(() => this.RefreshPlansCommand.DoExecute(null));
+                }
+                else
+                {
+                    this.DeletePlanCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error deleting flight plan: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error deleting flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.DeletePlanCommand, "Error deleting flight plan");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -208,10 +253,11 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void NewPlan()
         {
+            var flightNumber = new Random().Next(1, 9999);
             var navMenuItem = new NavMenuItem
             {
-                Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = "New flight plan",
-                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = new Random().Next(1, 9999), PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)) }
+                Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
+                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
             };
             Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
         }

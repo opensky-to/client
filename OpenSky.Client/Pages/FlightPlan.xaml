@@ -19,10 +19,11 @@
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           LoadingText="{Binding LoadingText}"
+                          Loaded="FlightPlanOnLoaded"
                           mc:Ignorable="d" 
                           d:DesignHeight="900" d:DesignWidth="800">
     <UserControl.DataContext>
-        <models:FlightPlanViewModel />
+        <models:FlightPlanViewModel ClosePage="FlightPlanViewModelOnClosePage" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
@@ -32,9 +33,10 @@
     <StackPanel Orientation="Vertical">
         <ui:CommandBar HorizontalContentAlignment="Left">
             <ui:CommandBar.PrimaryCommands>
-                <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh flight plans [F5]" Command="{Binding RefreshAircraftCommand}" />
+                <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft [F5]" Command="{Binding RefreshAircraftCommand}" />
                 <ui:AppBarButton Icon="Save" Label="Save" ToolTip="Save flight plan [Ctrl+S]" Command="{Binding SaveCommand}" />
-                <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the flight plan"  />
+                <ui:AppBarButton Icon="Delete" Label="Discard" ToolTip="Discard the flight plan" Visibility="{Binding DiscardVisibility}" Command="{Binding DiscardCommand}" />
+                <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the flight plan" Visibility="{Binding DeleteVisibility}" Command="{Binding DeleteCommand }" />
             </ui:CommandBar.PrimaryCommands>
         </ui:CommandBar>
         <GroupBox>
@@ -57,7 +59,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" HorizontalAlignment="Center">Airline?</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}">Airline?</TextBlock>
                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="5" HorizontalAlignment="Center">Flight#</TextBlock>
                 <TextBlock Grid.Row="0" Grid.Column="2" Margin="5" HorizontalAlignment="Center">Origin</TextBlock>
                 <TextBlock Grid.Row="0" Grid.Column="3" Margin="5" HorizontalAlignment="Center">Destination</TextBlock>
@@ -66,7 +68,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="6" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center">Time (Utc)</TextBlock>
                 <TextBlock Grid.Row="0" Grid.Column="8" Margin="5" HorizontalAlignment="Center">Utc Offset</TextBlock>
 
-                <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" />
+                <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}" />
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" />
                 <TextBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                 <TextBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />

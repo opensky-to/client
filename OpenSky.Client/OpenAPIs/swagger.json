@@ -829,6 +829,36 @@
         }
       }
     },
+    "/Airline": {
+      "get": {
+        "tags": [
+          "Airline"
+        ],
+        "operationId": "GetAirline",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Airline/permissions": {
       "get": {
         "tags": [
@@ -2199,7 +2229,9 @@
       },
       "Aircraft": {
         "required": [
-          "airportICAO"
+          "airportICAO",
+          "registry",
+          "typeID"
         ],
         "type": "object",
         "properties": {
@@ -2251,8 +2283,7 @@
             "maxLength": 10,
             "minLength": 5,
             "type": "string",
-            "description": "Gets or sets the aircraft registration.",
-            "nullable": true
+            "description": "Gets or sets the aircraft registration."
           },
           "rentPrice": {
             "type": "integer",
@@ -4731,6 +4762,63 @@
         },
         "additionalProperties": false,
         "description": "Update aircraft model."
+      },
+      "UserAirline": {
+        "type": "object",
+        "properties": {
+          "iata": {
+            "maxLength": 2,
+            "minLength": 2,
+            "type": "string",
+            "description": "Gets or sets the optional IATA code of the airline.",
+            "nullable": true
+          },
+          "icao": {
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airline ICAO code.",
+            "nullable": true
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 4,
+            "type": "string",
+            "description": "Gets or sets the name of the airline.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "User airline information data contract."
+      },
+      "UserAirlineApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserAirline"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "ValidateEmail": {
         "required": [
