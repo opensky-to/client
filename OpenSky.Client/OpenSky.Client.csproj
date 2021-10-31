@@ -133,6 +133,7 @@
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\FlightPlan.cs" />
     <Compile Include="Pages\FlightPlan.xaml.cs">
       <DependentUpon>FlightPlan.xaml</DependentUpon>
     </Compile>

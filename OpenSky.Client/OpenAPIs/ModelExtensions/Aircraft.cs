@@ -86,6 +86,11 @@ namespace OpenSkyApi
         /// -------------------------------------------------------------------------------------------------
         public override string ToString()
         {
+            if (string.IsNullOrEmpty(this.Registry))
+            {
+                return string.Empty;
+            }
+
             var displayString = $"{this.Registry}";
             if (!string.IsNullOrEmpty(this.Name))
             {

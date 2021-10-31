@@ -302,6 +302,7 @@ namespace OpenSky.Client.Views.Models
                                 if (item.Parameter != null && this.ActiveDocument.Content is OpenSkyPage page)
                                 {
                                     page.PassPageParameter(item.Parameter);
+                                    page.DockItem = this.ActiveDocument;
                                 }
 
                                 this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
@@ -322,6 +323,7 @@ namespace OpenSky.Client.Views.Models
                                 if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
                                 {
                                     page.PassPageParameter(item.Parameter);
+                                    page.DockItem = dockItem;
                                 }
                             }
                         }
@@ -341,6 +343,7 @@ namespace OpenSky.Client.Views.Models
                             if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
                             {
                                 page.PassPageParameter(item.Parameter);
+                                page.DockItem = dockItem;
                             }
 
                             if (!switchToNewTab)
@@ -377,6 +380,7 @@ namespace OpenSky.Client.Views.Models
                                 if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
                                 {
                                     page.PassPageParameter(item.Parameter);
+                                    page.DockItem = dockItem;
                                 }
 
                                 var newWindow = new Main();

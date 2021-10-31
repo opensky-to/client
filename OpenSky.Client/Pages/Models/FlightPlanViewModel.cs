@@ -31,10 +31,24 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The user's airline.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private UserAirline airline;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The alternate icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string alternateICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The delete visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility deleteVisibility = Visibility.Visible;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -56,6 +70,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string destinationICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The discard visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility discardVisibility = Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -98,6 +119,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private bool isAirlineFlight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if is new flight plan, false if not.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool isNewFlightPlan;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -158,79 +186,28 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshAircraftCommand = new AsynchronousCommand(this.RefreshAircraft);
             this.ClearAircraftCommand = new Command(this.ClearAircraft);
             this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan);
+            this.DiscardCommand = new Command(this.DiscardFlightPlan);
+            this.DeleteCommand = new AsynchronousCommand(this.DeleteFlightPlan);
+            this.RefreshAirlineCommand = new AsynchronousCommand(this.RefreshAirline);
+
+            // Fire off initial commands
+            this.RefreshAirlineCommand.DoExecute(null);
         }
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the UTC offsets.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public SortedSet<double> UtcOffsets { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Saves the flight plan.
+        /// Gets the refresh airline command.
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 31/10/2021.
-        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void SaveFlightPlan()
-        {
-            this.LoadingText = "Saving flight plan...";
-            try
-            {
-                var flightPlan = new FlightPlan
-                {
-                    Id = this.ID,
-                    FlightNumber = this.FlightNumber,
-                    OriginICAO = this.OriginICAO,
-                    DestinationICAO = this.DestinationICAO,
-                    AlternateICAO = this.AlternateICAO,
-                    Aircraft = this.SelectedAircraft,
-                    DispatcherRemarks = this.DispatcherRemarks,
-                    FuelGallons = this.FuelGallons,
-                    IsAirlineFlight = this.IsAirlineFlight,
-                    PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
-                    UtcOffset = this.UtcOffset
-                };
-
-                var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
-                if (!result.IsError)
-                {
-
-                }
-                else
-                {
-                    this.SaveCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error saving flight plan: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
+        public AsynchronousCommand RefreshAirlineCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the save command.
+        /// Occurs when the view model wants to close the page.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand SaveCommand { get; }
+        public event EventHandler<object> ClosePage;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -238,6 +215,27 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<Aircraft> Aircraft { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the user's airline.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public UserAirline Airline
+        {
+            get => this.airline;
+
+            set
+            {
+                if (Equals(this.airline, value))
+                {
+                    return;
+                }
+
+                this.airline = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -269,6 +267,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the delete command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand DeleteCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the delete visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DeleteVisibility
+        {
+            get => this.deleteVisibility;
+
+            set
+            {
+                if (Equals(this.deleteVisibility, value))
+                {
+                    return;
+                }
+
+                this.deleteVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the departure hour.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -288,48 +314,6 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payload weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double PayloadWeight
-        {
-            get
-            {
-                // TODO Calculate the payload weight
-                return 0;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the fuel weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double FuelWeight
-        {
-            get
-            {
-                // TODO this should come from aircraft type?
-                return (this.FuelGallons ?? 0) * 6;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the zero fuel weight.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the gross weight.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double GrossWeight => this.ZeroFuelWeight + this.FuelWeight;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -370,6 +354,34 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 this.destinationICAO = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the discard command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command DiscardCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the discard visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DiscardVisibility
+        {
+            get => this.discardVisibility;
+
+            set
+            {
+                if (Equals(this.discardVisibility, value))
+                {
+                    return;
+                }
+
+                this.discardVisibility = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -468,6 +480,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the fuel weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double FuelWeight
+        {
+            get
+            {
+                // TODO this should come from aircraft type?
+                return (this.FuelGallons ?? 0) * 6;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the gross weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double GrossWeight => this.ZeroFuelWeight + this.FuelWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the flight plan ID.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -505,6 +538,29 @@ namespace OpenSky.Client.Pages.Models
 
                 this.isAirlineFlight = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether this object is new flight plan.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsNewFlightPlan
+        {
+            get => this.isNewFlightPlan;
+
+            set
+            {
+                if (Equals(this.isNewFlightPlan, value))
+                {
+                    return;
+                }
+
+                this.isNewFlightPlan = value;
+                this.NotifyPropertyChanged();
+                this.DiscardVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+                this.DeleteVisibility = value ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
@@ -552,6 +608,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the payload weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double PayloadWeight
+        {
+            get
+            {
+                // TODO Calculate the payload weight
+                return 0;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the planned departure time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -577,6 +647,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand RefreshAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the save command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand SaveCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -633,6 +710,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the UTC offsets.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public SortedSet<double> UtcOffsets { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the zero fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Loads an existing flight plan.
         /// </summary>
         /// <remarks>
@@ -649,7 +740,11 @@ namespace OpenSky.Client.Pages.Models
             this.OriginICAO = flightPlan.OriginICAO;
             this.DestinationICAO = flightPlan.DestinationICAO;
             this.AlternateICAO = flightPlan.AlternateICAO;
-            this.SelectedAircraft = flightPlan.Aircraft;
+            if (!string.IsNullOrEmpty(flightPlan.Aircraft?.Registry))
+            {
+                this.SelectedAircraft = flightPlan.Aircraft;
+            }
+
             this.DispatcherID = flightPlan.DispatcherID;
             this.DispatcherRemarks = flightPlan.DispatcherRemarks;
             this.FuelGallons = flightPlan.FuelGallons;
@@ -658,6 +753,8 @@ namespace OpenSky.Client.Pages.Models
             this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
             this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
             this.UtcOffset = flightPlan.UtcOffset;
+
+            this.IsNewFlightPlan = flightPlan.IsNewFlightPlan;
 
             this.RefreshAircraftCommand.DoExecute(null);
         }
@@ -673,6 +770,71 @@ namespace OpenSky.Client.Pages.Models
         private void ClearAircraft()
         {
             this.SelectedAircraft = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Deletes the flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DeleteFlightPlan()
+        {
+            MessageBoxResult? answer = null;
+            this.DeleteCommand.ReportProgress(
+                () => { answer = ModernWpf.MessageBox.Show($"Are you sure you want to delete this flight plan?", "Delete flight plan?", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                true);
+            if (answer is not MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = "Deleting flight plan...";
+            try
+            {
+                var result = OpenSkyService.Instance.DeleteFlightPlanAsync(this.ID).Result;
+                if (!result.IsError)
+                {
+                    this.DeleteCommand.ReportProgress(() => this.ClosePage?.Invoke(this, null));
+                }
+                else
+                {
+                    this.DeleteCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error deleting flight plan: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error deleting flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.DeleteCommand, "Error deleting flight plan");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Discards the flight plan (not yet saved to the server, so we only need to close the tab).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DiscardFlightPlan()
+        {
+            this.ClosePage?.Invoke(this, null);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -725,6 +887,111 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.RefreshAircraftCommand, "Error refreshing aircraft");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refreshes the user's airline.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshAirline()
+        {
+            this.LoadingText = "Refreshing airline info...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAirlineAsync().Result;
+                if (!result.IsError)
+                {
+                    if (!string.IsNullOrEmpty(result.Data?.Icao))
+                    {
+                        this.Airline = result.Data;
+                    }
+                }
+                else
+                {
+                    this.RefreshAirlineCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing airline info: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing airline info", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshAirlineCommand, "Error refreshing airline info");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Saves the flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SaveFlightPlan()
+        {
+            this.LoadingText = "Saving flight plan...";
+            try
+            {
+                var flightPlan = new FlightPlan
+                {
+                    Id = this.ID,
+                    FlightNumber = this.FlightNumber,
+                    OriginICAO = this.OriginICAO,
+                    DestinationICAO = this.DestinationICAO,
+                    AlternateICAO = this.AlternateICAO,
+                    Aircraft = this.SelectedAircraft,
+                    DispatcherRemarks = this.DispatcherRemarks,
+                    FuelGallons = this.FuelGallons,
+                    IsAirlineFlight = this.IsAirlineFlight,
+                    PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
+                    UtcOffset = this.UtcOffset
+                };
+
+                var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
+                if (!result.IsError)
+                {
+                    this.IsNewFlightPlan = false;
+                }
+                else
+                {
+                    this.SaveCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error saving flight plan: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
             }
             finally
             {
