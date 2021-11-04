@@ -168,6 +168,62 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string route;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string Route
+        {
+            get => this.route;
+
+            set
+            {
+                if (Equals(this.route, value))
+                {
+                    return;
+                }
+
+                this.route = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The alternate route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string alternateRoute;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the alternate route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AlternateRoute
+        {
+            get => this.alternateRoute;
+
+            set
+            {
+                if (Equals(this.alternateRoute, value))
+                {
+                    return;
+                }
+
+                this.alternateRoute = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="FlightPlanViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -217,6 +273,7 @@ namespace OpenSky.Client.Pages.Models
             }
 
             this.LoadingText = "Downloading simBrief OFP...";
+            MessageBoxResult? answer;
             try
             {
                 var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?user={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
@@ -226,19 +283,108 @@ namespace OpenSky.Client.Pages.Models
                 var xml = client.DownloadString(ofpFetchUrl);
                 var ofp = XElement.Parse(xml);
 
-                // Origin
-                
-                // Destination
-                
+                // Origin and Destination
+                var sbOriginICAO = (string)ofp.Element("origin")?.Element("icao_code");
+                var sbDestinationICAO = (string)ofp.Element("destination")?.Element("icao_code");
+                if (!string.IsNullOrEmpty(sbOriginICAO) && !string.IsNullOrEmpty(sbDestinationICAO) && (!sbOriginICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase) || !sbDestinationICAO.Equals(this.DestinationICAO, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    answer = MessageBoxResult.None;
+                    this.DownloadSimBriefCommand.ReportProgress(
+                        () =>
+                        {
+                            answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        }, true);
+                    if (answer == MessageBoxResult.Yes)
+                    {
+                        this.OriginICAO = sbOriginICAO;
+                        this.DestinationICAO = sbDestinationICAO;
+                    }
+                }
+
                 // Alternate
-                
+                var sbAlternateICAO = (string)ofp.Element("alternate")?.Element("icao_code");
+                if (!string.IsNullOrEmpty(sbAlternateICAO))
+                {
+                    if (string.IsNullOrEmpty(this.AlternateICAO))
+                    {
+                        this.AlternateICAO = sbAlternateICAO;
+                    }
+                    else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show("Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            }, true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.AlternateICAO = sbAlternateICAO;
+                        }
+                    }
+                }
+
                 // Fuel
-                
+
                 // ZFW sanity check?
 
                 // Route
-                
+                var sbRoute = (string)ofp.Element("general")?.Element("route");
+                if (!string.IsNullOrEmpty(sbRoute))
+                {
+                    if (string.IsNullOrEmpty(this.Route))
+                    {
+                        this.Route = sbRoute;
+                    }
+                    else if (!sbRoute.Equals(this.Route, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show("Route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            }, true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.Route = sbRoute;
+                        }
+                    }
+                }
+
+                // Alternate route
+                var sbAlternateRoute = (string)ofp.Element("alternate")?.Element("route");
+                if (!string.IsNullOrEmpty(sbAlternateRoute))
+                {
+                    if (string.IsNullOrEmpty(this.AlternateRoute))
+                    {
+                        this.AlternateRoute = sbAlternateRoute;
+                    }
+                    else if (!sbAlternateRoute.Equals(this.AlternateRoute, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show("Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            }, true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.alternateRoute = sbAlternateRoute;
+                        }
+                    }
+                }
+
                 // OFP html
+                var sbOfpHtml = (string)ofp.Element("text")?.Element("plan_html");
+                if (!string.IsNullOrEmpty(sbOfpHtml))
+                {
+                    if (!sbOfpHtml.StartsWith("<html>"))
+                    {
+                        sbOfpHtml = $"<html><body>{sbOfpHtml}</body></html>";
+                    }
+
+                    this.DownloadSimBriefCommand.ReportProgress(()=> this.OfpHtml = sbOfpHtml); 
+                }
             }
             catch (WebException ex)
             {
@@ -280,6 +426,34 @@ namespace OpenSky.Client.Pages.Models
             finally
             {
                 this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The simBrief OFP HTML.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string ofpHtml;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the simBrief OFP HTML.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string OfpHtml
+        {
+            get => this.ofpHtml;
+
+            set
+            {
+                if (Equals(this.ofpHtml, value))
+                {
+                    return;
+                }
+
+                this.ofpHtml = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -931,6 +1105,9 @@ namespace OpenSky.Client.Pages.Models
             this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
             this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
             this.UtcOffset = flightPlan.UtcOffset;
+            this.Route = flightPlan.Route;
+            this.AlternateRoute = flightPlan.AlternateRoute;
+            this.OfpHtml = flightPlan.OfpHtml;
 
             this.IsNewFlightPlan = flightPlan.IsNewFlightPlan;
 
@@ -1144,7 +1321,10 @@ namespace OpenSky.Client.Pages.Models
                     FuelGallons = this.FuelGallons,
                     IsAirlineFlight = this.IsAirlineFlight,
                     PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
-                    UtcOffset = this.UtcOffset
+                    UtcOffset = this.UtcOffset,
+                    Route = this.Route,
+                    AlternateRoute = this.AlternateRoute,
+                    OfpHtml = this.OfpHtml
                 };
 
                 var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
