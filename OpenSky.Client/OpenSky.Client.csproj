@@ -114,11 +114,19 @@
     <Compile Include="Controls\AircraftFuelAsProgressbar.xaml.cs">
       <DependentUpon>AircraftFuelAsProgressbar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MapView.xaml.cs">
+      <DependentUpon>MapView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Models\MapViewViewModel.cs" />
+    <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
+    <Compile Include="Controls\Models\TrackingEventMarker.cs" />
     <Compile Include="Controls\OpenSkyPage.cs" />
     <Compile Include="Controls\OpenSkyWindow.cs" />
     <Compile Include="Controls\SkybucksCurrency.xaml.cs">
       <DependentUpon>SkybucksCurrency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\MapZoomLevelVisibilityConverter.cs" />
     <Compile Include="Converters\NullItemToEnabledConverter.cs" />
     <Compile Include="Converters\NullItemToVisibilityConverter.cs" />
     <Compile Include="Converters\PieChartValueAdornerLabelConverter.cs" />
@@ -224,6 +232,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\AircraftFuelAsProgressbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MapView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -470,6 +482,7 @@
   <ItemGroup>
     <Resource Include="Resources\plan16.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"
