@@ -18,15 +18,14 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
-                          xmlns:tools="clr-namespace:OpenSky.Client.Tools"
-                          xmlns:htmlwpf="http://schemas.danielsabel.com/tinyhtmlwpf/2020"
                           xmlns:wpf="clr-namespace:TheArtOfDev.HtmlRenderer.WPF;assembly=HtmlRenderer.WPF"
+                          xmlns:pages="clr-namespace:OpenSky.Client.Pages"
                           LoadingText="{Binding LoadingText}"
-                          Loaded="FlightPlanOnLoaded" VerticalScrollBar="False"
+                          Loaded="FlightPlanOnLoaded" VerticalScrollBar="False" HorizontalScrollBar="False"
                           mc:Ignorable="d" 
                           d:DesignHeight="900" d:DesignWidth="800">
     <UserControl.DataContext>
-        <models:FlightPlanViewModel ClosePage="FlightPlanViewModelOnClosePage" />
+        <models:FlightPlanViewModel x:Name="ViewModel" ClosePage="FlightPlanViewModelOnClosePage" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
@@ -104,11 +103,10 @@
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-
-<GroupBox Grid.Column="0">
-                    <GroupBox.Header>
-                        <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft</TextBlock>
-                    </GroupBox.Header>
+                    <GroupBox Grid.Column="0">
+                        <GroupBox.Header>
+                            <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft</TextBlock>
+                        </GroupBox.Header>
                         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
                             <Grid>
                                 <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" />
@@ -146,7 +144,7 @@
 
                             </Grid>
                         </StackPanel>
-</GroupBox>
+                    </GroupBox>
                     <GroupBox Grid.Column="1">
                         <GroupBox.Header>
                             <TextBlock FontSize="15" FontWeight="DemiBold">Fuel</TextBlock>
@@ -164,14 +162,14 @@
                             </StackPanel>
                             <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
                         </Grid>
-                        </GroupBox>
+                    </GroupBox>
 
                     <GroupBox Grid.Column="2">
                         <GroupBox.Header>
                             <TextBlock FontSize="15" FontWeight="DemiBold">Payload</TextBlock>
                         </GroupBox.Header>
                         <TextBlock Margin="5,0">TODO</TextBlock>
-                </GroupBox>
+                    </GroupBox>
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -202,7 +200,10 @@
                     <GroupBox.Header>
                         <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
                     </GroupBox.Header>
-                    <TextBlock>TODO</TextBlock>
+                    <controls:MapView Height="400" Margin="5" ShowFollowPlane="False" 
+                                      SimbriefRouteLocations="{Binding SimbriefRouteLocations, Mode=OneWayToSource, ElementName=ViewModel}"
+                                      SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, Mode=OneWayToSource, ElementName=ViewModel}"
+/>
                 </GroupBox>
                 <GroupBox>
                     <GroupBox.Header>

@@ -17,6 +17,9 @@ namespace OpenSky.Client.Pages.Models
     using System.Windows;
     using System.Xml.Linq;
 
+    using Microsoft.Maps.MapControl.WPF;
+
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
 
@@ -46,6 +49,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string alternateICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The alternate route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string alternateRoute;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -140,6 +150,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The simBrief OFP HTML.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string ofpHtml;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The origin icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -151,6 +168,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DateTime plannedDepartureTime;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string route;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -168,62 +192,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string route;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string Route
-        {
-            get => this.route;
-
-            set
-            {
-                if (Equals(this.route, value))
-                {
-                    return;
-                }
-
-                this.route = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The alternate route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string alternateRoute;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the alternate route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string AlternateRoute
-        {
-            get => this.alternateRoute;
-
-            set
-            {
-                if (Equals(this.alternateRoute, value))
-                {
-                    return;
-                }
-
-                this.alternateRoute = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="FlightPlanViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -235,6 +203,9 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.UtcOffsets = new SortedSet<double>();
+
+            //this.SimbriefRouteLocations = new LocationCollection();
+            //this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
 
             // Populate UTC offsets from time zones
             foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
@@ -255,304 +226,6 @@ namespace OpenSky.Client.Pages.Models
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Downloads the created simBrief OFP.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 03/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void DownloadSimBrief()
-        {
-            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
-            {
-                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning));
-                return;
-            }
-
-            this.LoadingText = "Downloading simBrief OFP...";
-            MessageBoxResult? answer;
-            try
-            {
-                var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?user={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
-                Debug.WriteLine(ofpFetchUrl);
-
-                using var client = new WebClient();
-                var xml = client.DownloadString(ofpFetchUrl);
-                var ofp = XElement.Parse(xml);
-
-                // Origin and Destination
-                var sbOriginICAO = (string)ofp.Element("origin")?.Element("icao_code");
-                var sbDestinationICAO = (string)ofp.Element("destination")?.Element("icao_code");
-                if (!string.IsNullOrEmpty(sbOriginICAO) && !string.IsNullOrEmpty(sbDestinationICAO) && (!sbOriginICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase) || !sbDestinationICAO.Equals(this.DestinationICAO, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    answer = MessageBoxResult.None;
-                    this.DownloadSimBriefCommand.ReportProgress(
-                        () =>
-                        {
-                            answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        }, true);
-                    if (answer == MessageBoxResult.Yes)
-                    {
-                        this.OriginICAO = sbOriginICAO;
-                        this.DestinationICAO = sbDestinationICAO;
-                    }
-                }
-
-                // Alternate
-                var sbAlternateICAO = (string)ofp.Element("alternate")?.Element("icao_code");
-                if (!string.IsNullOrEmpty(sbAlternateICAO))
-                {
-                    if (string.IsNullOrEmpty(this.AlternateICAO))
-                    {
-                        this.AlternateICAO = sbAlternateICAO;
-                    }
-                    else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = MessageBoxResult.None;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                answer = ModernWpf.MessageBox.Show("Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                            }, true);
-                        if (answer == MessageBoxResult.Yes)
-                        {
-                            this.AlternateICAO = sbAlternateICAO;
-                        }
-                    }
-                }
-
-                // Fuel
-
-                // ZFW sanity check?
-
-                // Route
-                var sbRoute = (string)ofp.Element("general")?.Element("route");
-                if (!string.IsNullOrEmpty(sbRoute))
-                {
-                    if (string.IsNullOrEmpty(this.Route))
-                    {
-                        this.Route = sbRoute;
-                    }
-                    else if (!sbRoute.Equals(this.Route, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = MessageBoxResult.None;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                answer = ModernWpf.MessageBox.Show("Route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                            }, true);
-                        if (answer == MessageBoxResult.Yes)
-                        {
-                            this.Route = sbRoute;
-                        }
-                    }
-                }
-
-                // Alternate route
-                var sbAlternateRoute = (string)ofp.Element("alternate")?.Element("route");
-                if (!string.IsNullOrEmpty(sbAlternateRoute))
-                {
-                    if (string.IsNullOrEmpty(this.AlternateRoute))
-                    {
-                        this.AlternateRoute = sbAlternateRoute;
-                    }
-                    else if (!sbAlternateRoute.Equals(this.AlternateRoute, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = MessageBoxResult.None;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                answer = ModernWpf.MessageBox.Show("Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                            }, true);
-                        if (answer == MessageBoxResult.Yes)
-                        {
-                            this.alternateRoute = sbAlternateRoute;
-                        }
-                    }
-                }
-
-                // OFP html
-                var sbOfpHtml = (string)ofp.Element("text")?.Element("plan_html");
-                if (!string.IsNullOrEmpty(sbOfpHtml))
-                {
-                    if (!sbOfpHtml.StartsWith("<html>"))
-                    {
-                        sbOfpHtml = $"<html><body>{sbOfpHtml}</body></html>";
-                    }
-
-                    this.DownloadSimBriefCommand.ReportProgress(()=> this.OfpHtml = sbOfpHtml); 
-                }
-            }
-            catch (WebException ex)
-            {
-                Debug.WriteLine("Web error received from simbrief api: " + ex);
-                var responseStream = ex.Response.GetResponseStream();
-                if (responseStream != null)
-                {
-                    var responseString = string.Empty;
-                    var reader = new StreamReader(responseStream, Encoding.UTF8);
-                    var buffer = new char[1024];
-                    var count = reader.Read(buffer, 0, buffer.Length);
-                    while (count > 0)
-                    {
-                        responseString += new string(buffer, 0, count);
-                        count = reader.Read(buffer, 0, buffer.Length);
-                    }
-
-                    Debug.WriteLine(responseString);
-                    if (responseString.Contains("<OFP>"))
-                    {
-                        var ofp = XElement.Parse(responseString);
-                        var status = ofp.Element("fetch")?.Element("status")?.Value;
-                        if (!string.IsNullOrWhiteSpace(status))
-                        {
-                            Debug.WriteLine("Error fetching flight plan from Simbrief: " + status);
-                            this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show(status, "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
-                            return;
-                        }
-                    }
-                }
-
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show($"Error downloading simBrief OFP!\r\n{ex.Message}", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The simBrief OFP HTML.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string ofpHtml;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the simBrief OFP HTML.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string OfpHtml
-        {
-            get => this.ofpHtml;
-
-            set
-            {
-                if (Equals(this.ofpHtml, value))
-                {
-                    return;
-                }
-
-                this.ofpHtml = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the download simulation brief command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand DownloadSimBriefCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Creates the dispatch URL for simbrief with the selected flight plan options.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 02/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void CreateSimBrief()
-        {
-            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
-            {
-                ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var url = "https://www.simbrief.com/system/dispatch.php?";
-            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Iata))
-            {
-                url += $"airline={this.Airline.Iata}&";
-            }
-
-            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Icao))
-            {
-                url += $"airline={this.Airline.Icao}&";
-            }
-
-            url += $"fltnum={this.FlightNumber}&";
-
-            if (!string.IsNullOrEmpty(this.OriginICAO))
-            {
-                url += $"orig={this.OriginICAO}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.DestinationICAO))
-            {
-                url += $"dest={this.DestinationICAO}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.AlternateICAO))
-            {
-                url += $"altn={this.AlternateICAO}&";
-                url += $"altn_1_id={this.AlternateICAO}&";
-            }
-
-            url += $"date={this.PlannedDepartureTime:ddMMMyy}&";
-            url += $"deph={this.DepartureHour:00}&";
-            url += $"depm={this.DepartureMinute:00}&";
-
-            // todo add route if we already have one?
-
-            if (this.SelectedAircraft != null)
-            {
-                url += $"reg={this.SelectedAircraft.Registry}&";
-            }
-
-            url += $"cpt={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&"; // todo add assigned airline pilot once we add that
-            url += $"dxname={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&";
-
-            if (!string.IsNullOrEmpty(this.DispatcherRemarks))
-            {
-                url += $"manualrmk={WebUtility.UrlEncode(this.DispatcherRemarks.Replace("\r", string.Empty).Replace("\n", "\\n"))}&";
-            }
-
-            url += $"static_id={this.ID}&";
-
-            Debug.WriteLine(url);
-            Process.Start(url);
-
-            ModernWpf.MessageBox.Show(
-                "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.",
-                "simBrief OFP",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the create simulation brief command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command CreateSimBriefCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the refresh airline command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshAirlineCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -612,10 +285,38 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the alternate route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AlternateRoute
+        {
+            get => this.alternateRoute;
+
+            set
+            {
+                if (Equals(this.alternateRoute, value))
+                {
+                    return;
+                }
+
+                this.alternateRoute = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the clear aircraft command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command ClearAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the create simulation brief command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command CreateSimBriefCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -782,6 +483,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the download simulation brief command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand DownloadSimBriefCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the flight number  (1-9999).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -939,6 +647,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the simBrief OFP HTML.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string OfpHtml
+        {
+            get => this.ofpHtml;
+
+            set
+            {
+                if (Equals(this.ofpHtml, value))
+                {
+                    return;
+                }
+
+                this.ofpHtml = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the origin icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1002,6 +731,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh airline command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshAirlineCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the route.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string Route
+        {
+            get => this.route;
+
+            set
+            {
+                if (Equals(this.route, value))
+                {
+                    return;
+                }
+
+                this.route = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the save command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1038,6 +795,20 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the simbrief route locations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public LocationCollection SimbriefRouteLocations { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the simbrief waypoint markers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<SimbriefWaypointMarker> SimbriefWaypointMarkers { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1129,6 +900,82 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Creates the dispatch URL for simbrief with the selected flight plan options.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 02/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void CreateSimBrief()
+        {
+            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
+            {
+                ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var url = "https://www.simbrief.com/system/dispatch.php?";
+            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Iata))
+            {
+                url += $"airline={this.Airline.Iata}&";
+            }
+
+            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Icao))
+            {
+                url += $"airline={this.Airline.Icao}&";
+            }
+
+            url += $"fltnum={this.FlightNumber}&";
+
+            if (!string.IsNullOrEmpty(this.OriginICAO))
+            {
+                url += $"orig={this.OriginICAO}&";
+            }
+
+            if (!string.IsNullOrEmpty(this.DestinationICAO))
+            {
+                url += $"dest={this.DestinationICAO}&";
+            }
+
+            if (!string.IsNullOrEmpty(this.AlternateICAO))
+            {
+                url += $"altn={this.AlternateICAO}&";
+                url += $"altn_1_id={this.AlternateICAO}&";
+            }
+
+            url += $"date={this.PlannedDepartureTime:ddMMMyy}&";
+            url += $"deph={this.DepartureHour:00}&";
+            url += $"depm={this.DepartureMinute:00}&";
+
+            // todo add route if we already have one?
+
+            if (this.SelectedAircraft != null)
+            {
+                url += $"reg={this.SelectedAircraft.Registry}&";
+            }
+
+            url += $"cpt={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&"; // todo add assigned airline pilot once we add that
+            url += $"dxname={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&";
+
+            if (!string.IsNullOrEmpty(this.DispatcherRemarks))
+            {
+                url += $"manualrmk={WebUtility.UrlEncode(this.DispatcherRemarks.Replace("\r", string.Empty).Replace("\n", "\\n"))}&";
+            }
+
+            url += $"static_id={this.ID}&";
+
+            Debug.WriteLine(url);
+            Process.Start(url);
+
+            ModernWpf.MessageBox.Show(
+                "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.",
+                "simBrief OFP",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Deletes the flight plan.
         /// </summary>
         /// <remarks>
@@ -1190,6 +1037,202 @@ namespace OpenSky.Client.Pages.Models
         private void DiscardFlightPlan()
         {
             this.ClosePage?.Invoke(this, null);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Downloads the created simBrief OFP.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DownloadSimBrief()
+        {
+            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
+            {
+                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning));
+                return;
+            }
+
+            this.LoadingText = "Downloading simBrief OFP...";
+            MessageBoxResult? answer;
+            try
+            {
+                var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?user={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
+                Debug.WriteLine(ofpFetchUrl);
+
+                using var client = new WebClient();
+                var xml = client.DownloadString(ofpFetchUrl);
+                var ofp = XElement.Parse(xml);
+
+                // Origin and Destination
+                var sbOriginICAO = (string)ofp.Element("origin")?.Element("icao_code");
+                var sbDestinationICAO = (string)ofp.Element("destination")?.Element("icao_code");
+                if (!string.IsNullOrEmpty(sbOriginICAO) && !string.IsNullOrEmpty(sbDestinationICAO) &&
+                    (!sbOriginICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase) || !sbDestinationICAO.Equals(this.DestinationICAO, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    answer = MessageBoxResult.None;
+                    this.DownloadSimBriefCommand.ReportProgress(
+                        () => { answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                        true);
+                    if (answer == MessageBoxResult.Yes)
+                    {
+                        this.OriginICAO = sbOriginICAO;
+                        this.DestinationICAO = sbDestinationICAO;
+                    }
+                }
+
+                // Alternate
+                var sbAlternateICAO = (string)ofp.Element("alternate")?.Element("icao_code");
+                if (!string.IsNullOrEmpty(sbAlternateICAO))
+                {
+                    if (string.IsNullOrEmpty(this.AlternateICAO))
+                    {
+                        this.AlternateICAO = sbAlternateICAO;
+                    }
+                    else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () => { answer = ModernWpf.MessageBox.Show("Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                            true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.AlternateICAO = sbAlternateICAO;
+                        }
+                    }
+                }
+
+                // Fuel
+
+                // ZFW sanity check?
+
+                // Route
+                var sbRoute = (string)ofp.Element("general")?.Element("route");
+                if (!string.IsNullOrEmpty(sbRoute))
+                {
+                    if (string.IsNullOrEmpty(this.Route))
+                    {
+                        this.Route = sbRoute;
+                    }
+                    else if (!sbRoute.Equals(this.Route, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () => { answer = ModernWpf.MessageBox.Show("Route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                            true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.Route = sbRoute;
+                        }
+                    }
+                }
+
+                // Alternate route
+                var sbAlternateRoute = (string)ofp.Element("alternate")?.Element("route");
+                if (!string.IsNullOrEmpty(sbAlternateRoute))
+                {
+                    if (string.IsNullOrEmpty(this.AlternateRoute))
+                    {
+                        this.AlternateRoute = sbAlternateRoute;
+                    }
+                    else if (!sbAlternateRoute.Equals(this.AlternateRoute, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () => { answer = ModernWpf.MessageBox.Show("Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                            true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.alternateRoute = sbAlternateRoute;
+                        }
+                    }
+                }
+
+                // OFP html
+                var sbOfpHtml = (string)ofp.Element("text")?.Element("plan_html");
+                if (!string.IsNullOrEmpty(sbOfpHtml))
+                {
+                    if (!sbOfpHtml.StartsWith("<html>"))
+                    {
+                        sbOfpHtml = $"<html><body>{sbOfpHtml}</body></html>";
+                    }
+
+                    this.DownloadSimBriefCommand.ReportProgress(() => this.OfpHtml = sbOfpHtml);
+                }
+
+                // Navlog fixes
+                var originLat = double.Parse((string)ofp.Element("origin").Element("pos_lat"));
+                var originLon = double.Parse((string)ofp.Element("origin").Element("pos_long"));
+                this.DownloadSimBriefCommand.ReportProgress(() => this.SimbriefRouteLocations.Add(new Location(originLat, originLon)));
+                var fixes = ofp.Element("navlog").Elements("fix");
+                foreach (var fix in fixes)
+                {
+                    // todo also add these to the flight plan
+
+                    var ident = (string)fix.Element("ident");
+                    var latitude = double.Parse((string)fix.Element("pos_lat"));
+                    var longitude = double.Parse((string)fix.Element("pos_long"));
+                    var type = (string)fix.Element("type");
+                    
+                    if (this.SimbriefRouteLocations != null && this.SimbriefWaypointMarkers != null)
+                    {
+                        this.DownloadSimBriefCommand.ReportProgress(
+                        () =>
+                        {
+                            this.SimbriefRouteLocations.Add(new Location(latitude, longitude));
+                            if (type != "apt")
+                            {
+                                var newMarker = new SimbriefWaypointMarker(latitude, longitude, ident, type);
+                                this.SimbriefWaypointMarkers.Add(newMarker);
+                            }
+
+                        });
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                Debug.WriteLine("Web error received from simbrief api: " + ex);
+                var responseStream = ex.Response.GetResponseStream();
+                if (responseStream != null)
+                {
+                    var responseString = string.Empty;
+                    var reader = new StreamReader(responseStream, Encoding.UTF8);
+                    var buffer = new char[1024];
+                    var count = reader.Read(buffer, 0, buffer.Length);
+                    while (count > 0)
+                    {
+                        responseString += new string(buffer, 0, count);
+                        count = reader.Read(buffer, 0, buffer.Length);
+                    }
+
+                    Debug.WriteLine(responseString);
+                    if (responseString.Contains("<OFP>"))
+                    {
+                        var ofp = XElement.Parse(responseString);
+                        var status = ofp.Element("fetch")?.Element("status")?.Value;
+                        if (!string.IsNullOrWhiteSpace(status))
+                        {
+                            Debug.WriteLine("Error fetching flight plan from Simbrief: " + status);
+                            this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show(status, "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
+                            return;
+                        }
+                    }
+                }
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show($"Error downloading simBrief OFP!\r\n{ex.Message}", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1294,7 +1337,6 @@ namespace OpenSky.Client.Pages.Models
                 this.LoadingText = null;
             }
         }
-
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
