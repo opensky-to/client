@@ -41,6 +41,9 @@
             <setting name="OpenSkyAPIUrl" serializeAs="String">
                 <value>http://localhost:5000</value>
             </setting>
+	        <setting name="OpenSkyChangePasswordUrl" serializeAs="String">
+		        <value>http://localhost:5001/changepassword</value>
+	        </setting>
         </OpenSky.Client.Properties.Settings>
     </applicationSettings>
 </configuration>

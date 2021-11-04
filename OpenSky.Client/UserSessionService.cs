@@ -33,6 +33,13 @@ namespace OpenSky.Client
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The user roles.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly List<string> userRoles = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Is a user currently logged in?
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -44,20 +51,6 @@ namespace OpenSky.Client
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string username;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The user roles.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private readonly List<string> userRoles = new();
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the user roles.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public IEnumerable<string> UserRoles => this.userRoles;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -117,10 +110,31 @@ namespace OpenSky.Client
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the OpenSky user account overview.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AccountOverview AccountOverview { get; private set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the Date/Time of the expiration of the main JWT OpenSky API token.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public DateTime? Expiration { get; private set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether the current user is an admin.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsAdmin => this.userRoles.Contains("Admin");
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether the current user is a moderator.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsModerator => this.userRoles.Contains("Moderator") || this.userRoles.Contains("Admin");
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -142,6 +156,13 @@ namespace OpenSky.Client
                 this.OnPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the linked accounts.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public LinkedAccounts LinkedAccounts { get; private set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -184,6 +205,13 @@ namespace OpenSky.Client
                 this.OnPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the user roles.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public IEnumerable<string> UserRoles => this.userRoles;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -246,6 +274,117 @@ namespace OpenSky.Client
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// User wants to log out.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 07/05/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void Logout()
+        {
+            this.IsUserLoggedIn = false;
+            this.OpenSkyApiToken = null;
+            this.Expiration = null;
+            this.Username = null;
+            this.RefreshToken = null;
+            this.RefreshExpiration = null;
+
+            Settings.Default.OpenSkyApiToken = null;
+            Settings.Default.OpenSkyTokenExpiration = DateTime.MinValue;
+            Settings.Default.OpenSkyRefreshToken = null;
+            Settings.Default.OpenSkyRefreshTokenExpiration = DateTime.MinValue;
+            Settings.Default.Save();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refresh linked accounts.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// <returns>
+        /// An asynchronous result that yields true if it succeeds, false if it fails.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        public async Task<bool> RefreshLinkedAccounts()
+        {
+            try
+            {
+                var result = await OpenSkyService.Instance.GetLinkedAccountsAsync();
+                if (!result.IsError)
+                {
+                    this.LinkedAccounts = result.Data;
+                }
+
+                return !result.IsError;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error refreshing linked accounts! {ex}");
+                this.LinkedAccounts = null;
+                return false;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refresh user account overview.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// <returns>
+        /// An asynchronous result that yields true if it succeeds, false if it fails.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        public async Task<bool> RefreshUserAccountOverview()
+        {
+            try
+            {
+                var result = await OpenSkyService.Instance.GetAccountOverviewAsync();
+                if (!result.IsError)
+                {
+                    this.AccountOverview = result.Data;
+                }
+
+                return !result.IsError;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during refresh user account overview! {ex}");
+                this.AccountOverview = null;
+                return false;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The tokens were refreshed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 01/06/2021.
+        /// </remarks>
+        /// <param name="refreshToken">
+        /// The refresh token response model (contains new tokens).
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void TokensWereRefreshed(RefreshTokenResponse refreshToken)
+        {
+            this.OpenSkyApiToken = refreshToken.Token;
+            this.Expiration = refreshToken.Expiration.UtcDateTime;
+            this.RefreshToken = refreshToken.RefreshToken;
+            this.RefreshExpiration = refreshToken.RefreshTokenExpiration.UtcDateTime;
+
+            Settings.Default.OpenSkyApiToken = refreshToken.Token;
+            Settings.Default.OpenSkyTokenExpiration = refreshToken.Expiration.UtcDateTime;
+            Settings.Default.OpenSkyRefreshToken = refreshToken.RefreshToken;
+            Settings.Default.OpenSkyRefreshTokenExpiration = refreshToken.RefreshTokenExpiration.UtcDateTime;
+            Settings.Default.Save();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Updates the user roles.
         /// </summary>
         /// <remarks>
@@ -274,69 +413,6 @@ namespace OpenSky.Client
                 this.userRoles.Clear();
                 return false;
             }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets a value indicating whether the current user is a moderator.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool IsModerator => this.userRoles.Contains("Moderator") || this.userRoles.Contains("Admin");
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets a value indicating whether the current user is an admin.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool IsAdmin => this.userRoles.Contains("Admin");
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// User wants to log out.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 07/05/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        public void Logout()
-        {
-            this.IsUserLoggedIn = false;
-            this.OpenSkyApiToken = null;
-            this.Expiration = null;
-            this.Username = null;
-            this.RefreshToken = null;
-            this.RefreshExpiration = null;
-
-            Settings.Default.OpenSkyApiToken = null;
-            Settings.Default.OpenSkyTokenExpiration = DateTime.MinValue;
-            Settings.Default.OpenSkyRefreshToken = null;
-            Settings.Default.OpenSkyRefreshTokenExpiration = DateTime.MinValue;
-            Settings.Default.Save();
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The tokens were refreshed.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 01/06/2021.
-        /// </remarks>
-        /// <param name="refreshToken">
-        /// The refresh token response model (contains new tokens).
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void TokensWereRefreshed(RefreshTokenResponse refreshToken)
-        {
-            this.OpenSkyApiToken = refreshToken.Token;
-            this.Expiration = refreshToken.Expiration.UtcDateTime;
-            this.RefreshToken = refreshToken.RefreshToken;
-            this.RefreshExpiration = refreshToken.RefreshTokenExpiration.UtcDateTime;
-
-            Settings.Default.OpenSkyApiToken = refreshToken.Token;
-            Settings.Default.OpenSkyTokenExpiration = refreshToken.Expiration.UtcDateTime;
-            Settings.Default.OpenSkyRefreshToken = refreshToken.RefreshToken;
-            Settings.Default.OpenSkyRefreshTokenExpiration = refreshToken.RefreshTokenExpiration.UtcDateTime;
-            Settings.Default.Save();
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -375,6 +451,7 @@ namespace OpenSky.Client
             catch (NullReferenceException)
             {
             }
+
             this.RefreshToken = Settings.Default.OpenSkyRefreshToken;
             try
             {
@@ -383,6 +460,7 @@ namespace OpenSky.Client
             catch (NullReferenceException)
             {
             }
+
             this.Username = Settings.Default.OpenSkyUsername;
 
             this.CheckTokenNeedsRefresh();

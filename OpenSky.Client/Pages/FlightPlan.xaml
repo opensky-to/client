@@ -35,6 +35,16 @@
             <ui:CommandBar.PrimaryCommands>
                 <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft [F5]" Command="{Binding RefreshAircraftCommand}" />
                 <ui:AppBarButton Icon="Save" Label="Save" ToolTip="Save flight plan [Ctrl+S]" Command="{Binding SaveCommand}" />
+                <ui:AppBarButton Label="Create simBrief OFP" ToolTip="Create a simBrief OFP for this flight plan" Command="{Binding CreateSimBriefCommand}">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon Glyph="&#xE8E5;" />
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton Label="Download simBrief OFP" ToolTip="Download the created simBrief OFP for this flight plan" Command="{Binding DownloadSimBriefCommand}">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon Glyph="&#xE826;" />
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
                 <ui:AppBarButton Icon="Delete" Label="Discard" ToolTip="Discard the flight plan" Visibility="{Binding DiscardVisibility}" Command="{Binding DiscardCommand}" />
                 <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the flight plan" Visibility="{Binding DeleteVisibility}" Command="{Binding DeleteCommand }" />
             </ui:CommandBar.PrimaryCommands>
@@ -74,8 +84,8 @@
                 <TextBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                 <TextBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                 <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding PlannedDepartureTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" />
-                <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=00}" Margin="5,0,0,0" />
-                <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=00}" Margin="0,0,5,0" />
+                <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
                 <ComboBox Grid.Row="1" Grid.Column="8" ItemsSource="{Binding UtcOffsets}" SelectedValue="{Binding UtcOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
         </GroupBox>

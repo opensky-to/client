@@ -6,6 +6,9 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System.Diagnostics;
+    using System.Windows.Navigation;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
     /// Settings page.
@@ -41,6 +44,25 @@ namespace OpenSky.Client.Pages
         public override void PassPageParameter(object parameter)
         {
             // No parameters supported
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Hyperlink on request navigate.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Request navigate event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void HyperlinkOnRequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(e.Uri.ToString());
         }
     }
 }

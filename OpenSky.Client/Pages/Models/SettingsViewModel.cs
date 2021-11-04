@@ -10,7 +10,9 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.IO;
     using System.Windows;
+    using System.Windows.Media.Imaging;
 
     using JetBrains.Annotations;
 
@@ -40,6 +42,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The Bing maps key.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string bingMapsKey;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The fuel unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -51,6 +60,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private bool isDirty;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The simBrief username.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string simBriefUsername;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -85,17 +101,37 @@ namespace OpenSky.Client.Pages.Models
             }
 
             // Create command first so that IsDirty can set the CanExecute property
-            this.SaveSettingsCommand = new Command(this.SaveSettings, false);
+            this.SaveSettingsCommand = new AsynchronousCommand(this.SaveSettings, false);
             this.RestoreDefaultsCommand = new Command(this.RestoreDefaults);
             this.LoginOpenSkyUserCommand = new Command(this.LoginOpenSkyUser, !this.UserSession.IsUserLoggedIn);
             this.LogoutOpenSkyUserCommand = new AsynchronousCommand(this.LogoutOpenSkyUser, this.UserSession.IsUserLoggedIn);
             this.RefreshAirportPackageInfoCommand = new AsynchronousCommand(this.RefreshAirportPackageInfo);
             this.DownloadAirportPackageCommand = new AsynchronousCommand(this.DownloadAirportPackage);
+            this.ChangePasswordCommand = new Command(this.ChangePassword, this.UserSession.IsUserLoggedIn);
 
             // Load settings
             Properties.Settings.Default.Reload();
             this.WeightUnit = (WeightUnit)Properties.Settings.Default.WeightUnit;
             this.FuelUnit = (FuelUnit)Properties.Settings.Default.FuelUnit;
+            this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
+            this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
+
+            // Load profile image
+            if (UserSessionService.Instance.AccountOverview?.ProfileImage.Length > 0)
+            {
+                var image = new BitmapImage();
+                using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
+                {
+                    image.BeginInit();
+                    image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.UriSource = null;
+                    image.StreamSource = mem;
+                    image.EndInit();
+                }
+                image.Freeze();
+                this.ProfileImage = image;
+            }
 
             // Make sure we are notified if the UserSession service changes user logged in status
             this.UserSession.PropertyChanged += this.UserSessionPropertyChanged;
@@ -106,6 +142,54 @@ namespace OpenSky.Client.Pages.Models
             // Load the initial airport package file info
             this.RefreshAirportPackageInfoCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The profile image.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private BitmapImage profileImage;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the profile image.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public BitmapImage ProfileImage
+        {
+            get => this.profileImage;
+        
+            set
+            {
+                if(Equals(this.profileImage, value))
+                {
+                   return;
+                }
+        
+                this.profileImage = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Change password (opens page in browser).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ChangePassword()
+        {
+            Process.Start(Properties.Settings.Default.OpenSkyChangePasswordUrl);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the change password command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ChangePasswordCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -125,6 +209,28 @@ namespace OpenSky.Client.Pages.Models
 
                 this.airportPackageFileInfo = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the Bing maps key.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string BingMapsKey
+        {
+            get => this.bingMapsKey;
+
+            set
+            {
+                if (Equals(this.bingMapsKey, value))
+                {
+                    return;
+                }
+
+                this.bingMapsKey = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -221,7 +327,29 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [NotNull]
-        public Command SaveSettingsCommand { get; }
+        public AsynchronousCommand SaveSettingsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the simBrief username.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string SimBriefUsername
+        {
+            get => this.simBriefUsername;
+
+            set
+            {
+                if (Equals(this.simBriefUsername, value))
+                {
+                    return;
+                }
+
+                this.simBriefUsername = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -396,6 +524,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string LoadingText
+        {
+            get => this.loadingText;
+
+            set
+            {
+                if (Equals(this.loadingText, value))
+                {
+                    return;
+                }
+
+                this.loadingText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Saves the settings.
         /// </summary>
         /// <remarks>
@@ -405,19 +561,61 @@ namespace OpenSky.Client.Pages.Models
         private void SaveSettings()
         {
             Debug.WriteLine("Saving user settings...");
+            this.LoadingText = "Saving settings...";
+
+            // Save local settings
             try
             {
                 Properties.Settings.Default.WeightUnit = (int)this.WeightUnit;
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
 
                 Properties.Settings.Default.Save();
-                this.IsDirty = false;
+                
+                this.SaveSettingsCommand.ReportProgress(() => this.IsDirty = false);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Error saving settings: " + ex);
-                ModernWpf.MessageBox.Show(ex.Message, "Error saving settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.SaveSettingsCommand.ReportProgress(
+                    () =>
+                        ModernWpf.MessageBox.Show(ex.Message, "Error saving settings", MessageBoxButton.OK, MessageBoxImage.Error));
             }
+
+            // Save server-side settings
+            try
+            {
+                var linkedAccounts = new LinkedAccounts
+                {
+                    BingMapsKey = this.BingMapsKey,
+                    SimbriefUsername = this.SimBriefUsername
+                };
+
+                var result = OpenSkyService.Instance.UpdateLinkedAccountsAsync(linkedAccounts).Result;
+                if (!result.IsError)
+                {
+                    _ = UserSessionService.Instance.RefreshLinkedAccounts();
+                }
+                else
+                {
+                    this.SaveSettingsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error saving settings: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error saving settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SaveSettingsCommand, "Error saving settings.");
+            }
+
+            this.LoadingText = null;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -446,11 +644,17 @@ namespace OpenSky.Client.Pages.Models
                 };
                 Application.Current.Dispatcher.BeginInvoke(updateCommands);
 
-                // Check if we have the current client airport package file, after silently trying to download it
                 if (this.UserSession.IsUserLoggedIn)
                 {
                     try
                     {
+                        // Refresh account info and linked accounts/keys sections
+                        _ = UserSessionService.Instance.RefreshUserAccountOverview().Result;
+                        _ = UserSessionService.Instance.RefreshLinkedAccounts().Result;
+
+                        this.NotifyPropertyChanged(nameof(this.UserSession));
+
+                        // Check if we have the current client airport package file, after silently trying to download it
                         AirportPackageClientHandler.DownloadPackage();
                     }
                     catch
