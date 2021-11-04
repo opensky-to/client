@@ -834,6 +834,8 @@
         "tags": [
           "Airline"
         ],
+        "summary": "Get user airline.",
+        "description": "sushi.at, 01/11/2021.",
         "operationId": "GetAirline",
         "responses": {
           "200": {
@@ -4053,12 +4055,75 @@
           "Turboprop"
         ]
       },
+      "FlightNavlogFix": {
+        "required": [
+          "flightID",
+          "ident",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "fixNumber": {
+            "type": "integer",
+            "description": "Gets or sets the fix number.",
+            "format": "int32"
+          },
+          "flightID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the flight.",
+            "format": "uuid"
+          },
+          "ident": {
+            "type": "string",
+            "description": "Gets or sets the ident of the fix."
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets or sets the latitude.",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets or sets the longitude.",
+            "format": "double"
+          },
+          "type": {
+            "type": "string",
+            "description": "Gets or sets the type of the fix."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight navigation log fix model."
+      },
       "FlightPlan": {
         "required": [
           "id"
         ],
         "type": "object",
         "properties": {
+          "navlogFixes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightNavlogFix"
+            },
+            "description": "Gets or sets the navlog fixes.",
+            "nullable": true
+          },
+          "ofpHtml": {
+            "type": "string",
+            "description": "Gets or sets the OFP HTML (most likely from simBrief).",
+            "nullable": true
+          },
+          "route": {
+            "type": "string",
+            "description": "Gets or sets the route.",
+            "nullable": true
+          },
+          "alternateRoute": {
+            "type": "string",
+            "description": "Gets or sets the alternate route.",
+            "nullable": true
+          },
           "aircraft": {
             "$ref": "#/components/schemas/Aircraft"
           },

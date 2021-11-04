@@ -1552,6 +1552,7 @@ namespace OpenSkyApi
             }
         }
     
+        /// <summary>Get user airline.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<UserAirlineApiResponse> GetAirlineAsync()
@@ -1560,6 +1561,7 @@ namespace OpenSkyApi
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Get user airline.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<UserAirlineApiResponse> GetAirlineAsync(System.Threading.CancellationToken cancellationToken)
@@ -5541,10 +5543,60 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>Flight navigation log fix model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class FlightNavlogFix 
+    {
+        /// <summary>Gets or sets the fix number.</summary>
+        [Newtonsoft.Json.JsonProperty("fixNumber", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int FixNumber { get; set; }
+    
+        /// <summary>Gets or sets the identifier of the flight.</summary>
+        [Newtonsoft.Json.JsonProperty("flightID", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid FlightID { get; set; }
+    
+        /// <summary>Gets or sets the ident of the fix.</summary>
+        [Newtonsoft.Json.JsonProperty("ident", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Ident { get; set; }
+    
+        /// <summary>Gets or sets the latitude.</summary>
+        [Newtonsoft.Json.JsonProperty("latitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Latitude { get; set; }
+    
+        /// <summary>Gets or sets the longitude.</summary>
+        [Newtonsoft.Json.JsonProperty("longitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Longitude { get; set; }
+    
+        /// <summary>Gets or sets the type of the fix.</summary>
+        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Type { get; set; }
+    
+    
+    }
+    
     /// <summary>Flight plan model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class FlightPlan 
     {
+        /// <summary>Gets or sets the navlog fixes.</summary>
+        [Newtonsoft.Json.JsonProperty("navlogFixes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<FlightNavlogFix> NavlogFixes { get; set; }
+    
+        /// <summary>Gets or sets the OFP HTML (most likely from simBrief).</summary>
+        [Newtonsoft.Json.JsonProperty("ofpHtml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string OfpHtml { get; set; }
+    
+        /// <summary>Gets or sets the route.</summary>
+        [Newtonsoft.Json.JsonProperty("route", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Route { get; set; }
+    
+        /// <summary>Gets or sets the alternate route.</summary>
+        [Newtonsoft.Json.JsonProperty("alternateRoute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AlternateRoute { get; set; }
+    
         [Newtonsoft.Json.JsonProperty("aircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Aircraft Aircraft { get; set; }
     
