@@ -41,6 +41,9 @@
             <setting name="OpenSkyAPIUrl" serializeAs="String">
                 <value>https://api.opensky.to</value>
             </setting>
+	        <setting name="OpenSkyChangePasswordUrl" serializeAs="String">
+		        <value>https://www.opensky.to/changepassword</value>
+	        </setting>
         </OpenSky.Client.Properties.Settings>
     </applicationSettings>
 </configuration>
