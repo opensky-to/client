@@ -19,7 +19,6 @@
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:wpf="clr-namespace:TheArtOfDev.HtmlRenderer.WPF;assembly=HtmlRenderer.WPF"
-                          xmlns:pages="clr-namespace:OpenSky.Client.Pages"
                           LoadingText="{Binding LoadingText}"
                           Loaded="FlightPlanOnLoaded" VerticalScrollBar="False" HorizontalScrollBar="False"
                           mc:Ignorable="d" 
@@ -107,7 +106,7 @@
                         <GroupBox.Header>
                             <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft</TextBlock>
                         </GroupBox.Header>
-                        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
+                        <StackPanel Orientation="Vertical">
                             <Grid>
                                 <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" />
                                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2,30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=AircraftCombo, Converter={StaticResource NullItemToVisibilityConverter}}" Command="{Binding ClearAircraftCommand}" />
@@ -196,23 +195,29 @@
                         </StackPanel>
                     </GroupBox>
                 </Grid>
-                <GroupBox>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Grid.Column="0">
                     <GroupBox.Header>
                         <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
                     </GroupBox.Header>
                     <controls:MapView Height="400" Margin="5" ShowFollowPlane="False" 
-                                      SimbriefRouteLocations="{Binding SimbriefRouteLocations, Mode=OneWayToSource, ElementName=ViewModel}"
-                                      SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, Mode=OneWayToSource, ElementName=ViewModel}"
-/>
+                                      SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
+                                      SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
+                    />
                 </GroupBox>
-                <GroupBox>
+                <GroupBox Grid.Column="1">
                     <GroupBox.Header>
                         <TextBlock FontSize="15" FontWeight="DemiBold">simBrief OFP</TextBlock>
                     </GroupBox.Header>
-                    <ScrollViewer Height="500">
+                    <ScrollViewer Height="500" HorizontalScrollBarVisibility="Disabled">
                         <wpf:HtmlPanel Text="{Binding OfpHtml}" Margin="5,5,20,5" />
                     </ScrollViewer>
                 </GroupBox>
+                </Grid>
             </StackPanel>
         </ScrollViewer>
     </Grid>

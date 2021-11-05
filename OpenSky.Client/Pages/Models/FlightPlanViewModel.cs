@@ -25,6 +25,7 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Flight plan view model.
@@ -203,9 +204,8 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.UtcOffsets = new SortedSet<double>();
-
-            //this.SimbriefRouteLocations = new LocationCollection();
-            //this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
+            this.SimbriefRouteLocations = new LocationCollection();
+            this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
 
             // Populate UTC offsets from time zones
             foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
@@ -213,7 +213,12 @@ namespace OpenSky.Client.Pages.Models
                 this.UtcOffsets.Add(timeZone.BaseUtcOffset.TotalHours);
             }
 
+            // Default values
+            const string style = "body { background-color: #29323c; color: #c2c2c2; margin: -1px; } div { margin-top: 10px; margin-left: 10px; margin-bottom: -10px; }";
+            this.OfpHtml = $"<html><head><style type=\"text/css\">{style}</style></head><body><div style=\"line-height:14px; font-size:13px; height: 1000px;\"><pre>--- None ---</pre></div></body></html>";
+
             // Create commands
+            this.LoadFlightPlanCommand = new AsynchronousCommand(this.LoadFlightPlanInBackground);
             this.RefreshAircraftCommand = new AsynchronousCommand(this.RefreshAircraft);
             this.ClearAircraftCommand = new Command(this.ClearAircraft);
             this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan);
@@ -845,45 +850,14 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
 
+        
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Loads an existing flight plan.
+        /// The navlog fixes.
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="flightPlan">
-        /// The flight plan.
-        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public void LoadFlightPlan(FlightPlan flightPlan)
-        {
-            this.ID = flightPlan.Id;
-            this.FlightNumber = flightPlan.FlightNumber;
-            this.OriginICAO = flightPlan.OriginICAO;
-            this.DestinationICAO = flightPlan.DestinationICAO;
-            this.AlternateICAO = flightPlan.AlternateICAO;
-            if (!string.IsNullOrEmpty(flightPlan.Aircraft?.Registry))
-            {
-                this.SelectedAircraft = flightPlan.Aircraft;
-            }
-
-            this.DispatcherID = flightPlan.DispatcherID;
-            this.DispatcherRemarks = flightPlan.DispatcherRemarks;
-            this.FuelGallons = flightPlan.FuelGallons;
-            this.IsAirlineFlight = flightPlan.IsAirlineFlight;
-            this.PlannedDepartureTime = flightPlan.PlannedDepartureTime.UtcDateTime;
-            this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
-            this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
-            this.UtcOffset = flightPlan.UtcOffset;
-            this.Route = flightPlan.Route;
-            this.AlternateRoute = flightPlan.AlternateRoute;
-            this.OfpHtml = flightPlan.OfpHtml;
-
-            this.IsNewFlightPlan = flightPlan.IsNewFlightPlan;
-
-            this.RefreshAircraftCommand.DoExecute(null);
-        }
+        private readonly List<FlightNavlogFix> navlogFixes = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1156,7 +1130,8 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (!sbOfpHtml.StartsWith("<html>"))
                     {
-                        sbOfpHtml = $"<html><body>{sbOfpHtml}</body></html>";
+                        const string style = "body { background-color: #29323c; color: #c2c2c2; margin: -1px; } div { margin-top: 10px; margin-left: 10px; margin-bottom: -10px; }";
+                        sbOfpHtml = $"<html><head><style type=\"text/css\">{style}</style></head><body>{sbOfpHtml}</body></html>";
                     }
 
                     this.DownloadSimBriefCommand.ReportProgress(() => this.OfpHtml = sbOfpHtml);
@@ -1165,17 +1140,43 @@ namespace OpenSky.Client.Pages.Models
                 // Navlog fixes
                 var originLat = double.Parse((string)ofp.Element("origin").Element("pos_lat"));
                 var originLon = double.Parse((string)ofp.Element("origin").Element("pos_long"));
-                this.DownloadSimBriefCommand.ReportProgress(() => this.SimbriefRouteLocations.Add(new Location(originLat, originLon)));
+                this.navlogFixes.Clear();
+                var fixNumber = 0;
+                this.navlogFixes.Add(new FlightNavlogFix
+                {
+                    FlightID = this.ID,
+                    FixNumber = fixNumber++,
+                    Type = "apt",
+                    Ident = this.OriginICAO,
+                    Latitude = originLat,
+                    Longitude = originLon
+                });
+
+                this.DownloadSimBriefCommand.ReportProgress(() =>
+                {
+                    this.SimbriefRouteLocations.Clear();
+                    this.SimbriefWaypointMarkers.Clear();
+
+                    this.SimbriefRouteLocations.Add(new Location(originLat, originLon));
+                });
                 var fixes = ofp.Element("navlog").Elements("fix");
                 foreach (var fix in fixes)
                 {
-                    // todo also add these to the flight plan
-
                     var ident = (string)fix.Element("ident");
                     var latitude = double.Parse((string)fix.Element("pos_lat"));
                     var longitude = double.Parse((string)fix.Element("pos_long"));
                     var type = (string)fix.Element("type");
                     
+                    this.navlogFixes.Add(new FlightNavlogFix
+                    {
+                        FlightID = this.ID,
+                        FixNumber = fixNumber++,
+                        Type = type,
+                        Ident = ident,
+                        Latitude = latitude,
+                        Longitude = longitude
+                    });
+
                     if (this.SimbriefRouteLocations != null && this.SimbriefWaypointMarkers != null)
                     {
                         this.DownloadSimBriefCommand.ReportProgress(
@@ -1234,6 +1235,103 @@ namespace OpenSky.Client.Pages.Models
                 this.LoadingText = null;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Loads an existing flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="flightPlan">
+        /// The flight plan.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void LoadFlightPlan(FlightPlan flightPlan)
+        {
+            this.LoadFlightPlanCommand.DoExecute(flightPlan);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Loads flight plan in background.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 05/11/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The parameter (must be flight plan).
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void LoadFlightPlanInBackground(object parameter)
+        {
+            try
+            {
+                this.LoadingText = "Loading flight plan...";
+                if (parameter is FlightPlan flightPlan)
+                {
+                    this.ID = flightPlan.Id;
+                    this.FlightNumber = flightPlan.FlightNumber;
+                    this.OriginICAO = flightPlan.OriginICAO;
+                    this.DestinationICAO = flightPlan.DestinationICAO;
+                    this.AlternateICAO = flightPlan.AlternateICAO;
+                    if (!string.IsNullOrEmpty(flightPlan.Aircraft?.Registry))
+                    {
+                        this.SelectedAircraft = flightPlan.Aircraft;
+                    }
+
+                    this.DispatcherID = flightPlan.DispatcherID;
+                    this.DispatcherRemarks = flightPlan.DispatcherRemarks;
+                    this.FuelGallons = flightPlan.FuelGallons;
+                    this.IsAirlineFlight = flightPlan.IsAirlineFlight;
+                    this.PlannedDepartureTime = flightPlan.PlannedDepartureTime.UtcDateTime;
+                    this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
+                    this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
+                    this.UtcOffset = flightPlan.UtcOffset;
+                    this.Route = flightPlan.Route;
+                    this.AlternateRoute = flightPlan.AlternateRoute;
+                    this.navlogFixes.Clear();
+                    if (flightPlan.NavlogFixes != null)
+                    {
+                        this.navlogFixes.AddRange(flightPlan.NavlogFixes);
+                    }
+
+                    if (!string.IsNullOrEmpty(flightPlan.OfpHtml))
+                    {
+                        this.OfpHtml = flightPlan.OfpHtml;
+                    }
+
+                    this.IsNewFlightPlan = flightPlan.IsNewFlightPlan;
+
+                    this.LoadFlightPlanCommand.ReportProgress(
+                        () =>
+                        {
+                            foreach (var fix in this.navlogFixes)
+                            {
+                                this.SimbriefRouteLocations.Add(new Location(fix.Latitude, fix.Longitude));
+                                if (fix.Type != "apt")
+                                {
+                                    var newMarker = new SimbriefWaypointMarker(fix.Latitude, fix.Longitude, fix.Ident, fix.Type);
+                                    this.SimbriefWaypointMarkers.Add(newMarker);
+                                }
+                            }
+                        });
+                }
+
+                this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(null));
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the load flight plan command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand LoadFlightPlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1366,7 +1464,8 @@ namespace OpenSky.Client.Pages.Models
                     UtcOffset = this.UtcOffset,
                     Route = this.Route,
                     AlternateRoute = this.AlternateRoute,
-                    OfpHtml = this.OfpHtml
+                    OfpHtml = this.OfpHtml,
+                    NavlogFixes = this.navlogFixes
                 };
 
                 var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
