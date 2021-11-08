@@ -205,6 +205,7 @@
                         <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
                     </GroupBox.Header>
                     <controls:MapView Height="400" Margin="5" ShowFollowPlane="False" 
+                                      TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
                                       SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
                                       SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
                     />

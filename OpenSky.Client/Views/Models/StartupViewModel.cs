@@ -10,8 +10,6 @@ namespace OpenSky.Client.Views.Models
     using System.Reflection;
     using System.Threading;
 
-    using Windows.System;
-
     using JetBrains.Annotations;
 
     using OpenSky.Client.MVVM;

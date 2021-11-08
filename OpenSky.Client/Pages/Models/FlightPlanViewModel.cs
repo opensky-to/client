@@ -10,11 +10,15 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
+    using System.Device.Location;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Text;
+    using System.Threading;
     using System.Windows;
+    using System.Windows.Media;
     using System.Xml.Linq;
 
     using Microsoft.Maps.MapControl.WPF;
@@ -204,6 +208,7 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.UtcOffsets = new SortedSet<double>();
+            this.TrackingEventMarkers = new ObservableCollection<TrackingEventMarker>();
             this.SimbriefRouteLocations = new LocationCollection();
             this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
 
@@ -231,6 +236,13 @@ namespace OpenSky.Client.Pages.Models
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the tracking event markers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<TrackingEventMarker> TrackingEventMarkers { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -285,7 +297,94 @@ namespace OpenSky.Client.Pages.Models
 
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
+                this.UpdateAirportMarkers();
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Update map airport markers.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdateAirportMarkers()
+        {
+            new Thread(
+                () =>
+                {
+                    try
+                    {
+                        var localAirportPackage = AirportPackageClientHandler.GetPackage();
+                        if (this.TrackingEventMarkers.Count > 0)
+                        {
+                            UpdateGUIDelegate clearExisting = () => this.TrackingEventMarkers.Clear();
+                            Application.Current.Dispatcher.Invoke(clearExisting);
+                        }
+
+                        // Origin
+                        if (!string.IsNullOrEmpty(this.OriginICAO))
+                        {
+                            var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
+                            if (airport != null)
+                            {
+                                UpdateGUIDelegate addOrigin = () =>
+                                {
+                                    var originMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White); this.TrackingEventMarkers.Add(originMarker);
+                                };
+                                Application.Current.Dispatcher.BeginInvoke(addOrigin);
+                            }
+                            else
+                            {
+                                // todo
+                            }
+                        }
+
+                        // Destination
+                        if (!string.IsNullOrEmpty(this.DestinationICAO))
+                        {
+                            var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.DestinationICAO);
+                            if (airport != null)
+                            {
+                                UpdateGUIDelegate addDestination = () =>
+                                {
+                                    var destinationMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White); this.TrackingEventMarkers.Add(destinationMarker);
+                                };
+                                Application.Current.Dispatcher.BeginInvoke(addDestination);
+                            }
+                            else
+                            {
+                                // todo
+                            }
+                        }
+
+                        // Alternate
+                        if (!string.IsNullOrEmpty(this.AlternateICAO))
+                        {
+                            var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.AlternateICAO);
+                            if (airport != null)
+                            {
+                                UpdateGUIDelegate addAlternate = () =>
+                                {
+                                    var alternateMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.AlternateICAO, OpenSkyColors.OpenSkyWarningOrange, Colors.Black); this.TrackingEventMarkers.Add(alternateMarker);
+                                };
+                                Application.Current.Dispatcher.BeginInvoke(addAlternate);
+                            }
+                            else
+                            {
+                                // todo
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                        UpdateGUIDelegate showError =() => ModernWpf.MessageBox.Show(ex.Message, "Update airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Application.Current.Dispatcher.BeginInvoke(showError);
+                    }
+                })
+            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -413,6 +512,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
+                this.UpdateAirportMarkers();
             }
         }
 
@@ -689,6 +789,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.originICAO = value;
                 this.NotifyPropertyChanged();
+                this.UpdateAirportMarkers();
             }
         }
 
@@ -850,7 +951,7 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
 
-        
+
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1166,7 +1267,7 @@ namespace OpenSky.Client.Pages.Models
                     var latitude = double.Parse((string)fix.Element("pos_lat"));
                     var longitude = double.Parse((string)fix.Element("pos_long"));
                     var type = (string)fix.Element("type");
-                    
+
                     this.navlogFixes.Add(new FlightNavlogFix
                     {
                         FlightID = this.ID,
