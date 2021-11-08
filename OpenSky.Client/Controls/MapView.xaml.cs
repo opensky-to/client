@@ -7,10 +7,10 @@
 namespace OpenSky.Client.Controls
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -23,6 +23,8 @@ namespace OpenSky.Client.Controls
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Converters;
     using OpenSky.Client.Tools;
+
+    using TomsToolbox.Essentials;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
@@ -57,24 +59,22 @@ namespace OpenSky.Client.Controls
         /// The simbrief waypoint markers property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty SimbriefWaypointMarkersProperty = DependencyProperty.Register("SimbriefWaypointMarkers", typeof(ObservableCollection<SimbriefWaypointMarker>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<SimbriefWaypointMarker>()));
+        public static readonly DependencyProperty SimbriefWaypointMarkersProperty = DependencyProperty.Register(
+            "SimbriefWaypointMarkers",
+            typeof(ObservableCollection<SimbriefWaypointMarker>),
+            typeof(MapView),
+            new UIPropertyMetadata(new ObservableCollection<SimbriefWaypointMarker>()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the simbrief waypoint markers.
+        /// The tracking event markers property.
         /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [Bindable(true)]
-        public ObservableCollection<SimbriefWaypointMarker> SimbriefWaypointMarkers
-        {
-            get => (ObservableCollection<SimbriefWaypointMarker>)this.GetValue(SimbriefWaypointMarkersProperty);
-
-            set
-            {
-                this.SetValue(SimbriefWaypointMarkersProperty, value);
-                value.CollectionChanged += this.SimbriefWaypointMarkersCollectionChanged;
-            }
-        }
+        /// -------------------------------------------------------------------------------------------------T
+        public static readonly DependencyProperty TrackingEventMarkersProperty = DependencyProperty.Register(
+            "TrackingEventMarkers",
+            typeof(ObservableCollection<TrackingEventMarker>),
+            typeof(MapView),
+            new UIPropertyMetadata(new ObservableCollection<TrackingEventMarker>()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -123,6 +123,40 @@ namespace OpenSky.Client.Controls
         {
             get => (LocationCollection)this.GetValue(SimbriefRouteLocationsProperty);
             set => this.SetValue(SimbriefRouteLocationsProperty, value);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the simbrief waypoint markers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public ObservableCollection<SimbriefWaypointMarker> SimbriefWaypointMarkers
+        {
+            get => (ObservableCollection<SimbriefWaypointMarker>)this.GetValue(SimbriefWaypointMarkersProperty);
+
+            set
+            {
+                this.SetValue(SimbriefWaypointMarkersProperty, value);
+                value.CollectionChanged += this.SimbriefWaypointMarkersCollectionChanged;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the tracking event markers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public ObservableCollection<TrackingEventMarker> TrackingEventMarkers
+        {
+            get => (ObservableCollection<TrackingEventMarker>)this.GetValue(TrackingEventMarkersProperty);
+
+            set
+            {
+                this.SetValue(TrackingEventMarkersProperty, value);
+                value.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -205,6 +239,18 @@ namespace OpenSky.Client.Controls
 
             this.SimbriefWaypointMarkers.CollectionChanged += this.SimbriefWaypointMarkersCollectionChanged;
 
+            if (this.TrackingEventMarkers.Count > 0)
+            {
+                this.TrackingEventMarkersCollectionChanged(this,new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.TrackingEventMarkers));
+
+                minLat = Math.Min(minLat, this.TrackingEventMarkers.Min(m => m.GeoCoordinate.Latitude));
+                maxLat = Math.Max(maxLat, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Latitude));
+                minLon = Math.Min(minLon, this.TrackingEventMarkers.Min(m => m.GeoCoordinate.Longitude));
+                maxLon = Math.Max(maxLon, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Longitude));
+            }
+            
+            this.TrackingEventMarkers.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+
             // Add a bit of a margin around the view to zoom into
             minLat = Math.Max(-90.0, minLat - 0.5);
             maxLat = Math.Min(90.0, maxLat + 0.5);
@@ -219,7 +265,6 @@ namespace OpenSky.Client.Controls
             };
             this.Dispatcher.BeginInvoke(moveMap);
         }
-
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -243,53 +288,18 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Map view on unloaded.
+        /// simBrief waypoint markers collection changed.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 04/11/2021.
+        /// sushi.at, 08/11/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
         /// </param>
         /// <param name="e">
-        /// Routed event information.
+        /// Notify collection changed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void MapViewOnUnloaded(object sender, RoutedEventArgs e)
-        {
-            //foreach (UIElement child in this.WpfMapView.Children)
-            //{
-            //    if (child is SimbriefWaypointMarker simbrief)
-            //    {
-            //        BindingOperations.ClearAllBindings(simbrief);
-            //    }
-            //}
-
-            //this.WpfMapView.Children.Clear();
-            //this.SimbriefRouteLocations?.Clear();
-            //this.SimbriefWaypointMarkers?.Clear();
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The user interacted with the map.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 24/03/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Mouse button event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void UserMapInteraction(object sender, EventArgs e)
-        {
-            var viewModel = (MapViewViewModel)this.DataContext;
-            viewModel.LastUserMapInteraction = DateTime.UtcNow;
-        }
-
         private void SimbriefWaypointMarkersCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
@@ -320,36 +330,74 @@ namespace OpenSky.Client.Controls
             }
         }
 
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Flight tracking view model tracking event marker added.
+        /// Tracking event markers collection changed.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 17/03/2021.
+        /// sushi.at, 08/11/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
         /// </param>
         /// <param name="e">
-        /// A TrackingEventMarker to process.
+        /// Notify collection changed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void FlightTrackingViewModelTrackingEventMarkerAdded(object sender, TrackingEventMarker e)
+        private void TrackingEventMarkersCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            //try
-            //{
-            //    // Make sure we remove it from any previous map layers
-            //    var existingMapLayer = e.Parent as MapLayer;
-            //    existingMapLayer?.Children.Remove(e);
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TrackingEventMarker item in e.NewItems)
+                {
+                    var existingMapLayer = item.Parent as MapLayer;
+                    existingMapLayer?.Children.Remove(item);
 
-            //    this.MapView.Children.Add(e);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.WriteLine(ex);
-            //}
+                    this.WpfMapView.Children.Add(item);
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TrackingEventMarker item in e.OldItems)
+                {
+                    this.WpfMapView.Children.Remove(item);
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                var toRemove = new List<TrackingEventMarker>();
+                foreach (UIElement child in this.WpfMapView.Children)
+                {
+                    if (child is TrackingEventMarker trackingEventMarker)
+                    {
+                        toRemove.Add(trackingEventMarker);
+                    }
+                }
+
+                this.WpfMapView.Children.RemoveRange(toRemove);
+            }
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The user interacted with the map.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/03/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Mouse button event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void UserMapInteraction(object sender, EventArgs e)
+        {
+            var viewModel = (MapViewViewModel)this.DataContext;
+            viewModel.LastUserMapInteraction = DateTime.UtcNow;
+        }
     }
 }
