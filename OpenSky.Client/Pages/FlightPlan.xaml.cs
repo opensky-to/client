@@ -38,6 +38,40 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Page tab/document close button was clicked, ask the page if that is ok right now, set
+        /// e.Cancel=true to abort closing the page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close button event information.
+        /// </param>
+        /// <seealso cref="M:OpenSky.Client.Controls.OpenSkyPage.CloseButtonClick(object,CloseButtonEventArgs)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
+        {
+            if (this.DataContext is FlightPlanViewModel { IsDirty: true } viewModel)
+            {
+                var answer = ModernWpf.MessageBox.Show("Flight plan has unsaved changes, do you want to save them now?", "Save flight plan?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (answer == MessageBoxResult.Yes)
+                {
+                    viewModel.SaveCommand.DoExecute(null);
+                }
+
+                if (answer == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Method that receives an optional page parameter when the page is opened.
         /// </summary>
         /// <remarks>
@@ -125,20 +159,24 @@ namespace OpenSky.Client.Pages
         {
             UpdateGUIDelegate updateTabText = () =>
             {
-                if (this.DockItem != null && e.PropertyName is nameof(FlightPlanViewModel.FlightNumber) or nameof(FlightPlanViewModel.IsAirlineFlight) or nameof(FlightPlanViewModel.IsNewFlightPlan) &&
-                    this.DataContext is FlightPlanViewModel viewmodel)
+                if (this.DockItem != null && e.PropertyName is nameof(FlightPlanViewModel.FlightNumber) or nameof(FlightPlanViewModel.IsAirlineFlight) or nameof(FlightPlanViewModel.IsNewFlightPlan) or nameof(FlightPlanViewModel.IsDirty) &&
+                    this.DataContext is FlightPlanViewModel viewModel)
                 {
-                    var documentHeaderText = viewmodel.IsNewFlightPlan ? "New flight plan " : "Flight plan ";
-                    if (!string.IsNullOrEmpty(viewmodel.Airline?.Iata))
+                    var documentHeaderText = viewModel.IsNewFlightPlan ? "New flight plan " : "Flight plan ";
+                    if (!string.IsNullOrEmpty(viewModel.Airline?.Iata))
                     {
-                        documentHeaderText += viewmodel.Airline.Iata;
+                        documentHeaderText += viewModel.Airline.Iata;
                     }
-                    else if (!string.IsNullOrEmpty(viewmodel.Airline?.Icao))
+                    else if (!string.IsNullOrEmpty(viewModel.Airline?.Icao))
                     {
-                        documentHeaderText += viewmodel.Airline.Icao;
+                        documentHeaderText += viewModel.Airline.Icao;
                     }
 
-                    documentHeaderText += $"{viewmodel.FlightNumber}";
+                    documentHeaderText += $"{viewModel.FlightNumber}";
+                    if (viewModel.IsDirty)
+                    {
+                        documentHeaderText += "*";
+                    }
 
                     this.DockItem.DocumentHeader.Text = documentHeaderText;
                 }

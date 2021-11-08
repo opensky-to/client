@@ -6,8 +6,15 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System.ComponentModel;
     using System.Diagnostics;
+    using System.Windows;
     using System.Windows.Navigation;
+
+    using OpenSky.Client.Pages.Models;
+    using OpenSky.Client.Tools;
+
+    using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
@@ -27,6 +34,40 @@ namespace OpenSky.Client.Pages
         public Settings()
         {
             this.InitializeComponent();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Page tab/document close button was clicked, ask the page if that is ok right now, set
+        /// e.Cancel=true to abort closing the page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close button event information.
+        /// </param>
+        /// <seealso cref="M:OpenSky.Client.Controls.OpenSkyPage.CloseButtonClick(object,CloseButtonEventArgs)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
+        {
+            if (this.DataContext is SettingsViewModel { IsDirty: true } viewModel)
+            {
+                var answer = ModernWpf.MessageBox.Show("There are unsaved setting changes, do you want to save them now?", "Save settings?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (answer == MessageBoxResult.Yes)
+                {
+                    viewModel.SaveSettingsCommand.DoExecute(null);
+                }
+
+                if (answer == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -63,6 +104,61 @@ namespace OpenSky.Client.Pages
         private void HyperlinkOnRequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(e.Uri.ToString());
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Settings on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void SettingsOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is SettingsViewModel viewModel)
+            {
+                viewModel.PropertyChanged += this.ViewModelPropertyChanged;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// View model property changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Property changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            UpdateGUIDelegate updateTabText = () =>
+            {
+                if (this.DockItem != null && e.PropertyName is nameof(SettingsViewModel.IsDirty) && this.DataContext is SettingsViewModel viewModel)
+                {
+                    var documentHeaderText = "Settings";
+                    if (viewModel.IsDirty)
+                    {
+                        documentHeaderText += "*";
+                    }
+
+                    this.DockItem.DocumentHeader.Text = documentHeaderText;
+                }
+            };
+
+            this.Dispatcher.BeginInvoke(updateTabText);
         }
     }
 }

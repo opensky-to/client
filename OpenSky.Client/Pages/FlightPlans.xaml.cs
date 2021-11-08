@@ -10,6 +10,8 @@ namespace OpenSky.Client.Pages
 
     using OpenSky.Client.Pages.Models;
 
+    using Syncfusion.Windows.Tools.Controls;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
     /// Flight plans page.
@@ -28,6 +30,27 @@ namespace OpenSky.Client.Pages
         public FlightPlans()
         {
             this.InitializeComponent();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Page tab/document close button was clicked, ask the page if that is ok right now, set
+        /// e.Cancel=true to abort closing the page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close button event information.
+        /// </param>
+        /// <seealso cref="M:OpenSky.Client.Controls.OpenSkyPage.CloseButtonClick(object,CloseButtonEventArgs)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
+        {
+            // Don't care
         }
 
         /// -------------------------------------------------------------------------------------------------

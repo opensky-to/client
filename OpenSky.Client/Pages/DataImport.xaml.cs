@@ -12,6 +12,8 @@ namespace OpenSky.Client.Pages
 
     using DataGridExtensions;
 
+    using Syncfusion.Windows.Tools.Controls;
+
     /// -------------------------------------------------------------------------------------------------
     /// <content>
     /// Data import page.
@@ -30,6 +32,27 @@ namespace OpenSky.Client.Pages
         public DataImport()
         {
             this.InitializeComponent();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Page tab/document close button was clicked, ask the page if that is ok right now, set
+        /// e.Cancel=true to abort closing the page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close button event information.
+        /// </param>
+        /// <seealso cref="M:OpenSky.Client.Controls.OpenSkyPage.CloseButtonClick(object,CloseButtonEventArgs)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
+        {
+            // todo check when we overhaul this
         }
 
         /// -------------------------------------------------------------------------------------------------

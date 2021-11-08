@@ -299,10 +299,13 @@ namespace OpenSky.Client.Views.Models
                                 this.ActiveDocument.Header = item.Name;
                                 this.ActiveDocument.DocumentHeader = new DocumentHeaderEx(item.Name, iconUri);
                                 this.ActiveDocument.Content = (FrameworkElement)Activator.CreateInstance(item.PageType);
-                                if (item.Parameter != null && this.ActiveDocument.Content is OpenSkyPage page)
+                                if (this.ActiveDocument.Content is OpenSkyPage page)
                                 {
-                                    page.PassPageParameter(item.Parameter);
                                     page.DockItem = this.ActiveDocument;
+                                    if (item.Parameter != null)
+                                    {
+                                        page.PassPageParameter(item.Parameter);
+                                    }
                                 }
 
                                 this.SelectMatchingNavigationItem(this.NavigationItems, this.ActiveDocument.Header);
@@ -320,10 +323,14 @@ namespace OpenSky.Client.Views.Models
                                     //CanDock = false
                                 };
                                 this.DockItems.Add(dockItem);
-                                if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                                if (dockItem.Content is OpenSkyPage page)
                                 {
-                                    page.PassPageParameter(item.Parameter);
                                     page.DockItem = dockItem;
+                                    page.DockItem = this.ActiveDocument;
+                                    if (item.Parameter != null)
+                                    {
+                                        page.PassPageParameter(item.Parameter);
+                                    }
                                 }
                             }
                         }
@@ -340,10 +347,14 @@ namespace OpenSky.Client.Views.Models
                                 //CanDock = false
                             };
                             this.DockItems.Add(dockItem);
-                            if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                            if (dockItem.Content is OpenSkyPage page)
                             {
-                                page.PassPageParameter(item.Parameter);
                                 page.DockItem = dockItem;
+                                page.DockItem = this.ActiveDocument;
+                                if (item.Parameter != null)
+                                {
+                                    page.PassPageParameter(item.Parameter);
+                                }
                             }
 
                             if (!switchToNewTab)
@@ -377,10 +388,14 @@ namespace OpenSky.Client.Views.Models
 
                                     //CanDock = false
                                 };
-                                if (item.Parameter != null && dockItem.Content is OpenSkyPage page)
+                                if (dockItem.Content is OpenSkyPage page)
                                 {
-                                    page.PassPageParameter(item.Parameter);
                                     page.DockItem = dockItem;
+                                    page.DockItem = this.ActiveDocument;
+                                    if (item.Parameter != null)
+                                    {
+                                        page.PassPageParameter(item.Parameter);
+                                    }
                                 }
 
                                 var newWindow = new Main();
