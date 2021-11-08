@@ -415,6 +415,16 @@ namespace OpenSky.Client.Controls
                     {
                         if (Equals(dockItem.Content, contentControl.Content))
                         {
+                            if (dockItem.Content is OpenSkyPage page)
+                            {
+                                page.CloseButtonClick(sender, e);
+                                if (e.Cancel)
+                                {
+                                    // Page didn't want to be closed
+                                    return;
+                                }
+                            }
+
                             this.ItemsSource.Remove(dockItem);
                             break;
                         }

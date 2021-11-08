@@ -43,6 +43,38 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Are there changes to the settings to be saved?
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool isDirty;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether there are changes to the settings to be saved.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsDirty
+        {
+            get => this.isDirty;
+
+            set
+            {
+                if (Equals(this.isDirty, value))
+                {
+                    return;
+                }
+
+                this.isDirty = value;
+                this.NotifyPropertyChanged();
+                if (this.SaveCommand != null)
+                {
+                    this.SaveCommand.CanExecute = value;
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The user's airline.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -226,7 +258,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadFlightPlanCommand = new AsynchronousCommand(this.LoadFlightPlanInBackground);
             this.RefreshAircraftCommand = new AsynchronousCommand(this.RefreshAircraft);
             this.ClearAircraftCommand = new Command(this.ClearAircraft);
-            this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan);
+            this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan, false);
             this.DiscardCommand = new Command(this.DiscardFlightPlan);
             this.DeleteCommand = new AsynchronousCommand(this.DeleteFlightPlan);
             this.RefreshAirlineCommand = new AsynchronousCommand(this.RefreshAirline);
@@ -297,6 +329,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
                 this.UpdateAirportMarkers();
             }
         }
@@ -380,7 +413,7 @@ namespace OpenSky.Client.Pages.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex);
-                        UpdateGUIDelegate showError =() => ModernWpf.MessageBox.Show(ex.Message, "Update airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                        UpdateGUIDelegate showError = () => ModernWpf.MessageBox.Show(ex.Message, "Update airports", MessageBoxButton.OK, MessageBoxImage.Error);
                         Application.Current.Dispatcher.BeginInvoke(showError);
                     }
                 })
@@ -405,6 +438,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.alternateRoute = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -469,6 +503,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.departureHour = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -491,6 +526,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.departureMinute = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -513,6 +549,7 @@ namespace OpenSky.Client.Pages.Models
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
                 this.UpdateAirportMarkers();
+                this.IsDirty = true;
             }
         }
 
@@ -583,6 +620,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.dispatcherRemarks = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -612,6 +650,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.flightNumber = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -638,6 +677,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.fuelGallons = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
                 this.NotifyPropertyChanged(nameof(this.FuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
             }
@@ -703,6 +743,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.isAirlineFlight = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -768,6 +809,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.ofpHtml = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -789,6 +831,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.originICAO = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
                 this.UpdateAirportMarkers();
             }
         }
@@ -825,6 +868,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.plannedDepartureTime = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -860,6 +904,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.route = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -897,6 +942,7 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
                 this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
             }
@@ -934,6 +980,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.utcOffset = value;
                 this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -1417,6 +1464,8 @@ namespace OpenSky.Client.Pages.Models
                                 }
                             }
                         });
+
+                    this.IsDirty = false;
                 }
 
                 this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(null));
@@ -1463,6 +1512,7 @@ namespace OpenSky.Client.Pages.Models
                             if (currentSelection != null && this.Aircraft.Contains(currentSelection))
                             {
                                 this.SelectedAircraft = currentSelection;
+                                this.IsDirty = false;
                             }
                         });
                 }
@@ -1573,6 +1623,7 @@ namespace OpenSky.Client.Pages.Models
                 if (!result.IsError)
                 {
                     this.IsNewFlightPlan = false;
+                    this.SaveCommand.ReportProgress(() => this.IsDirty = false);
                 }
                 else
                 {

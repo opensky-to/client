@@ -10,6 +10,8 @@ namespace OpenSky.Client.Controls
     using System.Windows;
     using System.Windows.Controls;
 
+    using Syncfusion.Windows.Tools.Controls;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// OpenSky page user control.
@@ -120,6 +122,23 @@ namespace OpenSky.Client.Controls
             get => (bool)this.GetValue(VerticalScrollBarProperty);
             set => this.SetValue(VerticalScrollBarProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Page tab/document close button was clicked, ask the page if that is ok right now, set
+        /// e.Cancel=true to abort closing the page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Close button event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public abstract void CloseButtonClick(object sender, CloseButtonEventArgs e);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
