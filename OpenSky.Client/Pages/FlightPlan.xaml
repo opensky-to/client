@@ -18,7 +18,6 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
-                          xmlns:wpf="clr-namespace:TheArtOfDev.HtmlRenderer.WPF;assembly=HtmlRenderer.WPF"
                           LoadingText="{Binding LoadingText}"
                           Loaded="FlightPlanOnLoaded" VerticalScrollBar="False" HorizontalScrollBar="False"
                           mc:Ignorable="d"
@@ -201,23 +200,24 @@
                         <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
                     <GroupBox Grid.Column="0">
-                    <GroupBox.Header>
-                        <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
-                    </GroupBox.Header>
-                    <controls:MapView Height="400" Margin="5" ShowFollowPlane="False" 
+                        <GroupBox.Header>
+                            <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
+                        </GroupBox.Header>
+                        <controls:MapView Margin="5" ShowFollowPlane="False" 
+                                      x:Name="MapView"
+                                      MinHeight="500"
                                       TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
                                       SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
                                       SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
                     />
-                </GroupBox>
-                <GroupBox Grid.Column="1">
-                    <GroupBox.Header>
-                        <TextBlock FontSize="15" FontWeight="DemiBold">simBrief OFP</TextBlock>
-                    </GroupBox.Header>
-                    <ScrollViewer Height="500" HorizontalScrollBarVisibility="Disabled">
-                        <wpf:HtmlPanel Text="{Binding OfpHtml}" Margin="5,5,20,5" />
-                    </ScrollViewer>
-                </GroupBox>
+                    </GroupBox>
+                    <GroupBox Grid.Column="1">
+                        <GroupBox.Header>
+                            <TextBlock FontSize="15" FontWeight="DemiBold">simBrief OFP</TextBlock>
+                        </GroupBox.Header>
+                        <!--<wpf:HtmlPanel Text="{Binding OfpHtml}" Margin="5,5,20,5" />-->
+                        <TextBox Height="500" VerticalScrollBarVisibility="Auto" Margin="5" TextWrapping="Wrap" FontFamily="Consolas" FontSize="15" IsReadOnly="True" Text="{Binding OfpHtml}" />
+                    </GroupBox>
                 </Grid>
             </StackPanel>
         </ScrollViewer>
