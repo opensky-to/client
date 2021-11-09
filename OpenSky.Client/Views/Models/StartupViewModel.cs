@@ -76,6 +76,8 @@ namespace OpenSky.Client.Views.Models
             else
             {
                 _ = UserSessionService.Instance.UpdateUserRoles().Result;
+                _ = UserSessionService.Instance.RefreshUserAccountOverview().Result;
+                _ = UserSessionService.Instance.RefreshLinkedAccounts().Result;
                 try
                 {
                     AirportPackageClientHandler.DownloadPackage();

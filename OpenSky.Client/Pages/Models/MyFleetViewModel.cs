@@ -28,6 +28,13 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The edit aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility editAircraftVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// True if the edited aircraft is available for purchase.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -53,6 +60,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private int editedAircraftPurchasePrice;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The edited aircraft registry.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string editedAircraftRegistry;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -98,21 +112,12 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshFleetCommand.DoExecute(null);
         }
 
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the save edited aircraft command.
+        /// Gets the aircraft list.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand SaveEditedAircraftCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the start edit aircraft command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command StartEditAircraftCommand { get; }
-
+        public ObservableCollection<Aircraft> Aircraft { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -123,10 +128,24 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the aircraft list.
+        /// Gets or sets the edit aircraft visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Aircraft> Aircraft { get; }
+        public Visibility EditAircraftVisibility
+        {
+            get => this.editAircraftVisibility;
+
+            set
+            {
+                if (Equals(this.editAircraftVisibility, value))
+                {
+                    return;
+                }
+
+                this.editAircraftVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -193,34 +212,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The edit aircraft visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility editAircraftVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the edit aircraft visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility EditAircraftVisibility
-        {
-            get => this.editAircraftVisibility;
-
-            set
-            {
-                if (Equals(this.editAircraftVisibility, value))
-                {
-                    return;
-                }
-
-                this.editAircraftVisibility = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the edited aircraft purchase price.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -237,6 +228,30 @@ namespace OpenSky.Client.Pages.Models
 
                 this.editedAircraftPurchasePrice = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the edited aircraft registry.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string EditedAircraftRegistry
+        {
+            get => this.editedAircraftRegistry;
+
+            private set
+            {
+                if (Equals(this.editedAircraftRegistry, value))
+                {
+                    return;
+                }
+
+                this.editedAircraftRegistry = value;
+                this.NotifyPropertyChanged();
+                this.CancelEditAircraftCommand.CanExecute = value != null;
+                this.SaveEditedAircraftCommand.CanExecute = value != null;
+                this.EditAircraftVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -291,6 +306,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the save edited aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand SaveEditedAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the selected aircraft.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -309,6 +331,31 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.StartEditAircraftCommand.CanExecute = value != null;
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the start edit aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command StartEditAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Cancel edit aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/09/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void CancelEditAircraft()
+        {
+            this.EditedAircraftRegistry = null;
+            this.EditedAircraftName = null;
+            this.EditedAircraftForPurchase = false;
+            this.EditedAircraftPurchasePrice = 0;
+            this.EditedAircraftForRent = false;
+            this.EditedAircraftRentPrice = 0;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -360,79 +407,6 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The edited aircraft registry.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string editedAircraftRegistry;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the edited aircraft registry.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string EditedAircraftRegistry
-        {
-            get => this.editedAircraftRegistry;
-
-            private set
-            {
-                if (Equals(this.editedAircraftRegistry, value))
-                {
-                    return;
-                }
-
-                this.editedAircraftRegistry = value;
-                this.NotifyPropertyChanged();
-                this.CancelEditAircraftCommand.CanExecute = value != null;
-                this.SaveEditedAircraftCommand.CanExecute = value != null;
-                this.EditAircraftVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Starts editing the selected aircraft.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 17/09/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void StartEditAircraft()
-        {
-            if (this.SelectedAircraft == null)
-            {
-                ModernWpf.MessageBox.Show("Please select the aircraft to edit!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            this.EditedAircraftRegistry = this.SelectedAircraft.Registry;
-            this.EditedAircraftName = this.SelectedAircraft.Name;
-            this.EditedAircraftForPurchase = this.SelectedAircraft.PurchasePrice.HasValue;
-            this.EditedAircraftPurchasePrice = this.SelectedAircraft.PurchasePrice ?? 0;
-            this.EditedAircraftForRent = this.SelectedAircraft.RentPrice.HasValue;
-            this.EditedAircraftRentPrice = this.SelectedAircraft.RentPrice ?? 0;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Cancel edit aircraft.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 17/09/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void CancelEditAircraft()
-        {
-            this.EditedAircraftRegistry = null;
-            this.EditedAircraftName = null;
-            this.EditedAircraftForPurchase = false;
-            this.EditedAircraftPurchasePrice = 0;
-            this.EditedAircraftForRent = false;
-            this.EditedAircraftRentPrice = 0;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -505,5 +479,28 @@ namespace OpenSky.Client.Pages.Models
             }
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Starts editing the selected aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/09/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void StartEditAircraft()
+        {
+            if (this.SelectedAircraft == null)
+            {
+                ModernWpf.MessageBox.Show("Please select the aircraft to edit!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            this.EditedAircraftRegistry = this.SelectedAircraft.Registry;
+            this.EditedAircraftName = this.SelectedAircraft.Name;
+            this.EditedAircraftForPurchase = this.SelectedAircraft.PurchasePrice.HasValue;
+            this.EditedAircraftPurchasePrice = this.SelectedAircraft.PurchasePrice ?? 0;
+            this.EditedAircraftForRent = this.SelectedAircraft.RentPrice.HasValue;
+            this.EditedAircraftRentPrice = this.SelectedAircraft.RentPrice ?? 0;
+        }
     }
 }

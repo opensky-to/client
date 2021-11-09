@@ -1,0 +1,67 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="MapView.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Mapview user control
+</summary>
+====================================================================================================================
+-->
+    
+<UserControl x:Class="OpenSky.Client.Controls.MapView"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                 mc:Ignorable="d"
+                 xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
+                 xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 Loaded="MapViewOnLoaded"
+                 d:DesignHeight="450" d:DesignWidth="800" MouseWheel="MapViewOnMouseWheel">
+    <UserControl.DataContext>
+        <models:MapViewViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="Full" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" />
+        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Border CornerRadius="2" Padding="8,0,8,0" BorderThickness="0.7" BorderBrush="White" Margin="1" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=ShowFollowPlane, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#66000000"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#99000000" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <CheckBox IsChecked="{Binding FollowPlane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Follow plane</CheckBox>
+            </Border>
+            <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBox.Items>
+                    <ComboBoxItem IsSelected="True">Road</ComboBoxItem>
+                    <ComboBoxItem>Aerial</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+            <Border CornerRadius="2" Padding="8,0,8,0" BorderThickness="0.7" BorderBrush="White" Margin="1">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#66000000"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#99000000" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <CheckBox IsChecked="{Binding DarkenRoadMap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Darken road map</CheckBox>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

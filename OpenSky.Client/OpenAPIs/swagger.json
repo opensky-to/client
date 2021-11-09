@@ -289,7 +289,7 @@
         }
       }
     },
-    "/Aircraft/purchase/{registry}": {
+    "/Aircraft/purchase/{registry}/{forAirline}": {
       "post": {
         "tags": [
           "Aircraft"
@@ -305,6 +305,15 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "forAirline",
+            "in": "path",
+            "description": "True to purchase the aircraft for the airline and not the player.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -813,6 +822,102 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airline": {
+      "get": {
+        "tags": [
+          "Airline"
+        ],
+        "summary": "Get user airline.",
+        "description": "sushi.at, 01/11/2021.",
+        "operationId": "GetAirline",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAirlineApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airline/permissions": {
+      "get": {
+        "tags": [
+          "Airline"
+        ],
+        "summary": "Gets the airline permissions for the current user.",
+        "description": "sushi.at, 26/10/2021.",
+        "operationId": "GetAirlinePermissions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlinePermissionListApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlinePermissionListApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlinePermissionListApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Airline/permissions/all": {
+      "get": {
+        "tags": [
+          "Airline"
+        ],
+        "summary": "Gets all airline permissions (for all members, requires ChangePermission)",
+        "description": "sushi.at, 26/10/2021.",
+        "operationId": "GetAllAirlinePermissions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlineMemberAirlinePermissionHashSetDictionaryApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlineMemberAirlinePermissionHashSetDictionaryApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirlineMemberAirlinePermissionHashSetDictionaryApiResponse"
                 }
               }
             }
@@ -1869,6 +1974,131 @@
         }
       }
     },
+    "/Flight/getFlightPlans": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Get flight plans.",
+        "description": "sushi.at, 03/10/2021.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightPlanIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightPlanIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightPlanIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/deleteFlightPlan/{flightID}": {
+      "delete": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Delete the specified flight plan.",
+        "description": "sushi.at, 03/10/2021.",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight (plan).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/saveFlightPlan": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Save a new or existing flight plan.",
+        "description": "sushi.at, 03/10/2021.",
+        "requestBody": {
+          "description": "The flight plan.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlightPlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlightPlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlightPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/WorldPopulation": {
       "get": {
         "tags": [
@@ -2001,7 +2231,9 @@
       },
       "Aircraft": {
         "required": [
-          "airportICAO"
+          "airportICAO",
+          "registry",
+          "typeID"
         ],
         "type": "object",
         "properties": {
@@ -2030,6 +2262,13 @@
             "description": "Gets or sets the identifier of the user that owns this aircraft (NULL if no user owner).",
             "nullable": true
           },
+          "airlineOwnerID": {
+            "maxLength": 3,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the airline owner (NULL if no airline owner).",
+            "nullable": true
+          },
           "ownerName": {
             "type": "string",
             "description": "Gets the owner name.",
@@ -2046,14 +2285,19 @@
             "maxLength": 10,
             "minLength": 5,
             "type": "string",
-            "description": "Gets or sets the aircraft registration.",
-            "nullable": true
+            "description": "Gets or sets the aircraft registration."
           },
           "rentPrice": {
             "type": "integer",
             "description": "Gets or sets the rent price per flight hour for the aircraft. Null if not available for rent.",
             "format": "int32",
             "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets the current status of the aircraft.",
+            "nullable": true,
+            "readOnly": true
           },
           "type": {
             "$ref": "#/components/schemas/AircraftType"
@@ -2376,6 +2620,152 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AircraftType"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "AirlineMemberAirlinePermissionHashSetDictionaryApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AirlinePermission"
+              }
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "AirlinePermission": {
+        "enum": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          30,
+          31,
+          32,
+          40,
+          41,
+          42,
+          90,
+          91,
+          92
+        ],
+        "type": "integer",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "format": "int32",
+        "x-enumNames": [
+          "BuyAircraft",
+          "SellAircraft",
+          "RentAircraft",
+          "RentOutAircraft",
+          "AssignAircraft",
+          "RenameAircraft",
+          "BuyFBO",
+          "SellFBO",
+          "RentFBO",
+          "RentOutFBO",
+          "RenameFBO",
+          "OrderFuel",
+          "AcceptJobs",
+          "Dispatch",
+          "OutsourceJobs",
+          "ModifyAircraft",
+          "MaintainAircraft",
+          "ReplaceAircraftParts",
+          "ChangePermissions",
+          "BoardMember",
+          "AllPermissions"
+        ],
+        "x-enum-varnames": [
+          "BuyAircraft",
+          "SellAircraft",
+          "RentAircraft",
+          "RentOutAircraft",
+          "AssignAircraft",
+          "RenameAircraft",
+          "BuyFBO",
+          "SellFBO",
+          "RentFBO",
+          "RentOutFBO",
+          "RenameFBO",
+          "OrderFuel",
+          "AcceptJobs",
+          "Dispatch",
+          "OutsourceJobs",
+          "ModifyAircraft",
+          "MaintainAircraft",
+          "ReplaceAircraftParts",
+          "ChangePermissions",
+          "BoardMember",
+          "AllPermissions"
+        ]
+      },
+      "AirlinePermissionListApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirlinePermission"
             },
             "description": "Gets or sets the embedded data of type T.",
             "nullable": true
@@ -3665,6 +4055,189 @@
           "Turboprop"
         ]
       },
+      "FlightNavlogFix": {
+        "required": [
+          "flightID",
+          "ident",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "fixNumber": {
+            "type": "integer",
+            "description": "Gets or sets the fix number.",
+            "format": "int32"
+          },
+          "flightID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the flight.",
+            "format": "uuid"
+          },
+          "ident": {
+            "type": "string",
+            "description": "Gets or sets the ident of the fix."
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets or sets the latitude.",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets or sets the longitude.",
+            "format": "double"
+          },
+          "type": {
+            "type": "string",
+            "description": "Gets or sets the type of the fix."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight navigation log fix model."
+      },
+      "FlightPlan": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "navlogFixes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightNavlogFix"
+            },
+            "description": "Gets or sets the navlog fixes.",
+            "nullable": true
+          },
+          "ofpHtml": {
+            "type": "string",
+            "description": "Gets or sets the OFP HTML (most likely from simBrief).",
+            "nullable": true
+          },
+          "route": {
+            "type": "string",
+            "description": "Gets or sets the route.",
+            "nullable": true
+          },
+          "alternateRoute": {
+            "type": "string",
+            "description": "Gets or sets the alternate route.",
+            "nullable": true
+          },
+          "aircraft": {
+            "$ref": "#/components/schemas/Aircraft"
+          },
+          "alternateICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the alternate airport ICAO code.",
+            "nullable": true
+          },
+          "destinationICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets destination airport ICAO code.",
+            "nullable": true
+          },
+          "dispatcherID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the dispatcher.",
+            "nullable": true
+          },
+          "fullFlightNumber": {
+            "type": "string",
+            "description": "Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).",
+            "nullable": true
+          },
+          "dispatcherName": {
+            "type": "string",
+            "description": "Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).",
+            "nullable": true
+          },
+          "dispatcherRemarks": {
+            "type": "string",
+            "description": "Gets or sets the dispatcher remarks.",
+            "nullable": true
+          },
+          "flightNumber": {
+            "type": "integer",
+            "description": "Gets or sets the flight number (1-9999).",
+            "format": "int32"
+          },
+          "fuelGallons": {
+            "type": "number",
+            "description": "Gets or sets the fuel in gallons.",
+            "format": "double",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the flight.",
+            "format": "uuid"
+          },
+          "isAirlineFlight": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this is an airline flight or a private one."
+          },
+          "originICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the origin airport ICAO code.",
+            "nullable": true
+          },
+          "plannedDepartureTime": {
+            "type": "string",
+            "description": "Gets or sets the planned departure time.",
+            "format": "date-time"
+          },
+          "utcOffset": {
+            "type": "number",
+            "description": "Gets or sets the UTC offset for the flight.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight plan model."
+      },
+      "FlightPlanIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPlan"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "ForgotPassword": {
         "required": [
           "email"
@@ -4254,6 +4827,63 @@
         },
         "additionalProperties": false,
         "description": "Update aircraft model."
+      },
+      "UserAirline": {
+        "type": "object",
+        "properties": {
+          "iata": {
+            "maxLength": 2,
+            "minLength": 2,
+            "type": "string",
+            "description": "Gets or sets the optional IATA code of the airline.",
+            "nullable": true
+          },
+          "icao": {
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airline ICAO code.",
+            "nullable": true
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 4,
+            "type": "string",
+            "description": "Gets or sets the name of the airline.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "User airline information data contract."
+      },
+      "UserAirlineApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserAirline"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "ValidateEmail": {
         "required": [

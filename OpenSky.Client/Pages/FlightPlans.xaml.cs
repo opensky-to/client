@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DataImport.xaml.cs" company="OpenSky">
+// <copyright file="FlightPlans.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -7,29 +7,27 @@
 namespace OpenSky.Client.Pages
 {
     using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Controls.Primitives;
 
-    using DataGridExtensions;
+    using OpenSky.Client.Pages.Models;
 
     using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// Data import page.
+    /// Flight plans page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class DataImport
+    public partial class FlightPlans
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataImport"/> class.
+        /// Initializes a new instance of the <see cref="FlightPlans"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 17/06/2021.
+        /// sushi.at, 28/10/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public DataImport()
+        public FlightPlans()
         {
             this.InitializeComponent();
         }
@@ -52,7 +50,7 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
         {
-            // todo check when we overhaul this
+            // Don't care
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -74,10 +72,10 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Clears all filters on click.
+        /// Flight plans on loaded.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 02/07/2021.
+        /// sushi.at, 28/10/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
@@ -86,30 +84,12 @@ namespace OpenSky.Client.Pages
         /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void ClearAllFiltersOnClick(object sender, RoutedEventArgs e)
+        private void FlightPlansOnLoaded(object sender, RoutedEventArgs e)
         {
-            this.DataImportsGrid.GetFilter().Clear();
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Textbox text changed (auto scrolls to the end)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 02/07/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Text changed event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void TextBoxBaseOnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (sender is TextBoxBase textBox)
+            if (this.DataContext is FlightPlansViewModel viewModel)
             {
-                textBox.ScrollToEnd();
+                viewModel.SetViewReference(this);
+                viewModel.RefreshPlansCommand.DoExecute(null);
             }
         }
     }

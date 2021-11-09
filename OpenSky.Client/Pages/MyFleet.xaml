@@ -20,6 +20,7 @@
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
                       mc:Ignorable="d" HorizontalScrollBar="False"
+                      LoadingText="{Binding LoadingText}"
                       d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:MyFleetViewModel />
@@ -53,13 +54,13 @@
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid
-            Grid.Row="1"
-            ItemsSource="{Binding Aircraft}"
-            SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
-            HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
-            ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
-            >
+                    Grid.Row="1"
+                    ItemsSource="{Binding Aircraft}"
+                    SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    >
                     <DataGrid.Resources>
                         <DataTemplate x:Key="FuelCellTemplate" DataType="openSkyApi:Aircraft">
                             <controls:AircraftFuelAsProgressbar Aircraft="{Binding .}" NumericValuesVisibility="Visible" Margin="15,0" />
@@ -76,6 +77,7 @@
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
                         <DataGridTextColumn Header="Condition(todo)" />
                         <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />
