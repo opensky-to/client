@@ -134,5 +134,14 @@ namespace OpenSky.Client.Properties {
                 this["FuelUnit"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:5001/changepassword")]
+        public string OpenSkyChangePasswordUrl {
+            get {
+                return ((string)(this["OpenSkyChangePasswordUrl"]));
+            }
+        }
     }
 }

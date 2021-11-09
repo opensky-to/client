@@ -7,8 +7,11 @@
 namespace OpenSky.Client.Tools
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
+    using System.Linq;
 
     using JetBrains.Annotations;
 
@@ -122,6 +125,28 @@ namespace OpenSky.Client.Tools
                 Debug.WriteLine($"Error loading local airport package file: {ex}");
                 throw;
             }
+        }
+
+        public static ValidationResult ValidateAirportICAO(string icao)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(icao))
+                {
+                    var localAirportPackage = GetPackage();
+                    var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == icao.ToUpper(CultureInfo.InvariantCulture));
+                    if (airport == null)
+                    {
+                        return new ValidationResult($"No airport with ICAO code {icao}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ValidationResult(ex.Message);
+            }
+
+            return ValidationResult.Success;
         }
 
         /// -------------------------------------------------------------------------------------------------

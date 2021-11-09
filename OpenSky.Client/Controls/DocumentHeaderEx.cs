@@ -7,8 +7,12 @@
 namespace OpenSky.Client.Controls
 {
     using System;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+
+    using JetBrains.Annotations;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -18,8 +22,22 @@ namespace OpenSky.Client.Controls
     /// sushi.at, 23/06/2021.
     /// </remarks>
     /// -------------------------------------------------------------------------------------------------
-    public class DocumentHeaderEx
+    public class DocumentHeaderEx : INotifyPropertyChanged
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The icon.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private ImageSource icon;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The header text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string text;
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentHeaderEx"/> class.
@@ -78,17 +96,52 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the icon.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ImageSource Icon { get; set; }
+        public ImageSource Icon
+        {
+            get => this.icon;
+
+            set
+            {
+                if (Equals(this.icon, value))
+                {
+                    return;
+                }
+
+                this.icon = value;
+                this.OnPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string Text { get; set; }
+        public string Text
+        {
+            get => this.text;
+
+            set
+            {
+                if (Equals(this.text, value))
+                {
+                    return;
+                }
+
+                this.text = value;
+                this.OnPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -105,6 +158,23 @@ namespace OpenSky.Client.Controls
         public override string ToString()
         {
             return this.Text;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Executes the property changed action.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// <param name="propertyName">
+        /// (Optional) Name of the property.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

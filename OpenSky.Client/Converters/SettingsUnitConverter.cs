@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Converters
 {
     using System;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Windows.Data;
 
@@ -52,6 +53,11 @@ namespace OpenSky.Client.Converters
         {
             try
             {
+                if (value == null)
+                {
+                    return string.Empty;
+                }
+
                 if (parameter is string settings)
                 {
                     var settingsSplit = settings.Split('|');
@@ -113,10 +119,8 @@ namespace OpenSky.Client.Converters
 
                     return $"{unitValue.ToString(format, CultureInfo.InvariantCulture)}{unitName}";
                 }
-                else
-                {
-                    return "Settings error";
-                }
+
+                return "Settings error";
             }
             catch (Exception ex)
             {
@@ -151,7 +155,72 @@ namespace OpenSky.Client.Converters
         /// -------------------------------------------------------------------------------------------------
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return null;
+            try
+            {
+                if (parameter is string settings)
+                {
+                    var settingsSplit = settings.Split('|');
+                    if (settingsSplit.Length != 3)
+                    {
+                        return "Settings error";
+                    }
+
+                    var unit = settingsSplit[0];
+                    if (value is string valueString)
+                    {
+                        string unitName;
+                        double unitValue;
+                        switch (unit.ToLowerInvariant())
+                        {
+                            case "weight":
+                                unitName = (WeightUnit)Properties.Settings.Default.WeightUnit switch
+                                {
+                                    WeightUnit.lbs => "lbs",
+                                    WeightUnit.kg => "kg",
+                                    _ => throw new Exception("Unsupported weight unit")
+                                };
+                                valueString = valueString.Replace(unitName, string.Empty).Trim();
+                                unitValue = double.Parse(valueString);
+
+                                unitValue = (WeightUnit)Properties.Settings.Default.WeightUnit switch
+                                {
+                                    WeightUnit.lbs => unitValue,
+                                    WeightUnit.kg => unitValue * 2.20462,
+                                    _ => throw new Exception("Unsupported weight unit")
+                                };
+                                break;
+                            case "fuel":
+                                unitName = (FuelUnit)Properties.Settings.Default.FuelUnit switch
+                                {
+                                    FuelUnit.gal => "gal",
+                                    FuelUnit.l => "l",
+                                    _ => throw new Exception("Unsupported fuel unit")
+                                };
+                                valueString = valueString.Replace(unitName, string.Empty).Trim();
+                                unitValue = double.Parse(valueString);
+
+                                unitValue = (FuelUnit)Properties.Settings.Default.FuelUnit switch
+                                {
+                                    FuelUnit.gal => unitValue,
+                                    FuelUnit.l => unitValue * 0.264172,
+                                    _ => throw new Exception("Unsupported fuel unit")
+                                };
+                                break;
+                            default:
+                                return "Unsupported unit";
+                        }
+
+                        return unitValue;
+                    }
+                }
+
+                return 0.0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return 0.0;
+            }
         }
     }
 }

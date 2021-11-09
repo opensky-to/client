@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Settings.xaml.cs" company="OpenSky">
+// <copyright file="FlightPlan.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ namespace OpenSky.Client.Pages
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Windows;
-    using System.Windows.Navigation;
+    using System.Windows.Controls;
 
     using OpenSky.Client.Pages.Models;
     using OpenSky.Client.Tools;
@@ -18,20 +18,20 @@ namespace OpenSky.Client.Pages
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// Settings page.
+    /// Flight plan page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class Settings
+    public partial class FlightPlan
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="Settings"/> class.
+        /// Initializes a new instance of the <see cref="FlightPlan"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 17/06/2021.
+        /// sushi.at, 28/10/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public Settings()
+        public FlightPlan()
         {
             this.InitializeComponent();
         }
@@ -54,13 +54,13 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void CloseButtonClick(object sender, CloseButtonEventArgs e)
         {
-            if (this.DataContext is SettingsViewModel { IsDirty: true } viewModel)
+            if (this.DataContext is FlightPlanViewModel { IsDirty: true } viewModel)
             {
-                var answer = ModernWpf.MessageBox.Show("There are unsaved setting changes, do you want to save them now?", "Save settings?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                var answer = ModernWpf.MessageBox.Show("Flight plan has unsaved changes, do you want to save them now?", "Save flight plan?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 
                 if (answer == MessageBoxResult.Yes)
                 {
-                    viewModel.SaveSettingsCommand.DoExecute(null);
+                    viewModel.SaveCommand.DoExecute(null);
                 }
 
                 if (answer == MessageBoxResult.Cancel)
@@ -84,34 +84,18 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void PassPageParameter(object parameter)
         {
-            // No parameters supported
+            if (this.DataContext is FlightPlanViewModel viewModel && parameter is OpenSkyApi.FlightPlan flightPlan)
+            {
+                viewModel.LoadFlightPlan(flightPlan);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Hyperlink on request navigate.
+        /// Flight plan on loaded.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 03/11/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Request navigate event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void HyperlinkOnRequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            Process.Start(e.Uri.ToString());
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Settings on loaded.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 08/11/2021.
+        /// sushi.at, 31/10/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
@@ -120,11 +104,40 @@ namespace OpenSky.Client.Pages
         /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void SettingsOnLoaded(object sender, RoutedEventArgs e)
+        private void FlightPlanOnLoaded(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is SettingsViewModel viewModel)
+            if (this.DataContext is FlightPlanViewModel viewModel)
             {
                 viewModel.PropertyChanged += this.ViewModelPropertyChanged;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Flight plan view model on close page.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 31/10/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// An object to process.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void FlightPlanViewModelOnClosePage(object sender, object e)
+        {
+            Debug.WriteLine(this.DockItem);
+
+            if (this.Parent is ContentControl control)
+            {
+                Debug.WriteLine(control);
+                if (control.Parent is DockingManager dockingManager)
+                {
+                    Debug.WriteLine(dockingManager);
+                    dockingManager.Children.Remove(control);
+                }
             }
         }
 
@@ -133,7 +146,7 @@ namespace OpenSky.Client.Pages
         /// View model property changed.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 08/11/2021.
+        /// sushi.at, 31/10/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
@@ -146,9 +159,20 @@ namespace OpenSky.Client.Pages
         {
             UpdateGUIDelegate updateTabText = () =>
             {
-                if (this.DockItem != null && e.PropertyName is nameof(SettingsViewModel.IsDirty) && this.DataContext is SettingsViewModel viewModel)
+                if (this.DockItem != null && e.PropertyName is nameof(FlightPlanViewModel.FlightNumber) or nameof(FlightPlanViewModel.IsAirlineFlight) or nameof(FlightPlanViewModel.IsNewFlightPlan) or nameof(FlightPlanViewModel.IsDirty) &&
+                    this.DataContext is FlightPlanViewModel viewModel)
                 {
-                    var documentHeaderText = "Settings";
+                    var documentHeaderText = viewModel.IsNewFlightPlan ? "New flight plan " : "Flight plan ";
+                    if (!string.IsNullOrEmpty(viewModel.Airline?.Iata))
+                    {
+                        documentHeaderText += viewModel.Airline.Iata;
+                    }
+                    else if (!string.IsNullOrEmpty(viewModel.Airline?.Icao))
+                    {
+                        documentHeaderText += viewModel.Airline.Icao;
+                    }
+
+                    documentHeaderText += $"{viewModel.FlightNumber}";
                     if (viewModel.IsDirty)
                     {
                         documentHeaderText += "*";

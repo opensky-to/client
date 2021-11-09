@@ -1,0 +1,72 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="MyFleet.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Flight plans page
+</summary>
+====================================================================================================================
+-->
+    
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.FlightPlans"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                          xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                          xmlns:ui="http://schemas.modernwpf.com/2019"
+                          xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+                          LoadingText="{Binding LoadingText}"
+                          Loaded="FlightPlansOnLoaded"
+                          mc:Ignorable="d" 
+                          d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <models:FlightPlansViewModel />
+    </UserControl.DataContext>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshPlansCommand}" />
+    </UserControl.InputBindings>
+    <Grid>
+         <GroupBox>
+             <GroupBox.Header>
+                 <TextBlock FontSize="15" FontWeight="DemiBold">Manage Flight Plans</TextBlock>
+             </GroupBox.Header>
+             <Grid>
+                 <Grid.RowDefinitions>
+                     <RowDefinition Height="Auto" />
+                     <RowDefinition Height="*" />
+                 </Grid.RowDefinitions>
+                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                     <ui:CommandBar.PrimaryCommands>
+                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh flight plans [F5]" Command="{Binding RefreshPlansCommand}" />
+                         <ui:AppBarButton Icon="Add" Label="New" ToolTip="Create a new flight plan" Command="{Binding NewPlanCommand}" />
+                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected flight plan" Command="{Binding EditPlanCommand}" />
+                         <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the selected flight plan" Command="{Binding DeletePlanCommand}" />
+                     </ui:CommandBar.PrimaryCommands>
+                 </ui:CommandBar>
+                <DataGrid
+                    Grid.Row="1"
+                    ItemsSource="{Binding Plans}"
+                    SelectedItem="{Binding SelectedFlightPlan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    >
+                    <DataGrid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditPlanCommand}" />
+                    </DataGrid.InputBindings>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" Binding="{Binding PlannedDepartureTime.DateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                        <DataGridTextColumn Header="Flight#" Binding="{Binding FlightNumber}" />
+                        <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Alternate" Binding="{Binding AlternateICAO}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Utc Offset" Binding="{Binding UtcOffset}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>   
+    </Grid>
+</controls:OpenSkyPage>

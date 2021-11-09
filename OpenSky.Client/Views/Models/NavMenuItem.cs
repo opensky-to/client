@@ -46,5 +46,12 @@ namespace OpenSky.Client.Views.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Type PageType { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the optional parameter to pass to the newly created page.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public object Parameter { get; set; }
     }
 }
