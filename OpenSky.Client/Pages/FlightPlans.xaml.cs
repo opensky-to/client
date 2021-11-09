@@ -89,6 +89,7 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is FlightPlansViewModel viewModel)
             {
                 viewModel.SetViewReference(this);
+                viewModel.RefreshPlansCommand.DoExecute(null);
             }
         }
     }
