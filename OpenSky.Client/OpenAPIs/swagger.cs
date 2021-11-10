@@ -3650,6 +3650,86 @@ namespace OpenSkyApi
             }
         }
     
+        /// <summary>Delete the specified flight plan.</summary>
+        /// <param name="flightID">Identifier for the flight (plan).</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<StringApiResponse> DeleteFlightPlanAsync(System.Guid flightID)
+        {
+            return DeleteFlightPlanAsync(flightID, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Delete the specified flight plan.</summary>
+        /// <param name="flightID">Identifier for the flight (plan).</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<StringApiResponse> DeleteFlightPlanAsync(System.Guid flightID, System.Threading.CancellationToken cancellationToken)
+        {
+            if (flightID == null)
+                throw new System.ArgumentNullException("flightID");
+    
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Flight/deleteFlightPlan/{flightID}");
+            urlBuilder_.Replace("{flightID}", System.Uri.EscapeDataString(ConvertToString(flightID, System.Globalization.CultureInfo.InvariantCulture)));
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<StringApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
         /// <summary>Get flight plans.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -3724,27 +3804,27 @@ namespace OpenSkyApi
             }
         }
     
-        /// <summary>Delete the specified flight plan.</summary>
-        /// <param name="flightID">Identifier for the flight (plan).</param>
+        /// <summary>Start flight.</summary>
+        /// <param name="flightID">Identifier for the flight plan to start.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<StringApiResponse> DeleteFlightPlanAsync(System.Guid flightID)
+        public System.Threading.Tasks.Task<StringApiResponse> StartFlightAsync(System.Guid flightID)
         {
-            return DeleteFlightPlanAsync(flightID, System.Threading.CancellationToken.None);
+            return StartFlightAsync(flightID, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>Delete the specified flight plan.</summary>
-        /// <param name="flightID">Identifier for the flight (plan).</param>
+        /// <summary>Start flight.</summary>
+        /// <param name="flightID">Identifier for the flight plan to start.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<StringApiResponse> DeleteFlightPlanAsync(System.Guid flightID, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<StringApiResponse> StartFlightAsync(System.Guid flightID, System.Threading.CancellationToken cancellationToken)
         {
             if (flightID == null)
                 throw new System.ArgumentNullException("flightID");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Flight/deleteFlightPlan/{flightID}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Flight/startFlight/{flightID}");
             urlBuilder_.Replace("{flightID}", System.Uri.EscapeDataString(ConvertToString(flightID, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = _httpClient;
@@ -3753,7 +3833,8 @@ namespace OpenSkyApi
             {
                 using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
     
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -4384,6 +4465,13 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the fuel total capacity in gallons.</summary>
         [Newtonsoft.Json.JsonProperty("fuelTotalCapacity", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double FuelTotalCapacity { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("fuelType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public FuelType FuelType { get; set; }
+    
+        /// <summary>Gets or sets the fuel weight per gallon (default values are 6 lbs/gallon avgas and 6.66 lbs/gallon jetfuel).</summary>
+        [Newtonsoft.Json.JsonProperty("fuelWeightPerGallon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double FuelWeightPerGallon { get; set; }
     
         /// <summary>Gets or sets the identifier.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5581,22 +5669,6 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class FlightPlan 
     {
-        /// <summary>Gets or sets the navlog fixes.</summary>
-        [Newtonsoft.Json.JsonProperty("navlogFixes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FlightNavlogFix> NavlogFixes { get; set; }
-    
-        /// <summary>Gets or sets the OFP HTML (most likely from simBrief).</summary>
-        [Newtonsoft.Json.JsonProperty("ofpHtml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string OfpHtml { get; set; }
-    
-        /// <summary>Gets or sets the route.</summary>
-        [Newtonsoft.Json.JsonProperty("route", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Route { get; set; }
-    
-        /// <summary>Gets or sets the alternate route.</summary>
-        [Newtonsoft.Json.JsonProperty("alternateRoute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string AlternateRoute { get; set; }
-    
         [Newtonsoft.Json.JsonProperty("aircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Aircraft Aircraft { get; set; }
     
@@ -5604,6 +5676,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("alternateICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string AlternateICAO { get; set; }
+    
+        /// <summary>Gets or sets the alternate route.</summary>
+        [Newtonsoft.Json.JsonProperty("alternateRoute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AlternateRoute { get; set; }
     
         /// <summary>Gets or sets destination airport ICAO code.</summary>
         [Newtonsoft.Json.JsonProperty("destinationICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5614,10 +5690,6 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("dispatcherID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string DispatcherID { get; set; }
-    
-        /// <summary>Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).</summary>
-        [Newtonsoft.Json.JsonProperty("fullFlightNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string FullFlightNumber { get; set; }
     
         /// <summary>Gets or sets the name of the dispatcher (read only, for display in list view, not for editing!).</summary>
         [Newtonsoft.Json.JsonProperty("dispatcherName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5635,6 +5707,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("fuelGallons", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? FuelGallons { get; set; }
     
+        /// <summary>Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).</summary>
+        [Newtonsoft.Json.JsonProperty("fullFlightNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FullFlightNumber { get; set; }
+    
         /// <summary>Gets or sets the identifier for the flight.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -5644,6 +5720,14 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("isAirlineFlight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsAirlineFlight { get; set; }
     
+        /// <summary>Gets or sets the navlog fixes.</summary>
+        [Newtonsoft.Json.JsonProperty("navlogFixes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<FlightNavlogFix> NavlogFixes { get; set; }
+    
+        /// <summary>Gets or sets the OFP HTML (most likely from simBrief).</summary>
+        [Newtonsoft.Json.JsonProperty("ofpHtml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string OfpHtml { get; set; }
+    
         /// <summary>Gets or sets the origin airport ICAO code.</summary>
         [Newtonsoft.Json.JsonProperty("originICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
@@ -5652,6 +5736,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the planned departure time.</summary>
         [Newtonsoft.Json.JsonProperty("plannedDepartureTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset PlannedDepartureTime { get; set; }
+    
+        /// <summary>Gets or sets the route.</summary>
+        [Newtonsoft.Json.JsonProperty("route", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Route { get; set; }
     
         /// <summary>Gets or sets the UTC offset for the flight.</summary>
         [Newtonsoft.Json.JsonProperty("utcOffset", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5700,6 +5788,18 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("recaptchaToken", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RecaptchaToken { get; set; }
     
+    
+    }
+    
+    /// <summary>Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public enum FuelType
+    {
+        AvGas = 0,
+    
+        JetFuel = 1,
+    
+        None = 2,
     
     }
     

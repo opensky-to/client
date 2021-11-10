@@ -94,7 +94,7 @@ namespace OpenSky.Client.Views.Models
 
             if (UserSessionService.Instance.IsModerator)
             {
-                // todo
+                // todo add moderator only navigation items, once we have some :)
             }
 
             if (tools.Children.Count > 0)

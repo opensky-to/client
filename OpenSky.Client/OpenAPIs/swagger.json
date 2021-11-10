@@ -1974,6 +1974,49 @@
         }
       }
     },
+    "/Flight/deleteFlightPlan/{flightID}": {
+      "delete": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Delete the specified flight plan.",
+        "description": "sushi.at, 03/10/2021.",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight (plan).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/getFlightPlans": {
       "get": {
         "tags": [
@@ -2005,18 +2048,18 @@
         }
       }
     },
-    "/Flight/deleteFlightPlan/{flightID}": {
-      "delete": {
+    "/Flight/startFlight/{flightID}": {
+      "post": {
         "tags": [
           "Flight"
         ],
-        "summary": "Delete the specified flight plan.",
-        "description": "sushi.at, 03/10/2021.",
+        "summary": "Start flight.",
+        "description": "sushi.at, 10/11/2021.",
         "parameters": [
           {
             "name": "flightID",
             "in": "path",
-            "description": "Identifier for the flight (plan).",
+            "description": "Identifier for the flight plan to start.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2471,6 +2514,14 @@
           "fuelTotalCapacity": {
             "type": "number",
             "description": "Gets or sets the fuel total capacity in gallons.",
+            "format": "double"
+          },
+          "fuelType": {
+            "$ref": "#/components/schemas/FuelType"
+          },
+          "fuelWeightPerGallon": {
+            "type": "number",
+            "description": "Gets or sets the fuel weight per gallon (default values are 6 lbs/gallon avgas and 6.66 lbs/gallon jetfuel).",
             "format": "double"
           },
           "id": {
@@ -4101,29 +4152,6 @@
         ],
         "type": "object",
         "properties": {
-          "navlogFixes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightNavlogFix"
-            },
-            "description": "Gets or sets the navlog fixes.",
-            "nullable": true
-          },
-          "ofpHtml": {
-            "type": "string",
-            "description": "Gets or sets the OFP HTML (most likely from simBrief).",
-            "nullable": true
-          },
-          "route": {
-            "type": "string",
-            "description": "Gets or sets the route.",
-            "nullable": true
-          },
-          "alternateRoute": {
-            "type": "string",
-            "description": "Gets or sets the alternate route.",
-            "nullable": true
-          },
           "aircraft": {
             "$ref": "#/components/schemas/Aircraft"
           },
@@ -4132,6 +4160,11 @@
             "minLength": 3,
             "type": "string",
             "description": "Gets or sets the alternate airport ICAO code.",
+            "nullable": true
+          },
+          "alternateRoute": {
+            "type": "string",
+            "description": "Gets or sets the alternate route.",
             "nullable": true
           },
           "destinationICAO": {
@@ -4146,11 +4179,6 @@
             "minLength": 0,
             "type": "string",
             "description": "Gets or sets the identifier of the dispatcher.",
-            "nullable": true
-          },
-          "fullFlightNumber": {
-            "type": "string",
-            "description": "Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).",
             "nullable": true
           },
           "dispatcherName": {
@@ -4174,6 +4202,11 @@
             "format": "double",
             "nullable": true
           },
+          "fullFlightNumber": {
+            "type": "string",
+            "description": "Gets the full flight number (airline code and number combined)(read only, for display in list view, not for editing!).",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "description": "Gets or sets the identifier for the flight.",
@@ -4182,6 +4215,19 @@
           "isAirlineFlight": {
             "type": "boolean",
             "description": "Gets or sets a value indicating whether this is an airline flight or a private one."
+          },
+          "navlogFixes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightNavlogFix"
+            },
+            "description": "Gets or sets the navlog fixes.",
+            "nullable": true
+          },
+          "ofpHtml": {
+            "type": "string",
+            "description": "Gets or sets the OFP HTML (most likely from simBrief).",
+            "nullable": true
           },
           "originICAO": {
             "maxLength": 5,
@@ -4194,6 +4240,11 @@
             "type": "string",
             "description": "Gets or sets the planned departure time.",
             "format": "date-time"
+          },
+          "route": {
+            "type": "string",
+            "description": "Gets or sets the route.",
+            "nullable": true
           },
           "utcOffset": {
             "type": "number",
@@ -4257,6 +4308,26 @@
         },
         "additionalProperties": false,
         "description": "Forgot password model."
+      },
+      "FuelType": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None",
+        "format": "int32",
+        "x-enumNames": [
+          "AvGas",
+          "JetFuel",
+          "None"
+        ],
+        "x-enum-varnames": [
+          "AvGas",
+          "JetFuel",
+          "None"
+        ]
       },
       "GuidNullableApiResponse": {
         "type": "object",
