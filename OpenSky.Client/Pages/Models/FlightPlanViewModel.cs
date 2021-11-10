@@ -580,14 +580,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the fuel weight in lbs.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public double FuelWeight
-        {
-            get
-            {
-                // TODO this should come from aircraft type?
-                return (this.FuelGallons ?? 0) * 6;
-            }
-        }
+        public double FuelWeight => (this.FuelGallons ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1187,7 +1180,7 @@ namespace OpenSky.Client.Pages.Models
                         fuelPlanRamp *= 2.20462;
                     }
 
-                    var plannedGallons = fuelPlanRamp / 6; // todo use proper fuel weight here
+                    var plannedGallons = fuelPlanRamp / this.SelectedAircraft.Type.FuelWeightPerGallon;
                     if (plannedGallons < (this.FuelGallons ?? 0))
                     {
                         answer = MessageBoxResult.None;
