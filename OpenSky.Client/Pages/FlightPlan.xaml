@@ -86,7 +86,7 @@
 
                         <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}" />
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" />
-                        <TextBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
+                        <TextBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                         <TextBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                         <TextBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
                         <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding PlannedDepartureTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" />

@@ -9,7 +9,6 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.Device.Location;
     using System.Diagnostics;
@@ -293,6 +292,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets or sets the alternate icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
+        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
         public string AlternateICAO
         {
             get => this.alternateICAO;
@@ -426,6 +426,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets or sets the destination icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
+        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
         public string DestinationICAO
         {
             get => this.destinationICAO;
@@ -741,7 +742,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets or sets the origin icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")]
+        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
         public string OriginICAO
         {
             get => this.originICAO;
@@ -757,7 +758,6 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
                 this.UpdateAirportMarkers();
-                this.Validate();
             }
         }
 
@@ -1021,7 +1021,6 @@ namespace OpenSky.Client.Pages.Models
             url += $"deph={this.DepartureHour:00}&";
             url += $"depm={this.DepartureMinute:00}&";
 
-
             if (this.SelectedAircraft != null)
             {
                 url += $"reg={this.SelectedAircraft.Registry}&";
@@ -1192,7 +1191,9 @@ namespace OpenSky.Client.Pages.Models
                     if (plannedGallons < (this.FuelGallons ?? 0))
                     {
                         answer = MessageBoxResult.None;
-                        this.DownloadSimBriefCommand.ReportProgress(() => answer = ModernWpf.MessageBox.Show("simBrief planned fuel is less than the currently selected value, do you want to use it anyway?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question), true);
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () => answer = ModernWpf.MessageBox.Show("simBrief planned fuel is less than the currently selected value, do you want to use it anyway?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question),
+                            true);
                         if (answer == MessageBoxResult.Yes)
                         {
                             this.DownloadSimBriefCommand.ReportProgress(() => this.FuelGallons = plannedGallons);
@@ -1207,7 +1208,6 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No aircraft selected, can't set planned fuel.", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Information), true);
                 }
-
 
                 // ZFW sanity check?
 
@@ -1694,10 +1694,6 @@ namespace OpenSky.Client.Pages.Models
                                     };
                                     Application.Current.Dispatcher.BeginInvoke(addDestination);
                                 }
-                                else
-                                {
-                                    // todo
-                                }
                             }
 
                             // Alternate
@@ -1713,10 +1709,6 @@ namespace OpenSky.Client.Pages.Models
                                     };
                                     Application.Current.Dispatcher.BeginInvoke(addAlternate);
                                 }
-                                else
-                                {
-                                    // todo
-                                }
                             }
                         }
                         catch (Exception ex)
@@ -1726,7 +1718,7 @@ namespace OpenSky.Client.Pages.Models
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })
-            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+                { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
     }
 }
