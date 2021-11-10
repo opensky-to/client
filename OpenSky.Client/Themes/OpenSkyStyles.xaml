@@ -354,10 +354,10 @@
 
     <Style x:Key="OpenSkyWindowStyle" TargetType="controls:OpenSkyWindow">
         <Style.Resources>
-            <Storyboard x:Key="Rotate">
+            <Storyboard x:Key="Rotate" Timeline.DesiredFrameRate="5">
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(RotateTransform.Angle)" RepeatBehavior="Forever">
-                    <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                    <EasingDoubleKeyFrame KeyTime="0:0:8" Value="360"/>
+                    <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                    <EasingDoubleKeyFrame KeyTime="0:1:0" Value="360" />
                 </DoubleAnimationUsingKeyFrames>
             </Storyboard>
         </Style.Resources>
