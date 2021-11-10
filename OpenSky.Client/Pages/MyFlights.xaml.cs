@@ -1,33 +1,29 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MyFleet.xaml.cs" company="OpenSky">
+// <copyright file="MyFlights.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Pages
 {
-    using System.Windows;
-
-    using OpenSky.Client.Pages.Models;
-
     using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// My fleet page.
+    /// My flights page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class MyFleet
+    public partial class MyFlights
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="MyFleet"/> class.
+        /// Initializes a new instance of the <see cref="MyFlights"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 29/07/2021.
+        /// sushi.at, 10/11/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public MyFleet()
+        public MyFlights()
         {
             this.InitializeComponent();
         }
@@ -38,7 +34,7 @@ namespace OpenSky.Client.Pages
         /// e.Cancel=true to abort closing the page.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 08/11/2021.
+        /// sushi.at, 10/11/2021.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
@@ -58,7 +54,7 @@ namespace OpenSky.Client.Pages
         /// Method that receives an optional page parameter when the page is opened.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 28/10/2021.
+        /// sushi.at, 10/11/2021.
         /// </remarks>
         /// <param name="parameter">
         /// The parameter.
@@ -67,30 +63,7 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void PassPageParameter(object parameter)
         {
-            // No parameters supported
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// My fleet on loaded.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 10/11/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Routed event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void MyFleetOnLoaded(object sender, RoutedEventArgs e)
-        {
-            if (this.DataContext is MyFleetViewModel viewModel)
-            {
-                viewModel.SetViewReference(this);
-                viewModel.RefreshFleetCommand.DoExecute(null);
-            }
+            // None so far
         }
     }
 }

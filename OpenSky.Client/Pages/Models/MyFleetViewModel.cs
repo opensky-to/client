@@ -11,8 +11,11 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
+    using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
+    using OpenSky.Client.Views.Models;
 
     using OpenSkyApi;
 
@@ -91,6 +94,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private MyFleet viewReference;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MyFleetViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -107,9 +117,7 @@ namespace OpenSky.Client.Pages.Models
             this.StartEditAircraftCommand = new Command(this.StartEditAircraft, false);
             this.CancelEditAircraftCommand = new Command(this.CancelEditAircraft, false);
             this.SaveEditedAircraftCommand = new AsynchronousCommand(this.SaveEditedAircraft, false);
-
-            // Fire off initial commands
-            this.RefreshFleetCommand.DoExecute(null);
+            this.PlanFlightCommand = new Command(this.PlanFlight, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -299,6 +307,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the plan flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command PlanFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the refresh fleet command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -330,6 +345,7 @@ namespace OpenSky.Client.Pages.Models
                 this.selectedAircraft = value;
                 this.NotifyPropertyChanged();
                 this.StartEditAircraftCommand.CanExecute = value != null;
+                this.PlanFlightCommand.CanExecute = value != null;
             }
         }
 
@@ -339,6 +355,23 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command StartEditAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
+        /// case the user has multiple open windows)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="view">
+        /// The view reference.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetViewReference(MyFleet view)
+        {
+            this.viewReference = view;
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -356,6 +389,32 @@ namespace OpenSky.Client.Pages.Models
             this.EditedAircraftPurchasePrice = 0;
             this.EditedAircraftForRent = false;
             this.EditedAircraftRentPrice = 0;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Create a flight plan for the selected aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 10/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void PlanFlight()
+        {
+            if (this.SelectedAircraft != null)
+            {
+                var flightNumber = new Random().Next(1, 9999);
+                var navMenuItem = new NavMenuItem
+                {
+                    Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
+                    Parameter = new FlightPlan
+                    {
+                        Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, OriginICAO = this.SelectedAircraft.AirportICAO,
+                        Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel
+                    }
+                };
+                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
