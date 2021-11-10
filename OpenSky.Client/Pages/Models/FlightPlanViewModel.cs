@@ -1203,6 +1203,7 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 // ZFW sanity check?
+                // todo decide if we want to add ZFW sanity check to see if the aircraft from simbrief at least roughly matches the one here
 
                 // Route
                 var sbRoute = (string)ofp.Element("general")?.Element("route");
@@ -1459,7 +1460,10 @@ namespace OpenSky.Client.Pages.Models
                             }
                         });
 
-                    this.IsDirty = false;
+                    if (!this.isNewFlightPlan)
+                    {
+                        this.IsDirty = false;
+                    }
                 }
 
                 this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(null));

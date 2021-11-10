@@ -150,6 +150,10 @@
     </Compile>
     <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
+    <Compile Include="Pages\Models\MyFlightsViewModel.cs" />
+    <Compile Include="Pages\MyFlights.xaml.cs">
+      <DependentUpon>MyFlights.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\AirportPackageClientHandler.cs" />
     <Compile Include="Models\Enums\FuelUnit.cs" />
     <Compile Include="Models\Enums\WeightUnit.cs" />
@@ -260,6 +264,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\MyFleet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MyFlights.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -482,7 +490,9 @@
   <ItemGroup>
     <Resource Include="Resources\plan16.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\luggage16.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"

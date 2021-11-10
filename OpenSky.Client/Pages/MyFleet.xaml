@@ -19,8 +19,10 @@
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
-                      mc:Ignorable="d" HorizontalScrollBar="False"
+                      mc:Ignorable="d" 
+                      HorizontalScrollBar="False"
                       LoadingText="{Binding LoadingText}"
+                      Loaded="MyFleetOnLoaded"
                       d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:MyFleetViewModel />
@@ -46,9 +48,9 @@
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my fleet [F5]" Command="{Binding RefreshFleetCommand}" />
                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected aircraft" Command="{Binding StartEditAircraftCommand}" />
-                        <ui:AppBarButton Label="Fly!" ToolTip="Fly the selected aircraft" IsEnabled="False">
+                        <ui:AppBarButton Label="Plan flight" ToolTip="Plan a flight for the selected aircraft" Command="{Binding PlanFlightCommand}">
                             <ui:AppBarButton.Icon>
-                                <ui:FontIcon Glyph="&#xE709;" />
+                                <ui:BitmapIcon UriSource="/Resources/plan16.png" Width="16" Height="16" ShowAsMonochrome="True" />
                             </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
                     </ui:CommandBar.PrimaryCommands>

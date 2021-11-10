@@ -1,0 +1,40 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="MyFleet.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  My flights page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.MyFlights"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                      xmlns:ui="http://schemas.modernwpf.com/2019"
+                      xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+                      LoadingText="{Binding LoadingText}"
+                      HorizontalScrollBar="False"
+                      mc:Ignorable="d" d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <models:MyFlightsViewModel />
+    </UserControl.DataContext>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshFlightsCommand}" />
+    </UserControl.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+            <ui:CommandBar.PrimaryCommands>
+                <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my flights [F5]" Command="{Binding RefreshFlightsCommand}" />
+            </ui:CommandBar.PrimaryCommands>
+        </ui:CommandBar>
+    </Grid>
+</controls:OpenSkyPage>
