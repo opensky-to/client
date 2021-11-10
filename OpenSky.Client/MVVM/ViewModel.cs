@@ -99,8 +99,7 @@ namespace OpenSky.Client.MVVM
             if (!string.IsNullOrWhiteSpace(propertyName))
             {
                 // Return errors for specific property
-                List<string> errorsForName;
-                this.errors.TryGetValue(propertyName, out errorsForName);
+                this.errors.TryGetValue(propertyName, out var errorsForName);
                 return errorsForName ?? new List<string>();
             }
 
@@ -152,7 +151,7 @@ namespace OpenSky.Client.MVVM
         {
             // Store the event handler - in case it changes between
             // the line to check it and the line to fire it.
-            PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            var propertyChanged = this.PropertyChanged;
 
             // If the event has been subscribed to, fire it.
             propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -198,8 +197,7 @@ namespace OpenSky.Client.MVVM
                     if (validationResults.All(r => r.MemberNames.All(m => m != kv.Key)))
                     {
                         // ReSharper disable once NotAccessedVariable
-                        List<string> outLi;
-                        this.errors.TryRemove(kv.Key, out outLi);
+                        this.errors.TryRemove(kv.Key, out _);
                         this.OnErrorsChanged(kv.Key);
                     }
                 }
@@ -213,8 +211,7 @@ namespace OpenSky.Client.MVVM
                     if (this.errors.ContainsKey(prop.Key))
                     {
                         // ReSharper disable once NotAccessedVariable
-                        List<string> outLi;
-                        this.errors.TryRemove(prop.Key, out outLi);
+                        this.errors.TryRemove(prop.Key, out _);
                     }
 
                     this.errors.TryAdd(prop.Key, messages);
