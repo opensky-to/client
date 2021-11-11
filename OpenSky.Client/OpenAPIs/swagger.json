@@ -1974,37 +1974,6 @@
         }
       }
     },
-    "/Flight": {
-      "get": {
-        "tags": [
-          "Flight"
-        ],
-        "summary": "Get active flights.",
-        "description": "sushi.at, 10/11/2021.",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/Flight/flightPlan/{flightID}": {
       "delete": {
         "tags": [
@@ -2049,6 +2018,38 @@
         }
       }
     },
+    "/Flight": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Get currently active flight for tracking.",
+        "description": "sushi.at, 11/11/2021.",
+        "operationId": "GetFlight",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/flightPlans": {
       "get": {
         "tags": [
@@ -2081,43 +2082,31 @@
         }
       }
     },
-    "/Flight/start/{flightID}": {
-      "post": {
+    "/Flight/myFlights": {
+      "get": {
         "tags": [
           "Flight"
         ],
-        "summary": "Start flight.",
+        "summary": "Get active flights (up to one currently flying and possibly multiple paused).",
         "description": "sushi.at, 10/11/2021.",
-        "operationId": "StartFlight",
-        "parameters": [
-          {
-            "name": "flightID",
-            "in": "path",
-            "description": "Identifier for the flight plan to start.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
+        "operationId": "GetMyFlights",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
                 }
               }
             }
@@ -2153,6 +2142,50 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/start/{flightID}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Start flight.",
+        "description": "sushi.at, 10/11/2021.",
+        "operationId": "StartFlight",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight plan to start.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -4142,10 +4175,19 @@
         ]
       },
       "Flight": {
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "aircraft": {
             "$ref": "#/components/schemas/Aircraft"
+          },
+          "airspeedTrue": {
+            "type": "number",
+            "description": "True airspeed in knots.",
+            "format": "double",
+            "nullable": true
           },
           "alternate": {
             "$ref": "#/components/schemas/Airport"
@@ -4155,38 +4197,144 @@
             "description": "Gets or sets the alternate route.",
             "nullable": true
           },
+          "bankAngle": {
+            "type": "number",
+            "description": "The bank angle in degrees.",
+            "format": "double"
+          },
           "destination": {
             "$ref": "#/components/schemas/Airport"
           },
           "dispatcherName": {
             "type": "string",
-            "description": "Gets or sets the name of the dispatcher.",
-            "nullable": true
+            "description": "Gets the name of the dispatcher.",
+            "nullable": true,
+            "readOnly": true
           },
           "dispatcherRemarks": {
             "type": "string",
             "description": "Gets or sets the dispatcher remarks.",
             "nullable": true
           },
+          "flightNumber": {
+            "type": "integer",
+            "description": "Gets or sets the flight number (1-9999).",
+            "format": "int32"
+          },
+          "flightPhase": {
+            "$ref": "#/components/schemas/FlightPhase"
+          },
           "fuelGallons": {
             "type": "number",
             "description": "Gets or sets the fuel in gallons.",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "fuelLoadingComplete": {
             "type": "string",
             "description": "Gets or sets the Date/Time when fuel loading will be complete.",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
+          },
+          "fuelTankCenter2Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center 2 quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankCenter3Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center 3 quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankCenterQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankExternal1Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank external 1 quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankExternal2Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank external 2 quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankLeftAuxQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left auxiliary quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankLeftMainQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left main quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankLeftTipQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left tip quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankRightAuxQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right auxiliary quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankRightMainQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right main quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankRightTipQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right tip quantity.",
+            "format": "double",
+            "nullable": true
           },
           "fullFlightNumber": {
             "type": "string",
             "description": "Gets the full flight number (airline code and number combined).",
+            "nullable": true,
+            "readOnly": true
+          },
+          "hasAutoSaveLog": {
+            "type": "boolean",
+            "description": "Gets a value indicating whether this flight has an auto-saved log.",
+            "readOnly": true
+          },
+          "heading": {
+            "type": "number",
+            "description": "The magnetic heading.",
+            "format": "double",
             "nullable": true
           },
           "id": {
             "type": "string",
             "description": "Gets or sets the identifier for the flight.",
             "format": "uuid"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The latitude in degrees.",
+            "format": "double",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude in degrees.",
+            "format": "double",
+            "nullable": true
           },
           "navlogFixes": {
             "type": "array",
@@ -4201,23 +4349,46 @@
             "description": "Gets or sets the OFP HTML (most likely from simBrief).",
             "nullable": true
           },
-          "operator": {
+          "onGround": {
+            "type": "boolean",
+            "description": "Is the plane on the ground?"
+          },
+          "operatorName": {
             "type": "string",
-            "description": "Gets or sets the operator.",
-            "nullable": true
+            "description": "Gets the name of the flight operator.",
+            "nullable": true,
+            "readOnly": true
           },
           "origin": {
             "$ref": "#/components/schemas/Airport"
           },
+          "paused": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of when the flight was paused (so it can be resumed later).",
+            "format": "date-time",
+            "nullable": true
+          },
           "payloadLoadingComplete": {
             "type": "string",
             "description": "Gets or sets the Date/Time when payload loading will be complete.",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
+          },
+          "pitchAngle": {
+            "type": "number",
+            "description": "The pitch angle in degrees.",
+            "format": "double"
           },
           "plannedDepartureTime": {
             "type": "string",
             "description": "Gets or sets the planned departure time.",
             "format": "date-time"
+          },
+          "radioHeight": {
+            "type": "number",
+            "description": "The radio height in feet.",
+            "format": "double",
+            "nullable": true
           },
           "route": {
             "type": "string",
@@ -4228,10 +4399,44 @@
             "type": "number",
             "description": "Gets or sets the UTC offset for the flight.",
             "format": "double"
+          },
+          "verticalSpeedSeconds": {
+            "type": "number",
+            "description": "The vertical speed in feet per second.",
+            "format": "double"
           }
         },
         "additionalProperties": false,
         "description": "Flight model."
+      },
+      "FlightApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Flight"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "FlightIEnumerableApiResponse": {
         "type": "object",
@@ -4306,6 +4511,68 @@
         },
         "additionalProperties": false,
         "description": "Flight navigation log fix model."
+      },
+      "FlightPhase": {
+        "enum": [
+          0,
+          1,
+          2,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          99
+        ],
+        "type": "integer",
+        "description": "Values that represent OpenSky flight phases. 0 = Briefing, 1 = Unknown, 2 = UnTracked, 10 = PreFlight, 11 = PushBack, 12 = TaxiOut, 13 = Takeoff, 14 = Departure, 15 = Climb, 16 = Cruise, 17 = Descent, 18 = Approach, 19 = Landing, 20 = GoAround, 21 = TaxiIn, 22 = PostFlight, 99 = Crashed",
+        "format": "int32",
+        "x-enumNames": [
+          "Briefing",
+          "Unknown",
+          "UnTracked",
+          "PreFlight",
+          "PushBack",
+          "TaxiOut",
+          "Takeoff",
+          "Departure",
+          "Climb",
+          "Cruise",
+          "Descent",
+          "Approach",
+          "Landing",
+          "GoAround",
+          "TaxiIn",
+          "PostFlight",
+          "Crashed"
+        ],
+        "x-enum-varnames": [
+          "Briefing",
+          "Unknown",
+          "UnTracked",
+          "PreFlight",
+          "PushBack",
+          "TaxiOut",
+          "Takeoff",
+          "Departure",
+          "Climb",
+          "Cruise",
+          "Descent",
+          "Approach",
+          "Landing",
+          "GoAround",
+          "TaxiIn",
+          "PostFlight",
+          "Crashed"
+        ]
       },
       "FlightPlan": {
         "required": [

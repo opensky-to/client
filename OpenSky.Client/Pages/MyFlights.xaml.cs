@@ -6,6 +6,10 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System.Windows;
+
+    using OpenSky.Client.Pages.Models;
+
     using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
@@ -64,6 +68,28 @@ namespace OpenSky.Client.Pages
         public override void PassPageParameter(object parameter)
         {
             // None so far
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// My flights on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 11/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void MyFlightsOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MyFlightsViewModel viewModel)
+            {
+                viewModel.RefreshFlightsCommand.DoExecute(null);
+            }
         }
     }
 }

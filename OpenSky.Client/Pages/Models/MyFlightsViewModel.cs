@@ -6,7 +6,15 @@
 
 namespace OpenSky.Client.Pages.Models
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Diagnostics;
+    using System.Windows;
+
     using OpenSky.Client.MVVM;
+    using OpenSky.Client.Tools;
+
+    using OpenSkyApi;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -28,6 +36,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Flight selectedFlight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MyFlightsViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -36,9 +51,19 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         public MyFlightsViewModel()
         {
+            // Initialize data structures
+            this.Flights = new ObservableCollection<Flight>();
+
             // Create commands
             this.RefreshFlightsCommand = new AsynchronousCommand(this.RefreshFlights);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the flights.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Flight> Flights { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -70,6 +95,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the selected flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Flight SelectedFlight
+        {
+            get => this.selectedFlight;
+
+            set
+            {
+                if (Equals(this.selectedFlight, value))
+                {
+                    return;
+                }
+
+                this.selectedFlight = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Refresh flights.
         /// </summary>
         /// <remarks>
@@ -78,6 +124,45 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RefreshFlights()
         {
+            this.LoadingText = "Refreshing active flights...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetMyFlightsAsync().Result;
+                if (!result.IsError)
+                {
+                    this.RefreshFlightsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.Flights.Clear();
+                            foreach (var flight in result.Data)
+                            {
+                                this.Flights.Add(flight);
+                            }
+                        });
+                }
+                else
+                {
+                    this.RefreshFlightsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing active flights: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing active flights", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshFlightsCommand, "Error refreshing active flights");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
     }
 }
