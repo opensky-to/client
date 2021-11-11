@@ -30,8 +30,6 @@
     <Color x:Key="OpenSkySimBriefText">White</Color>
     <SolidColorBrush x:Key="OpenSkySimBriefTextBrush" Color="{StaticResource OpenSkySimBriefText}" />
 
-        
-
     <syncfusion:ChartColorModel x:Key="OpenSkyTealChartColors">
         <syncfusion:ChartColorModel.CustomBrushes>
             <SolidColorBrush Color="#0aa88c" />

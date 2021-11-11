@@ -141,6 +141,7 @@
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\Flight.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FlightPlan.cs" />
     <Compile Include="Pages\FlightPlan.xaml.cs">
       <DependentUpon>FlightPlan.xaml</DependentUpon>
@@ -492,6 +493,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\luggage16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pause16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\departure16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

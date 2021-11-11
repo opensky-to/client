@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FlightPlan.cs" company="OpenSky">
+// <copyright file="Flight.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -7,21 +7,17 @@
 // ReSharper disable once CheckNamespace
 namespace OpenSkyApi
 {
-    /// -------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Flight plan extensions.
-    /// </summary>
-    /// <remarks>
-    /// sushi.at, 11/11/2021.
-    /// </remarks>
-    /// -------------------------------------------------------------------------------------------------
-    public partial class FlightPlan
+    using System;
+    using System.Windows.Media;
+    using System.Windows.Media.Imaging;
+
+    public partial class Flight
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether this object is new flight plan.
+        /// Gets the flight paused/active image.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public bool IsNewFlightPlan { get; set; }
+        public ImageSource FlightPausedImage => new BitmapImage(new Uri($"pack://application:,,,/OpenSky.Client;component/Resources/{(this.Paused.HasValue ? "pause16.png" : "departure16.png")}"));
     }
 }

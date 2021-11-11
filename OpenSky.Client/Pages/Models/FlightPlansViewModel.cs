@@ -263,7 +263,7 @@ namespace OpenSky.Client.Pages.Models
             var navMenuItem = new NavMenuItem
             {
                 Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
-                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
+                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
             };
             Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
         }
