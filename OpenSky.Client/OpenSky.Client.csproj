@@ -500,6 +500,13 @@
   <ItemGroup>
     <Resource Include="Resources\departure16.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pin16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\save16.png" />
+    <Resource Include="Resources\x16.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"

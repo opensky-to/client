@@ -4185,7 +4185,7 @@
           },
           "airspeedTrue": {
             "type": "number",
-            "description": "True airspeed in knots.",
+            "description": "Gets or sets the true airspeed in knots.",
             "format": "double",
             "nullable": true
           },
@@ -4195,6 +4195,12 @@
           "alternateRoute": {
             "type": "string",
             "description": "Gets or sets the alternate route.",
+            "nullable": true
+          },
+          "altitude": {
+            "type": "number",
+            "description": "Gets or sets the altitude in feet.",
+            "format": "double",
             "nullable": true
           },
           "bankAngle": {
@@ -4307,6 +4313,12 @@
             "description": "Gets the full flight number (airline code and number combined).",
             "nullable": true,
             "readOnly": true
+          },
+          "groundSpeed": {
+            "type": "number",
+            "description": "Gets or sets the ground speed in knots.",
+            "format": "double",
+            "nullable": true
           },
           "hasAutoSaveLog": {
             "type": "boolean",

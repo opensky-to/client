@@ -52,16 +52,24 @@
                     <DataTemplate x:Key="FlightPausedCellTemplate" DataType="openSkyApi:Flight">
                         <Image Source="{Binding FlightPausedImage}" Width="16" Height="16" />
                     </DataTemplate>
+                    <DataTemplate x:Key="FlightPositionCellTemplate" DataType="openSkyApi:Flight">
+                        <Image Source="{Binding FlightPositionImage}" Width="16" Height="16" />
+                    </DataTemplate>
+                    <DataTemplate x:Key="FlightSavedCellTemplate" DataType="openSkyApi:Flight">
+                        <Image Source="{Binding FlightSavedImage}" Width="16" Height="16" />
+                    </DataTemplate>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPausedCellTemplate}" Width="20" MinWidth="20" />
+                    <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPositionCellTemplate}" Width="20" MinWidth="20" />
+                    <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightSavedCellTemplate}" Width="20" MinWidth="20" />
                     <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.DateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Phase" Binding="{Binding FlightPhase}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding Origin.Icao}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Destination" Binding="{Binding Destination.Icao}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="16" />
-
+                    <DataGridTextColumn Header="Status" Binding="{Binding FlightStatus}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
