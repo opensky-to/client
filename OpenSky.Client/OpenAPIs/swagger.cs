@@ -5786,7 +5786,7 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("aircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Aircraft Aircraft { get; set; }
     
-        /// <summary>True airspeed in knots.</summary>
+        /// <summary>Gets or sets the true airspeed in knots.</summary>
         [Newtonsoft.Json.JsonProperty("airspeedTrue", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? AirspeedTrue { get; set; }
     
@@ -5796,6 +5796,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the alternate route.</summary>
         [Newtonsoft.Json.JsonProperty("alternateRoute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AlternateRoute { get; set; }
+    
+        /// <summary>Gets or sets the altitude in feet.</summary>
+        [Newtonsoft.Json.JsonProperty("altitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? Altitude { get; set; }
     
         /// <summary>The bank angle in degrees.</summary>
         [Newtonsoft.Json.JsonProperty("bankAngle", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -5874,6 +5878,10 @@ namespace OpenSkyApi
         /// <summary>Gets the full flight number (airline code and number combined).</summary>
         [Newtonsoft.Json.JsonProperty("fullFlightNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string FullFlightNumber { get; set; }
+    
+        /// <summary>Gets or sets the ground speed in knots.</summary>
+        [Newtonsoft.Json.JsonProperty("groundSpeed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? GroundSpeed { get; set; }
     
         /// <summary>Gets a value indicating whether this flight has an auto-saved log.</summary>
         [Newtonsoft.Json.JsonProperty("hasAutoSaveLog", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
