@@ -47,10 +47,10 @@ namespace OpenSkyApi
             {
                 if (this.OnGround)
                 {
-                    return $"On ground, {this.GroundSpeed ?? 0} kts";
+                    return $"On ground, {this.GroundSpeed ?? 0:F0} kts";
                 }
 
-                return $"Airborne {this.Altitude ?? 0} ft, {this.AirspeedTrue ?? 0} kts, heading {this.Heading ?? 0}";
+                return $"Airborne {this.Altitude ?? 0:F0} ft, {this.AirspeedTrue ?? 0:F0} kts, heading {this.Heading ?? 0:F0}";
             }
         }
     }
