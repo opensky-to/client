@@ -1974,6 +1974,50 @@
         }
       }
     },
+    "/Flight/abort/{flightID}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Abort flight, return to planning stage (with potential penalties depending on flight phase\r\nand location)",
+        "description": "sushi.at, 13/11/2021.",
+        "operationId": "AbortFlight",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight (plan).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/flightPlan/{flightID}": {
       "delete": {
         "tags": [
@@ -2114,6 +2158,146 @@
         }
       }
     },
+    "/Flight/pause/{flightID}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Pause the flight with the specified ID, does not save position or save file - upload these\r\nbefore calling pause if they should be preserved.",
+        "description": "sushi.at, 13/11/2021.",
+        "operationId": "PauseFlight",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/posReport": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Flight position report.",
+        "description": "sushi.at, 13/11/2021.",
+        "operationId": "PositionReport",
+        "requestBody": {
+          "description": "The position report.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionReport"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionReport"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionReport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/resume/{flightID}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Resume the flight with the specified ID, only works if there is no other active flight.",
+        "description": "sushi.at, 13/11/2021.",
+        "operationId": "ResumeFlight",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/flightPlan": {
       "post": {
         "tags": [
@@ -2186,6 +2370,69 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/autoSave/{flightID}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Upload auto-save flight log for the specified flight.",
+        "description": "sushi.at, 13/11/2021.",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The auto-save (base64 encoded).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -2348,6 +2595,13 @@
         ],
         "type": "object",
         "properties": {
+          "airlineOwnerID": {
+            "maxLength": 3,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the airline owner (NULL if no airline owner).",
+            "nullable": true
+          },
           "airportICAO": {
             "maxLength": 5,
             "minLength": 3,
@@ -2371,13 +2625,6 @@
             "minLength": 0,
             "type": "string",
             "description": "Gets or sets the identifier of the user that owns this aircraft (NULL if no user owner).",
-            "nullable": true
-          },
-          "airlineOwnerID": {
-            "maxLength": 3,
-            "minLength": 0,
-            "type": "string",
-            "description": "Gets or sets the identifier of the airline owner (NULL if no airline owner).",
             "nullable": true
           },
           "ownerName": {
@@ -2417,6 +2664,12 @@
             "type": "string",
             "description": "Gets or sets the identifier of the aircraft type.",
             "format": "uuid"
+          },
+          "warpingUntil": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time until the aircraft is warping.",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -4336,6 +4589,18 @@
             "description": "Gets or sets the identifier for the flight.",
             "format": "uuid"
           },
+          "lastAutoSave": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the last auto-save.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastPositionReport": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the last position report.",
+            "format": "date-time",
+            "nullable": true
+          },
           "latitude": {
             "type": "number",
             "description": "The latitude in degrees.",
@@ -4406,6 +4671,11 @@
             "type": "string",
             "description": "Gets or sets the route.",
             "nullable": true
+          },
+          "timeWarpTimeSavedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the time-warp time saved (in seconds).",
+            "format": "int32"
           },
           "utcOffset": {
             "type": "number",
@@ -4952,6 +5222,137 @@
         },
         "additionalProperties": false,
         "description": "Pie chart value."
+      },
+      "PositionReport": {
+        "type": "object",
+        "properties": {
+          "airspeedTrue": {
+            "type": "number",
+            "description": "Gets or sets the true airspeed in knots.",
+            "format": "double"
+          },
+          "altitude": {
+            "type": "number",
+            "description": "Gets or sets the altitude in feet.",
+            "format": "double"
+          },
+          "bankAngle": {
+            "type": "number",
+            "description": "The bank angle in degrees.",
+            "format": "double"
+          },
+          "flightPhase": {
+            "$ref": "#/components/schemas/FlightPhase"
+          },
+          "fuelTankCenter2Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center 2 quantity.",
+            "format": "double"
+          },
+          "fuelTankCenter3Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center 3 quantity.",
+            "format": "double"
+          },
+          "fuelTankCenterQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank center quantity.",
+            "format": "double"
+          },
+          "fuelTankExternal1Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank external 1 quantity.",
+            "format": "double"
+          },
+          "fuelTankExternal2Quantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank external 2 quantity.",
+            "format": "double"
+          },
+          "fuelTankLeftAuxQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left auxiliary quantity.",
+            "format": "double"
+          },
+          "fuelTankLeftMainQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left main quantity.",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelTankLeftTipQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank left tip quantity.",
+            "format": "double"
+          },
+          "fuelTankRightAuxQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right auxiliary quantity.",
+            "format": "double"
+          },
+          "fuelTankRightMainQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right main quantity.",
+            "format": "double"
+          },
+          "fuelTankRightTipQuantity": {
+            "type": "number",
+            "description": "Gets or sets the fuel tank right tip quantity.",
+            "format": "double"
+          },
+          "groundSpeed": {
+            "type": "number",
+            "description": "Gets or sets the ground speed in knots.",
+            "format": "double"
+          },
+          "heading": {
+            "type": "number",
+            "description": "The magnetic heading.",
+            "format": "double"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the flight.",
+            "format": "uuid"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The latitude in degrees.",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude in degrees.",
+            "format": "double"
+          },
+          "onGround": {
+            "type": "boolean",
+            "description": "Is the plane on the ground?"
+          },
+          "pitchAngle": {
+            "type": "number",
+            "description": "The pitch angle in degrees.",
+            "format": "double"
+          },
+          "radioHeight": {
+            "type": "number",
+            "description": "The radio height in feet.",
+            "format": "double",
+            "nullable": true
+          },
+          "timeWarpTimeSavedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the time-warp time saved (in seconds).",
+            "format": "int32"
+          },
+          "verticalSpeedSeconds": {
+            "type": "number",
+            "description": "The vertical speed in feet per second.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight position report model."
       },
       "ProcessingStatus": {
         "enum": [
