@@ -508,7 +508,7 @@
     <Resource Include="Resources\x16.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\pinquestion16.png" />
+    <Resource Include="Resources\question16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
