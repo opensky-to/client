@@ -25,7 +25,9 @@ namespace OpenSkyApi
         /// Gets the flight position report image.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ImageSource FlightPositionImage => new BitmapImage(new Uri($"pack://application:,,,/OpenSky.Client;component/Resources/{((this.Latitude.HasValue && this.Longitude.HasValue) ? "pin16.png" : "x16.png")}"));
+        public ImageSource FlightPositionImage => new BitmapImage(
+            new Uri(
+                $"pack://application:,,,/OpenSky.Client;component/Resources/{((this.Latitude.HasValue && this.Longitude.HasValue && this.LastPositionReport.HasValue) ? (((DateTime.UtcNow - this.LastPositionReport.Value).TotalMinutes > 5) ? "pinquestion16.png" : "pin16.png") : "x16.png")}"));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

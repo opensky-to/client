@@ -340,7 +340,11 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.StartFlightAsync(this.SelectedFlightPlan.Id).Result;
                 if (!result.IsError)
                 {
-                    this.StartFlightCommand.ReportProgress(() => ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information));
+                    this.StartFlightCommand.ReportProgress(() =>
+                    {
+                        ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.RefreshPlansCommand.DoExecute(null);
+                    });
                 }
                 else
                 {
