@@ -142,13 +142,18 @@
     <Compile Include="Models\AirportClientPackageRoot.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Flight.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\FlightLog.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FlightPlan.cs" />
+    <Compile Include="Pages\FlightLogs.xaml.cs">
+      <DependentUpon>FlightLogs.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\FlightPlan.xaml.cs">
       <DependentUpon>FlightPlan.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\FlightPlans.xaml.cs">
       <DependentUpon>FlightPlans.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\FlightLogsViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
     <Compile Include="Pages\Models\MyFlightsViewModel.cs" />
@@ -253,6 +258,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FlightLogs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -509,6 +518,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\question16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\book16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

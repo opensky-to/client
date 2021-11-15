@@ -2018,6 +2018,58 @@
         }
       }
     },
+    "/Flight/complete": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Upload final save and complete flight.",
+        "description": "sushi.at, 14/11/2021.",
+        "operationId": "CompleteFlight",
+        "requestBody": {
+          "description": "The final report.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalReport"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalReport"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalReport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/flightPlan/{flightID}": {
       "delete": {
         "tags": [
@@ -2038,6 +2090,112 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/autoSave/{flightID}": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Download flight auto-save.",
+        "description": "sushi.at, 14/11/2021.",
+        "operationId": "DownloadFlightAutoSave",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight (plan).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Upload auto-save flight log for the specified flight.",
+        "description": "sushi.at, 13/11/2021.",
+        "operationId": "UploadFlightAutoSave",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The auto-save (base64 encoded).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -2151,6 +2309,38 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FlightIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/myFlightLogs": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Get flight logs (completed flights)",
+        "description": "sushi.at, 15/11/2021.",
+        "operationId": "GetMyFlightLogs",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightLogIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightLogIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlightLogIEnumerableApiResponse"
                 }
               }
             }
@@ -2370,69 +2560,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/Flight/autoSave/{flightID}": {
-      "post": {
-        "tags": [
-          "Flight"
-        ],
-        "summary": "Upload auto-save flight log for the specified flight.",
-        "description": "sushi.at, 13/11/2021.",
-        "parameters": [
-          {
-            "name": "flightID",
-            "in": "path",
-            "description": "Identifier for the flight.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "The auto-save (base64 encoded).",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "string"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Success",
@@ -4427,6 +4554,21 @@
           "Turboprop"
         ]
       },
+      "FinalReport": {
+        "type": "object",
+        "properties": {
+          "finalPositionReport": {
+            "$ref": "#/components/schemas/PositionReport"
+          },
+          "flightLog": {
+            "type": "string",
+            "description": "Gets or sets the flight log (final save).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight final report model."
+      },
       "Flight": {
         "required": [
           "id"
@@ -4727,6 +4869,115 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Flight"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "FlightLog": {
+        "type": "object",
+        "properties": {
+          "aircraftRegistry": {
+            "type": "string",
+            "description": "Gets or sets the aircraft registry.",
+            "nullable": true
+          },
+          "alternateICAO": {
+            "type": "string",
+            "description": "Gets or sets the alternate airport ICAO code.",
+            "nullable": true
+          },
+          "completed": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of when the flight was completed.",
+            "format": "date-time"
+          },
+          "crashed": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft crashed."
+          },
+          "destinationICAO": {
+            "type": "string",
+            "description": "Gets or sets destination airport ICAO code.",
+            "nullable": true
+          },
+          "fuelConsumedWeight": {
+            "type": "number",
+            "description": "Gets or sets the fuel consumed weight.",
+            "format": "double"
+          },
+          "fuelConsumption": {
+            "type": "number",
+            "description": "Gets or sets the fuel consumption.",
+            "format": "double"
+          },
+          "fullFlightNumber": {
+            "type": "string",
+            "description": "Gets or sets the full flight number.",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the flight.",
+            "format": "uuid"
+          },
+          "isAirlineFlight": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this is an airline flight or a private one."
+          },
+          "landedAtICAO": {
+            "type": "string",
+            "description": "Gets or sets the \"landed at\" airport ICAO code.",
+            "nullable": true
+          },
+          "originICAO": {
+            "type": "string",
+            "description": "Gets or sets the origin airport ICAO code.",
+            "nullable": true
+          },
+          "plannedDepartureTime": {
+            "type": "string",
+            "description": "Gets or sets the planned departure time.",
+            "format": "date-time"
+          },
+          "started": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of when the flight was started.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight log model."
+      },
+      "FlightLogIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightLog"
             },
             "description": "Gets or sets the embedded data of type T.",
             "nullable": true
@@ -5277,8 +5528,7 @@
           "fuelTankLeftMainQuantity": {
             "type": "number",
             "description": "Gets or sets the fuel tank left main quantity.",
-            "format": "double",
-            "nullable": true
+            "format": "double"
           },
           "fuelTankLeftTipQuantity": {
             "type": "number",

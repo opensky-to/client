@@ -79,6 +79,9 @@ namespace OpenSky.Client.Views.Models
             var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
             this.NavigationItems.Add(plans);
 
+            var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs) };
+            this.NavigationItems.Add(logs);
+
             var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
             this.NavigationItems.Add(myFleet);
 
