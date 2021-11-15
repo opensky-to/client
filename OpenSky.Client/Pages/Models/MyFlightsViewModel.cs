@@ -56,7 +56,16 @@ namespace OpenSky.Client.Pages.Models
 
             // Create commands
             this.RefreshFlightsCommand = new AsynchronousCommand(this.RefreshFlights);
+            this.ResumeFlightCommand = new AsynchronousCommand(this.ResumeFlight, false);
+            this.AbortFlightCommand = new AsynchronousCommand(this.AbortFlight, false);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the abort flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand AbortFlightCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -95,6 +104,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the resume flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand ResumeFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the selected flight.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -111,6 +127,73 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedFlight = value;
                 this.NotifyPropertyChanged();
+                this.ResumeFlightCommand.CanExecute = value is { Paused: { } };
+                this.AbortFlightCommand.CanExecute = value != null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Abort the selected flight.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 15/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void AbortFlight()
+        {
+            if (this.SelectedFlight == null)
+            {
+                return;
+            }
+
+            MessageBoxResult? answer = MessageBoxResult.None;
+            this.AbortFlightCommand.ReportProgress(
+                () =>
+                {
+                    answer = ModernWpf.MessageBox.Show(
+                        $"Are you sure you want to abort flight {this.SelectedFlight.FullFlightNumber}?\r\n\r\nAll progress will be lost and the flight be reverted back to the planning phase.",
+                        "Abort flight?",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Hand);
+                },
+                true);
+
+            if (answer != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = $"Aborting flight {this.SelectedFlight.FullFlightNumber}...";
+            try
+            {
+                var result = OpenSkyService.Instance.AbortFlightAsync(this.SelectedFlight.Id).Result;
+                if (!result.IsError)
+                {
+                    this.AbortFlightCommand.ReportProgress(() => this.RefreshFlightsCommand.DoExecute(null));
+                }
+                else
+                {
+                    this.AbortFlightCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error aborting flight: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error resuming flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.AbortFlightCommand, "Error aborting flight");
+            }
+            finally
+            {
+                this.LoadingText = null;
             }
         }
 
@@ -158,6 +241,54 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.RefreshFlightsCommand, "Error refreshing active flights");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Resume the selected flight.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 15/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ResumeFlight()
+        {
+            if (this.SelectedFlight == null)
+            {
+                return;
+            }
+
+            this.LoadingText = $"Resuming flight {this.SelectedFlight.FullFlightNumber}...";
+            try
+            {
+                var result = OpenSkyService.Instance.ResumeFlightAsync(this.SelectedFlight.Id).Result;
+                if (!result.IsError)
+                {
+                    this.ResumeFlightCommand.ReportProgress(() => this.RefreshFlightsCommand.DoExecute(null));
+                }
+                else
+                {
+                    this.ResumeFlightCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error resuming flight: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error resuming flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ResumeFlightCommand, "Error resuming flight");
             }
             finally
             {
