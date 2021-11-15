@@ -643,16 +643,15 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
-                if (Equals(this.isDirty, value))
-                {
-                    return;
-                }
-
+                // This property notifies on every change to ensure all views/properties get updated correctly
+                // and the user can save the plan in any case.
                 this.isDirty = value;
                 this.NotifyPropertyChanged();
+
                 if (this.SaveCommand != null)
                 {
-                    this.SaveCommand.CanExecute = value;
+                    UpdateGUIDelegate setCanExecute = () => this.SaveCommand.CanExecute = value;
+                    Application.Current.Dispatcher.BeginInvoke(setCanExecute);
                 }
             }
         }
