@@ -69,7 +69,7 @@
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPausedCellTemplate}" Width="20" MinWidth="20" />
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPositionCellTemplate}" Width="20" MinWidth="20" />
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightSavedCellTemplate}" Width="20" MinWidth="20" />
-                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.DateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Phase" Binding="{Binding FlightPhase}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding Origin.Icao}" FontFamily="Consolas" FontSize="16" />

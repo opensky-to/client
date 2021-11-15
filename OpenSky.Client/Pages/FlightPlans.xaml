@@ -62,7 +62,7 @@
                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditPlanCommand}" />
                     </DataGrid.InputBindings>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.DateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                        <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
                         <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
