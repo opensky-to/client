@@ -117,7 +117,7 @@ namespace OpenSky.Client.Pages.Models
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
 
             // Load profile image
-            if (UserSessionService.Instance.AccountOverview?.ProfileImage.Length > 0)
+            if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
             {
                 var image = new BitmapImage();
                 using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))

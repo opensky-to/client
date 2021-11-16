@@ -12,6 +12,8 @@
 
 namespace OpenSkyApi
 {
+    using JetBrains.Annotations;
+
     using System = global::System;
     
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.8.2.0 (NJsonSchema v10.2.1.0 (Newtonsoft.Json v11.0.0.0))")]
@@ -5027,9 +5029,8 @@ namespace OpenSkyApi
     
         /// <summary>Gets or sets the profile image.</summary>
         [Newtonsoft.Json.JsonProperty("profileImage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [CanBeNull]
         public byte[] ProfileImage { get; set; }
-    
-    
     }
     
     /// <summary>API standard response model.</summary>
