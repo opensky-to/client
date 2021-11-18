@@ -1,0 +1,214 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="FlightLogs.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  Flight log page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.FlightLog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                          LoadingText="{Binding LoadingText}"
+                          xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+                          xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                          xmlns:flightLog="clr-namespace:OpenSky.Client.Pages.Models.FlightLog"
+                          mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="800"
+                          HorizontalScrollBar="False" VerticalScrollBar="False">
+    <UserControl.DataContext>
+        <models:FlightLogViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.IsSharedSizeScope="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Flight details</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0">Origin</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0">Destination</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0">Alternate</TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0">Landed</TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="0">Aircraft</TextBlock>
+                    <TextBlock Grid.Row="6" Grid.Column="0">Off block</TextBlock>
+                    <TextBlock Grid.Row="7" Grid.Column="0">On block</TextBlock>
+                    <TextBlock Grid.Row="8" Grid.Column="0">UTC offset</TextBlock>
+                    <TextBlock Grid.Row="9" Grid.Column="0">Time warp?</TextBlock>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OriginICAO}" Margin="10,0" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.DestinationICAO}" Margin="10,0" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.AlternateICAO}" Margin="10,0" />
+                    <TextBlock Grid.Row="3" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.LandedAtICAOCrash}" Margin="10,0" />
+                    <TextBlock Grid.Row="4" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.AircraftRegistry}" Grid.ColumnSpan="2" Margin="10,0" />
+                    <TextBlock Grid.Row="5" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.AircraftType}" Grid.ColumnSpan="2" Margin="10,0" />
+                    <TextBlock Grid.Row="6" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OffBlock}" Grid.ColumnSpan="2" Margin="10,0" />
+                    <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OnBlock}" Grid.ColumnSpan="2" Margin="10,0" />
+                    <TextBlock Grid.Row="8" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.UtcOffset}" Margin="10,0" />
+                    <TextBlock Grid.Row="9" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.TimeWarpInfo}" Margin="10,0" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding FlightLog.Origin}" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding FlightLog.Destination}" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding FlightLog.Alternate}" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding FlightLog.LandedAtCrash}" HorizontalAlignment="Right" />
+
+                    <Button Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right" Margin="0,10,0,0" Command="{Binding ToggleOfpCommand}" Content="{Binding ShowHideOFPButtonText}" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Route</TextBlock>
+                </GroupBox.Header>
+                <TextBlock FontFamily="Consolas" FontSize="12" Text="{Binding FlightLog.Route}" TextWrapping="Wrap" Margin="5" MaxWidth="270" HorizontalAlignment="Left" />
+            </GroupBox>
+            <GroupBox Grid.Row="2">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Alternate route</TextBlock>
+                </GroupBox.Header>
+                <TextBlock FontFamily="Consolas" FontSize="12" Text="{Binding FlightLog.AlternateRoute}" TextWrapping="Wrap" Margin="5" MaxWidth="270" HorizontalAlignment="Left" />
+            </GroupBox>
+            <GroupBox Grid.Row="3">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Crew</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0">Pilot</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0">Dispatcher</TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FlightLog.Pilot}" Margin="10,0" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FlightLog.Dispatcher}" Margin="10,0" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="4">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Dispatcher remarks</TextBlock>
+                </GroupBox.Header>
+                <TextBlock Margin="5" FontFamily="Consolas" Text="{Binding FlightLog.DispatcherRemarks}" FontSize="12" MaxWidth="270" HorizontalAlignment="Left" TextWrapping="Wrap" />
+            </GroupBox>
+            <GroupBox Grid.Row="5">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Fuel</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0">Off Block</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0">On Block</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0">Consumption</TextBlock>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" FontFamily="Consolas" Margin="10,0" Text="{Binding FlightLog.OffBlockFuel, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F2|true}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" FontFamily="Consolas" Margin="10,0" Text="{Binding FlightLog.OnBlockFuel, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F2|true}" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" FontFamily="Consolas" Margin="10,0" Text="{Binding FlightLog.FuelConsumption, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F2|true}" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" FontFamily="Consolas" Text="{Binding FlightLog.OffBlockFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F2|true}" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding FlightLog.OnBlockFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F2|true}" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" FontFamily="Consolas" Text="{Binding FlightLog.FuelConsumedWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F2|true}" HorizontalAlignment="Right" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="6">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Payload</TextBlock>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>Total payload weight</TextBlock>
+                        <TextBlock Text="{Binding FlightLog.PayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F2|true}" Margin="5,0,0,0" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding FlightLog.Payload}" Margin="0,15,0,0" />
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <GroupBox Grid.Column="1" Visibility="{Binding OfpVisibility}">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">OFP</TextBlock>
+                    <Button Padding="5,0" FontSize="11" Margin="5,-2,0,0" Command="{Binding ToggleOfpCommand}">hide</Button>
+                </StackPanel>
+            </GroupBox.Header>
+            <TextBox FontFamily="Consolas" IsReadOnly="True" Text="{Binding OfpHtml, FallbackValue=''}" FontSize="13" />
+        </GroupBox>
+        <GroupBox Grid.Column="2">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
+            </GroupBox.Header>
+            <controls:MapView Margin="5" ShowFollowPlane="False"
+                              TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
+                              AircraftTrailLocations="{Binding AircraftTrailLocations, ElementName=ViewModel}"
+                              SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
+                              SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
+                              />
+        </GroupBox>
+        <GroupBox Grid.Column="3">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Events</TextBlock>
+            </GroupBox.Header>
+            <ListBox Name="EventLog" FontFamily="Consolas" ItemsSource="{Binding TrackingEventLogEntries}" MouseDoubleClick="EventLogMouseDoubleClick" BorderThickness="0" Background="#1a1e22">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="flightLog:TrackingEventLogEntry">
+                        <StackPanel Orientation="Horizontal" Margin="-5">
+                            <Rectangle Width="15" Height="15" Fill="{Binding EventColorBrush, Mode=OneWay}" RadiusX="2" RadiusY="2" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding EventTime, StringFormat=HH:mm:ss}" Margin="5,0, 5, 0" VerticalAlignment="Center" FontSize="13" />
+                            <TextBlock Text="{Binding LogMessage}" VerticalAlignment="Center" FontSize="13" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+    </Grid>
+</controls:OpenSkyPage>

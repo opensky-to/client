@@ -8,6 +8,8 @@
 
 namespace OpenSkyApi
 {
+    using System;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Flight log extensions.
@@ -20,21 +22,24 @@ namespace OpenSkyApi
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the landed at info.
+        /// Gets the fuel consumed weight.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string LandedAt
-        {
-            get
-            {
-                if (this.Crashed)
-                {
-                    return "**Crashed**";
-                }
+        public double FuelConsumedWeight => this.FuelConsumption * this.FuelWeightPerGallon;
 
-                return this.LandedAtICAO;
-            }
-        }
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the landed at airport name or "", if crashed.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string LandedAtCrash => this.Crashed ? string.Empty : this.LandedAt;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the landed at ICAO or **Crashed**.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string LandedAtICAOCrash => this.Crashed ? "**Crashed**" : this.LandedAtICAO;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -64,6 +69,13 @@ namespace OpenSkyApi
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the off block fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double OffBlockFuelWeight => this.OffBlockFuel * this.FuelWeightPerGallon;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the on block info.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -81,6 +93,31 @@ namespace OpenSkyApi
                 }
 
                 return $"{end:dd/MM HH:mmZ}";
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the on block fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double OnBlockFuelWeight => this.OnBlockFuel * this.FuelWeightPerGallon;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets information describing the time warp.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string TimeWarpInfo
+        {
+            get
+            {
+                if (this.TimeWarpTimeSavedSeconds == 0)
+                {
+                    return "No";
+                }
+
+                return $"Yes, saved {TimeSpan.FromSeconds(this.TimeWarpTimeSavedSeconds)}";
             }
         }
     }

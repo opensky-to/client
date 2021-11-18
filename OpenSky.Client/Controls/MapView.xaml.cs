@@ -277,10 +277,10 @@ namespace OpenSky.Client.Controls
 
             if (this.SimbriefWaypointMarkers.Count > 0)
             {
-                minLat = Math.Min(minLat, this.SimbriefWaypointMarkers.Min(m => m.GeoCoordinate.Latitude));
-                maxLat = Math.Max(maxLat, this.SimbriefWaypointMarkers.Max(m => m.GeoCoordinate.Latitude));
-                minLon = Math.Min(minLon, this.SimbriefWaypointMarkers.Min(m => m.GeoCoordinate.Longitude));
-                maxLon = Math.Max(maxLon, this.SimbriefWaypointMarkers.Max(m => m.GeoCoordinate.Longitude));
+                minLat = Math.Min(minLat, this.SimbriefWaypointMarkers.Min(m => m.WayPoint.Latitude));
+                maxLat = Math.Max(maxLat, this.SimbriefWaypointMarkers.Max(m => m.WayPoint.Latitude));
+                minLon = Math.Min(minLon, this.SimbriefWaypointMarkers.Min(m => m.WayPoint.Longitude));
+                maxLon = Math.Max(maxLon, this.SimbriefWaypointMarkers.Max(m => m.WayPoint.Longitude));
             }
 
             if (this.TrackingEventMarkers.Count > 0)
