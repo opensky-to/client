@@ -4943,6 +4943,9 @@
       "FlightLog": {
         "type": "object",
         "properties": {
+          "aircraftEngineType": {
+            "$ref": "#/components/schemas/EngineType"
+          },
           "aircraftRegistry": {
             "type": "string",
             "description": "Gets or sets the aircraft registry.",

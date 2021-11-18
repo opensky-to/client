@@ -31,6 +31,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="AUto"/>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
@@ -93,7 +94,10 @@
                     <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding FlightLog.Alternate}" HorizontalAlignment="Right" />
                     <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding FlightLog.LandedAtCrash}" HorizontalAlignment="Right" />
 
-                    <Button Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right" Margin="0,10,0,0" Command="{Binding ToggleOfpCommand}" Content="{Binding ShowHideOFPButtonText}" />
+                    <DockPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,10,0,0">
+                        <Button DockPanel.Dock="Left" Command="{Binding ToggleLandingReportCommand}" Content="{Binding ShowHideLandingReportButtonText}" />
+                        <Button DockPanel.Dock="Right" Command="{Binding ToggleOfpCommand}" Content="{Binding ShowHideOFPButtonText}" Margin="5,0,0,0" HorizontalAlignment="Right" />
+                    </DockPanel>
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Row="1">
@@ -183,7 +187,88 @@
             </GroupBox.Header>
             <TextBox FontFamily="Consolas" IsReadOnly="True" Text="{Binding OfpHtml, FallbackValue=''}" FontSize="13" />
         </GroupBox>
-        <GroupBox Grid.Column="2">
+        <GroupBox Grid.Column="2" Visibility="{Binding LandingReportVisibility}">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Landing report</TextBlock>
+                    <Button Padding="5,0" FontSize="11" Margin="5,-2,0,0" Command="{Binding ToggleLandingReportCommand}">hide</Button>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" IsSharedSizeScope="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" MinWidth="50" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="BigLetters" />
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="BigLetters" />
+                        <ColumnDefinition Width="1*" MinWidth="50" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontSize="60" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Text="{Binding LandingGrade, Mode=OneWay, FallbackValue=??}" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Image Source="{StaticResource ArrowUp}" Height="40" Width="40" VerticalAlignment="Center">
+                            <Image.RenderTransform>
+                                <RotateTransform Angle="{Binding WindAngle, Mode=OneWay, FallbackValue=0}" CenterX="20" CenterY="20" />
+                            </Image.RenderTransform>
+                        </Image>
+                        <TextBlock FontSize="60" VerticalAlignment="Center" Text="{Binding WindKnots, Mode=OneWay, StringFormat=F0, FallbackValue=0}" Margin="2,0,0,0" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,-10,0,0">Grade</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,-10,0,0">Wind</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Center" Margin="0,10,0,0" Text="{Binding LandingGradeDescription, Mode=OneWay, FallbackValue=Unknown case or no landing recorded}" />
+                </Grid>
+                <TextBlock Grid.Row="2" Grid.Column="0">Max Landing Rate</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0">Max G-Force</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="0">Max Sideslip angle</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="0">Max Bank angle</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0">Headwind</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0">Crosswind</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="0">Airspeed</TextBlock>
+                <TextBlock Grid.Row="9" Grid.Column="0">Groundspeed</TextBlock>
+                <TextBlock Grid.Row="10" Grid.Column="0">Bounces</TextBlock>
+
+                <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding MaxLandingRate, Mode=OneWay, StringFormat=F0}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding MaxGForce, Mode=OneWay, StringFormat=F1}" />
+                <TextBlock Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding MaxSideSlipAngleInfo, Mode=OneWay, StringFormat=F1}" />
+                <TextBlock Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding MaxBankAngleInfo, Mode=OneWay, StringFormat=F1}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding HeadWind, Mode=OneWay}" />
+                <TextBlock Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding CrossWind, Mode=OneWay}" />
+                <TextBlock Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Airspeed, Mode=OneWay, StringFormat=F0}" />
+                <TextBlock Grid.Row="9" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding GroundSpeed, Mode=OneWay, StringFormat=F0}" />
+                <TextBlock Grid.Row="10" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Bounces, Mode=OneWay}" />
+                <TextBlock Grid.Row="2" Grid.Column="2" Margin="5,0,0,0">feet/min</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="2" Margin="5,0,0,0">G</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="2" Margin="5,0,0,0">degrees</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="2" Margin="5,0,0,0">degrees</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="2" Margin="5,0,0,0">knots</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="2" Margin="5,0,0,0">knots</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="2" Margin="5,0,0,0">knots</TextBlock>
+                <TextBlock Grid.Row="9" Grid.Column="2" Margin="5,0,0,0">knots</TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="3">
             <GroupBox.Header>
                 <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
             </GroupBox.Header>
@@ -194,7 +279,7 @@
                               SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
                               />
         </GroupBox>
-        <GroupBox Grid.Column="3">
+        <GroupBox Grid.Column="4">
             <GroupBox.Header>
                 <TextBlock FontSize="15" FontWeight="DemiBold">Events</TextBlock>
             </GroupBox.Header>
