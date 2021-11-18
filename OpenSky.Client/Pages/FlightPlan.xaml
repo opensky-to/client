@@ -181,7 +181,7 @@
                         <StackPanel Orientation="Vertical" Margin="5">
                             <TextBlock Margin="0,0,0,20">TODO</TextBlock>
                             <TextBlock>Dispatcher Remarks:</TextBlock>
-                            <TextBox MinLines="5" AcceptsReturn="True" Text="{Binding DispatcherRemarks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Dispatcher remarks, one per line" ui:ControlHelper.PlaceholderForeground="#666" />
+                            <TextBox MinLines="5" AcceptsReturn="True" Text="{Binding DispatcherRemarks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Dispatcher remarks, one per line" ui:ControlHelper.PlaceholderForeground="#666" FontFamily="Consolas" CharacterCasing="Upper" />
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Grid.Column="1">

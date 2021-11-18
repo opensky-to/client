@@ -17,7 +17,6 @@
                       xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:ui="http://schemas.modernwpf.com/2019"
-                      xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" Loaded="FlightLogsOnLoaded"
@@ -40,6 +39,11 @@
             <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
                 <ui:CommandBar.PrimaryCommands>
                     <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh flight logs [F5]" Command="{Binding RefreshFlightLogsCommand}" />
+                    <ui:AppBarButton Label="Open" ToolTip="Open the selected flight log" Command="{Binding OpenLogCommand}">
+                        <ui:AppBarButton.Icon>
+                            <ui:FontIcon Glyph="&#xE838;" />
+                        </ui:AppBarButton.Icon>
+                    </ui:AppBarButton>
                 </ui:CommandBar.PrimaryCommands>
             </ui:CommandBar>
             <DataGrid
@@ -52,13 +56,16 @@
                 <DataGrid.Resources>
                     <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
                 </DataGrid.Resources>
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenLogCommand}" />
+                </DataGrid.InputBindings>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="16" />
-                    <DataGridTextColumn Header="Landed at" Binding="{Binding LandedAt}" />
+                    <DataGridTextColumn Header="Landed at" Binding="{Binding LandedAtICAOCrash}" />
                     <DataGridTextColumn Header="Off block" Binding="{Binding OffBlock}" />
                     <DataGridTextColumn Header="On block" Binding="{Binding OnBlock}" />
                     <DataGridTextColumn Header="Fuel consumption" Binding="{Binding FuelConsumption, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />

@@ -13,6 +13,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
+    using OpenSky.Client.Views.Models;
 
     using OpenSkyApi;
 
@@ -39,7 +41,14 @@ namespace OpenSky.Client.Pages.Models
         /// The selected flight log.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private FlightLog selectedFlightLog;
+        private OpenSkyApi.FlightLog selectedFlightLog;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private FlightLogs viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -52,10 +61,11 @@ namespace OpenSky.Client.Pages.Models
         public FlightLogsViewModel()
         {
             // Initialize data structures
-            this.FlightLogs = new ObservableCollection<FlightLog>();
+            this.FlightLogs = new ObservableCollection<OpenSkyApi.FlightLog>();
 
             // Create commands
             this.RefreshFlightLogsCommand = new AsynchronousCommand(this.RefreshFlightLogs);
+            this.OpenLogCommand = new Command(this.OpenLog, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -63,7 +73,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the flight logs.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<FlightLog> FlightLogs { get; }
+        public ObservableCollection<OpenSkyApi.FlightLog> FlightLogs { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -88,6 +98,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the open log command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command OpenLogCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the refresh flight logs command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -98,7 +115,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets or sets the selected flight log.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public FlightLog SelectedFlightLog
+        public OpenSkyApi.FlightLog SelectedFlightLog
         {
             get => this.selectedFlightLog;
 
@@ -111,6 +128,41 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedFlightLog = value;
                 this.NotifyPropertyChanged();
+                this.OpenLogCommand.CanExecute = value != null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
+        /// case the user has multiple open windows)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="view">
+        /// The view reference.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetViewReference(FlightLogs view)
+        {
+            this.viewReference = view;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Open the selected flight log.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 17/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void OpenLog()
+        {
+            if (this.SelectedFlightLog != null)
+            {
+                var navMenuItem = new NavMenuItem { Icon = "/Resources/book16.png", PageType = typeof(Pages.FlightLog), Name = $"Flight log {this.SelectedFlightLog.FullFlightNumber}", Parameter = this.SelectedFlightLog };
+                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
             }
         }
 

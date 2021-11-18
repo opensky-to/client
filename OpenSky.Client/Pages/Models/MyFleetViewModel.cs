@@ -11,7 +11,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
-    using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;

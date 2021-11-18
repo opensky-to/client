@@ -117,6 +117,7 @@
     <Compile Include="Controls\MapView.xaml.cs">
       <DependentUpon>MapView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Models\AircraftTrailLocation.cs" />
     <Compile Include="Controls\Models\MapViewViewModel.cs" />
     <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
     <Compile Include="Controls\Models\TrackingEventMarker.cs" />
@@ -136,14 +137,18 @@
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
-    <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Tools\ColorExtensions.cs" />
+    <Compile Include="Tools\DateTimeExtensions.cs" />
+    <Compile Include="Tools\EnumExtensions.cs" />
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Flight.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FlightLog.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FlightPlan.cs" />
+    <Compile Include="Pages\FlightLog.xaml.cs">
+      <DependentUpon>FlightLog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\FlightLogs.xaml.cs">
       <DependentUpon>FlightLogs.xaml</DependentUpon>
     </Compile>
@@ -154,6 +159,8 @@
       <DependentUpon>FlightPlans.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Models\FlightLogsViewModel.cs" />
+    <Compile Include="Pages\Models\FlightLogViewModel.cs" />
+    <Compile Include="Pages\Models\FlightLog\TrackingEventLogEntry.cs" />
     <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
     <Compile Include="Pages\Models\MyFlightsViewModel.cs" />
@@ -258,6 +265,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FlightLog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -436,23 +447,26 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="OpenSky.FlightLogXML">
+      <Version>0.1.3</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.115.5</Version>
@@ -522,6 +536,7 @@
   <ItemGroup>
     <Resource Include="Resources\book16.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"

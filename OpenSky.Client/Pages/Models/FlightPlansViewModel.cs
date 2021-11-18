@@ -11,7 +11,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
-    using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -67,7 +66,7 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.RefreshPlansCommand = new AsynchronousCommand(this.RefreshPlans);
             this.NewPlanCommand = new Command(this.NewPlan);
-            this.EditPlanCommand = new Command(this.EditPlan);
+            this.EditPlanCommand = new Command(this.EditPlan, false);
             this.StartFlightCommand = new AsynchronousCommand(this.StartFlight, false);
             this.DeletePlanCommand = new AsynchronousCommand(this.DeletePlan, false);
         }
@@ -146,6 +145,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedFlightPlan = value;
                 this.NotifyPropertyChanged();
+                this.EditPlanCommand.CanExecute = this.SelectedFlightPlan != null;
                 this.DeletePlanCommand.CanExecute = this.SelectedFlightPlan != null;
                 this.StartFlightCommand.CanExecute = this.SelectedFlightPlan != null;
             }

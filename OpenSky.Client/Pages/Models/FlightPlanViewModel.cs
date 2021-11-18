@@ -1246,6 +1246,22 @@ namespace OpenSky.Client.Pages.Models
                     }
                 }
 
+                // Dispatcher remarks
+                var sbRemarks = string.Empty;
+                foreach (var dispatcherRemark in ofp.Element("general")?.Elements("dx_rmk"))
+                {
+                    if (!string.IsNullOrEmpty(dispatcherRemark.Value))
+                    {
+                        sbRemarks += $"{dispatcherRemark.Value}\r\n";
+                    }
+                }
+
+                sbRemarks = sbRemarks.TrimEnd('\r', '\n');
+                if (this.DispatcherRemarks == null || sbRemarks.Length > this.DispatcherRemarks.Length)
+                {
+                    this.DispatcherRemarks = sbRemarks;
+                }
+
                 // OFP html
                 var sbOfpHtml = (string)ofp.Element("text")?.Element("plan_html");
                 if (!string.IsNullOrEmpty(sbOfpHtml))
@@ -1714,7 +1730,7 @@ namespace OpenSky.Client.Pages.Models
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })
-                { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
     }
 }
