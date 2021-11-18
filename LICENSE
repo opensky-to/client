@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+You are furthermore required to:
+1) To independently obtain Syncfusion dependencies from Syncfusion whether under
+   a community, commercial or other license before you obtain a copy of this code.
+2) You will not be able to distribute the Syncfusion binaries as part of the
+   open source project.
+3) That this project and any fork/copy of it can only be licensed using either
+   MIT, Apache or BSD. The project could not be licensed under GPL or 
+   similar licenses. 
