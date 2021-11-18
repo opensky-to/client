@@ -117,6 +117,7 @@
     <Compile Include="Controls\MapView.xaml.cs">
       <DependentUpon>MapView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Models\AircraftPosition.cs" />
     <Compile Include="Controls\Models\AircraftTrailLocation.cs" />
     <Compile Include="Controls\Models\MapViewViewModel.cs" />
     <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
@@ -137,6 +138,10 @@
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
+    <Compile Include="Pages\Models\WorldMapViewModel.cs" />
+    <Compile Include="Pages\WorldMap.xaml.cs">
+      <DependentUpon>WorldMap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\ColorExtensions.cs" />
     <Compile Include="Tools\DateTimeExtensions.cs" />
     <Compile Include="Tools\EnumExtensions.cs" />
@@ -160,7 +165,7 @@
     </Compile>
     <Compile Include="Pages\Models\FlightLogsViewModel.cs" />
     <Compile Include="Pages\Models\FlightLogViewModel.cs" />
-    <Compile Include="Pages\Models\FlightLog\TrackingEventLogEntry.cs" />
+    <Compile Include="Controls\Models\TrackingEventLogEntry.cs" />
     <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
     <Compile Include="Pages\Models\MyFlightsViewModel.cs" />
@@ -293,6 +298,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Welcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\WorldMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -536,7 +545,12 @@
   <ItemGroup>
     <Resource Include="Resources\book16.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\map16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\Models\FlightLog\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"

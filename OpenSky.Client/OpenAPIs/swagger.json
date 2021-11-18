@@ -2392,6 +2392,38 @@
         }
       }
     },
+    "/Flight/worldMap": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Get flights for the world map.",
+        "description": "sushi.at, 18/11/2021.",
+        "operationId": "GetWorldMapFlights",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/pause/{flightID}": {
       "post": {
         "tags": [
@@ -6249,6 +6281,118 @@
         },
         "additionalProperties": false,
         "description": "Validate email model."
+      },
+      "WorldMapFlight": {
+        "type": "object",
+        "properties": {
+          "aircraftRegistry": {
+            "type": "string",
+            "description": "Gets or sets the aircraft registry.",
+            "nullable": true
+          },
+          "aircraftType": {
+            "type": "string",
+            "description": "Gets or sets the type of the aircraft.",
+            "nullable": true
+          },
+          "altitude": {
+            "type": "number",
+            "description": "Gets or sets the altitude in feet.",
+            "format": "double"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Gets or sets the Destination for the.",
+            "nullable": true
+          },
+          "flightPhase": {
+            "$ref": "#/components/schemas/FlightPhase"
+          },
+          "fullFlightNumber": {
+            "type": "string",
+            "description": "Gets or sets the full flight number.",
+            "nullable": true
+          },
+          "groundSpeed": {
+            "type": "number",
+            "description": "Gets or sets the ground speed in knots.",
+            "format": "double"
+          },
+          "heading": {
+            "type": "number",
+            "description": "The magnetic heading.",
+            "format": "double"
+          },
+          "isPaused": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this flight is paused."
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The latitude in degrees.",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude in degrees.",
+            "format": "double"
+          },
+          "onGround": {
+            "type": "boolean",
+            "description": "Is the plane on the ground?"
+          },
+          "operator": {
+            "type": "string",
+            "description": "Gets or sets the operator.",
+            "nullable": true
+          },
+          "origin": {
+            "type": "string",
+            "description": "Gets or sets the origin.",
+            "nullable": true
+          },
+          "pilot": {
+            "type": "string",
+            "description": "Gets or sets the pilot.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "World map flight."
+      },
+      "WorldMapFlightIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorldMapFlight"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "WorldPopulationOverview": {
         "type": "object",

@@ -41,7 +41,7 @@ namespace OpenSky.Client.Pages.Models
         /// The selected flight log.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private OpenSkyApi.FlightLog selectedFlightLog;
+        private FlightLog selectedFlightLog;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -61,7 +61,7 @@ namespace OpenSky.Client.Pages.Models
         public FlightLogsViewModel()
         {
             // Initialize data structures
-            this.FlightLogs = new ObservableCollection<OpenSkyApi.FlightLog>();
+            this.FlightLogs = new ObservableCollection<FlightLog>();
 
             // Create commands
             this.RefreshFlightLogsCommand = new AsynchronousCommand(this.RefreshFlightLogs);
@@ -73,7 +73,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the flight logs.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<OpenSkyApi.FlightLog> FlightLogs { get; }
+        public ObservableCollection<FlightLog> FlightLogs { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -115,7 +115,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets or sets the selected flight log.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public OpenSkyApi.FlightLog SelectedFlightLog
+        public FlightLog SelectedFlightLog
         {
             get => this.selectedFlightLog;
 

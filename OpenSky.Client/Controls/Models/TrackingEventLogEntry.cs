@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OpenSky.Client.Pages.Models.FlightLog
+namespace OpenSky.Client.Controls.Models
 {
     using System.Windows.Media;
 
