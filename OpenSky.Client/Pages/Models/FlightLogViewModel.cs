@@ -26,7 +26,7 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
-    using TrackingEventLogEntry = FlightLog.TrackingEventLogEntry;
+    using TrackingEventLogEntry = Controls.Models.TrackingEventLogEntry;
     using TrackingEventMarker = Controls.Models.TrackingEventMarker;
 
     /// -------------------------------------------------------------------------------------------------

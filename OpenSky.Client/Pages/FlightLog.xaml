@@ -18,7 +18,7 @@
                           LoadingText="{Binding LoadingText}"
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
-                          xmlns:flightLog="clr-namespace:OpenSky.Client.Pages.Models.FlightLog"
+                          xmlns:models1="clr-namespace:OpenSky.Client.Controls.Models"
                           mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="800"
                           HorizontalScrollBar="False" VerticalScrollBar="False">
     <UserControl.DataContext>
@@ -285,7 +285,7 @@
             </GroupBox.Header>
             <ListBox Name="EventLog" FontFamily="Consolas" ItemsSource="{Binding TrackingEventLogEntries}" MouseDoubleClick="EventLogMouseDoubleClick" BorderThickness="0" Background="#1a1e22">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="flightLog:TrackingEventLogEntry">
+                    <DataTemplate DataType="models1:TrackingEventLogEntry">
                         <StackPanel Orientation="Horizontal" Margin="-5">
                             <Rectangle Width="15" Height="15" Fill="{Binding EventColorBrush, Mode=OneWay}" RadiusX="2" RadiusY="2" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding EventTime, StringFormat=HH:mm:ss}" Margin="5,0, 5, 0" VerticalAlignment="Center" FontSize="13" />

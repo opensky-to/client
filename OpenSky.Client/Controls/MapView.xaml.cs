@@ -35,6 +35,17 @@ namespace OpenSky.Client.Controls
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The aircraft positions property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty AircraftPositionsProperty = DependencyProperty.Register(
+            "AircraftPositions",
+            typeof(ObservableCollection<AircraftPosition>),
+            typeof(MapView),
+            new UIPropertyMetadata(new ObservableCollection<AircraftPosition>()));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The aircraft trail locations property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -87,6 +98,22 @@ namespace OpenSky.Client.Controls
         public MapView()
         {
             this.InitializeComponent();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the aircraft positions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public ObservableCollection<AircraftPosition> AircraftPositions
+        {
+            get => (ObservableCollection<AircraftPosition>)this.GetValue(AircraftPositionsProperty);
+            set
+            {
+                this.SetValue(AircraftPositionsProperty, value);
+                value.CollectionChanged += this.AircraftPositionsCollectionChanged;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -161,6 +188,42 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Aircraft positions collection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Notify collection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AircraftPositionsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (AircraftPosition item in e.NewItems)
+                {
+                    var existingMapLayer = item.Parent as MapLayer;
+                    existingMapLayer?.Children.Remove(item);
+
+                    this.WpfMapView.Children.Add(item);
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (AircraftPosition item in e.OldItems)
+                {
+                    this.WpfMapView.Children.Remove(item);
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Map type selection changed.
         /// </summary>
         /// <remarks>
@@ -213,7 +276,12 @@ namespace OpenSky.Client.Controls
             var aircraftTrail = new MapPolyline { Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal), StrokeThickness = 4, Locations = this.AircraftTrailLocations };
             this.WpfMapView.Children.Add(aircraftTrail);
 
-            // todo Aircraft positions, define bind-able structure that can contain multiple (for main map view)
+            if (this.AircraftPositions.Count > 0)
+            {
+                this.AircraftPositionsCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.AircraftPositions));
+            }
+
+            this.AircraftPositions.CollectionChanged += this.AircraftPositionsCollectionChanged;
 
             if (this.SimbriefWaypointMarkers.Count > 0)
             {
@@ -266,6 +334,14 @@ namespace OpenSky.Client.Controls
             var maxLat = -90.0;
             var minLon = 80.0;
             var maxLon = -180.0;
+
+            if (this.AircraftPositions.Count > 0)
+            {
+                minLat = Math.Min(minLat, this.AircraftPositions.Min(l => l.Location.Latitude));
+                maxLat = Math.Max(maxLat, this.AircraftPositions.Max(l => l.Location.Latitude));
+                minLon = Math.Min(minLon, this.AircraftPositions.Min(l => l.Location.Longitude));
+                maxLon = Math.Max(maxLon, this.AircraftPositions.Max(l => l.Location.Longitude));
+            }
 
             if (this.SimbriefRouteLocations.Count > 0)
             {
