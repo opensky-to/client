@@ -16,5 +16,4 @@ this amazing project further.
 Original source code and assets and present in this repository are licensed under the MIT license.
 
 IMPORTANT: This project also uses an open-source community license for Syncfusion WPF. To develop this software on your own computer you are required to obtain a free
-personal community, commercial or other license from [Syncfusion](https://www.syncfusion.com). You are required to accept this licensing agreement before you can legally obtain a copy of
-our code.
+personal community, commercial or other license from [Syncfusion](https://www.syncfusion.com). You are required to accept this licensing agreement before you can legally obtain a copy of our code. Please refer to our [LICENSE](https://raw.githubusercontent.com/opensky-to/client/main/LICENSE) document for details about this.
