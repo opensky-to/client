@@ -11,6 +11,21 @@ This repository contains the C# code for our main management game client. This i
 We just launched our first Alpha version to test the technical foundations. There are still many, many features missing so feel free to join us develop
 this amazing project further.
 
+## Screenshots
+
+Here are a few first screenshots showing off the design, some features and the flexibility offered by the docking manager.
+
+<img src="https://raw.githubusercontent.com/opensky-to/client/main/Screenshots/flight_planning.png" placeholder="Flight Planning" />
+
+<img src="https://raw.githubusercontent.com/opensky-to/client/main/Screenshots/aircraft_market.png" placeholder="Aircraft Market" />
+
+<img src="https://raw.githubusercontent.com/opensky-to/client/main/Screenshots/docking_manager.png" placeholder="Docking Manager" />
+
+
+## Syncfusion WPF
+
+This project uses several controls from Syncfusion's WPF libraries, especially their excellent Docking manager. Syncfusion was kind enough to support our open-source project with a special community license. You can check out their [WPF demos](https://github.com/syncfusion/wpf-demos) right here on Github.
+
 ## License
 
 Original source code and assets and present in this repository are licensed under the MIT license.
