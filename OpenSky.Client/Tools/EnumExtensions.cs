@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace OpenSky.Client.Extensions
+namespace OpenSky.Client.Tools
 {
     using System;
     using System.ComponentModel;

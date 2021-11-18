@@ -7,15 +7,11 @@
 namespace OpenSky.Client.Controls.Models
 {
     using System.ComponentModel;
-    using System.Device.Location;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
     using System.Windows.Media;
     using System.Windows.Shapes;
-    using System.Xml.Linq;
-
-    using JetBrains.Annotations;
 
     using Microsoft.Maps.MapControl.WPF;
 
@@ -36,6 +32,13 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register("TextLabelVisible", typeof(Visibility), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(Visibility.Visible));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// A flight navlog waypoint we are wrapping around for saving.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly FlightLogXML.Waypoint waypoint = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -91,9 +94,10 @@ namespace OpenSky.Client.Controls.Models
             MapLayer.SetPosition(this, new Location(lat, lon));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
 
-            this.GeoCoordinate = new GeoCoordinate(lat, lon);
-            this.WaypointName = name;
-            this.WaypointType = type;
+            this.waypoint.Latitude = lat;
+            this.waypoint.Longitude = lon;
+            this.waypoint.WaypointName = name;
+            this.waypoint.WaypointType = type;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -101,18 +105,15 @@ namespace OpenSky.Client.Controls.Models
         /// Initializes a new instance of the <see cref="SimbriefWaypointMarker"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 01/04/2021.
+        /// sushi.at, 17/11/2021.
         /// </remarks>
-        /// <param name="waypointFromSave">
-        /// The waypoint to restore from a save file.
+        /// <param name="waypoint">
+        /// A flight navlog waypoint we are wrapping around for saving, restored from a flight log xml file.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public SimbriefWaypointMarker(XElement waypointFromSave)
+        public SimbriefWaypointMarker(FlightLogXML.Waypoint waypoint)
         {
-            var lat = double.Parse(waypointFromSave.Attribute("Lat")?.Value ?? "missing");
-            var lon = double.Parse(waypointFromSave.Attribute("Lon")?.Value ?? "missing");
-            var name = waypointFromSave.Attribute("Name")?.Value;
-            var type = waypointFromSave.Attribute("Name")?.Value;
+            this.waypoint = waypoint;
 
             this.Width = 60;
             this.Height = 60;
@@ -126,14 +127,15 @@ namespace OpenSky.Client.Controls.Models
                     Margin = new Thickness(26, 26, 0, 0)
                 });
 
-            var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), CornerRadius = new CornerRadius(1.5), Margin = type != "wpt" ? new Thickness(0, 0, 0, 45) : new Thickness(0, 40, 0, 0) };
+            var textBorder = new Border
+            { BorderBrush = null, Background = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), CornerRadius = new CornerRadius(1.5), Margin = this.waypoint.WaypointType != "wpt" ? new Thickness(0, 0, 0, 45) : new Thickness(0, 40, 0, 0) };
             var visibilityBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelVisible"), Mode = BindingMode.OneWay };
             BindingOperations.SetBinding(textBorder, VisibilityProperty, visibilityBinding);
             this.Children.Add(textBorder);
 
             textBorder.Child = new TextBlock
             {
-                Text = name,
+                Text = this.waypoint.WaypointName,
                 Foreground = new SolidColorBrush(OpenSkyColors.OpenSkySimBriefText),
 
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -143,21 +145,9 @@ namespace OpenSky.Client.Controls.Models
                 Margin = new Thickness(3)
             };
 
-            MapLayer.SetPosition(this, new Location(lat, lon));
+            MapLayer.SetPosition(this, new Location(this.waypoint.Latitude, this.waypoint.Longitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
-
-            this.GeoCoordinate = new GeoCoordinate(lat, lon);
-            this.WaypointName = name;
-            this.WaypointType = type;
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the geo coordinate used to calculate distance to another event marker (not for position report).
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [NotNull]
-        public GeoCoordinate GeoCoordinate { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -173,16 +163,9 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the name of the waypoint.
+        /// Gets the way point we are wrapping around.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string WaypointName { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the type of the waypoint.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string WaypointType { get; }
+        public FlightLogXML.Waypoint WayPoint => this.waypoint;
     }
 }

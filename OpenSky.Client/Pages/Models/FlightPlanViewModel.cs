@@ -580,14 +580,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the fuel weight in lbs.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public double FuelWeight
-        {
-            get
-            {
-                // TODO this should come from aircraft type?
-                return (this.FuelGallons ?? 0) * 6;
-            }
-        }
+        public double FuelWeight => (this.FuelGallons ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -650,16 +643,15 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
-                if (Equals(this.isDirty, value))
-                {
-                    return;
-                }
-
+                // This property notifies on every change to ensure all views/properties get updated correctly
+                // and the user can save the plan in any case.
                 this.isDirty = value;
                 this.NotifyPropertyChanged();
+
                 if (this.SaveCommand != null)
                 {
-                    this.SaveCommand.CanExecute = value;
+                    UpdateGUIDelegate setCanExecute = () => this.SaveCommand.CanExecute = value;
+                    Application.Current.Dispatcher.BeginInvoke(setCanExecute);
                 }
             }
         }
@@ -1187,7 +1179,7 @@ namespace OpenSky.Client.Pages.Models
                         fuelPlanRamp *= 2.20462;
                     }
 
-                    var plannedGallons = fuelPlanRamp / 6; // todo use proper fuel weight here
+                    var plannedGallons = fuelPlanRamp / this.SelectedAircraft.Type.FuelWeightPerGallon;
                     if (plannedGallons < (this.FuelGallons ?? 0))
                     {
                         answer = MessageBoxResult.None;
@@ -1210,6 +1202,7 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 // ZFW sanity check?
+                // todo decide if we want to add ZFW sanity check to see if the aircraft from simbrief at least roughly matches the one here
 
                 // Route
                 var sbRoute = (string)ofp.Element("general")?.Element("route");
@@ -1251,6 +1244,22 @@ namespace OpenSky.Client.Pages.Models
                             this.AlternateRoute = sbAlternateRoute;
                         }
                     }
+                }
+
+                // Dispatcher remarks
+                var sbRemarks = string.Empty;
+                foreach (var dispatcherRemark in ofp.Element("general")?.Elements("dx_rmk"))
+                {
+                    if (!string.IsNullOrEmpty(dispatcherRemark.Value))
+                    {
+                        sbRemarks += $"{dispatcherRemark.Value}\r\n";
+                    }
+                }
+
+                sbRemarks = sbRemarks.TrimEnd('\r', '\n');
+                if (this.DispatcherRemarks == null || sbRemarks.Length > this.DispatcherRemarks.Length)
+                {
+                    this.DispatcherRemarks = sbRemarks;
                 }
 
                 // OFP html
@@ -1466,7 +1475,10 @@ namespace OpenSky.Client.Pages.Models
                             }
                         });
 
-                    this.IsDirty = false;
+                    if (!this.isNewFlightPlan)
+                    {
+                        this.IsDirty = false;
+                    }
                 }
 
                 this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(null));
@@ -1718,7 +1730,7 @@ namespace OpenSky.Client.Pages.Models
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })
-                { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
     }
 }

@@ -117,6 +117,8 @@
     <Compile Include="Controls\MapView.xaml.cs">
       <DependentUpon>MapView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Models\AircraftPosition.cs" />
+    <Compile Include="Controls\Models\AircraftTrailLocation.cs" />
     <Compile Include="Controls\Models\MapViewViewModel.cs" />
     <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
     <Compile Include="Controls\Models\TrackingEventMarker.cs" />
@@ -136,20 +138,40 @@
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
-    <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Pages\Models\WorldMapViewModel.cs" />
+    <Compile Include="Pages\WorldMap.xaml.cs">
+      <DependentUpon>WorldMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\ColorExtensions.cs" />
+    <Compile Include="Tools\DateTimeExtensions.cs" />
+    <Compile Include="Tools\EnumExtensions.cs" />
     <Compile Include="Models\AirportClientPackageEntry.cs" />
     <Compile Include="Models\AirportClientPackageRoot.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Aircraft.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\Flight.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\FlightLog.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FlightPlan.cs" />
+    <Compile Include="Pages\FlightLog.xaml.cs">
+      <DependentUpon>FlightLog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\FlightLogs.xaml.cs">
+      <DependentUpon>FlightLogs.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\FlightPlan.xaml.cs">
       <DependentUpon>FlightPlan.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\FlightPlans.xaml.cs">
       <DependentUpon>FlightPlans.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Models\FlightLogsViewModel.cs" />
+    <Compile Include="Pages\Models\FlightLogViewModel.cs" />
+    <Compile Include="Controls\Models\TrackingEventLogEntry.cs" />
     <Compile Include="Pages\Models\FlightPlansViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.cs" />
+    <Compile Include="Pages\Models\MyFlightsViewModel.cs" />
+    <Compile Include="Pages\MyFlights.xaml.cs">
+      <DependentUpon>MyFlights.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\AirportPackageClientHandler.cs" />
     <Compile Include="Models\Enums\FuelUnit.cs" />
     <Compile Include="Models\Enums\WeightUnit.cs" />
@@ -251,6 +273,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\FlightLog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FlightLogs.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\FlightPlan.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -263,7 +293,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\MyFlights.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\Welcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\WorldMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -418,23 +456,26 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="OpenSky.FlightLogXML">
+      <Version>0.1.4</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.3.0.48</Version>
+      <Version>19.3.0.54</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.115.5</Version>
@@ -482,7 +523,34 @@
   <ItemGroup>
     <Resource Include="Resources\plan16.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\luggage16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pause16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\departure16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pin16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\save16.png" />
+    <Resource Include="Resources\x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\question16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\book16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\map16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\Models\FlightLog\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"
