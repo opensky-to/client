@@ -6,17 +6,17 @@
 
 namespace OpenSky.Client.Controls.Models
 {
-    using System;
     using System.Device.Location;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
     using System.Windows.Shapes;
-    using System.Xml.Linq;
 
     using JetBrains.Annotations;
 
     using Microsoft.Maps.MapControl.WPF;
+
+    using OpenSky.Client.Tools;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -30,43 +30,40 @@ namespace OpenSky.Client.Controls.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The flightLogXML marker object we are wrapping around.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly FlightLogXML.TrackingEventMarker marker = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="TrackingEventMarker"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 01/04/2021.
+        /// sushi.at, 17/11/2021.
         /// </remarks>
-        /// <param name="markerFromSave">
-        /// The marker from a save file to restore.
+        /// <param name="marker">
+        /// The flightLogXML marker object we are wrapping around, restored from a flight log xml file.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public TrackingEventMarker(XElement markerFromSave)
+        public TrackingEventMarker(FlightLogXML.TrackingEventMarker marker)
         {
-            var markerSize = int.Parse(markerFromSave.Attribute("MarkerSize")?.Value ?? "missing");
-            this.Width = markerSize;
-            this.Height = markerSize;
+            this.marker = marker;
+            this.Width = this.MarkerSize;
+            this.Height = this.MarkerSize;
 
-            var markerColor = ColorConverter.ConvertFromString(markerFromSave.Attribute("MarkerColor")?.Value ?? "missing") as Color? ?? Colors.Red;
             this.Children.Add(
                 new Ellipse
                 {
-                    Width = markerSize,
-                    Height = markerSize,
-                    Fill = new SolidColorBrush(markerColor)
+                    Width = this.MarkerSize,
+                    Height = this.MarkerSize,
+                    Fill = new SolidColorBrush(this.MarkerColor.ToMediaColor())
                 });
 
-            this.MarkerTooltip = markerFromSave.Attribute("ToolTip")?.Value ?? "missing";
             this.ToolTip = this.MarkerTooltip;
 
-            var lat = double.Parse(markerFromSave.Attribute("Lat")?.Value ?? "missing");
-            var lon = double.Parse(markerFromSave.Attribute("Lon")?.Value ?? "missing");
-            var alt = double.Parse(markerFromSave.Attribute("Alt")?.Value ?? "missing");
-            MapLayer.SetPosition(this, new Location(lat, lon, alt));
+            MapLayer.SetPosition(this, new Location(this.marker.Latitude, this.marker.Longitude, this.marker.Altitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
-
-            this.GeoCoordinate = new GeoCoordinate(lat, lon, alt);
-            this.MarkerSize = markerSize;
-            this.MarkerColor = markerColor;
-            this.IsAirportMarker = false;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -112,11 +109,13 @@ namespace OpenSky.Client.Controls.Models
             MapLayer.SetPosition(this, new Location(location.Latitude, location.Longitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
 
-            this.GeoCoordinate = location;
-            this.MarkerSize = 40;
+            this.marker.Latitude = location.Latitude;
+            this.marker.Longitude = location.Longitude;
+            this.marker.Altitude = (int)location.Altitude;
+            this.marker.MarkerSize = 40;
             this.MarkerTooltip = airportICAO;
-            this.MarkerColor = markerColor;
-            this.IsAirportMarker = true;
+            this.marker.MarkerColor = markerColor.ToDrawingColor();
+            this.marker.IsAirportMarker = true;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -125,54 +124,45 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [NotNull]
-        public GeoCoordinate GeoCoordinate { get; }
+        public GeoCoordinate GeoCoordinate => new(this.marker.Latitude, this.marker.Longitude, this.marker.Altitude);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets a value indicating whether this is an airport marker (we don't save those).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public bool IsAirportMarker { get; }
+        public bool IsAirportMarker => this.marker.IsAirportMarker;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the marker for saving.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public FlightLogXML.TrackingEventMarker Marker => this.marker;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets the color of the marker.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public Color MarkerColor { get; }
+        public System.Drawing.Color MarkerColor => this.marker.MarkerColor;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets the size of the marker.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public int MarkerSize { get; }
+        public int MarkerSize => this.marker.MarkerSize;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets the marker tooltip.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string MarkerTooltip { get; private set; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add additional event with time to the marker.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 16/03/2021.
-        /// </remarks>
-        /// <param name="eventTime">
-        /// The event time.
-        /// </param>
-        /// <param name="title">
-        /// The title to add.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void AddEventToMarker(DateTime eventTime, string title)
+        public string MarkerTooltip
         {
-            this.MarkerTooltip += $"\r\n{eventTime:dd.MM.yyyy HH:mm:ss}: {title}";
-            this.ToolTip = this.MarkerTooltip;
+            get => this.marker.MarkerTooltip;
+            set => this.marker.MarkerTooltip = value;
         }
     }
 }

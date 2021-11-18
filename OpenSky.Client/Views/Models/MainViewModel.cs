@@ -73,8 +73,17 @@ namespace OpenSky.Client.Views.Models
             var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
             this.NavigationItems.Add(welcome);
 
+            var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
+            this.NavigationItems.Add(worldMap);
+
+            var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights) };
+            this.NavigationItems.Add(flights);
+
             var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
             this.NavigationItems.Add(plans);
+
+            var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs) };
+            this.NavigationItems.Add(logs);
 
             var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
             this.NavigationItems.Add(myFleet);
@@ -94,7 +103,7 @@ namespace OpenSky.Client.Views.Models
 
             if (UserSessionService.Instance.IsModerator)
             {
-                // todo
+                // todo add moderator only navigation items, once we have some :)
             }
 
             if (tools.Children.Count > 0)

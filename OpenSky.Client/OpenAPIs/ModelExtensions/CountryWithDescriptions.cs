@@ -11,7 +11,7 @@ namespace OpenSky.Client.OpenAPIs.ModelExtensions
     using System.ComponentModel;
     using System.Linq;
 
-    using OpenSky.Client.Extensions;
+    using OpenSky.Client.Tools;
 
     using OpenSkyApi;
 

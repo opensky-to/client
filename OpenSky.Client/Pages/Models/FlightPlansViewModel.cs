@@ -11,7 +11,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
-    using OpenSky.Client.Extensions;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -67,11 +66,9 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.RefreshPlansCommand = new AsynchronousCommand(this.RefreshPlans);
             this.NewPlanCommand = new Command(this.NewPlan);
-            this.EditPlanCommand = new Command(this.EditPlan);
+            this.EditPlanCommand = new Command(this.EditPlan, false);
+            this.StartFlightCommand = new AsynchronousCommand(this.StartFlight, false);
             this.DeletePlanCommand = new AsynchronousCommand(this.DeletePlan, false);
-
-            // Fire off initial commands
-            this.RefreshPlansCommand.DoExecute(null);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -148,9 +145,18 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedFlightPlan = value;
                 this.NotifyPropertyChanged();
+                this.EditPlanCommand.CanExecute = this.SelectedFlightPlan != null;
                 this.DeletePlanCommand.CanExecute = this.SelectedFlightPlan != null;
+                this.StartFlightCommand.CanExecute = this.SelectedFlightPlan != null;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the start flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand StartFlightCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -257,7 +263,7 @@ namespace OpenSky.Client.Pages.Models
             var navMenuItem = new NavMenuItem
             {
                 Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
-                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(45).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
+                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
             };
             Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
         }
@@ -306,6 +312,65 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.RefreshPlansCommand, "Error refreshing flight plans");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Start the selected flight.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 10/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void StartFlight()
+        {
+            if (this.SelectedFlightPlan == null)
+            {
+                return;
+            }
+
+            this.LoadingText = $"Starting flight {this.SelectedFlightPlan.FullFlightNumber}...";
+            try
+            {
+                var result = OpenSkyService.Instance.StartFlightAsync(this.SelectedFlightPlan.Id).Result;
+                if (!result.IsError)
+                {
+                    this.StartFlightCommand.ReportProgress(() =>
+                    {
+                        ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.RefreshPlansCommand.DoExecute(null);
+                    });
+                }
+                else
+                {
+                    if (result.Data == "AircraftNotAtOrigin")
+                    {
+                        // todo ask user if he/she wants to create a ferry flight plan to get the plane to the departure airport
+                    }
+                    else
+                    {
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error starting flight: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                ModernWpf.MessageBox.Show(result.Message, "Error starting flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.StartFlightCommand, "Error starting flight");
             }
             finally
             {
