@@ -6769,6 +6769,9 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class FlightLog 
     {
+        [Newtonsoft.Json.JsonProperty("aircraftEngineType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public EngineType AircraftEngineType { get; set; }
+    
         /// <summary>Gets or sets the aircraft registry.</summary>
         [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AircraftRegistry { get; set; }
