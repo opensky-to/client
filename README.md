@@ -21,6 +21,7 @@ Here are a few first screenshots showing off the design, some features and the f
 
 <img src="https://raw.githubusercontent.com/opensky-to/client/main/Screenshots/docking_manager.png" placeholder="Docking Manager" />
 
+<img src="https://raw.githubusercontent.com/opensky-to/client/main/Screenshots/flightlog.png" placeholder="Flight log" />
 
 ## Syncfusion WPF
 
