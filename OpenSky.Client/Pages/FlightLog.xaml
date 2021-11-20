@@ -19,10 +19,10 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:models1="clr-namespace:OpenSky.Client.Controls.Models"
-                          mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="800"
+                          mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="1500"
                           HorizontalScrollBar="False" VerticalScrollBar="False">
     <UserControl.DataContext>
-        <models:FlightLogViewModel x:Name="ViewModel" />
+        <models:FlightLogViewModel x:Name="ViewModel" MapUpdated="ViewModelOnMapUpdated" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
@@ -272,11 +272,12 @@
             <GroupBox.Header>
                 <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
             </GroupBox.Header>
-            <controls:MapView Margin="5" ShowFollowPlane="False"
+            <controls:MapView Margin="5" ShowFollowPlane="False" x:Name="MapView"
                               TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
                               AircraftTrailLocations="{Binding AircraftTrailLocations, ElementName=ViewModel}"
                               SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
                               SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
+                              SizeChanged="MapViewOnSizeChanged"
                               />
         </GroupBox>
         <GroupBox Grid.Column="4">

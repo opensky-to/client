@@ -350,7 +350,31 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (result.Data == "AircraftNotAtOrigin")
                     {
-                        // todo ask user if he/she wants to create a ferry flight plan to get the plane to the departure airport
+                        MessageBoxResult? answer = MessageBoxResult.None;
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show("The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?", "Aircraft not at Origin", MessageBoxButton.YesNo);
+                            }, true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.StartFlightCommand.ReportProgress(
+                                () =>
+                                {
+                                    var posFlightNumber = new Random().Next(1, 9999);
+                                    var navMenuItem = new NavMenuItem
+                                    {
+                                        Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {posFlightNumber}",
+                                        Parameter = new FlightPlan
+                                        {
+                                            Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
+                                            OriginICAO = this.SelectedFlightPlan.Aircraft.AirportICAO, DestinationICAO = this.SelectedFlightPlan.OriginICAO, Aircraft = this.SelectedFlightPlan.Aircraft,
+                                            FuelGallons = this.SelectedFlightPlan.Aircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedFlightPlan.Aircraft.Registry} FLIGHT #{this.SelectedFlightPlan.FlightNumber}"
+                                        }
+                                    };
+                                    Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                                });
+                        }
                     }
                     else
                     {

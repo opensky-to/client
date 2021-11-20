@@ -551,6 +551,9 @@
   <ItemGroup>
     <Folder Include="Pages\Models\FlightLog\" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\profile200.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>call "$(ProjectDir)configuration.bat" "$(ProjectDir)" "$(ConfigurationName)"
