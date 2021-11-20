@@ -9,12 +9,14 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Device.Location;
     using System.Diagnostics;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
     using System.Text;
     using System.Windows;
+    using System.Windows.Media;
     using System.Xml.Linq;
 
     using Microsoft.Maps.MapControl.WPF;
@@ -26,8 +28,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
-    using TrackingEventLogEntry = Controls.Models.TrackingEventLogEntry;
-    using TrackingEventMarker = Controls.Models.TrackingEventMarker;
+    using TrackingEventLogEntry = OpenSky.Client.Controls.Models.TrackingEventLogEntry;
+    using TrackingEventMarker = OpenSky.Client.Controls.Models.TrackingEventMarker;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -118,6 +120,13 @@ namespace OpenSky.Client.Pages.Models
             this.ToggleOfpCommand = new Command(this.ToggleOfp);
             this.ToggleLandingReportCommand = new Command(this.ToggleLandingReport);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Occurs when the map was updated, tell the mapviewer to zoom to contained child elements.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public event EventHandler MapUpdated;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -293,14 +302,14 @@ namespace OpenSky.Client.Pages.Models
                     grade = "A";
                     desc = "Good landing";
 
-                    if (landingRateAbs <= 130 && this.FlightLog.AircraftEngineType == EngineType.Jet)
+                    if (landingRateAbs <= 130 && this.FlightLog?.AircraftEngineType == EngineType.Jet)
                     {
                         grade = "A+";
                         desc = "Perfect landing";
                     }
                 }
 
-                if (grade == "A+" && this.FlightLog.AircraftEngineType == EngineType.Jet)
+                if (grade == "A+" && this.FlightLog?.AircraftEngineType == EngineType.Jet)
                 {
                     grade = "A-";
                     desc = "Lading too soft";
@@ -640,6 +649,15 @@ namespace OpenSky.Client.Pages.Models
                         this.LoadFlightLogCommand.ReportProgress(
                             () =>
                             {
+                                this.TrackingEventMarkers.Clear();
+
+                                var originMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Origin.Latitude, flightLogXml.Origin.Longitude), flightLogXml.Origin.Icao, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                this.TrackingEventMarkers.Add(originMarker);
+                                var alternateMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Alternate.Latitude, flightLogXml.Alternate.Longitude), flightLogXml.Alternate.Icao, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
+                                this.TrackingEventMarkers.Add(alternateMarker);
+                                var destinationMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Destination.Latitude, flightLogXml.Destination.Longitude), flightLogXml.Destination.Icao, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                this.TrackingEventMarkers.Add(destinationMarker);
+
                                 this.AircraftTrailLocations.Clear();
                                 foreach (var location in flightLogXml.PositionReports)
                                 {
@@ -652,7 +670,6 @@ namespace OpenSky.Client.Pages.Models
                                     this.TrackingEventLogEntries.Add(new TrackingEventLogEntry(logEntry));
                                 }
 
-                                this.TrackingEventMarkers.Clear();
                                 foreach (var marker in flightLogXml.TrackingEventMarkers)
                                 {
                                     this.TrackingEventMarkers.Add(new TrackingEventMarker(marker));
@@ -694,9 +711,9 @@ namespace OpenSky.Client.Pages.Models
                                     this.NotifyPropertyChanged(nameof(this.Airspeed));
                                     this.NotifyPropertyChanged(nameof(this.GroundSpeed));
                                 }
-                            });
 
-                        // todo restore landing report, and decide how/where to display it
+                                this.MapUpdated?.Invoke(this, EventArgs.Empty);
+                            });
                     }
                     else
                     {
