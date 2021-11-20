@@ -49,6 +49,11 @@
                         <ui:FontIcon Glyph="&#xE826;" />
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
+                <ui:AppBarButton Label="Start flight" ToolTip="Start flying this flight plan" Command="{Binding StartFlightCommand}">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon Glyph="&#xE709;" />
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
                 <ui:AppBarButton Icon="Delete" Label="Discard" ToolTip="Discard the flight plan" Visibility="{Binding DiscardVisibility}" Command="{Binding DiscardCommand}" />
                 <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the flight plan" Visibility="{Binding DeleteVisibility}" Command="{Binding DeleteCommand }" />
             </ui:CommandBar.PrimaryCommands>
