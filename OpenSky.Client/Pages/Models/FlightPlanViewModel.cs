@@ -212,6 +212,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Pages.FlightPlan viewReference;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="FlightPlanViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -254,178 +261,6 @@ namespace OpenSky.Client.Pages.Models
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(Pages.FlightPlan view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Pages.FlightPlan viewReference;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Start flying the flight plan.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 20/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void StartFlight()
-        {
-            if (this.IsDirty)
-            {
-                MessageBoxResult? answer = MessageBoxResult.None;
-                this.StartFlightCommand.ReportProgress(
-                    () =>
-                    {
-                        answer = ModernWpf.MessageBox.Show("You first have to save your changes, do you want to save the flight plan now?", "Save flight plan?", MessageBoxButton.YesNo);
-                    }, true);
-
-                if (answer != MessageBoxResult.Yes)
-                {
-                    return;
-                }
-
-                this.LoadingText = "Saving flight plan...";
-                try
-                {
-                    var flightPlan = new FlightPlan
-                    {
-                        Id = this.ID,
-                        FlightNumber = this.FlightNumber,
-                        OriginICAO = this.OriginICAO,
-                        DestinationICAO = this.DestinationICAO,
-                        AlternateICAO = this.AlternateICAO,
-                        Aircraft = this.SelectedAircraft,
-                        DispatcherRemarks = this.DispatcherRemarks,
-                        FuelGallons = this.FuelGallons,
-                        IsAirlineFlight = this.IsAirlineFlight,
-                        PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
-                        UtcOffset = this.UtcOffset,
-                        Route = this.Route,
-                        AlternateRoute = this.AlternateRoute,
-                        OfpHtml = this.OfpHtml,
-                        NavlogFixes = this.navlogFixes
-                    };
-
-                    var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
-                    if (!result.IsError)
-                    {
-                        this.IsNewFlightPlan = false;
-                        this.SaveCommand.ReportProgress(() => this.IsDirty = false);
-                    }
-                    else
-                    {
-                        this.SaveCommand.ReportProgress(
-                            () =>
-                            {
-                                Debug.WriteLine("Error saving flight plan: " + result.Message);
-                                if (!string.IsNullOrEmpty(result.ErrorDetails))
-                                {
-                                    Debug.WriteLine(result.ErrorDetails);
-                                }
-
-                                ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
-                    return;
-                }
-                finally
-                {
-                    this.LoadingText = null;
-                }
-            }
-
-            try
-            {
-                this.LoadingText = $"Starting flight {this.FlightNumber}...";
-                var result = OpenSkyService.Instance.StartFlightAsync(this.ID).Result;
-                if (!result.IsError)
-                {
-                    this.StartFlightCommand.ReportProgress(() =>
-                    {
-                        ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
-                        this.ClosePage?.Invoke(this, null);
-                    });
-                }
-                else
-                {
-                    if (result.Data == "AircraftNotAtOrigin")
-                    {
-                        MessageBoxResult? answer = MessageBoxResult.None;
-                        this.StartFlightCommand.ReportProgress(
-                            () =>
-                            {
-                                answer = ModernWpf.MessageBox.Show("The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?", "Aircraft not at Origin", MessageBoxButton.YesNo);
-                            }, true);
-                        if (answer == MessageBoxResult.Yes)
-                        {
-                            this.StartFlightCommand.ReportProgress(
-                                () =>
-                                {
-                                    var posFlightNumber = new Random().Next(1, 9999);
-                                    var navMenuItem = new NavMenuItem
-                                    {
-                                        Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {posFlightNumber}",
-                                        Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, OriginICAO = this.SelectedAircraft.AirportICAO, DestinationICAO = this.OriginICAO, Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}" }
-                                    };
-                                    Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
-                                });
-                        }
-                    }
-                    else
-                    {
-                        this.StartFlightCommand.ReportProgress(
-                            () =>
-                            {
-                                Debug.WriteLine("Error starting flight: " + result.Message);
-                                if (!string.IsNullOrEmpty(result.ErrorDetails))
-                                {
-                                    Debug.WriteLine(result.ErrorDetails);
-                                }
-
-                                ModernWpf.MessageBox.Show(result.Message, "Error starting flight", MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.StartFlightCommand, "Error starting flight");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the start flight command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand StartFlightCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1056,6 +891,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the start flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand StartFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the tracking event markers.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1111,6 +953,23 @@ namespace OpenSky.Client.Pages.Models
         public void LoadFlightPlan(FlightPlan flightPlan)
         {
             this.LoadFlightPlanCommand.DoExecute(flightPlan);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
+        /// case the user has multiple open windows)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="view">
+        /// The view reference.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetViewReference(Pages.FlightPlan view)
+        {
+            this.viewReference = view;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1649,7 +1508,6 @@ namespace OpenSky.Client.Pages.Models
                                 }
                             }
                         });
-
                 }
 
                 this.IsDirty = this.IsNewFlightPlan;
@@ -1837,6 +1695,155 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Start flying the flight plan.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void StartFlight()
+        {
+            if (this.IsDirty)
+            {
+                MessageBoxResult? answer = MessageBoxResult.None;
+                this.StartFlightCommand.ReportProgress(
+                    () => { answer = ModernWpf.MessageBox.Show("You first have to save your changes, do you want to save the flight plan now?", "Save flight plan?", MessageBoxButton.YesNo); },
+                    true);
+
+                if (answer != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                this.LoadingText = "Saving flight plan...";
+                try
+                {
+                    var flightPlan = new FlightPlan
+                    {
+                        Id = this.ID,
+                        FlightNumber = this.FlightNumber,
+                        OriginICAO = this.OriginICAO,
+                        DestinationICAO = this.DestinationICAO,
+                        AlternateICAO = this.AlternateICAO,
+                        Aircraft = this.SelectedAircraft,
+                        DispatcherRemarks = this.DispatcherRemarks,
+                        FuelGallons = this.FuelGallons,
+                        IsAirlineFlight = this.IsAirlineFlight,
+                        PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
+                        UtcOffset = this.UtcOffset,
+                        Route = this.Route,
+                        AlternateRoute = this.AlternateRoute,
+                        OfpHtml = this.OfpHtml,
+                        NavlogFixes = this.navlogFixes
+                    };
+
+                    var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
+                    if (!result.IsError)
+                    {
+                        this.IsNewFlightPlan = false;
+                        this.SaveCommand.ReportProgress(() => this.IsDirty = false);
+                    }
+                    else
+                    {
+                        this.SaveCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error saving flight plan: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
+                    return;
+                }
+                finally
+                {
+                    this.LoadingText = null;
+                }
+            }
+
+            try
+            {
+                this.LoadingText = $"Starting flight {this.FlightNumber}...";
+                var result = OpenSkyService.Instance.StartFlightAsync(this.ID).Result;
+                if (!result.IsError)
+                {
+                    this.StartFlightCommand.ReportProgress(
+                        () =>
+                        {
+                            ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
+                            this.ClosePage?.Invoke(this, null);
+                        });
+                }
+                else
+                {
+                    if (result.Data == "AircraftNotAtOrigin")
+                    {
+                        MessageBoxResult? answer = MessageBoxResult.None;
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                answer = ModernWpf.MessageBox.Show(
+                                    "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
+                                    "Aircraft not at Origin",
+                                    MessageBoxButton.YesNo);
+                            },
+                            true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.StartFlightCommand.ReportProgress(
+                                () =>
+                                {
+                                    var posFlightNumber = new Random().Next(1, 9999);
+                                    var navMenuItem = new NavMenuItem
+                                    {
+                                        Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {posFlightNumber}",
+                                        Parameter = new FlightPlan
+                                        {
+                                            Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
+                                            OriginICAO = this.SelectedAircraft.AirportICAO, DestinationICAO = this.OriginICAO, Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel,
+                                            DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}"
+                                        }
+                                    };
+                                    Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                                });
+                        }
+                    }
+                    else
+                    {
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error starting flight: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                ModernWpf.MessageBox.Show(result.Message, "Error starting flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.StartFlightCommand, "Error starting flight");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Update map airport markers.
         /// </summary>
         /// <remarks>
@@ -1909,7 +1916,7 @@ namespace OpenSky.Client.Pages.Models
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })
-            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+                { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
     }
 }
