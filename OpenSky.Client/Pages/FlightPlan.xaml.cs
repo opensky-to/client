@@ -108,7 +108,9 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is FlightPlanViewModel viewModel)
             {
+                viewModel.SetViewReference(this);
                 viewModel.PropertyChanged += this.ViewModelPropertyChanged;
+                this.ViewModelPropertyChanged(this, new PropertyChangedEventArgs("IsDirty"));
             }
         }
 
