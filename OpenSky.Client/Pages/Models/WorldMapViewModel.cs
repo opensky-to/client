@@ -89,11 +89,11 @@ namespace OpenSky.Client.Pages.Models
                                     var tooltip = $"Flight {flight.FullFlightNumber} operated by {flight.Operator}\r\n-----------------------------------------------\r\nPilot: {flight.Pilot}\r\n{flight.AircraftType} [{flight.AircraftRegistry}]\r\n{flight.Origin} ▶ {flight.Destination}\r\nPhase: {flight.FlightPhase}\r\n";
                                     if (flight.OnGround)
                                     {
-                                        tooltip += $"On the ground, {flight.GroundSpeed} kts, heading: {flight.Heading}";
+                                        tooltip += $"On the ground, {flight.GroundSpeed:F0} kts, heading: {flight.Heading:F0}";
                                     }
                                     else
                                     {
-                                        tooltip += $"Airborne {flight.Altitude} feet, {flight.GroundSpeed} kts GS, heading: {flight.Heading}";
+                                        tooltip += $"Airborne {flight.Altitude:F0} feet, {flight.GroundSpeed:F0} kts GS, heading: {flight.Heading:F0}";
                                     }
 
                                     var existingPosition = this.AircraftPositions.SingleOrDefault(p => p.Registry == flight.AircraftRegistry);
