@@ -288,6 +288,8 @@ namespace OpenSky.Client
             this.Username = null;
             this.RefreshToken = null;
             this.RefreshExpiration = null;
+            this.AccountOverview = null;
+            this.LinkedAccounts = null;
 
             Settings.Default.OpenSkyApiToken = null;
             Settings.Default.OpenSkyTokenExpiration = DateTime.MinValue;

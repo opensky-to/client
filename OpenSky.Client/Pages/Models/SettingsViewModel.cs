@@ -63,6 +63,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The profile image.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private BitmapImage profileImage;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The simBrief username.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -129,8 +143,13 @@ namespace OpenSky.Client.Pages.Models
                     image.StreamSource = mem;
                     image.EndInit();
                 }
+
                 image.Freeze();
                 this.ProfileImage = image;
+            }
+            else
+            {
+                this.ProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png"));
             }
 
             // Make sure we are notified if the UserSession service changes user logged in status
@@ -142,54 +161,6 @@ namespace OpenSky.Client.Pages.Models
             // Load the initial airport package file info
             this.RefreshAirportPackageInfoCommand.DoExecute(null);
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The profile image.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private BitmapImage profileImage;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the profile image.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public BitmapImage ProfileImage
-        {
-            get => this.profileImage;
-        
-            set
-            {
-                if(Equals(this.profileImage, value))
-                {
-                   return;
-                }
-        
-                this.profileImage = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Change password (opens page in browser).
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 03/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void ChangePassword()
-        {
-            Process.Start(Properties.Settings.Default.OpenSkyChangePasswordUrl);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the change password command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command ChangePasswordCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -233,6 +204,13 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the change password command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ChangePasswordCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -294,6 +272,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string LoadingText
+        {
+            get => this.loadingText;
+
+            set
+            {
+                if (Equals(this.loadingText, value))
+                {
+                    return;
+                }
+
+                this.loadingText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the login OpenSky user command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -305,6 +304,27 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand LogoutOpenSkyUserCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the profile image.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public BitmapImage ProfileImage
+        {
+            get => this.profileImage;
+
+            set
+            {
+                if (Equals(this.profileImage, value))
+                {
+                    return;
+                }
+
+                this.profileImage = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -389,6 +409,19 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Change password (opens page in browser).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 03/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ChangePassword()
+        {
+            Process.Start(Properties.Settings.Default.OpenSkyChangePasswordUrl);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Download airport package.
         /// </summary>
         /// <remarks>
@@ -464,6 +497,17 @@ namespace OpenSky.Client.Pages.Models
             }
 
             this.UserSession.Logout();
+            this.NotifyPropertyChanged(nameof(this.UserSession));
+
+            this.LogoutOpenSkyUserCommand.ReportProgress(
+                () =>
+                {
+                    var wasDirty = this.IsDirty;
+                    this.BingMapsKey = null;
+                    this.SimBriefUsername = null;
+                    this.ProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png"));
+                    this.IsDirty = wasDirty;
+                });
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -476,29 +520,36 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RefreshAirportPackageInfo()
         {
-            try
+            if (this.UserSession.IsUserLoggedIn)
             {
-                if (AirportPackageClientHandler.IsPackageAvailable())
+                try
                 {
-                    if (AirportPackageClientHandler.IsPackageUpToDate())
+                    if (AirportPackageClientHandler.IsPackageAvailable())
                     {
-                        var package = AirportPackageClientHandler.GetPackage();
-                        this.AirportPackageFileInfo = $"The package file is up-to-date.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                        if (AirportPackageClientHandler.IsPackageUpToDate())
+                        {
+                            var package = AirportPackageClientHandler.GetPackage();
+                            this.AirportPackageFileInfo = $"The package file is up-to-date.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                        }
+                        else
+                        {
+                            var package = AirportPackageClientHandler.GetPackage();
+                            this.AirportPackageFileInfo = $"A newer package file is available, please download it using the button on the right.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                        }
                     }
                     else
                     {
-                        var package = AirportPackageClientHandler.GetPackage();
-                        this.AirportPackageFileInfo = $"A newer package file is available, please download it using the button on the right.\r\nCurrent file: {package?.Airports.Count.ToString() ?? "???"} airports, hash {package?.Hash ?? "???"}";
+                        this.AirportPackageFileInfo = "The file is missing, please download it using the button on the right.";
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    this.AirportPackageFileInfo = "The file is missing, please download it using the button on the right.";
+                    this.AirportPackageFileInfo = $"ERROR: {ex.Message}";
                 }
             }
-            catch (Exception ex)
+            else
             {
-                this.AirportPackageFileInfo = $"ERROR: {ex.Message}";
+                this.AirportPackageFileInfo = string.Empty;
             }
         }
 
@@ -524,34 +575,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The loading text.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string loadingText;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the loading text.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string LoadingText
-        {
-            get => this.loadingText;
-
-            set
-            {
-                if (Equals(this.loadingText, value))
-                {
-                    return;
-                }
-
-                this.loadingText = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Saves the settings.
         /// </summary>
         /// <remarks>
@@ -570,7 +593,7 @@ namespace OpenSky.Client.Pages.Models
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
 
                 Properties.Settings.Default.Save();
-                
+
                 this.SaveSettingsCommand.ReportProgress(() => this.IsDirty = false);
             }
             catch (Exception ex)
@@ -652,14 +675,48 @@ namespace OpenSky.Client.Pages.Models
                         _ = UserSessionService.Instance.RefreshUserAccountOverview().Result;
                         _ = UserSessionService.Instance.RefreshLinkedAccounts().Result;
 
+                        UpdateGUIDelegate updateUserSettings = () =>
+                        {
+                            try
+                            {
+                                // Load profile image
+                                if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
+                                {
+                                    var image = new BitmapImage();
+                                    using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
+                                    {
+                                        image.BeginInit();
+                                        image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                                        image.CacheOption = BitmapCacheOption.OnLoad;
+                                        image.UriSource = null;
+                                        image.StreamSource = mem;
+                                        image.EndInit();
+                                    }
+
+                                    image.Freeze();
+                                    this.ProfileImage = image;
+                                }
+
+                                var wasDirty = this.IsDirty;
+                                this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
+                                this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
+                                this.IsDirty = wasDirty;
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Error updating user settings after login: " + ex);
+                            }
+                        };
+                        Application.Current.Dispatcher.BeginInvoke(updateUserSettings);
+
                         this.NotifyPropertyChanged(nameof(this.UserSession));
 
                         // Check if we have the current client airport package file, after silently trying to download it
                         AirportPackageClientHandler.DownloadPackage();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore
+                        Debug.WriteLine("Error processing user after-login: " + ex);
                     }
 
                     this.RefreshAirportPackageInfoCommand.DoExecute(null);
