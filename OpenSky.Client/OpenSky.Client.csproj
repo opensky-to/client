@@ -462,22 +462,22 @@
       <Version>0.1.4</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.115.5</Version>
