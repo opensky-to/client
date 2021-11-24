@@ -19,15 +19,32 @@
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                      xmlns:tools="clr-namespace:OpenSky.Client.Tools"
                       mc:Ignorable="d"
                       LoadingText="{Binding LoadingText}"
                       VerticalScrollBar="False" HorizontalScrollBar="False"
-                      d:DesignHeight="450" d:DesignWidth="800">
+                      d:DesignHeight="700" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:AircraftMarketViewModel />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:VisibilityInverterConverter x:Key="VisibilityInverterConverter" />
+        <DrawingBrush x:Key="GreyDottedBrush" Viewport="0,0,3,3" ViewportUnits="Absolute" TileMode="Tile">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="Gray">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="0,0,50,50" />
+                                <RectangleGeometry Rect="50,50,50,50" />
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding SearchCommand}" />
@@ -36,6 +53,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <GroupBox Grid.Column="0">
             <GroupBox.Header>
@@ -128,6 +146,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
                     <ui:CommandBar.PrimaryCommands>
@@ -144,6 +163,14 @@
                         </ui:AppBarButton>
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
+                <Rectangle Grid.Row="2" Fill="#1f1f1f"></Rectangle>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10,15,0,3" HorizontalAlignment="Left">
+                    <TextBlock>* Aircraft has variant(s)</TextBlock>
+                    <Image Width="16" Height="16" Source="/Resources/vanilla16.png" Margin="10,0,5,0" />
+                    <TextBlock>Vanilla aircraft</TextBlock>
+                    <Image Width="16" Height="16" Source="/Resources/addon16.png" Margin="15,0,5,0" />
+                    <TextBlock>Addon aircraft</TextBlock>
+                </StackPanel>
                 <FrameworkElement Grid.Row="1" x:Name="LocationVisibilityProxy" Visibility="{Binding LocationColumnVisibility}" />
                 <DataGrid
                     Grid.Row="1"
@@ -163,17 +190,104 @@
                         <DataTemplate x:Key="RentPriceCellTemplate" DataType="openSkyApi:Aircraft">
                             <controls:SkybucksCurrency Currency="{Binding RentPrice}" Margin="15,0" />
                         </DataTemplate>
+                        <DataTemplate x:Key="AircraftTypeCellTemplate" DataType="openSkyApi:Aircraft">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Image Width="16" Height="16" Source="{Binding Type.VanillaAddonImage}" />
+                                <TextBlock Text="{Binding Type.NameWithVariant}" Margin="5,0,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding Source={x:Reference LocationVisibilityProxy}, Path=Visibility}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTemplateColumn Header="Type" CellTemplate="{StaticResource AircraftTypeCellTemplate}" SortMemberPath="Type.Name" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" />
                         <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" />
                     </DataGrid.Columns>
                 </DataGrid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="2" Visibility="{Binding PurchaseAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Purchase aircraft:</TextBlock>
+                    <TextBlock FontSize="15" FontWeight="DemiBold" Text="{Binding AircraftToPurchase.Registry}" Margin="5,0,0,0" />
+                    <Button Padding="0" MinHeight="20" MaxHeight="20" Margin="5,0,0,0" Command="{Binding CancelPurchaseAircraftCommand}">✖</Button>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="27">Sales Agreement</TextBlock>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap" Text="{Binding SalesAgreementInfoText}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0">Seller</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0">Buyer</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" FontFamily="Consolas" Text="{Binding AircraftToPurchase.OwnerName}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" FontFamily="Consolas" Text="{Binding BuyerName}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap"><Bold>1. Sale of Goods.</Bold> Seller agrees to sell, and Buyer agrees to purchase the following item (Aircraft) in the following condition (the "Goods"):</TextBlock>
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,10,0,0">Registry</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0">Type</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Variant</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="0">Location</TextBlock>
+                <TextBlock Grid.Row="9" Grid.Column="0">Fuel</TextBlock>
+                <TextBlock Grid.Row="10" Grid.Column="0">Condition</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="1" FontFamily="Consolas" Margin="0,10,0,0" Text="{Binding AircraftToPurchase.Registry}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" FontFamily="Consolas" Text="{Binding AircraftToPurchase.Type.Name}" />
+                <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="Consolas" Visibility="{Binding PurchaseAircraftVariantsVisibility, Converter={StaticResource VisibilityInverterConverter}}">-- n/a --</TextBlock>
+                <ComboBox Grid.Row="7" Grid.Column="1" Visibility="{Binding PurchaseAircraftVariantsVisibility}" FontFamily="Consolas" FontSize="11" HorizontalAlignment="Stretch" ItemsSource="{Binding PurchaseAircraftVariants}" SelectedItem="{Binding SelectedPurchaseAircraftVariant, Mode=TwoWay}" />
+                <TextBlock Grid.Row="8" Grid.Column="1" FontFamily="Consolas" Text="{Binding AircraftToPurchase.AirportICAO}" />
+                <TextBlock Grid.Row="9" Grid.Column="1" FontFamily="Consolas" Text="{Binding AircraftToPurchase.Fuel, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F2|true}" />
+                <TextBlock Grid.Row="10" Grid.Column="1" FontFamily="Consolas" Text="--todo--" />
+
+                <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap"><Bold>2. Purchase Price.</Bold> Buyer will pay to Seller for the Goods and for all obligations specified in this Agreement, if any, as the full and complete purchase price, the sum of:</TextBlock>
+
+                <TextBlock Grid.Row="12" Grid.Column="0" Margin="0,5,0,0">Sale price</TextBlock>
+                <controls:SkybucksCurrency Grid.Row="12" Grid.Column="1" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding AircraftToPurchase.PurchasePrice}" Margin="0,5,0,0" />
+
+                <TextBlock Grid.Row="13" Grid.Column="0" Margin="0,15, 0, 25" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap">Buyer shall be responsible for all taxes in connection with the purchase of Goods in this Agreement.</TextBlock>
+
+                <TextBlock Grid.Row="14" Grid.Column="0" VerticalAlignment="Bottom" MinHeight="20">Signature</TextBlock>
+                <TextBlock Grid.Row="14" Grid.Column="1" FontFamily="Kunstler Script" FontSize="50" VerticalAlignment="Top" Text="{Binding Signature}" />
+                <Border Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
+
+                <Image Grid.Row="14" Grid.Column="1" Height="50" HorizontalAlignment="Right" Source="{StaticResource PaperArrow}" />
+
+                <Border BorderThickness="0" Cursor="Pen" Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" Background="Transparent" IsHitTestVisible="True">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding SignPurchaseCommand}"></MouseBinding>
+                    </Border.InputBindings>
+                </Border>
+
+                <Image Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding SoldStampVisibility}" Width="200" Margin="0,-30,10,0" HorizontalAlignment="Right" Source="{StaticResource Sold}" />
+
+                <Button Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding SoldStampVisibility, Converter={StaticResource VisibilityInverterConverter}}" Style="{StaticResource OpenSkyRedButtonStyle}" Command="{Binding CancelPurchaseAircraftCommand}" Margin="0,15,0,0">Cancel Purchase</Button>
             </Grid>
         </GroupBox>
     </Grid>
