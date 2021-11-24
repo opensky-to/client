@@ -9,6 +9,7 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Linq;
     using System.Windows;
 
     using OpenSky.Client.MVVM;
@@ -17,6 +18,8 @@ namespace OpenSky.Client.Pages.Models
     using OpenSky.Client.Views.Models;
 
     using OpenSkyApi;
+
+    using TomsToolbox.Essentials;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -100,6 +103,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected edit variant.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftType selectedEditVariant;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected edit variant.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftType SelectedEditVariant
+        {
+            get => this.selectedEditVariant;
+
+            set
+            {
+                if (Equals(this.selectedEditVariant, value))
+                {
+                    return;
+                }
+
+                this.selectedEditVariant = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MyFleetViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -110,6 +141,7 @@ namespace OpenSky.Client.Pages.Models
         {
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
+            this.EditAircraftVariants = new ObservableCollection<AircraftType>();
 
             // Create commands
             this.RefreshFleetCommand = new AsynchronousCommand(this.RefreshFleet);
@@ -117,7 +149,111 @@ namespace OpenSky.Client.Pages.Models
             this.CancelEditAircraftCommand = new Command(this.CancelEditAircraft, false);
             this.SaveEditedAircraftCommand = new AsynchronousCommand(this.SaveEditedAircraft, false);
             this.PlanFlightCommand = new Command(this.PlanFlight, false);
+            this.GetEditAircraftVariantsCommand = new AsynchronousCommand(this.GetEditAircraftVariants);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The edit aircraft variants visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility editAircraftVariantsVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the edit aircraft variants visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility EditAircraftVariantsVisibility
+        {
+            get => this.editAircraftVariantsVisibility;
+
+            set
+            {
+                if (Equals(this.editAircraftVariantsVisibility, value))
+                {
+                    return;
+                }
+
+                this.editAircraftVariantsVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the available variants of the aircraft the player is currently editing.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetEditAircraftVariants()
+        {
+            if (!this.editedAircraftOriginalVariant.HasValue)
+            {
+                return;
+            }
+
+            this.LoadingText = "Retrieving aircraft variants...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetVariantsOfTypeAsync(this.editedAircraftOriginalVariant.Value).Result;
+                if (!result.IsError)
+                {
+                    this.GetEditAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.EditAircraftVariants.Clear();
+                            this.EditAircraftVariants.AddRange(result.Data);
+
+                            this.EditAircraftVariantsVisibility = this.EditAircraftVariants.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+                            if (this.EditAircraftVariants.Count > 0)
+                            {
+                                // Select the current variant
+                                this.SelectedEditVariant = this.EditAircraftVariants.SingleOrDefault(v => v.Id == this.editedAircraftOriginalVariant.Value);
+                            }
+                        });
+                }
+                else
+                {
+                    this.GetEditAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error retrieving variants for aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.GetEditAircraftVariantsCommand, "Error retrieving variants for aircraft.");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the get edit aircraft variants command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetEditAircraftVariantsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the edit aircraft variants.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftType> EditAircraftVariants { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -388,6 +524,8 @@ namespace OpenSky.Client.Pages.Models
             this.EditedAircraftPurchasePrice = 0;
             this.EditedAircraftForRent = false;
             this.EditedAircraftRentPrice = 0;
+            this.editedAircraftOriginalVariant = null;
+            this.EditAircraftVariantsVisibility = Visibility.Collapsed;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -485,7 +623,8 @@ namespace OpenSky.Client.Pages.Models
             var updateAircraft = new UpdateAircraft
             {
                 Registry = this.EditedAircraftRegistry,
-                Name = this.EditedAircraftName
+                Name = this.EditedAircraftName,
+                VariantID = this.SelectedEditVariant?.Id ?? Guid.Empty
             };
 
             if (this.EditedAircraftForPurchase)
@@ -559,6 +698,15 @@ namespace OpenSky.Client.Pages.Models
             this.EditedAircraftPurchasePrice = this.SelectedAircraft.PurchasePrice ?? 0;
             this.EditedAircraftForRent = this.SelectedAircraft.RentPrice.HasValue;
             this.EditedAircraftRentPrice = this.SelectedAircraft.RentPrice ?? 0;
+            this.editedAircraftOriginalVariant = this.SelectedAircraft.TypeID;
+            this.GetEditAircraftVariantsCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The edited aircraft original variant ID.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Guid? editedAircraftOriginalVariant;
     }
 }

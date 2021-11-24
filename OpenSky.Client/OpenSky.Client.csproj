@@ -138,6 +138,7 @@
     <Compile Include="Converters\PieChartColorConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
+    <Compile Include="Converters\VisibilityInverterConverter.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
     <Compile Include="Pages\WorldMap.xaml.cs">
       <DependentUpon>WorldMap.xaml</DependentUpon>
@@ -229,6 +230,7 @@
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
     <Compile Include="Tools\MultiSelectExtension.cs" />
+    <Compile Include="Tools\OrdinalsExtension.cs" />
     <Compile Include="Tools\SleepScheduler.cs" />
     <Compile Include="Tools\StringEnumExtension.cs" />
     <Compile Include="Tools\StringValueAttribute.cs" />
@@ -460,22 +462,22 @@
       <Version>0.1.4</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfChart.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfInput.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Shared.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Tools.WPF">
-      <Version>19.3.0.54</Version>
+      <Version>19.3.0.55</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.115.5</Version>
@@ -553,6 +555,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\profile200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\addon16.png" />
+    <Resource Include="Resources\vanilla16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

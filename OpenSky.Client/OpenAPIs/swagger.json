@@ -289,7 +289,7 @@
         }
       }
     },
-    "/Aircraft/purchase/{registry}/{forAirline}": {
+    "/Aircraft/purchase": {
       "post": {
         "tags": [
           "Aircraft"
@@ -297,26 +297,26 @@
         "summary": "Purchase specified aircraft.",
         "description": "sushi.at, 19/07/2021.",
         "operationId": "PurchaseAircraft",
-        "parameters": [
-          {
-            "name": "registry",
-            "in": "path",
-            "description": "The registry of the aircraft to purchase.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "forAirline",
-            "in": "path",
-            "description": "True to purchase the aircraft for the airline and not the player.",
-            "required": true,
-            "schema": {
-              "type": "boolean"
+        "requestBody": {
+          "description": "The purchase aircraft model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseAircraft"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseAircraft"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseAircraft"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -805,6 +805,50 @@
         "summary": "Gets all aircraft types (including disabled and previous).",
         "description": "sushi.at, 02/06/2021.",
         "operationId": "GetAllAircraftTypes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/variants/{typeID}": {
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Gets the variants of this type (can be called with base or one of the variant sub-types)",
+        "description": "sushi.at, 23/11/2021.",
+        "operationId": "GetVariantsOfType",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -3048,6 +3092,11 @@
             "description": "Gets or sets the fuel weight per gallon (default values are 6 lbs/gallon avgas and 6.66 lbs/gallon jetfuel).",
             "format": "double"
           },
+          "hasVariants": {
+            "type": "boolean",
+            "description": "Gets a value indicating whether this aircraft type has variants.",
+            "readOnly": true
+          },
           "id": {
             "type": "string",
             "description": "Gets or sets the identifier.",
@@ -3140,6 +3189,14 @@
             "description": "Gets the name of the uploader.",
             "nullable": true,
             "readOnly": true
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftType"
+            },
+            "description": "Gets or sets the variants of this aircraft.",
+            "nullable": true
           },
           "versionNumber": {
             "type": "integer",
@@ -5837,6 +5894,29 @@
           "Failed"
         ]
       },
+      "PurchaseAircraft": {
+        "required": [
+          "registry"
+        ],
+        "type": "object",
+        "properties": {
+          "forAirline": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to purchase the aircraft for the airline or the user."
+          },
+          "registry": {
+            "type": "string",
+            "description": "Gets or sets the registry."
+          },
+          "variantID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the variant (can be Guid.Empty).",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Purchase aircraft model."
+      },
       "RefreshToken": {
         "type": "object",
         "properties": {
@@ -6195,6 +6275,11 @@
             "description": "Gets or sets the rent price.",
             "format": "int32",
             "nullable": true
+          },
+          "variantID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the variant (can be set to Guid.Empty to leave unchanged).",
+            "format": "uuid"
           }
         },
         "additionalProperties": false,
