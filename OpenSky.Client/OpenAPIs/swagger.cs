@@ -598,33 +598,23 @@ namespace OpenSkyApi
         }
     
         /// <summary>Purchase specified aircraft.</summary>
-        /// <param name="registry">The registry of the aircraft to purchase.</param>
-        /// <param name="forAirline">True to purchase the aircraft for the airline and not the player.</param>
+        /// <param name="body">The purchase aircraft model.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<StringApiResponse> PurchaseAircraftAsync(string registry, bool forAirline)
+        public System.Threading.Tasks.Task<StringApiResponse> PurchaseAircraftAsync(PurchaseAircraft body)
         {
-            return PurchaseAircraftAsync(registry, forAirline, System.Threading.CancellationToken.None);
+            return PurchaseAircraftAsync(body, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Purchase specified aircraft.</summary>
-        /// <param name="registry">The registry of the aircraft to purchase.</param>
-        /// <param name="forAirline">True to purchase the aircraft for the airline and not the player.</param>
+        /// <param name="body">The purchase aircraft model.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<StringApiResponse> PurchaseAircraftAsync(string registry, bool forAirline, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<StringApiResponse> PurchaseAircraftAsync(PurchaseAircraft body, System.Threading.CancellationToken cancellationToken)
         {
-            if (registry == null)
-                throw new System.ArgumentNullException("registry");
-    
-            if (forAirline == null)
-                throw new System.ArgumentNullException("forAirline");
-    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Aircraft/purchase/{registry}/{forAirline}");
-            urlBuilder_.Replace("{registry}", System.Uri.EscapeDataString(ConvertToString(registry, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{forAirline}", System.Uri.EscapeDataString(ConvertToString(forAirline, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Aircraft/purchase");
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -632,7 +622,9 @@ namespace OpenSkyApi
             {
                 using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
     
@@ -1494,6 +1486,86 @@ namespace OpenSkyApi
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/AircraftType/all");
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<AircraftTypeIEnumerableApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <summary>Gets the variants of this type (can be called with base or one of the variant sub-types)</summary>
+        /// <param name="typeID">Identifier for the type.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<AircraftTypeIEnumerableApiResponse> GetVariantsOfTypeAsync(System.Guid typeID)
+        {
+            return GetVariantsOfTypeAsync(typeID, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Gets the variants of this type (can be called with base or one of the variant sub-types)</summary>
+        /// <param name="typeID">Identifier for the type.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<AircraftTypeIEnumerableApiResponse> GetVariantsOfTypeAsync(System.Guid typeID, System.Threading.CancellationToken cancellationToken)
+        {
+            if (typeID == null)
+                throw new System.ArgumentNullException("typeID");
+    
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/AircraftType/variants/{typeID}");
+            urlBuilder_.Replace("{typeID}", System.Uri.EscapeDataString(ConvertToString(typeID, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5423,6 +5495,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("fuelWeightPerGallon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double FuelWeightPerGallon { get; set; }
     
+        /// <summary>Gets a value indicating whether this aircraft type has variants.</summary>
+        [Newtonsoft.Json.JsonProperty("hasVariants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool HasVariants { get; set; }
+    
         /// <summary>Gets or sets the identifier.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid Id { get; set; }
@@ -5503,6 +5579,10 @@ namespace OpenSkyApi
         /// <summary>Gets the name of the uploader.</summary>
         [Newtonsoft.Json.JsonProperty("uploaderName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UploaderName { get; set; }
+    
+        /// <summary>Gets or sets the variants of this aircraft.</summary>
+        [Newtonsoft.Json.JsonProperty("variants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<AircraftType> Variants { get; set; }
     
         /// <summary>Gets or sets the version number of this type.</summary>
         [Newtonsoft.Json.JsonProperty("versionNumber", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -7534,6 +7614,26 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>Purchase aircraft model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class PurchaseAircraft 
+    {
+        /// <summary>Gets or sets a value indicating whether to purchase the aircraft for the airline or the user.</summary>
+        [Newtonsoft.Json.JsonProperty("forAirline", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool ForAirline { get; set; }
+    
+        /// <summary>Gets or sets the registry.</summary>
+        [Newtonsoft.Json.JsonProperty("registry", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Registry { get; set; }
+    
+        /// <summary>Gets or sets the identifier of the variant (can be Guid.Empty).</summary>
+        [Newtonsoft.Json.JsonProperty("variantID", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid VariantID { get; set; }
+    
+    
+    }
+    
     /// <summary>Refresh JWT token model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class RefreshToken 
@@ -7831,6 +7931,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the rent price.</summary>
         [Newtonsoft.Json.JsonProperty("rentPrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? RentPrice { get; set; }
+    
+        /// <summary>Gets or sets the identifier of the variant (can be set to Guid.Empty to leave unchanged).</summary>
+        [Newtonsoft.Json.JsonProperty("variantID", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid VariantID { get; set; }
     
     
     }

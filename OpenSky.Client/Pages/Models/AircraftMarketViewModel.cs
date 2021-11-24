@@ -11,6 +11,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
 
     using OpenSky.Client.MVVM;
@@ -18,6 +19,8 @@ namespace OpenSky.Client.Pages.Models
     using OpenSky.Client.Tools;
 
     using OpenSkyApi;
+
+    using TomsToolbox.Essentials;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -50,6 +53,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private bool aircraftNameChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The aircraft to purchase.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Aircraft aircraftToPurchase;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -147,7 +157,21 @@ namespace OpenSky.Client.Pages.Models
         /// True if "only vanilla" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool onlyVanillaChecked = true;
+        private bool onlyVanillaChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The purchase aircraft variants visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility purchaseAircraftVariantsVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The purchase aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility purchaseAircraftVisibility = Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -179,10 +203,31 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected purchase aircraft variant.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftType selectedPurchaseAircraftVariant;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The signature.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string signature;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The currently selected simulator, or NULL for all simulators.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private Simulator? simulator;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The sold stamp visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility soldStampVisibility = Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -209,6 +254,7 @@ namespace OpenSky.Client.Pages.Models
             this.Simulators = new ObservableCollection<Simulator>();
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.Aircraft.CollectionChanged += (_, _) => { this.AvailableAircraftHeader = $"Available Aircraft ({this.Aircraft.Count})"; };
+            this.PurchaseAircraftVariants = new ObservableCollection<AircraftType>();
 
             // Add initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -232,7 +278,11 @@ namespace OpenSky.Client.Pages.Models
             this.ClearSimulatorCommand = new Command(this.ClearSimulator);
             this.ResetSearchCommand = new Command(this.ResetSearch);
             this.SearchCommand = new AsynchronousCommand(this.Search);
-            this.PurchaseCommand = new AsynchronousCommand(this.PurchaseAircraft);
+            this.PurchaseCommand = new Command(this.PurchaseAircraft);
+            this.CancelPurchaseAircraftCommand = new Command(this.CancelPurchaseAircraft);
+            this.GetPurchaseAircraftVariantsCommand = new AsynchronousCommand(this.GetPurchaseAircraftVariants);
+            this.SignPurchaseCommand = new AsynchronousCommand(this.SignPurchase);
+
             // todo implement renting when available
 
             // Fire off initial commands
@@ -306,6 +356,36 @@ namespace OpenSky.Client.Pages.Models
 
                 this.aircraftNameChecked = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the aircraft to purchase.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Aircraft AircraftToPurchase
+        {
+            get => this.aircraftToPurchase;
+
+            set
+            {
+                if (Equals(this.aircraftToPurchase, value))
+                {
+                    return;
+                }
+
+                this.aircraftToPurchase = value;
+                this.NotifyPropertyChanged();
+                this.PurchaseAircraftVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
+                this.SoldStampVisibility = Visibility.Collapsed;
+                this.Signature = string.Empty;
+                if (value != null)
+                {
+                    this.GetPurchaseAircraftVariantsCommand.DoExecute(null);
+                }
+
+                this.SignPurchaseCommand.CanExecute = value != null;
             }
         }
 
@@ -473,6 +553,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the name of the buyer.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string BuyerName => UserSessionService.Instance.Username;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the cancel purchase aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command CancelPurchaseAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the clear category command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -554,6 +648,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the get purchase aircraft variants command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetPurchaseAircraftVariantsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -785,6 +886,55 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the purchase aircraft variants.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftType> PurchaseAircraftVariants { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the purchase aircraft variants visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility PurchaseAircraftVariantsVisibility
+        {
+            get => this.purchaseAircraftVariantsVisibility;
+
+            set
+            {
+                if (Equals(this.purchaseAircraftVariantsVisibility, value))
+                {
+                    return;
+                }
+
+                this.purchaseAircraftVariantsVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the purchase aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility PurchaseAircraftVisibility
+        {
+            get => this.purchaseAircraftVisibility;
+
+            set
+            {
+                if (Equals(this.purchaseAircraftVisibility, value))
+                {
+                    return;
+                }
+
+                this.purchaseAircraftVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets a value indicating whether "purchase and rent" checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -830,7 +980,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the purchase command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand PurchaseCommand { get; }
+        public Command PurchaseCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -869,6 +1019,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the sales agreement information text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string SalesAgreementInfoText => $"This Sales Agreement (this \"Agreement\") is entered into as of the {DateTime.Today.Day.Ordinal()} day of {DateTime.Today:MMMM} {DateTime.Today.Year}, by and among/between:";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the search command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -895,6 +1052,55 @@ namespace OpenSky.Client.Pages.Models
                 this.PurchaseCommand.CanExecute = value?.PurchasePrice.HasValue == true;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected purchase aircraft variant.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftType SelectedPurchaseAircraftVariant
+        {
+            get => this.selectedPurchaseAircraftVariant;
+
+            set
+            {
+                if (Equals(this.selectedPurchaseAircraftVariant, value))
+                {
+                    return;
+                }
+
+                this.selectedPurchaseAircraftVariant = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the signature.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string Signature
+        {
+            get => this.signature;
+
+            set
+            {
+                if (Equals(this.signature, value))
+                {
+                    return;
+                }
+
+                this.signature = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the sign purchase command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand SignPurchaseCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -926,6 +1132,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the sold stamp visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility SoldStampVisibility
+        {
+            get => this.soldStampVisibility;
+
+            set
+            {
+                if (Equals(this.soldStampVisibility, value))
+                {
+                    return;
+                }
+
+                this.soldStampVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the aircraft type categories.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -954,6 +1181,19 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Cancel purchase aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void CancelPurchaseAircraft()
+        {
+            this.AircraftToPurchase = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Clear the aircraft type category.
         /// </summary>
         /// <remarks>
@@ -976,6 +1216,67 @@ namespace OpenSky.Client.Pages.Models
         private void ClearSimulator()
         {
             this.Simulator = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the available variants of the aircraft the player is currently buying.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetPurchaseAircraftVariants()
+        {
+            if (this.AircraftToPurchase == null)
+            {
+                return;
+            }
+
+            this.LoadingText = "Retrieving aircraft variants...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetVariantsOfTypeAsync(this.AircraftToPurchase.TypeID).Result;
+                if (!result.IsError)
+                {
+                    this.GetPurchaseAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.PurchaseAircraftVariants.Clear();
+                            this.PurchaseAircraftVariants.AddRange(result.Data);
+
+                            this.PurchaseAircraftVariantsVisibility = this.PurchaseAircraftVariants.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+                            if (this.PurchaseAircraftVariants.Count > 0)
+                            {
+                                // Select the base type
+                                this.SelectedPurchaseAircraftVariant = this.PurchaseAircraftVariants[0];
+                            }
+                        });
+                }
+                else
+                {
+                    this.GetPurchaseAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error retrieving variants for aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.GetPurchaseAircraftVariantsCommand, "Error retrieving variants for aircraft.");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1058,54 +1359,7 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            MessageBoxResult? answer = null;
-            this.PurchaseCommand.ReportProgress(
-                () =>
-                {
-                    answer = ModernWpf.MessageBox.Show(
-                        $"Are you sure you want to purchase this aircraft?\r\n\r\nRegistration: {this.SelectedAircraft.Registry}\r\nType: {this.SelectedAircraft.Type.Name}\r\nLocation: {this.SelectedAircraft.AirportICAO}\r\nPrice: {this.SelectedAircraft.PurchasePrice:C0}",
-                        "Aircraft purchase",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
-                },
-                true);
-            if (answer is not MessageBoxResult.Yes)
-            {
-                return;
-            }
-
-            this.LoadingText = "Purchasing aircraft...";
-            try
-            {
-                var result = OpenSkyService.Instance.PurchaseAircraftAsync(this.SelectedAircraft.Registry, false).Result;
-                if (!result.IsError)
-                {
-                    this.PurchaseCommand.ReportProgress(
-                        () => { ModernWpf.MessageBox.Show(result.Message, "Aircraft purchase", MessageBoxButton.OK, MessageBoxImage.Information); });
-                }
-                else
-                {
-                    this.PurchaseCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error purchasing aircraft: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error purchasing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.PurchaseCommand, "Error purchasing aircraft");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
+            this.AircraftToPurchase = this.SelectedAircraft;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1325,6 +1579,76 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sign the purchase agreement and purchase the aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SignPurchase()
+        {
+            if (this.AircraftToPurchase == null)
+            {
+                return;
+            }
+
+            this.SignPurchaseCommand.CanExecute = false;
+
+            foreach (var car in UserSessionService.Instance.Username.ToCharArray())
+            {
+                this.Signature += car;
+                Thread.Sleep(300);
+            }
+
+            try
+            {
+                var result = OpenSkyService.Instance.PurchaseAircraftAsync(
+                    new PurchaseAircraft
+                    {
+                        Registry = this.AircraftToPurchase.Registry,
+                        ForAirline = false,
+                        VariantID = this.SelectedPurchaseAircraftVariant?.Id ?? Guid.Empty
+                    }).Result;
+
+                if (!result.IsError)
+                {
+                    this.SoldStampVisibility = Visibility.Visible;
+
+                    Thread.Sleep(3000);
+                    this.SignPurchaseCommand.ReportProgress(
+                        () =>
+                        {
+                            this.CancelPurchaseAircraftCommand.DoExecute(null);
+                            this.SearchCommand.DoExecute(null);
+                            this.SignPurchaseCommand.CanExecute = true;
+                        });
+
+                    return;
+                }
+
+                this.SignPurchaseCommand.ReportProgress(
+                    () =>
+                    {
+                        Debug.WriteLine("Error purchasing aircraft: " + result.Message);
+                        if (!string.IsNullOrEmpty(result.ErrorDetails))
+                        {
+                            Debug.WriteLine(result.ErrorDetails);
+                        }
+
+                        ModernWpf.MessageBox.Show(result.Message, "Error purchasing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SignPurchaseCommand, "Error purchasing aircraft");
+            }
+
+            this.Signature = string.Empty;
+            this.SignPurchaseCommand.CanExecute = true;
         }
     }
 }

@@ -248,25 +248,23 @@
                 <GroupBox.Header>
                     <TextBlock>World populator: Failed airports [Max 50]</TextBlock>
                 </GroupBox.Header>
-                <StackPanel Orientation="Vertical">
-                    <DataGrid 
+                <DataGrid 
                         x:Name="FailedGrid" Margin="5"
                         ItemsSource="{Binding FailedAirports}"
                         SelectedItem="{Binding SelectedFailedAirport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                         HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                         ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
-                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
-                            <DataGridTextColumn Header="GA ramps" Binding="{Binding GaRamps}" />
-                            <DataGridTextColumn Header="Gates" Binding="{Binding Gates}" />
-                            <DataGridTextColumn Header="Is closed?" Binding="{Binding IsClosed}" />
-                            <DataGridTextColumn Header="# Runways" Binding="{Binding RunwayCount}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </StackPanel>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" />
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
+                        <DataGridTextColumn Header="GA ramps" Binding="{Binding GaRamps}" />
+                        <DataGridTextColumn Header="Gates" Binding="{Binding Gates}" />
+                        <DataGridTextColumn Header="Is closed?" Binding="{Binding IsClosed}" />
+                        <DataGridTextColumn Header="# Runways" Binding="{Binding RunwayCount}" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </GroupBox>
             <GroupBox Height="455">
                 <GroupBox.Header>
