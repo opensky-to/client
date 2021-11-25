@@ -76,7 +76,7 @@
     </ParameterGroup>
     <Task>
       <Using Namespace="System.Diagnostics" />
-      <Code Type="Fragment" Language="cs"><![CDATA[this.VersionNumber = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileMajorPart + "." + FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileMinorPart;]]></Code>
+      <Code Type="Fragment" Language="cs"><![CDATA[this.VersionNumber = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileMajorPart + "." + FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileMinorPart + "." + FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileBuildPart;]]></Code>
     </Task>
   </UsingTask>
   <PropertyGroup>

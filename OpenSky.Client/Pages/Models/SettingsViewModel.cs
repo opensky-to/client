@@ -16,6 +16,8 @@ namespace OpenSky.Client.Pages.Models
 
     using JetBrains.Annotations;
 
+    using Microsoft.Win32;
+
     using OpenSky.Client.Models.Enums;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
@@ -122,6 +124,7 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshAirportPackageInfoCommand = new AsynchronousCommand(this.RefreshAirportPackageInfo);
             this.DownloadAirportPackageCommand = new AsynchronousCommand(this.DownloadAirportPackage);
             this.ChangePasswordCommand = new Command(this.ChangePassword, this.UserSession.IsUserLoggedIn);
+            this.UpdateProfileImageCommand = new AsynchronousCommand(this.UpdateProfileImage, this.UserSession.IsUserLoggedIn);
 
             // Load settings
             Properties.Settings.Default.Reload();
@@ -161,6 +164,13 @@ namespace OpenSky.Client.Pages.Models
             // Load the initial airport package file info
             this.RefreshAirportPackageInfoCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the update profile image command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand UpdateProfileImageCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -643,6 +653,91 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Updates the profile image.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdateProfileImage()
+        {
+            bool? answer = null;
+            string fileName = null;
+            this.UpdateProfileImageCommand.ReportProgress(
+                () =>
+                {
+                    var openDialog = new OpenFileDialog
+                    {
+                        Title = "Select new profile image",
+                        CheckFileExists = true,
+                        Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg"
+                    };
+
+                    answer = openDialog.ShowDialog();
+                    if (answer == true)
+                    {
+                        fileName = openDialog.FileName;
+                    }
+                },
+                true);
+
+            if (answer != true || string.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            try
+            {
+                var result = OpenSkyService.Instance.UploadProfileImageAsync(new FileParameter(File.OpenRead(fileName), fileName, fileName.ToLowerInvariant().EndsWith(".png") ? "image/png" : "image/jpeg")).Result;
+                if (result.IsError)
+                {
+                    this.UpdateProfileImageCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error updating profile image: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error updating profile image", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+                else
+                {
+                    _ = UserSessionService.Instance.RefreshUserAccountOverview().Result;
+
+                    // Load profile image
+                    if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
+                    {
+                        var image = new BitmapImage();
+                        using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
+                        {
+                            image.BeginInit();
+                            image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                            image.CacheOption = BitmapCacheOption.OnLoad;
+                            image.UriSource = null;
+                            image.StreamSource = mem;
+                            image.EndInit();
+                        }
+
+                        image.Freeze();
+                        this.ProfileImage = image;
+                    }
+                    else
+                    {
+                        this.ProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.AgentMSFS;component/Resources/profile200.png"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.UpdateProfileImageCommand, "Error updating profile image.");
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// User session property changed.
         /// </summary>
         /// <remarks>
@@ -664,6 +759,8 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.LoginOpenSkyUserCommand.CanExecute = !this.UserSession.IsUserLoggedIn;
                     this.LogoutOpenSkyUserCommand.CanExecute = this.UserSession.IsUserLoggedIn;
+                    this.ChangePasswordCommand.CanExecute = this.UserSession.IsUserLoggedIn;
+                    this.UpdateProfileImageCommand.CanExecute = this.UserSession.IsUserLoggedIn;
                 };
                 Application.Current.Dispatcher.BeginInvoke(updateCommands);
 
