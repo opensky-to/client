@@ -38,5 +38,8 @@
     <Setting Name="AutoUpdateURL" Type="System.String" Scope="Application">
       <Value Profile="(Default)">https://api.github.com/repos/opensky-to/client/releases/latest</Value>
     </Setting>
+    <Setting Name="DefaultUTCOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
