@@ -143,5 +143,14 @@ namespace OpenSky.Client.Properties {
                 return ((string)(this["OpenSkyChangePasswordUrl"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://api.github.com/repos/opensky-to/client/releases/latest")]
+        public string AutoUpdateURL {
+            get {
+                return ((string)(this["AutoUpdateURL"]));
+            }
+        }
     }
 }
