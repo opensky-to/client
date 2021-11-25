@@ -7,11 +7,24 @@
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
              xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="1500" d:DesignWidth="1500" HorizontalScrollBar="True" LoadingText="{Binding LoadingText}">
     <UserControl.DataContext>
         <models:WorldPopulationViewModel />
     </UserControl.DataContext>
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="FailedAirportsViewSource" Source="{Binding FailedAirports}">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Icao" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="UnprocessedAirportsViewSource" Source="{Binding UnprocessedAirports}">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Icao" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -250,13 +263,13 @@
                 </GroupBox.Header>
                 <DataGrid 
                         x:Name="FailedGrid" Margin="5"
-                        ItemsSource="{Binding FailedAirports}"
+                        ItemsSource="{Binding Source={StaticResource FailedAirportsViewSource}}"
                         SelectedItem="{Binding SelectedFailedAirport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                         HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                         ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" />
+                        <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" SortDirection="Ascending" />
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
                         <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
                         <DataGridTextColumn Header="GA ramps" Binding="{Binding GaRamps}" />
@@ -273,12 +286,12 @@
                 <StackPanel Orientation="Vertical">
                     <DataGrid 
                         x:Name="UnprocessedGrid" Margin="5"
-                        ItemsSource="{Binding UnprocessedAirports}"
+                        ItemsSource="{Binding Source={StaticResource UnprocessedAirportsViewSource}}"
                         AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                         HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                         ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" />
+                            <DataGridTextColumn Header="ICAO" Binding="{Binding Icao}" SortDirection="Ascending" />
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
                             <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
                             <DataGridTextColumn Header="GA ramps" Binding="{Binding GaRamps}" />

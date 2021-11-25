@@ -18,6 +18,7 @@
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" Loaded="MyFlightsOnLoaded"
                       mc:Ignorable="d" d:DesignHeight="450" d:DesignWidth="800">
@@ -27,6 +28,13 @@
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshFlightsCommand}" />
     </UserControl.InputBindings>
+    <UserControl.Resources>
+        <CollectionViewSource Source="{Binding Flights}" x:Key="FlightsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="PlannedDepartureTime.UtcDateTime" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
     <GroupBox>
         <GroupBox.Header>
             <TextBlock FontSize="15" FontWeight="DemiBold">Manage Flights</TextBlock>
@@ -49,7 +57,7 @@
             </ui:CommandBar>
             <DataGrid
                 Grid.Row="1"
-                ItemsSource="{Binding Flights}"
+                ItemsSource="{Binding Source={StaticResource FlightsViewSource}}"
                 SelectedItem="{Binding SelectedFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
@@ -69,7 +77,7 @@
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPausedCellTemplate}" Width="20" MinWidth="20" />
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightPositionCellTemplate}" Width="20" MinWidth="20" />
                     <DataGridTemplateColumn Header="" CellTemplate="{StaticResource FlightSavedCellTemplate}" Width="20" MinWidth="20" />
-                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" SortDirection="Descending" />
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Phase" Binding="{Binding FlightPhase}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding Origin.Icao}" FontFamily="Consolas" FontSize="16" />

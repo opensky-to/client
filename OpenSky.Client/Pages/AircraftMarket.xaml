@@ -20,10 +20,11 @@
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       mc:Ignorable="d"
                       LoadingText="{Binding LoadingText}"
                       VerticalScrollBar="False" HorizontalScrollBar="False"
-                      d:DesignHeight="700" d:DesignWidth="800">
+                      d:DesignHeight="700" d:DesignWidth="1500">
     <UserControl.DataContext>
         <models:AircraftMarketViewModel />
     </UserControl.DataContext>
@@ -45,6 +46,11 @@
                 </DrawingGroup>
             </DrawingBrush.Drawing>
         </DrawingBrush>
+        <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="PurchasePrice" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding SearchCommand}" />
@@ -174,7 +180,7 @@
                 <FrameworkElement Grid.Row="1" x:Name="LocationVisibilityProxy" Visibility="{Binding LocationColumnVisibility}" />
                 <DataGrid
                     Grid.Row="1"
-                    ItemsSource="{Binding Aircraft}"
+                    ItemsSource="{Binding Source={StaticResource AircraftViewSource}}"
                     SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
@@ -202,7 +208,7 @@
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding Source={x:Reference LocationVisibilityProxy}, Path=Visibility}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTemplateColumn Header="Type" CellTemplate="{StaticResource AircraftTypeCellTemplate}" SortMemberPath="Type.Name" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
-                        <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />
+                        <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" SortDirection="Ascending" />
                         <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" />
                         <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" />
                     </DataGrid.Columns>
