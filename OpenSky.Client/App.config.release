@@ -31,6 +31,9 @@
 			<setting name="OpenSkyRefreshTokenExpiration" serializeAs="String">
 				<value />
 			</setting>
+			<setting name="DefaultUTCOffset" serializeAs="String">
+				<value>0</value>
+			</setting>
 		</OpenSky.Client.Properties.Settings>
 	</userSettings>
 	<applicationSettings>
