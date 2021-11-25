@@ -19,6 +19,7 @@
                  xmlns:ui="http://schemas.modernwpf.com/2019"
                  xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                  xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                  mc:Ignorable="d" 
                  LoadingText="{Binding LoadingText}" HorizontalScrollBar="False" VerticalScrollBar="False"
                  d:DesignHeight="450" d:DesignWidth="800">
@@ -27,6 +28,11 @@
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:UtcTimeStampConverter x:Key="UtcTimeStampConverter" />
+        <CollectionViewSource Source="{Binding DataImports}" x:Key="DataImportsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Started" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshDataImportsCommand}" />
@@ -57,7 +63,7 @@
                 <DataGrid 
                     x:Name="DataImportsGrid"
                     Grid.Row="1"
-                    ItemsSource="{Binding DataImports}"
+                    ItemsSource="{Binding Source={StaticResource DataImportsViewSource}}"
                     SelectedItem="{Binding SelectedImport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
