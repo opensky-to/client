@@ -20,6 +20,7 @@
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       mc:Ignorable="d" 
                       HorizontalScrollBar="False"
                       LoadingText="{Binding LoadingText}"
@@ -33,6 +34,11 @@
     </UserControl.InputBindings>
     <UserControl.Resources>
         <converters:VisibilityInverterConverter x:Key="VisibilityInverterConverter" />
+        <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Registry" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -61,7 +67,7 @@
                 </ui:CommandBar>
                 <DataGrid
                     Grid.Row="1"
-                    ItemsSource="{Binding Aircraft}"
+                    ItemsSource="{Binding Source={StaticResource AircraftViewSource}}"
                     SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
@@ -79,7 +85,7 @@
                         </DataTemplate>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" SortDirection="Ascending" />
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />

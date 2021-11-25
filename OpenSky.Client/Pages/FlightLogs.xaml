@@ -18,6 +18,7 @@
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" Loaded="FlightLogsOnLoaded"
                       mc:Ignorable="d" d:DesignHeight="450" d:DesignWidth="800">
@@ -27,6 +28,13 @@
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshFlightLogsCommand}" />
     </UserControl.InputBindings>
+    <UserControl.Resources>
+        <CollectionViewSource Source="{Binding FlightLogs}" x:Key="FlightLogsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="PlannedDepartureTime.UtcDateTime" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
     <GroupBox>
         <GroupBox.Header>
             <TextBlock FontSize="15" FontWeight="DemiBold">Flight Logs</TextBlock>
@@ -48,7 +56,7 @@
             </ui:CommandBar>
             <DataGrid
                 Grid.Row="1"
-                ItemsSource="{Binding FlightLogs}"
+                ItemsSource="{Binding Source={StaticResource FlightLogsViewSource}}"
                 SelectedItem="{Binding SelectedFlightLog, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
@@ -60,7 +68,7 @@
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenLogCommand}" />
                 </DataGrid.InputBindings>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                    <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" SortDirection="Descending" />
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
