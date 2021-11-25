@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -86,6 +87,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The UTC offset.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private double utcOffset;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The weight unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -104,6 +112,13 @@ namespace OpenSky.Client.Pages.Models
             // Create data structures
             this.WeightUnits = new ObservableCollection<WeightUnit>();
             this.FuelUnits = new ObservableCollection<FuelUnit>();
+            this.UtcOffsets = new SortedSet<double>();
+
+            // Populate UTC offsets from time zones
+            foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
+            {
+                this.UtcOffsets.Add(timeZone.BaseUtcOffset.TotalHours);
+            }
 
             // Add initial values
             foreach (WeightUnit unit in Enum.GetValues(typeof(WeightUnit)))
@@ -130,6 +145,7 @@ namespace OpenSky.Client.Pages.Models
             Properties.Settings.Default.Reload();
             this.WeightUnit = (WeightUnit)Properties.Settings.Default.WeightUnit;
             this.FuelUnit = (FuelUnit)Properties.Settings.Default.FuelUnit;
+            this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
 
@@ -164,13 +180,6 @@ namespace OpenSky.Client.Pages.Models
             // Load the initial airport package file info
             this.RefreshAirportPackageInfoCommand.DoExecute(null);
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the update profile image command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand UpdateProfileImageCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -383,10 +392,46 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the update profile image command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand UpdateProfileImageCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the user session.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public UserSessionService UserSession => UserSessionService.Instance;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the UTC offset.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double UtcOffset
+        {
+            get => this.utcOffset;
+
+            set
+            {
+                if (Equals(this.utcOffset, value))
+                {
+                    return;
+                }
+
+                this.utcOffset = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the UTC offsets.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public SortedSet<double> UtcOffsets { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -601,6 +646,7 @@ namespace OpenSky.Client.Pages.Models
             {
                 Properties.Settings.Default.WeightUnit = (int)this.WeightUnit;
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
+                Properties.Settings.Default.DefaultUTCOffset = this.UtcOffset;
 
                 Properties.Settings.Default.Save();
 

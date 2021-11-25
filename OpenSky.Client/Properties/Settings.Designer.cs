@@ -152,5 +152,17 @@ namespace OpenSky.Client.Properties {
                 return ((string)(this["AutoUpdateURL"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double DefaultUTCOffset {
+            get {
+                return ((double)(this["DefaultUTCOffset"]));
+            }
+            set {
+                this["DefaultUTCOffset"] = value;
+            }
+        }
     }
 }
