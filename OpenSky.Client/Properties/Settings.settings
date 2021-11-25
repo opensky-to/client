@@ -35,5 +35,8 @@
     <Setting Name="OpenSkyChangePasswordUrl" Type="System.String" Scope="Application">
       <Value Profile="(Default)">http://localhost:5001/changepassword</Value>
     </Setting>
+    <Setting Name="AutoUpdateURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://api.github.com/repos/opensky-to/client/releases/latest</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
