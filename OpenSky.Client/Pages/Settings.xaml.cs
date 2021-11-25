@@ -9,6 +9,7 @@ namespace OpenSky.Client.Pages
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Windows;
+    using System.Windows.Input;
     using System.Windows.Navigation;
 
     using OpenSky.Client.Pages.Models;
@@ -104,6 +105,44 @@ namespace OpenSky.Client.Pages
         private void HyperlinkOnRequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(e.Uri.ToString());
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Profile image on mouse enter.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Mouse event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void ProfileImageOnMouseEnter(object sender, MouseEventArgs e)
+        {
+            this.CameraCanvas.Visibility = this.ProfileImage.IsMouseOver || this.CameraCanvas.IsMouseOver ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Profile image on mouse leave.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Mouse event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void ProfileImageOnMouseLeave(object sender, MouseEventArgs e)
+        {
+            this.CameraCanvas.Visibility = this.ProfileImage.IsMouseOver || this.CameraCanvas.IsMouseOver ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// -------------------------------------------------------------------------------------------------
