@@ -130,8 +130,6 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void FlightPlanViewModelOnClosePage(object sender, object e)
         {
-            Debug.WriteLine(this.DockItem);
-
             if (this.Parent is ContentControl control)
             {
                 Debug.WriteLine(control);

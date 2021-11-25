@@ -53,6 +53,7 @@
                                    Loaded="PART_DockingManager_Loaded"
                                    CloseButtonClick="PART_DockingManager_CloseButtonClick"
                                    WindowClosing="PART_DockingManager_OnWindowClosing"
+                                   ChildrenCollectionChanged="PART_DockingManager_OnChildrenCollectionChanged"
                                    CloseAllTabs="PART_DockingManager_OnCloseAllTabs"
                                    CloseOtherTabs="PART_DockingManager_OnCloseOtherTabs"
                                    ActiveWindowChanged="PART_DockingManager_ActiveWindowChanged"
