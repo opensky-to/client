@@ -59,7 +59,7 @@ namespace OpenSky.Client.Controls
                 PrimaryBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#05826c")),
                 PrimaryForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC9C9C9")),
                 PrimaryColorForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC9C9C9")),
-                
+
                 BodyFontSize = 14,
                 HeaderFontSize = 18,
                 SubHeaderFontSize = 17,
@@ -68,7 +68,7 @@ namespace OpenSky.Client.Controls
                 BodyAltFontSize = 14,
                 FontFamily = new FontFamily("Montserrat"),
             };
-            
+
             // ReSharper restore PossibleNullReferenceException
             SfSkinManager.RegisterThemeSettings("MaterialDark", themeSettings);
 
@@ -296,10 +296,13 @@ namespace OpenSky.Client.Controls
                         var control = (from ContentControl element in this.PART_DockingManager.Children
                                        where Equals(element.Content, dockItem.Content)
                                        select element).FirstOrDefault();
-                        this.PART_DockingManager.Children.Remove(control);
-                        if (this.ItemsSource.Count == 0)
+                        if (control != null)
                         {
-                            this.ActiveDocument = null;
+                            this.PART_DockingManager.Children.Remove(control);
+                            if (this.ItemsSource.Count == 0)
+                            {
+                                this.ActiveDocument = null;
+                            }
                         }
                     }
                     else
@@ -464,6 +467,45 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Docking manager children collection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/11/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Notify collection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void PART_DockingManager_OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var remove in e.OldItems)
+                {
+                    if (remove is ContentControl contentControl)
+                    {
+                        // Check if we still have that page in our collection
+                        foreach (var item in this.ItemsSource)
+                        {
+                            if (item is DockItemEx dockItem)
+                            {
+                                if (Equals(dockItem.Content, contentControl.Content))
+                                {
+                                    this.ItemsSource.Remove(dockItem);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Docking manager close all tabs.
         /// </summary>
         /// <remarks>
@@ -479,7 +521,6 @@ namespace OpenSky.Client.Controls
         private void PART_DockingManager_OnCloseAllTabs(object sender, CloseTabEventArgs e)
         {
             Debug.WriteLine(e.ClosingTabItems);
-
             foreach (var closingTabItem in e.ClosingTabItems)
             {
                 if (closingTabItem is ContentControl { Content: ContentPresenter { Content: ContentControl contentControl } })
@@ -519,7 +560,6 @@ namespace OpenSky.Client.Controls
         private void PART_DockingManager_OnCloseOtherTabs(object sender, CloseTabEventArgs e)
         {
             Debug.WriteLine(e.ClosingTabItems);
-
             foreach (var closingTabItem in e.ClosingTabItems)
             {
                 if (closingTabItem is ContentControl { Content: ContentPresenter { Content: ContentControl contentControl } })
