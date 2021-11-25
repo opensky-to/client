@@ -9,6 +9,7 @@ namespace OpenSky.Client.Views.Models
     using System;
     using System.Reflection;
     using System.Threading;
+    using System.Windows;
 
     using JetBrains.Annotations;
 
@@ -54,6 +55,10 @@ namespace OpenSky.Client.Views.Models
             // Initialize commands
             this.StartupChecksCommand = new AsynchronousCommand(this.StartupChecks);
             this.StartupChecksCommand.DoExecute(null);
+
+            // Check for update
+            UpdateGUIDelegate autoUpdate = () => new AutoUpdate().Show();
+            Application.Current.Dispatcher.BeginInvoke(autoUpdate);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -87,7 +92,6 @@ namespace OpenSky.Client.Views.Models
                     // Ignore here
                 }
             }
-
 
             // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
             Thread.Sleep(Math.Max(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds, 0));

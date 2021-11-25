@@ -1,49 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-    <configSections>
-        <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
-            <section name="OpenSky.Client.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
-        </sectionGroup>
-        <sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
-            <section name="OpenSky.Client.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
-        </sectionGroup>
-    </configSections>
-    <startup> 
-        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />
-    </startup>
-    <userSettings>
-        <OpenSky.Client.Properties.Settings>
-            <setting name="SettingsUpdateRequired" serializeAs="String">
-                <value>True</value>
-            </setting>
-            <setting name="OpenSkyApiToken" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="OpenSkyRefreshToken" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="OpenSkyUsername" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="OpenSkyTokenExpiration" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="OpenSkyRefreshTokenExpiration" serializeAs="String">
-                <value />
-            </setting>
-        </OpenSky.Client.Properties.Settings>
-    </userSettings>
-    <applicationSettings>
-        <OpenSky.Client.Properties.Settings>
-            <setting name="OpenSkyTokenUrl" serializeAs="String">
-                <value>http://localhost:5001/apptoken/9CACF3C5-7F77-4F40-8DF0-933798960271</value>
-            </setting>
-            <setting name="OpenSkyAPIUrl" serializeAs="String">
-                <value>http://localhost:5000</value>
-            </setting>
-	        <setting name="OpenSkyChangePasswordUrl" serializeAs="String">
-		        <value>http://localhost:5001/changepassword</value>
-	        </setting>
-        </OpenSky.Client.Properties.Settings>
-    </applicationSettings>
+	<configSections>
+		<sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+			<section name="OpenSky.Client.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+		</sectionGroup>
+		<sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+			<section name="OpenSky.Client.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+		</sectionGroup>
+	</configSections>
+	<startup>
+		<supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />
+	</startup>
+	<userSettings>
+		<OpenSky.Client.Properties.Settings>
+			<setting name="SettingsUpdateRequired" serializeAs="String">
+				<value>True</value>
+			</setting>
+			<setting name="OpenSkyApiToken" serializeAs="String">
+				<value />
+			</setting>
+			<setting name="OpenSkyRefreshToken" serializeAs="String">
+				<value />
+			</setting>
+			<setting name="OpenSkyUsername" serializeAs="String">
+				<value />
+			</setting>
+			<setting name="OpenSkyTokenExpiration" serializeAs="String">
+				<value />
+			</setting>
+			<setting name="OpenSkyRefreshTokenExpiration" serializeAs="String">
+				<value />
+			</setting>
+		</OpenSky.Client.Properties.Settings>
+	</userSettings>
+	<applicationSettings>
+		<OpenSky.Client.Properties.Settings>
+			<setting name="OpenSkyTokenUrl" serializeAs="String">
+				<value>http://localhost:5001/apptoken/9CACF3C5-7F77-4F40-8DF0-933798960271</value>
+			</setting>
+			<setting name="OpenSkyAPIUrl" serializeAs="String">
+				<value>http://localhost:5000</value>
+			</setting>
+			<setting name="OpenSkyChangePasswordUrl" serializeAs="String">
+				<value>http://localhost:5001/changepassword</value>
+			</setting>
+			<setting name="AutoUpdateURL" serializeAs="String">
+				<value>https://api.github.com/repos/opensky-to/client/releases/latest</value>
+			</setting>
+		</OpenSky.Client.Properties.Settings>
+	</applicationSettings>
 </configuration>
