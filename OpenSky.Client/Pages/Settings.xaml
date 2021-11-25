@@ -44,12 +44,38 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    
-                    <Border HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="100" Height="100" CornerRadius="50,50,50,50">
+
+                    <Border HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="100" Height="100" CornerRadius="50,50,50,50" Name="ProfileImage" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave">
                         <Border.Background>
                             <ImageBrush Stretch="Fill" ImageSource="{Binding ProfileImage}" />
                         </Border.Background>
                     </Border>
+                    <Canvas HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="100" Height="100" Visibility="Collapsed" Name="CameraCanvas" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave" Cursor="Hand">
+                        <Canvas.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding UpdateProfileImageCommand}" />
+                        </Canvas.InputBindings>
+                        <Path Stroke="Black" StrokeThickness="1" Fill="Black" Opacity="0.8">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <RotateTransform Angle="90" CenterX="50" CenterY="50" />
+                                    <TranslateTransform Y="50" />
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathGeometry.Figures>
+                                        <PathFigure StartPoint="0,0" >
+                                            <PathFigure.Segments>
+                                                <ArcSegment Size="50,50" RotationAngle="45" IsLargeArc="True" SweepDirection="Clockwise" Point="0,100"/>
+                                                <LineSegment Point="0,0"></LineSegment>
+                                            </PathFigure.Segments>
+                                        </PathFigure >
+                                    </PathGeometry.Figures>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                        <Image Source="{StaticResource Camera}" Width="20" Canvas.Bottom="20" Canvas.Left="40" />
+                    </Canvas>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">OpenSky user:</TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding UserSession.Username}" />
