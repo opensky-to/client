@@ -1809,7 +1809,8 @@ namespace OpenSky.Client.Pages.Models
                                         {
                                             Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
                                             OriginICAO = this.SelectedAircraft.AirportICAO, DestinationICAO = this.OriginICAO, Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel,
-                                            DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}"
+                                            DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}",
+                                            UtcOffset = Properties.Settings.Default.DefaultUTCOffset
                                         }
                                     };
                                     Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);

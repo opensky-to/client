@@ -547,7 +547,7 @@ namespace OpenSky.Client.Pages.Models
                     Parameter = new FlightPlan
                     {
                         Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, OriginICAO = this.SelectedAircraft.AirportICAO,
-                        Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel
+                        Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel, UtcOffset = Properties.Settings.Default.DefaultUTCOffset
                     }
                 };
                 Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
