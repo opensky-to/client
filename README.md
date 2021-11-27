@@ -5,6 +5,7 @@
 ![Maintained][maintained-badge]
 [![Make a pull request][prs-badge]][prs]
 [![License][license-badge]](LICENSE.md)
+[![Github All Releases](https://img.shields.io/github/downloads/opensky-to/client/total.svg)]()
 
 OpenSky is an open-source airline management simulation currently in development. We are actively seeking aviation enthusiast whom would love to be part of this upcoming project and shape it with us! If you have experience in coding, graphical or game design and feel like you could be an asset to the project, please head over to the [contribute page](https://www.opensky.to/contribute) and do not hesitate to jump into our [Discord](https://discord.com/invite/eR3yePrj79) and say hello! We would love to hear your ideas and feedback and are actively collecting them in our [forums](https://forum.opensky.to/)!
 
