@@ -397,7 +397,7 @@ namespace OpenSky.Client.Controls
 
             this.TrackingEventMarkers.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
 
-            this.ShowAllMarkers(true);
+            this.ShowAllMarkers();
         }
 
         /// -------------------------------------------------------------------------------------------------
