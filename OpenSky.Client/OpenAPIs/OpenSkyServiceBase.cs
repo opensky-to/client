@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 // ReSharper disable once CheckNamespace
+
 namespace OpenSkyApi
 {
     using System;
@@ -36,6 +37,13 @@ namespace OpenSkyApi
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private readonly HttpClient httpClient;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The refresh token mutex.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly Mutex refreshTokenMutex = new(false);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -248,66 +256,104 @@ namespace OpenSkyApi
         /// -------------------------------------------------------------------------------------------------
         private async Task RefreshToken(CancellationToken cancellationToken)
         {
-            var requestBody = new RefreshToken
-            {
-                Token = UserSessionService.Instance.OpenSkyApiToken,
-                Refresh = UserSessionService.Instance.RefreshToken
-            };
-
-            var urlBuilder = new StringBuilder();
-            var baseUrl = Settings.Default.OpenSkyAPIUrl;
-            urlBuilder.Append(baseUrl != null ? baseUrl.TrimEnd('/') : "").Append("/Authentication/refreshToken");
-
-            using var request = new HttpRequestMessage();
-            var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(requestBody, this.settings.Value));
-            content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-            request.Content = content;
-            request.Method = new HttpMethod("POST");
-            request.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
-
-            var url = urlBuilder.ToString();
-            request.RequestUri = new Uri(url, UriKind.RelativeOrAbsolute);
-
-            var response = await this.httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
             try
             {
-                var headers = response.Headers.ToDictionary(h => h.Key, h => h.Value);
-                if (response.Content is { Headers: { } })
+                if (!this.refreshTokenMutex.WaitOne(30 * 1000))
                 {
-                    foreach (var header in response.Content.Headers)
-                    {
-                        headers[header.Key] = header.Value;
-                    }
+                    // Timeout refreshing token
+                    Debug.WriteLine("Timeout waiting for refresh token mutex.");
+                    return;
                 }
 
-                var status = (int)response.StatusCode;
-                if (status == 200)
+                // Now that we have the mutex, check if another refresh was successful in the meantime
+                if (!UserSessionService.Instance.CheckTokenNeedsRefresh())
                 {
-                    var objectResponse = await this.ReadObjectResponseAsync<RefreshTokenResponseApiResponse>(response, headers, cancellationToken).ConfigureAwait(false);
-                    if (objectResponse.Object == null)
+                    return;
+                }
+
+                var requestBody = new RefreshToken
+                {
+                    Token = UserSessionService.Instance.OpenSkyApiToken,
+                    Refresh = UserSessionService.Instance.RefreshToken
+                };
+
+                var urlBuilder = new StringBuilder();
+                var baseUrl = Settings.Default.OpenSkyAPIUrl;
+                urlBuilder.Append(baseUrl != null ? baseUrl.TrimEnd('/') : "").Append("/Authentication/refreshToken");
+
+                using var request = new HttpRequestMessage();
+                var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(requestBody, this.settings.Value));
+                content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                request.Content = content;
+                request.Method = new HttpMethod("POST");
+                request.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                var url = urlBuilder.ToString();
+                request.RequestUri = new Uri(url, UriKind.RelativeOrAbsolute);
+
+                var response = await this.httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    var headers = response.Headers.ToDictionary(h => h.Key, h => h.Value);
+                    if (response.Content is { Headers: { } })
                     {
-                        throw new ApiException("Response was null which was not expected.", status, objectResponse.Text, headers, null);
+                        foreach (var header in response.Content.Headers)
+                        {
+                            headers[header.Key] = header.Value;
+                        }
                     }
 
-                    if (!objectResponse.Object.IsError)
+                    var status = (int)response.StatusCode;
+                    if (status == 200)
                     {
-                        UserSessionService.Instance.TokensWereRefreshed(objectResponse.Object.Data);
+                        var objectResponse = await this.ReadObjectResponseAsync<RefreshTokenResponseApiResponse>(response, headers, cancellationToken).ConfigureAwait(false);
+                        if (objectResponse.Object == null)
+                        {
+                            throw new ApiException("Response was null which was not expected.", status, objectResponse.Text, headers, null);
+                        }
+
+                        if (!objectResponse.Object.IsError)
+                        {
+                            UserSessionService.Instance.TokensWereRefreshed(objectResponse.Object.Data);
+                        }
+                        else
+                        {
+                            // Check if another refresh caused a server side concurrency issue but the other request completed the refresh successfully
+                            if (!UserSessionService.Instance.CheckTokenNeedsRefresh())
+                            {
+                                return;
+                            }
+
+                            throw new ApiException($"Unable to refresh OpenSky token: {objectResponse.Object.Message}", 401, objectResponse.Text, headers, null);
+                        }
                     }
                     else
                     {
-                        throw new ApiException($"Unable to refresh OpenSky token: {objectResponse.Object.Message}", 401, objectResponse.Text, headers, null);
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                        var responseData = response.Content == null ? null : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        throw new ApiException("The HTTP status code of the response was not expected (" + status + ").", status, responseData, headers, null);
                     }
                 }
-                else
+                finally
                 {
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                    var responseData = response.Content == null ? null : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    throw new ApiException("The HTTP status code of the response was not expected (" + status + ").", status, responseData, headers, null);
+                    response.Dispose();
                 }
+            }
+            catch (AbandonedMutexException)
+            {
+                //Ignore and retry
+                await this.RefreshToken(cancellationToken);
             }
             finally
             {
-                response.Dispose();
+                try
+                {
+                    this.refreshTokenMutex.ReleaseMutex();
+                }
+                catch
+                {
+                    // Ignore
+                }
             }
         }
 
