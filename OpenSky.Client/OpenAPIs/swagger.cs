@@ -5567,6 +5567,14 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("nextVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid? NextVersion { get; set; }
     
+        /// <summary>Gets or sets a value indicating whether the aircraft type requires manual fuelling.</summary>
+        [Newtonsoft.Json.JsonProperty("requiresManualFuelling", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool RequiresManualFuelling { get; set; }
+    
+        /// <summary>Gets or sets a value indicating whether the aircraft type requires manual loading.</summary>
+        [Newtonsoft.Json.JsonProperty("requiresManualLoading", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool RequiresManualLoading { get; set; }
+    
         [Newtonsoft.Json.JsonProperty("simulator", Required = Newtonsoft.Json.Required.Always)]
         public Simulator Simulator { get; set; }
     
