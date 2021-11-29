@@ -92,6 +92,10 @@ namespace OpenSky.Client.Views.Models
             this.NavigationItems.Add(aircraftMarket);
 
             var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
+            this.NavigationItems.Add(tools);
+            var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
+            tools.Children.Add(aircraftTypes);
+
             if (UserSessionService.Instance.IsAdmin)
             {
                 var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
@@ -104,11 +108,6 @@ namespace OpenSky.Client.Views.Models
             if (UserSessionService.Instance.IsModerator)
             {
                 // todo add moderator only navigation items, once we have some :)
-            }
-
-            if (tools.Children.Count > 0)
-            {
-                this.NavigationItems.Add(tools);
             }
 
             var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };

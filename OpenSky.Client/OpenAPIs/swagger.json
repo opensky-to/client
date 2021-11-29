@@ -3175,6 +3175,14 @@
             "format": "uuid",
             "nullable": true
           },
+          "requiresManualFuelling": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft type requires manual fuelling."
+          },
+          "requiresManualLoading": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft type requires manual loading."
+          },
           "simulator": {
             "$ref": "#/components/schemas/Simulator"
           },

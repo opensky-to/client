@@ -127,6 +127,8 @@
     <Compile Include="Controls\SkybucksCurrency.xaml.cs">
       <DependentUpon>SkybucksCurrency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
+    <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\MapZoomLevelVisibilityConverter.cs" />
     <Compile Include="Converters\NullItemToEnabledConverter.cs" />
@@ -139,6 +141,10 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
+    <Compile Include="Pages\AircraftTypes.xaml.cs">
+      <DependentUpon>AircraftTypes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Models\AircraftTypesViewModel.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
     <Compile Include="Pages\WorldMap.xaml.cs">
       <DependentUpon>WorldMap.xaml</DependentUpon>
@@ -273,6 +279,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\AircraftMarket.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AircraftTypes.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
