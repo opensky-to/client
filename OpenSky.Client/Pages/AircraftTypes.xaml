@@ -28,7 +28,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="2000">
     <UserControl.DataContext>
-        <models:AircraftTypesViewModel />
+        <models:AircraftTypesViewModel x:Name="ViewModel" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:AircraftTypeEngineInfoConverter x:Key="AircraftTypeEngineInfoConverter" />
@@ -96,32 +96,32 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -256,6 +256,11 @@
                         <ui:AppBarButton Icon="Accept" Label="Enable" ToolTip="Enable the selected aircraft type" Command="{Binding EnableTypeCommand}" />
                         <ui:AppBarButton Icon="Clear" Label="Disable" ToolTip="Disable the selected aircraft type" Command="{Binding DisableTypeCommand}" />
                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected aircraft type" Command="{Binding StartEditAircraftCommand}" />
+                        <ui:AppBarButton Label="Check upgrades" ToolTip="Check for and display available aircraft type upgrades" Command="{Binding GetAircraftUpgradesCommand}">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE762;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
                     </ui:CommandBar.PrimaryCommands>
                     <ui:CommandBar.SecondaryCommands>
                         <ui:AppBarButton Icon="Accept" Label="Enable checks" ToolTip="Enable the selected aircraft type's detailed checks (Only for patch days!)" Command="{Binding EnableDetailedChecksCommand}" />
@@ -316,23 +321,23 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -407,6 +412,43 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <!-- todo grid.column 3 is for new update type manager -->
+        <GroupBox Grid.Column="3" Visibility="{Binding UpgradeAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Upgrade aircraft types</TextBlock>
+                    <Button Padding="0" MinHeight="20" MaxHeight="20" Margin="5,0,0,0" Command="{Binding CloseUpgradeAircraftCommand}">✖</Button>
+                </StackPanel>
+            </GroupBox.Header>
+            <ItemsControl ItemsSource="{Binding AircraftUpgrades}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="openSkyApi:AircraftTypeUpgrade">
+                        <Border Background="{StaticResource OpenSkyGroupboxBackgroundBrush}" BorderBrush="{StaticResource OpenSkyDarkGrayHeaderBrush}" BorderThickness="1" CornerRadius="2">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">From type:</TextBlock>
+                                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">To type:</TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">#Aircraft:</TextBlock>
+
+                                <TextBlock Grid.Row="0" Grid.Column="1" FontFamily="Consolas" VerticalAlignment="Center" Margin="5,0,10,0" Text="{Binding From}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontFamily="Consolas" VerticalAlignment="Center" Margin="5,0,10,0" Text="{Binding To}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontFamily="Consolas" VerticalAlignment="Center" Margin="5,0,10,0" Text="{Binding AircraftCount}" />
+
+                                <Button Style="{StaticResource OpenSkyButtonStyle}" Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Command="{Binding UpdateAircraftTypeCommand, ElementName=ViewModel}" CommandParameter="{Binding}">Upgrade</Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </GroupBox>
     </Grid>
 </controls:OpenSkyPage>

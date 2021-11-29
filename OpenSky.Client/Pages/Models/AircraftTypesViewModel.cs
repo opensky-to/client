@@ -17,6 +17,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
+    using TomsToolbox.Essentials;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Aircraft types view model.
@@ -78,6 +80,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The upgrade aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility upgradeAircraftVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="AircraftTypesViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -88,6 +97,7 @@ namespace OpenSky.Client.Pages.Models
         {
             this.ExistingAircraftTypes = new ObservableCollection<AircraftType>();
             this.SelectedAircraftTypes = new ObservableCollection<AircraftType>();
+            this.AircraftUpgrades = new ObservableCollection<AircraftTypeUpgrade>();
 
             this.GetUserRolesCommand = new AsynchronousCommand(this.GetUserRoles);
             this.RefreshAircraftTypesCommand = new AsynchronousCommand(this.RefreshAircraftTypes);
@@ -102,6 +112,9 @@ namespace OpenSky.Client.Pages.Models
             this.ClearVariantOfEditedCommand = new Command(this.ClearVariantOfEdited);
             this.ClearNextVersionOfEditedCommand = new Command(this.ClearNextVersionOfEdited);
             this.SaveEditedAircraftTypeCommand = new AsynchronousCommand(this.SaveEditedAircraftType, false);
+            this.GetAircraftUpgradesCommand = new AsynchronousCommand(this.GetAircraftUpgrades, false);
+            this.CloseUpgradeAircraftCommand = new Command(this.CloseUpgradeAircraft);
+            this.UpdateAircraftTypeCommand = new AsynchronousCommand(this.UpdateAircraftType);
 
             this.GetUserRolesCommand.DoExecute(null);
         }
@@ -126,6 +139,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft upgrades.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftTypeUpgrade> AircraftUpgrades { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -154,6 +174,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command ClearVariantOfEditedCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the close upgrade aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command CloseUpgradeAircraftCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -287,6 +314,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the get aircraft upgrades command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetAircraftUpgradesCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the get user roles command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -376,6 +410,47 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command StartEditAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the update aircraft type command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand UpdateAircraftTypeCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the upgrade aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility UpgradeAircraftVisibility
+        {
+            get => this.upgradeAircraftVisibility;
+
+            set
+            {
+                if (Equals(this.upgradeAircraftVisibility, value))
+                {
+                    return;
+                }
+
+                this.upgradeAircraftVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Closes the upgrade aircraft view and clears the upgrades collection.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 29/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void CloseUpgradeAircraft()
+        {
+            this.UpgradeAircraftVisibility = Visibility.Collapsed;
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -692,6 +767,60 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the available aircraft upgrades.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 29/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetAircraftUpgrades()
+        {
+            if (!UserSessionService.Instance.IsModerator)
+            {
+                return;
+            }
+
+            this.LoadingText = "Checking for available aircraft type upgrades...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAircraftTypeUpgradesAsync().Result;
+                if (!result.IsError)
+                {
+                    this.GetAircraftUpgradesCommand.ReportProgress(
+                        () =>
+                        {
+                            this.AircraftUpgrades.Clear();
+                            this.AircraftUpgrades.AddRange(result.Data);
+                            this.UpgradeAircraftVisibility = Visibility.Visible;
+                        });
+                }
+                else
+                {
+                    this.GetAircraftUpgradesCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error checking for aircraft type upgrades: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error checking for aircraft type upgrades", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.GetAircraftUpgradesCommand, "Error checking for aircraft type upgrades");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the user's OpenSky roles.
         /// </summary>
         /// <remarks>
@@ -704,11 +833,21 @@ namespace OpenSky.Client.Pages.Models
             var result = UserSessionService.Instance.UpdateUserRoles().Result;
             if (result)
             {
-                this.GetUserRolesCommand.ReportProgress(() => this.RefreshAircraftTypesCommand.DoExecute(null));
+                this.GetUserRolesCommand.ReportProgress(
+                    () =>
+                    {
+                        this.RefreshAircraftTypesCommand.DoExecute(null);
+                        this.GetAircraftUpgradesCommand.CanExecute = UserSessionService.Instance.IsModerator;
+                    });
             }
             else
             {
-                this.GetUserRolesCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Error fetching your user roles.", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.GetUserRolesCommand.ReportProgress(
+                    () =>
+                    {
+                        ModernWpf.MessageBox.Show("Error fetching your user roles.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        this.GetAircraftUpgradesCommand.CanExecute = false;
+                    });
             }
 
             this.LoadingText = null;
@@ -853,6 +992,55 @@ namespace OpenSky.Client.Pages.Models
             if (this.SelectedAircraftType.NextVersion.HasValue)
             {
                 this.EditedNextVersion = this.ExistingAircraftTypes.SingleOrDefault(t => t.Id == this.SelectedAircraftType.NextVersion);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Perform the specified aircraft type upgrade.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 29/11/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdateAircraftType(object parameter)
+        {
+            if (parameter is AircraftTypeUpgrade upgrade)
+            {
+                this.LoadingText = "Upgrading aircraft...";
+                try
+                {
+                    var result = OpenSkyService.Instance.UpgradeAircraftTypeAsync(upgrade).Result;
+                    if (!result.IsError)
+                    {
+                        this.UpdateAircraftTypeCommand.ReportProgress(() => this.GetAircraftUpgradesCommand.DoExecute(null));
+                    }
+                    else
+                    {
+                        this.UpdateAircraftTypeCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error performing aircraft type upgrade: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                ModernWpf.MessageBox.Show(result.Message, "Error performing aircraft type upgrade", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.HandleApiCallException(this.UpdateAircraftTypeCommand, "Error performing aircraft type upgrade");
+                }
+                finally
+                {
+                    this.LoadingText = null;
+                }
             }
         }
     }
