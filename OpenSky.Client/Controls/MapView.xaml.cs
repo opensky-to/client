@@ -232,6 +232,7 @@ namespace OpenSky.Client.Controls
         {
             if (!this.userMapInteraction || overrideUser)
             {
+                var anyMarkers = false;
                 var minLat = 90.0;
                 var maxLat = -90.0;
                 var minLon = 80.0;
@@ -243,6 +244,7 @@ namespace OpenSky.Client.Controls
                     maxLat = Math.Max(maxLat, this.AircraftPositions.Max(l => l.Location.Latitude));
                     minLon = Math.Min(minLon, this.AircraftPositions.Min(l => l.Location.Longitude));
                     maxLon = Math.Max(maxLon, this.AircraftPositions.Max(l => l.Location.Longitude));
+                    anyMarkers = true;
                 }
 
                 if (this.SimbriefRouteLocations.Count > 0)
@@ -251,6 +253,7 @@ namespace OpenSky.Client.Controls
                     maxLat = Math.Max(maxLat, this.SimbriefRouteLocations.Max(l => l.Latitude));
                     minLon = Math.Min(minLon, this.SimbriefRouteLocations.Min(l => l.Longitude));
                     maxLon = Math.Max(maxLon, this.SimbriefRouteLocations.Max(l => l.Longitude));
+                    anyMarkers = true;
                 }
 
                 if (this.SimbriefWaypointMarkers.Count > 0)
@@ -259,6 +262,7 @@ namespace OpenSky.Client.Controls
                     maxLat = Math.Max(maxLat, this.SimbriefWaypointMarkers.Max(m => m.WayPoint.Latitude));
                     minLon = Math.Min(minLon, this.SimbriefWaypointMarkers.Min(m => m.WayPoint.Longitude));
                     maxLon = Math.Max(maxLon, this.SimbriefWaypointMarkers.Max(m => m.WayPoint.Longitude));
+                    anyMarkers = true;
                 }
 
                 if (this.TrackingEventMarkers.Count > 0)
@@ -267,22 +271,26 @@ namespace OpenSky.Client.Controls
                     maxLat = Math.Max(maxLat, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Latitude));
                     minLon = Math.Min(minLon, this.TrackingEventMarkers.Min(m => m.GeoCoordinate.Longitude));
                     maxLon = Math.Max(maxLon, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Longitude));
+                    anyMarkers = true;
                 }
 
-                // Add a bit of a margin around the view to zoom into
-                minLat = Math.Max(-90.0, minLat - 0.5);
-                maxLat = Math.Min(90.0, maxLat + 0.5);
-                minLon = Math.Max(-180.0, minLon - 2);
-                maxLon = Math.Min(80, maxLon + 2);
-
-                UpdateGUIDelegate moveMap = () =>
+                if (anyMarkers)
                 {
-                    this.WpfMapView.AnimationLevel = AnimationLevel.None;
-                    this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
-                    this.WpfMapView.AnimationLevel = AnimationLevel.Full;
-                };
-                this.Dispatcher.BeginInvoke(moveMap);
-                this.userMapInteraction = false;
+                    // Add a bit of a margin around the view to zoom into
+                    minLat = Math.Max(-90.0, minLat - 0.5);
+                    maxLat = Math.Min(90.0, maxLat + 0.5);
+                    minLon = Math.Max(-180.0, minLon - 2);
+                    maxLon = Math.Min(80, maxLon + 2);
+
+                    UpdateGUIDelegate moveMap = () =>
+                    {
+                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
+                        this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
+                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
+                    };
+                    this.Dispatcher.BeginInvoke(moveMap);
+                    this.userMapInteraction = false;
+                }
             }
         }
 

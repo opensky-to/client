@@ -1308,7 +1308,7 @@ namespace OpenSky.Client.Pages.Models
                     //}
 
                     // Remove comments
-                    while (sbOfpHtml.Contains("<!--"))
+                    while (sbOfpHtml.Contains("<!--") && sbOfpHtml.Contains("-->"))
                     {
                         var start = sbOfpHtml.IndexOf("<!--", StringComparison.InvariantCultureIgnoreCase);
                         var end = sbOfpHtml.IndexOf("-->", start, StringComparison.InvariantCultureIgnoreCase);
@@ -1322,7 +1322,7 @@ namespace OpenSky.Client.Pages.Models
                     sbOfpHtml = sbOfpHtml.Replace("<h2 style=\"page-break-after: always;\"> </h2>", "\r\n\r\n");
 
                     // Remove html tags
-                    while (sbOfpHtml.Contains("<"))
+                    while (sbOfpHtml.Contains("<") && sbOfpHtml.Contains(">"))
                     {
                         var start = sbOfpHtml.IndexOf("<", StringComparison.InvariantCultureIgnoreCase);
                         var end = sbOfpHtml.IndexOf(">", start, StringComparison.InvariantCultureIgnoreCase);
