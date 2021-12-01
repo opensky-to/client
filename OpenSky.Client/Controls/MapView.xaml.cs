@@ -466,6 +466,11 @@ namespace OpenSky.Client.Controls
                         BindingOperations.ClearBinding(item, SimbriefWaypointMarker.TextLabelVisibleProperty);
                     }
 
+                    if (BindingOperations.IsDataBound(item, SimbriefWaypointMarker.TextLabelFontSizeProperty))
+                    {
+                        BindingOperations.ClearBinding(item, SimbriefWaypointMarker.TextLabelFontSizeProperty);
+                    }
+
                     this.WpfMapView.Children.Add(item);
 
                     // Add zoom level -> visibility and font size bindings with custom converters

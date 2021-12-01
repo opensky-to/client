@@ -1255,6 +1255,31 @@ namespace OpenSky.Client.Pages.Models
                 var sbRoute = (string)ofp.Element("general")?.Element("route");
                 if (!string.IsNullOrEmpty(sbRoute))
                 {
+                    // Add airports and runways to route
+                    var sbOriginRunway = (string)ofp.Element("origin")?.Element("plan_rwy");
+                    var sbDestinationRunway = (string)ofp.Element("destination")?.Element("plan_rwy");
+                    if (!string.IsNullOrEmpty(sbOriginICAO))
+                    {
+                        var prefix = sbOriginICAO;
+                        if (!string.IsNullOrEmpty(sbOriginRunway))
+                        {
+                            prefix += $"/{sbOriginRunway}";
+                        }
+
+                        sbRoute = $"{prefix} {sbRoute}";
+                    }
+
+                    if (!string.IsNullOrEmpty(sbDestinationICAO))
+                    {
+                        var postFix = sbDestinationICAO;
+                        if (!string.IsNullOrEmpty(sbDestinationRunway))
+                        {
+                            postFix += $"/{sbDestinationRunway}";
+                        }
+
+                        sbRoute += $" {postFix}";
+                    }
+
                     if (string.IsNullOrEmpty(this.Route))
                     {
                         this.Route = sbRoute;
@@ -1276,6 +1301,19 @@ namespace OpenSky.Client.Pages.Models
                 var sbAlternateRoute = (string)ofp.Element("alternate")?.Element("route");
                 if (!string.IsNullOrEmpty(sbAlternateRoute))
                 {
+                    // Add airport and runway to route
+                    var sbAlternateRunway = (string)ofp.Element("alternate")?.Element("plan_rwy");
+                    if (!string.IsNullOrEmpty(sbAlternateICAO))
+                    {
+                        var postFix = sbAlternateICAO;
+                        if (!string.IsNullOrEmpty(sbAlternateRunway))
+                        {
+                            postFix += $"/{sbAlternateRunway}";
+                        }
+
+                        sbAlternateRoute += $" {postFix}";
+                    }
+
                     if (string.IsNullOrEmpty(this.AlternateRoute))
                     {
                         this.AlternateRoute = sbAlternateRoute;

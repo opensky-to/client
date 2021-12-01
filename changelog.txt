@@ -3,34 +3,44 @@ OpenSky Client Changelog
 ========================================================================================================================================================
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+Version 0.2.2 (ALPHA2)
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+- Improved simBrief OFP download
+- Dynamic font size for simBrief waypoints on maps
+- Improved initial zoom for world map
+- Aircraft in flight plans now display their current location
+- Changed when account overview and linked accounts are updated
+- simBrief route descriptions now contain airports/runways
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 Version 0.2.1 (ALPHA2)
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-*) Improved concurrent token refresh handling
-*) Fixed map-viewer crash
-*) Added aircraft type management from agent-msfs
-*) Fixed simBrief download OFP endless loop 
-*) Added aircraft type upgrade
+- Improved concurrent token refresh handling
+- Fixed map-viewer crash
+- Added aircraft type management from agent-msfs
+- Fixed simBrief download OFP endless loop 
+- Added aircraft type upgrade
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 Version 0.2.0 (ALPHA2)
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-*) New aircraft variant system
-*) New purchase aircraft view
-*) Profile image can be changed from settings
-*) Added auto update support
-*) Added default UTC offset setting
-*) Fixed bug that could prevent the main menu from working correctly
-*) Applied initial sorting to most data grids
+- New aircraft variant system
+- New purchase aircraft view
+- Profile image can be changed from settings
+- Added auto update support
+- Added default UTC offset setting
+- Fixed bug that could prevent the main menu from working correctly
+- Applied initial sorting to most data grids
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 Version 0.1.1 (ALPHA1)
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-*) Added support for re-positioning flights
-*) Added missing airport markers to flight-log map view
-*) Fixed too many digits on world map tooltips
-*) Improved settings view login/logout handling
+- Added support for re-positioning flights
+- Added missing airport markers to flight-log map view
+- Fixed too many digits on world map tooltips
+- Improved settings view login/logout handling
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 Version 0.1.0 (ALPHA1)
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-*) First version released to alpha testers
+- First version released to alpha testers

@@ -86,7 +86,7 @@ namespace OpenSky.Client.Controls.Models
             BindingOperations.SetBinding(textBorder, VisibilityProperty, visibilityBinding);
             this.Children.Add(textBorder);
 
-            textBorder.Child = new TextBlock
+            var textBlock = new TextBlock
             {
                 Text = name,
                 Foreground = new SolidColorBrush(OpenSkyColors.OpenSkySimBriefText),
@@ -97,6 +97,9 @@ namespace OpenSky.Client.Controls.Models
                 FontSize = 11,
                 Margin = new Thickness(3)
             };
+            var fontSizeBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelFontSize"), Mode = BindingMode.OneWay };
+            BindingOperations.SetBinding(textBlock, TextBlock.FontSizeProperty, fontSizeBinding);
+            textBorder.Child = textBlock;
 
             MapLayer.SetPosition(this, new Location(lat, lon));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
