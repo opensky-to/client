@@ -7,7 +7,6 @@
 namespace OpenSky.Client.Pages
 {
     using System.Windows;
-    using System.Windows.Controls;
 
     using DataGridExtensions;
 

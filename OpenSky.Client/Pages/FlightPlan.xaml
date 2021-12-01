@@ -18,6 +18,7 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                          xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                           LoadingText="{Binding LoadingText}"
                           Loaded="FlightPlanOnLoaded" VerticalScrollBar="False" HorizontalScrollBar="False"
                           mc:Ignorable="d"
@@ -112,7 +113,18 @@
                         </GroupBox.Header>
                         <StackPanel Orientation="Vertical">
                             <Grid>
-                                <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" />
+                                <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate DataType="openSkyApi:Aircraft">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding}" />
+                                                <TextBlock Margin="8,0,0,0">[</TextBlock>
+                                                <TextBlock Text="{Binding AirportICAO}" />
+                                                <TextBlock>]</TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2,30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=AircraftCombo, Converter={StaticResource NullItemToVisibilityConverter}}" Command="{Binding ClearAircraftCommand}" />
                             </Grid>
                             <Grid Margin="5" IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
