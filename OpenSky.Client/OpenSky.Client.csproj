@@ -130,6 +130,7 @@
     <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\MapZoomLevelFontSizeConverter.cs" />
     <Compile Include="Converters\MapZoomLevelVisibilityConverter.cs" />
     <Compile Include="Converters\NullItemToEnabledConverter.cs" />
     <Compile Include="Converters\NullItemToVisibilityConverter.cs" />

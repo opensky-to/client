@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MapZoomLevelVisibilityConverter.cs" company="OpenSky">
+// <copyright file="MapZoomLevelFontSizeConverter.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -8,26 +8,25 @@ namespace OpenSky.Client.Converters
 {
     using System;
     using System.Globalization;
-    using System.Windows;
     using System.Windows.Data;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Map zoom level visibility converter.
+    /// Map zoom level font size converter.
     /// </summary>
     /// <remarks>
-    /// sushi.at, 22/03/2021.
+    /// sushi.at, 01/12/2021.
     /// </remarks>
     /// <seealso cref="T:System.Windows.Data.IValueConverter"/>
     /// -------------------------------------------------------------------------------------------------
-    public class MapZoomLevelVisibilityConverter : IValueConverter
+    public class MapZoomLevelFontSizeConverter : IValueConverter
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Converts a value.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 22/03/2021.
+        /// sushi.at, 01/12/2021.
         /// </remarks>
         /// <param name="value">
         /// The value produced by the binding source.
@@ -51,16 +50,13 @@ namespace OpenSky.Client.Converters
         {
             if (value is double zoomLevel)
             {
-                var zoomLevelThreshold = 7.5;
-                if (parameter is double threshold)
-                {
-                    zoomLevelThreshold = threshold;
-                }
-
-                return zoomLevel > zoomLevelThreshold ? Visibility.Visible : Visibility.Collapsed;
+                var fontSize = Math.Round(zoomLevel, 1);
+                fontSize = Math.Max(fontSize, 6);
+                fontSize = Math.Min(fontSize, 16);
+                return fontSize;
             }
 
-            return Visibility.Visible;
+            return 11;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -68,7 +64,7 @@ namespace OpenSky.Client.Converters
         /// Converts a value - not supported.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 22/03/2021.
+        /// sushi.at, 01/12/2021.
         /// </remarks>
         /// <param name="value">
         /// The value that is produced by the binding target.

@@ -28,6 +28,13 @@ namespace OpenSky.Client.Controls.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The text label font size property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register("TextLabelFontSize", typeof(double), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(11.0));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The text label visible property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -128,12 +135,12 @@ namespace OpenSky.Client.Controls.Models
                 });
 
             var textBorder = new Border
-            { BorderBrush = null, Background = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), CornerRadius = new CornerRadius(1.5), Margin = this.waypoint.WaypointType != "wpt" ? new Thickness(0, 0, 0, 45) : new Thickness(0, 40, 0, 0) };
+                { BorderBrush = null, Background = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), CornerRadius = new CornerRadius(1.5), Margin = this.waypoint.WaypointType != "wpt" ? new Thickness(0, 0, 0, 45) : new Thickness(0, 40, 0, 0) };
             var visibilityBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelVisible"), Mode = BindingMode.OneWay };
             BindingOperations.SetBinding(textBorder, VisibilityProperty, visibilityBinding);
             this.Children.Add(textBorder);
 
-            textBorder.Child = new TextBlock
+            var textBlock = new TextBlock
             {
                 Text = this.waypoint.WaypointName,
                 Foreground = new SolidColorBrush(OpenSkyColors.OpenSkySimBriefText),
@@ -144,9 +151,24 @@ namespace OpenSky.Client.Controls.Models
                 FontSize = 11,
                 Margin = new Thickness(3)
             };
+            var fontSizeBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelFontSize"), Mode = BindingMode.OneWay };
+            BindingOperations.SetBinding(textBlock, TextBlock.FontSizeProperty, fontSizeBinding);
+            textBorder.Child = textBlock;
 
             MapLayer.SetPosition(this, new Location(this.waypoint.Latitude, this.waypoint.Longitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the size of the text label font.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public double TextLabelFontSize
+        {
+            get => (double)this.GetValue(TextLabelFontSizeProperty);
+            set => this.SetValue(TextLabelFontSizeProperty, value);
         }
 
         /// -------------------------------------------------------------------------------------------------

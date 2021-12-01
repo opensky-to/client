@@ -11,7 +11,6 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -469,9 +468,11 @@ namespace OpenSky.Client.Controls
 
                     this.WpfMapView.Children.Add(item);
 
-                    // Add zoom level -> visibility binding with custom converter
-                    var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter() };
+                    // Add zoom level -> visibility and font size bindings with custom converters
+                    var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = 6.0 };
                     BindingOperations.SetBinding(item, SimbriefWaypointMarker.TextLabelVisibleProperty, zoomLevelBinding);
+                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelFontSizeConverter() };
+                    BindingOperations.SetBinding(item, SimbriefWaypointMarker.TextLabelFontSizeProperty, fontSizeBinding);
                 }
             }
 
