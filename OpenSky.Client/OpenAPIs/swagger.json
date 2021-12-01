@@ -68,7 +68,7 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "Account"
         ],
@@ -95,6 +95,49 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Account/tokenRenewalCountryVerification/{enableVerification}": {
+      "put": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Sets the token renewal country verification.",
+        "description": "sushi.at, 30/11/2021.",
+        "operationId": "SetTokenRenewalCountryVerification",
+        "parameters": [
+          {
+            "name": "enableVerification",
+            "in": "path",
+            "description": "True to enable, false to disable the verification.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -2927,6 +2970,10 @@
             "description": "Gets or sets the profile image.",
             "format": "byte",
             "nullable": true
+          },
+          "tokenRenewalCountryVerification": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the token renewal country verification is enabled."
           }
         },
         "additionalProperties": false,
@@ -3714,6 +3761,14 @@
             "type": "integer",
             "description": "Gets or sets the number of runways.",
             "format": "int32"
+          },
+          "runways": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Runway"
+            },
+            "description": "Gets or sets the runways.",
+            "nullable": true
           },
           "size": {
             "type": "integer",
@@ -6293,6 +6348,154 @@
         },
         "additionalProperties": false,
         "description": "Revoke token by name and expiry model."
+      },
+      "Runway": {
+        "required": [
+          "airportICAO",
+          "surface"
+        ],
+        "type": "object",
+        "properties": {
+          "airportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airport ICAO."
+          },
+          "altitude": {
+            "type": "integer",
+            "description": "Gets or sets the altitude.",
+            "format": "int32"
+          },
+          "centerLight": {
+            "maxLength": 1,
+            "minLength": 0,
+            "type": "string",
+            "description": "The type of center lighting (NULL for no lighting).",
+            "nullable": true
+          },
+          "edgeLight": {
+            "maxLength": 1,
+            "minLength": 0,
+            "type": "string",
+            "description": "The type of available edge lighting (NULL for no lighting).",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "description": "Gets or sets the runway ID.",
+            "format": "int32"
+          },
+          "length": {
+            "type": "integer",
+            "description": "Gets or sets the length of the runway in feet.",
+            "format": "int32"
+          },
+          "runwayEnds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunwayEnd"
+            },
+            "description": "Gets or sets the runway ends.",
+            "nullable": true
+          },
+          "surface": {
+            "maxLength": 7,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the surface type (can be \"UNKNOWN\" in a few cases)."
+          },
+          "width": {
+            "type": "integer",
+            "description": "Gets or sets the width of the runway in feet.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Runway model."
+      },
+      "RunwayEnd": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "approachLightSystem": {
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the approach light system (NULL for no approach light).",
+            "nullable": true
+          },
+          "hasClosedMarkings": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the runway end has closed markings painted on it."
+          },
+          "heading": {
+            "type": "number",
+            "description": "Gets or sets the compass heading.",
+            "format": "double"
+          },
+          "id": {
+            "type": "integer",
+            "description": "Gets or sets the runway end ID.",
+            "format": "int32"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets or sets the latitude.",
+            "format": "double"
+          },
+          "leftVasiPitch": {
+            "type": "number",
+            "description": "Gets or sets the left VASI pitch angle.",
+            "format": "double",
+            "nullable": true
+          },
+          "leftVasiType": {
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the left VASI (Visual approach slope indicator) type.",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets or sets the longitude.",
+            "format": "double"
+          },
+          "name": {
+            "maxLength": 10,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the name (for example 04L)."
+          },
+          "offsetThreshold": {
+            "type": "integer",
+            "description": "Gets or sets the offset threshold in feet.",
+            "format": "int32"
+          },
+          "rightVasiPitch": {
+            "type": "number",
+            "description": "Gets or sets the right VASI pitch angle.",
+            "format": "double",
+            "nullable": true
+          },
+          "rightVasiType": {
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the right VASI (Visual approach slope indicator) type.",
+            "nullable": true
+          },
+          "runwayID": {
+            "type": "integer",
+            "description": "Gets or sets the parent runway ID.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Runway-End model."
       },
       "Simulator": {
         "enum": [

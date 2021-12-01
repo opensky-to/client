@@ -224,7 +224,88 @@ namespace OpenSkyApi
                     var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<StringApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <summary>Sets the token renewal country verification.</summary>
+        /// <param name="enableVerification">True to enable, false to disable the verification.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<StringApiResponse> SetTokenRenewalCountryVerificationAsync(bool enableVerification)
+        {
+            return SetTokenRenewalCountryVerificationAsync(enableVerification, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Sets the token renewal country verification.</summary>
+        /// <param name="enableVerification">True to enable, false to disable the verification.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<StringApiResponse> SetTokenRenewalCountryVerificationAsync(bool enableVerification, System.Threading.CancellationToken cancellationToken)
+        {
+            if (enableVerification == null)
+                throw new System.ArgumentNullException("enableVerification");
+    
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Account/tokenRenewalCountryVerification/{enableVerification}");
+            urlBuilder_.Replace("{enableVerification}", System.Uri.EscapeDataString(ConvertToString(enableVerification, System.Globalization.CultureInfo.InvariantCulture)));
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
     
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -5490,6 +5571,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("profileImage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public byte[] ProfileImage { get; set; }
     
+        /// <summary>Gets or sets a value indicating whether the token renewal country verification is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("tokenRenewalCountryVerification", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool TokenRenewalCountryVerification { get; set; }
+    
     
     }
     
@@ -6117,6 +6202,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the number of runways.</summary>
         [Newtonsoft.Json.JsonProperty("runwayCount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RunwayCount { get; set; }
+    
+        /// <summary>Gets or sets the runways.</summary>
+        [Newtonsoft.Json.JsonProperty("runways", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Runway> Runways { get; set; }
     
         /// <summary>Gets or sets the size of the airport (from -1 to 6, NULL means size isn't calculated yet).</summary>
         [Newtonsoft.Json.JsonProperty("size", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -8081,6 +8170,119 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
+    
+    
+    }
+    
+    /// <summary>Runway model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class Runway 
+    {
+        /// <summary>Gets or sets the airport ICAO.</summary>
+        [Newtonsoft.Json.JsonProperty("airportICAO", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
+        public string AirportICAO { get; set; }
+    
+        /// <summary>Gets or sets the altitude.</summary>
+        [Newtonsoft.Json.JsonProperty("altitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Altitude { get; set; }
+    
+        /// <summary>The type of center lighting (NULL for no lighting).</summary>
+        [Newtonsoft.Json.JsonProperty("centerLight", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(1)]
+        public string CenterLight { get; set; }
+    
+        /// <summary>The type of available edge lighting (NULL for no lighting).</summary>
+        [Newtonsoft.Json.JsonProperty("edgeLight", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(1)]
+        public string EdgeLight { get; set; }
+    
+        /// <summary>Gets or sets the runway ID.</summary>
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Id { get; set; }
+    
+        /// <summary>Gets or sets the length of the runway in feet.</summary>
+        [Newtonsoft.Json.JsonProperty("length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Length { get; set; }
+    
+        /// <summary>Gets or sets the runway ends.</summary>
+        [Newtonsoft.Json.JsonProperty("runwayEnds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<RunwayEnd> RunwayEnds { get; set; }
+    
+        /// <summary>Gets or sets the surface type (can be "UNKNOWN" in a few cases).</summary>
+        [Newtonsoft.Json.JsonProperty("surface", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(7)]
+        public string Surface { get; set; }
+    
+        /// <summary>Gets or sets the width of the runway in feet.</summary>
+        [Newtonsoft.Json.JsonProperty("width", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Width { get; set; }
+    
+    
+    }
+    
+    /// <summary>Runway-End model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class RunwayEnd 
+    {
+        /// <summary>Gets or sets the approach light system (NULL for no approach light).</summary>
+        [Newtonsoft.Json.JsonProperty("approachLightSystem", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(15)]
+        public string ApproachLightSystem { get; set; }
+    
+        /// <summary>Gets or sets a value indicating whether the runway end has closed markings painted on it.</summary>
+        [Newtonsoft.Json.JsonProperty("hasClosedMarkings", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool HasClosedMarkings { get; set; }
+    
+        /// <summary>Gets or sets the compass heading.</summary>
+        [Newtonsoft.Json.JsonProperty("heading", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Heading { get; set; }
+    
+        /// <summary>Gets or sets the runway end ID.</summary>
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Id { get; set; }
+    
+        /// <summary>Gets or sets the latitude.</summary>
+        [Newtonsoft.Json.JsonProperty("latitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Latitude { get; set; }
+    
+        /// <summary>Gets or sets the left VASI pitch angle.</summary>
+        [Newtonsoft.Json.JsonProperty("leftVasiPitch", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? LeftVasiPitch { get; set; }
+    
+        /// <summary>Gets or sets the left VASI (Visual approach slope indicator) type.</summary>
+        [Newtonsoft.Json.JsonProperty("leftVasiType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(15)]
+        public string LeftVasiType { get; set; }
+    
+        /// <summary>Gets or sets the longitude.</summary>
+        [Newtonsoft.Json.JsonProperty("longitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Longitude { get; set; }
+    
+        /// <summary>Gets or sets the name (for example 04L).</summary>
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(10)]
+        public string Name { get; set; }
+    
+        /// <summary>Gets or sets the offset threshold in feet.</summary>
+        [Newtonsoft.Json.JsonProperty("offsetThreshold", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int OffsetThreshold { get; set; }
+    
+        /// <summary>Gets or sets the right VASI pitch angle.</summary>
+        [Newtonsoft.Json.JsonProperty("rightVasiPitch", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? RightVasiPitch { get; set; }
+    
+        /// <summary>Gets or sets the right VASI (Visual approach slope indicator) type.</summary>
+        [Newtonsoft.Json.JsonProperty("rightVasiType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(15)]
+        public string RightVasiType { get; set; }
+    
+        /// <summary>Gets or sets the parent runway ID.</summary>
+        [Newtonsoft.Json.JsonProperty("runwayID", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int RunwayID { get; set; }
     
     
     }
