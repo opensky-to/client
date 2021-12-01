@@ -142,6 +142,8 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
+    <Compile Include="Models\AirportClientPackageRunwayEndEntry.cs" />
+    <Compile Include="Models\AirportClientPackageRunwayEntry.cs" />
     <Compile Include="Pages\AircraftTypes.xaml.cs">
       <DependentUpon>AircraftTypes.xaml</DependentUpon>
     </Compile>

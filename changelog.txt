@@ -11,6 +11,8 @@ Version 0.2.2 (ALPHA2)
 - Aircraft in flight plans now display their current location
 - Changed when account overview and linked accounts are updated
 - simBrief route descriptions now contain airports/runways
+- Local airport package extended to include basic runway information
+- Added detailed airport view with runways once zoomed in far enough
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 Version 0.2.1 (ALPHA2)

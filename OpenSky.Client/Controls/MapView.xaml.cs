@@ -235,7 +235,7 @@ namespace OpenSky.Client.Controls
                 var anyMarkers = false;
                 var minLat = 90.0;
                 var maxLat = -90.0;
-                var minLon = 80.0;
+                var minLon = 180.0;
                 var maxLon = -180.0;
 
                 if (this.AircraftPositions.Count > 0)
@@ -280,7 +280,7 @@ namespace OpenSky.Client.Controls
                     minLat = Math.Max(-90.0, minLat - 0.5);
                     maxLat = Math.Min(90.0, maxLat + 0.5);
                     minLon = Math.Max(-180.0, minLon - 2);
-                    maxLon = Math.Min(80, maxLon + 2);
+                    maxLon = Math.Min(180, maxLon + 2);
 
                     UpdateGUIDelegate moveMap = () =>
                     {
@@ -512,10 +512,25 @@ namespace OpenSky.Client.Controls
                 {
                     var existingMapLayer = item.Parent as MapLayer;
                     existingMapLayer?.Children.Remove(item);
+                    if (BindingOperations.IsDataBound(item, VisibilityProperty))
+                    {
+                        BindingOperations.ClearBinding(item, VisibilityProperty);
+                    }
 
                     this.WpfMapView.Children.Add(item);
                     if (item.IsAirportMarker)
                     {
+                        if (item.IsAirportDetailMarker)
+                        {
+                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = 12.0 };
+                            BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
+                        }
+                        else
+                        {
+                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = -12.0 };
+                            BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
+                        }
+
                         this.ShowAllMarkers(true);
                     }
                 }
