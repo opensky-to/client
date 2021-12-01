@@ -51,7 +51,7 @@ namespace OpenSky.Client.Converters
         {
             if (value is double zoomLevel)
             {
-                return zoomLevel > 9.0 ? Visibility.Visible : Visibility.Collapsed;
+                return zoomLevel > 7.5 ? Visibility.Visible : Visibility.Collapsed;
             }
 
             return Visibility.Visible;

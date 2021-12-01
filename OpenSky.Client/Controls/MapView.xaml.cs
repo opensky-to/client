@@ -11,6 +11,7 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -289,6 +290,17 @@ namespace OpenSky.Client.Controls
                         this.WpfMapView.AnimationLevel = AnimationLevel.Full;
                     };
                     this.Dispatcher.BeginInvoke(moveMap);
+                    this.userMapInteraction = false;
+                }
+                else
+                {
+                    UpdateGUIDelegate resetMap = () =>
+                    {
+                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
+                        this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
+                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
+                    };
+                    this.Dispatcher.BeginInvoke(resetMap);
                     this.userMapInteraction = false;
                 }
             }

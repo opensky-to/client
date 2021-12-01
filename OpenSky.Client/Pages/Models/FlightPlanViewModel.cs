@@ -1145,7 +1145,7 @@ namespace OpenSky.Client.Pages.Models
         /// sushi.at, 03/11/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void DownloadSimBrief()
+        private void DownloadSimBrief(object param)
         {
             if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
             {
@@ -1157,7 +1157,12 @@ namespace OpenSky.Client.Pages.Models
             MessageBoxResult? answer;
             try
             {
-                var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?user={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
+                var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?username={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
+                if (param is true)
+                {
+                    ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?username={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}";
+                }
+
                 Debug.WriteLine(ofpFetchUrl);
 
                 using var client = new WebClient();
@@ -1170,14 +1175,22 @@ namespace OpenSky.Client.Pages.Models
                 if (!string.IsNullOrEmpty(sbOriginICAO) && !string.IsNullOrEmpty(sbDestinationICAO) &&
                     (!sbOriginICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase) || !sbDestinationICAO.Equals(this.DestinationICAO, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    answer = MessageBoxResult.None;
-                    this.DownloadSimBriefCommand.ReportProgress(
-                        () => { answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                        true);
-                    if (answer == MessageBoxResult.Yes)
+                    if (string.IsNullOrEmpty(this.OriginICAO) && string.IsNullOrEmpty(this.DestinationICAO))
                     {
                         this.OriginICAO = sbOriginICAO;
                         this.DestinationICAO = sbDestinationICAO;
+                    }
+                    else
+                    {
+                        answer = MessageBoxResult.None;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () => { answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
+                            true);
+                        if (answer == MessageBoxResult.Yes)
+                        {
+                            this.OriginICAO = sbOriginICAO;
+                            this.DestinationICAO = sbDestinationICAO;
+                        }
                     }
                 }
 
@@ -1425,6 +1438,13 @@ namespace OpenSky.Client.Pages.Models
                         if (!string.IsNullOrWhiteSpace(status))
                         {
                             Debug.WriteLine("Error fetching flight plan from Simbrief: " + status);
+
+                            if (status.ToLowerInvariant().Contains("no flight plan on file for the specified static id"))
+                            {
+                                this.DownloadSimBrief(true);
+                                return;
+                            }
+
                             this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show(status, "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
                             return;
                         }
@@ -1917,7 +1937,7 @@ namespace OpenSky.Client.Pages.Models
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })
-                { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
     }
 }

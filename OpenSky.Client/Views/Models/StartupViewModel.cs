@@ -93,6 +93,26 @@ namespace OpenSky.Client.Views.Models
                 }
             }
 
+            UserSessionService.Instance.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(UserSessionService.Instance.IsUserLoggedIn) && UserSessionService.Instance.IsUserLoggedIn)
+                {
+                    _ = UserSessionService.Instance.UpdateUserRoles().Result;
+                    _ = UserSessionService.Instance.RefreshUserAccountOverview().Result;
+                    _ = UserSessionService.Instance.RefreshLinkedAccounts().Result;
+
+                    try
+                    {
+                        AirportPackageClientHandler.DownloadPackage();
+                    }
+                    catch
+                    {
+                        // Ignore here
+                    }
+                }
+                
+            };
+
             // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
             Thread.Sleep(Math.Max(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds, 0));
             this.StartupChecksCommand.ReportProgress(() =>
