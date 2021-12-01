@@ -57,7 +57,12 @@ namespace OpenSky.Client.Converters
                     zoomLevelThreshold = threshold;
                 }
 
-                return zoomLevel > zoomLevelThreshold ? Visibility.Visible : Visibility.Collapsed;
+                if (zoomLevelThreshold > 0)
+                {
+                    return zoomLevel > zoomLevelThreshold ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return zoomLevel <= Math.Abs(zoomLevelThreshold) ? Visibility.Visible : Visibility.Collapsed;
             }
 
             return Visibility.Visible;

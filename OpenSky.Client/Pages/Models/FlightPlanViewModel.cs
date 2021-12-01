@@ -1933,6 +1933,15 @@ namespace OpenSky.Client.Pages.Models
                                     {
                                         var originMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(originMarker);
+
+                                        var originDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(originDetailMarker);
+
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
                                     };
                                     Application.Current.Dispatcher.BeginInvoke(addOrigin);
                                 }
@@ -1948,6 +1957,15 @@ namespace OpenSky.Client.Pages.Models
                                     {
                                         var destinationMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(destinationMarker);
+
+                                        var destinationDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(destinationDetailMarker);
+
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
                                     };
                                     Application.Current.Dispatcher.BeginInvoke(addDestination);
                                 }
@@ -1963,6 +1981,15 @@ namespace OpenSky.Client.Pages.Models
                                     {
                                         var alternateMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.AlternateICAO, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
                                         this.TrackingEventMarkers.Add(alternateMarker);
+
+                                        var alternateDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
+                                        this.TrackingEventMarkers.Add(alternateDetailMarker);
+
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
                                     };
                                     Application.Current.Dispatcher.BeginInvoke(addAlternate);
                                 }

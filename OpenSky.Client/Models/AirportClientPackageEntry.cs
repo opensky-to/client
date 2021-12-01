@@ -6,6 +6,8 @@
 
 namespace OpenSky.Client.Models
 {
+    using System.Collections.Generic;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// One line of the airport client package json file.
@@ -78,6 +80,13 @@ namespace OpenSky.Client.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string Name { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the runways.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public List<AirportClientPackageRunwayEntry> Runways { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

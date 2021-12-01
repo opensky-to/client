@@ -658,6 +658,48 @@ namespace OpenSky.Client.Pages.Models
                                 var destinationMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Destination.Latitude, flightLogXml.Destination.Longitude), flightLogXml.Destination.Icao, OpenSkyColors.OpenSkyTeal, Colors.White);
                                 this.TrackingEventMarkers.Add(destinationMarker);
 
+                                // Fetch airport details from local airport package
+                                var localAirportPackage = AirportPackageClientHandler.GetPackage();
+                                {
+                                    var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == flightLogXml.Origin.Icao);
+                                    if (airport != null)
+                                    {
+                                        var detailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(detailMarker);
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
+                                    }
+                                }
+                                {
+                                    var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == flightLogXml.Alternate.Icao);
+                                    if (airport != null)
+                                    {
+                                        var detailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
+                                        this.TrackingEventMarkers.Add(detailMarker);
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
+                                    }
+                                }
+                                {
+                                    var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == flightLogXml.Destination.Icao);
+                                    if (airport != null)
+                                    {
+                                        var detailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(detailMarker);
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
+                                    }
+                                }
+
                                 this.AircraftTrailLocations.Clear();
                                 foreach (var location in flightLogXml.PositionReports)
                                 {
