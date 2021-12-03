@@ -19,7 +19,6 @@ namespace OpenSky.Client.Controls.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
-    using OpenSky.Client.Models;
     using OpenSky.Client.Tools;
 
     using OpenSkyApi;
@@ -234,7 +233,7 @@ namespace OpenSky.Client.Controls.Models
         /// The text color.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public TrackingEventMarker(AirportClientPackageEntry airport, Color markerColor, Color textColor)
+        public TrackingEventMarker(AirportsJSON.Airport airport, Color markerColor, Color textColor)
         {
             if (airport.Runways.Count > 0)
             {
@@ -427,7 +426,7 @@ namespace OpenSky.Client.Controls.Models
         /// The runway.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public TrackingEventMarker(AirportClientPackageRunwayEntry runway)
+        public TrackingEventMarker(AirportsJSON.Runway runway)
         {
             if (runway.RunwayEnds.Count == 2)
             {
