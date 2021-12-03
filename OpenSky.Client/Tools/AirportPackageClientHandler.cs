@@ -15,10 +15,7 @@ namespace OpenSky.Client.Tools
 
     using JetBrains.Annotations;
 
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-
-    using OpenSky.Client.Models;
+    using OpenSky.AirportsJSON;
 
     using OpenSkyApi;
 
@@ -37,7 +34,7 @@ namespace OpenSky.Client.Tools
         /// The cached package.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private static AirportClientPackageRoot cachedPackage;
+        private static AirportPackage cachedPackage;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -64,16 +61,8 @@ namespace OpenSky.Client.Tools
                     throw new Exception("Error retrieving airport client package: " + result.Message);
                 }
 
-                var json = result.Data.Package.DecompressFromBase64();
-                var rootObject = JsonConvert.DeserializeObject<AirportClientPackageRoot>(json);
-                if (rootObject == null)
-                {
-                    throw new Exception("Error deserializing airport client package JSON.");
-                }
-
-                rootObject.Hash = result.Data.PackageHash;
-                var jObject = JObject.FromObject(rootObject);
-                json = jObject.ToString(Formatting.None);
+                // Check if we can deserialize it
+                var package = AirportPackage.FromPackageJson(result.Data.Package);
 
                 var openSkyFolder = Environment.ExpandEnvironmentVariables("%localappdata%\\OpenSky");
                 if (!Directory.Exists(openSkyFolder))
@@ -82,8 +71,8 @@ namespace OpenSky.Client.Tools
                 }
 
                 var packagePath = Environment.ExpandEnvironmentVariables("%localappdata%\\OpenSky\\airports.json");
-                File.WriteAllText(packagePath, json);
-                cachedPackage = rootObject;
+                File.WriteAllText(packagePath, result.Data.Package);
+                cachedPackage = package;
             }
         }
 
@@ -99,7 +88,7 @@ namespace OpenSky.Client.Tools
         /// </returns>
         /// -------------------------------------------------------------------------------------------------
         [CanBeNull]
-        public static AirportClientPackageRoot GetPackage()
+        public static AirportPackage GetPackage()
         {
             if (cachedPackage != null)
             {
@@ -116,9 +105,18 @@ namespace OpenSky.Client.Tools
                 var packagePath = Environment.ExpandEnvironmentVariables("%localappdata%\\OpenSky\\airports.json");
                 var json = File.ReadAllText(packagePath);
 
-                var package = JsonConvert.DeserializeObject<AirportClientPackageRoot>(json);
+                var package = AirportPackage.FromPackageJson(json);
                 cachedPackage = package ?? throw new Exception("Error deserializing airport client package JSON.");
                 return package;
+            }
+            catch (FormatException ex)
+            {
+                if (ex.Message?.ToLowerInvariant().Contains("non-base 64") == true)
+                {
+                    return null;
+                }
+
+                throw;
             }
             catch (Exception ex)
             {
