@@ -53,13 +53,6 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The show loading property.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty ShowFollowPlaneProperty = DependencyProperty.Register("ShowFollowPlane", typeof(bool), typeof(MapView), new UIPropertyMetadata(false));
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The simbrief route locations property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -133,18 +126,6 @@ namespace OpenSky.Client.Controls
         {
             get => (LocationCollection)this.GetValue(AircraftTrailLocationsProperty);
             set => this.SetValue(AircraftTrailLocationsProperty, value);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets a value indicating whether to show the follow plane option.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [Bindable(true)]
-        public bool ShowFollowPlane
-        {
-            get => (bool)this.GetValue(ShowFollowPlaneProperty);
-            set => this.SetValue(ShowFollowPlaneProperty, value);
         }
 
         /// -------------------------------------------------------------------------------------------------

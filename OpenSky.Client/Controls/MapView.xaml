@@ -30,19 +30,6 @@
         <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="Full" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" />
         <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
         <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top">
-            <Border CornerRadius="2" Padding="8,0,8,0" BorderThickness="0.7" BorderBrush="White" Margin="1" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=ShowFollowPlane, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="#66000000"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#99000000" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <CheckBox IsChecked="{Binding FollowPlane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Follow plane</CheckBox>
-            </Border>
             <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
                 <ComboBox.Items>
                     <ComboBoxItem IsSelected="True">Road</ComboBoxItem>

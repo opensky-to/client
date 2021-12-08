@@ -40,13 +40,6 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True to follow plane on the map.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool followPlane = true;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The last user map interaction date/time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -106,29 +99,7 @@ namespace OpenSky.Client.Controls.Models
                 this.NotifyPropertyChanged();
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets a value indicating whether to follow the plane on the map.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool FollowPlane
-        {
-            get => this.followPlane;
-
-            set
-            {
-                if (Equals(this.followPlane, value))
-                {
-                    return;
-                }
-
-                this.followPlane = value;
-                this.NotifyPropertyChanged();
-                Debug.WriteLine($"Follow plane toggled {value}");
-            }
-        }
-
+        
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the date/time of the last user map interaction.
