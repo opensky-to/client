@@ -272,7 +272,7 @@
             <GroupBox.Header>
                 <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
             </GroupBox.Header>
-            <controls:MapView Margin="5" ShowFollowPlane="False" x:Name="MapView"
+            <controls:MapView Margin="5" x:Name="MapView"
                               TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
                               AircraftTrailLocations="{Binding AircraftTrailLocations, ElementName=ViewModel}"
                               SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
