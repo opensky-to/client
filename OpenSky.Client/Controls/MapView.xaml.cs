@@ -11,6 +11,7 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -53,10 +54,10 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The show loading property.
+        /// The show all airports property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty ShowFollowPlaneProperty = DependencyProperty.Register("ShowFollowPlane", typeof(bool), typeof(MapView), new UIPropertyMetadata(false));
+        public static readonly DependencyProperty ShowAllAirportsProperty = DependencyProperty.Register("ShowAllAirports", typeof(bool), typeof(MapView), new UIPropertyMetadata(false));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -86,6 +87,27 @@ namespace OpenSky.Client.Controls
             typeof(ObservableCollection<TrackingEventMarker>),
             typeof(MapView),
             new UIPropertyMetadata(new ObservableCollection<TrackingEventMarker>()));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The zoom level font size converter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private static readonly MapZoomLevelFontSizeConverter ZoomLevelFontSizeConverter = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The zoom level visibility converter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private static readonly MapZoomLevelVisibilityConverter ZoomLevelVisibilityConverter = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The last map view frame update Date/Time.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DateTime lastFrameUpdate = DateTime.MinValue;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -137,14 +159,14 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether to show the follow plane option.
+        /// Gets or sets a value indicating whether to show all airports.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [Bindable(true)]
-        public bool ShowFollowPlane
+        public bool ShowAllAirports
         {
-            get => (bool)this.GetValue(ShowFollowPlaneProperty);
-            set => this.SetValue(ShowFollowPlaneProperty, value);
+            get => (bool)this.GetValue(ShowAllAirportsProperty);
+            set => this.SetValue(ShowAllAirportsProperty, value);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -417,6 +439,18 @@ namespace OpenSky.Client.Controls
             this.TrackingEventMarkers.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
 
             this.ShowAllMarkers();
+
+            if (this.DataContext is MapViewViewModel viewModel)
+            {
+                viewModel.Airports.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+
+                if (this.ShowAllAirports)
+                {
+                    viewModel.EnableAirportsCommand.DoExecute(null);
+                }
+            }
+
+            this.Legend.Visibility = this.ShowAllAirports ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -474,9 +508,9 @@ namespace OpenSky.Client.Controls
                     this.WpfMapView.Children.Add(item);
 
                     // Add zoom level -> visibility and font size bindings with custom converters
-                    var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = 6.0 };
+                    var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = 6.0 };
                     BindingOperations.SetBinding(item, SimbriefWaypointMarker.TextLabelVisibleProperty, zoomLevelBinding);
-                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelFontSizeConverter() };
+                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter };
                     BindingOperations.SetBinding(item, SimbriefWaypointMarker.TextLabelFontSizeProperty, fontSizeBinding);
                 }
             }
@@ -517,21 +551,46 @@ namespace OpenSky.Client.Controls
                         BindingOperations.ClearBinding(item, VisibilityProperty);
                     }
 
+                    if (BindingOperations.IsDataBound(item, TrackingEventMarker.TextLabelFontSizeProperty))
+                    {
+                        BindingOperations.ClearBinding(item, TrackingEventMarker.TextLabelFontSizeProperty);
+                    }
+
                     this.WpfMapView.Children.Add(item);
                     if (item.IsAirportMarker)
                     {
                         if (item.IsAirportDetailMarker)
                         {
-                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = 12.0 };
+                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = 12.0 };
                             BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
                         }
                         else
                         {
-                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = new MapZoomLevelVisibilityConverter(), ConverterParameter = -12.0 };
+                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = -12.0 };
                             BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
+
+                            if (item.HasDynamicFontSize)
+                            {
+                                var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter, ConverterParameter = item.AirportSize >= 5 ? 4 : 2 };
+                                BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelFontSizeProperty, fontSizeBinding);
+
+                                var zoomLevelParameter = item.AirportSize switch
+                                {
+                                    >= 5 => 4.0,
+                                    4 => 7.0,
+                                    3 => 8.0,
+                                    _ => 10.0
+                                };
+
+                                var textLabelZoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = zoomLevelParameter };
+                                BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelVisibleProperty, textLabelZoomLevelBinding);
+                            }
                         }
 
-                        this.ShowAllMarkers(true);
+                        if (!this.ShowAllAirports)
+                        {
+                            this.ShowAllMarkers(true);
+                        }
                     }
                 }
             }
@@ -578,6 +637,63 @@ namespace OpenSky.Client.Controls
             this.userMapInteraction = true;
             var viewModel = (MapViewViewModel)this.DataContext;
             viewModel.LastUserMapInteraction = DateTime.UtcNow;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// WPF map view on view change end.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Map event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void WpfMapViewOnViewChangeEnd(object sender, MapEventArgs e)
+        {
+            if (this.ShowAllAirports)
+            {
+                Debug.WriteLine(
+                    $"end  : {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
+
+                if (this.DataContext is MapViewViewModel viewModel)
+                {
+                    viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// WPF map view on view change on frame.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Map event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void WpfMapViewOnViewChangeOnFrame(object sender, MapEventArgs e)
+        {
+            if (this.ShowAllAirports && (DateTime.Now - this.lastFrameUpdate).TotalMilliseconds > 500)
+            {
+                Debug.WriteLine(
+                    $"frame: {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
+                this.lastFrameUpdate = DateTime.Now;
+
+                if (this.DataContext is MapViewViewModel viewModel)
+                {
+                    viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
+                }
+            }
         }
     }
 }
