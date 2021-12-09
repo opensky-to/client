@@ -8,7 +8,7 @@
 </summary>
 ====================================================================================================================
 -->
-    
+
 <UserControl x:Class="OpenSky.Client.Controls.MapView"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -46,26 +46,26 @@
                 <CheckBox IsChecked="{Binding DarkenRoadMap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Darken road map</CheckBox>
             </Border>
         </StackPanel>
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
-        <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />
-        <StackPanel Orientation="Horizontal" Margin="5" >
-            <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealLightBrush}" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 6</TextBlock>
-            <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealBrush}" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 5</TextBlock>
-            <Rectangle Width="20" Height="20" Fill="Gold" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 4</TextBlock>
-            <Rectangle Width="20" Height="20" Fill="DarkMagenta" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 3</TextBlock>
-            <Rectangle Width="20" Height="20" Fill="DarkOrange" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 2</TextBlock>
-            <Rectangle Width="20" Height="20" Fill="DarkRed" RadiusX="3" RadiusY="3" />
-            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 1+0</TextBlock>
-            <Border Width="20" Height="20" Background="White">
-                <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline">XX</TextBlock>
-            </Border>
-            <TextBlock Margin="3,0,0,0" VerticalAlignment="Center">Supports Super</TextBlock>
-</StackPanel>
+        <Grid Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
+            <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />
+            <StackPanel Orientation="Horizontal" Margin="5" >
+                <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealLightBrush}" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 6</TextBlock>
+                <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealBrush}" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 5</TextBlock>
+                <Rectangle Width="20" Height="20" Fill="Gold" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 4</TextBlock>
+                <Rectangle Width="20" Height="20" Fill="DarkMagenta" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 3</TextBlock>
+                <Rectangle Width="20" Height="20" Fill="DarkOrange" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 2</TextBlock>
+                <Rectangle Width="20" Height="20" Fill="DarkRed" RadiusX="3" RadiusY="3" />
+                <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 1+0</TextBlock>
+                <Border Width="20" Height="20" Background="White">
+                    <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline">XX</TextBlock>
+                </Border>
+                <TextBlock Margin="3,0,0,0" VerticalAlignment="Center">Supports Super</TextBlock>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

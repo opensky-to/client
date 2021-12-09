@@ -90,6 +90,20 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The zoom level font size converter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private static readonly MapZoomLevelFontSizeConverter ZoomLevelFontSizeConverter = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The zoom level visibility converter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private static readonly MapZoomLevelVisibilityConverter ZoomLevelVisibilityConverter = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The last map view frame update Date/Time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -435,6 +449,8 @@ namespace OpenSky.Client.Controls
                     viewModel.EnableAirportsCommand.DoExecute(null);
                 }
             }
+
+            this.Legend.Visibility = this.ShowAllAirports ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -508,10 +524,6 @@ namespace OpenSky.Client.Controls
             }
         }
 
-        private static readonly MapZoomLevelVisibilityConverter ZoomLevelVisibilityConverter = new();
-
-        private static readonly MapZoomLevelFontSizeConverter ZoomLevelFontSizeConverter = new();
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Tracking event markers collection changed.
@@ -564,7 +576,7 @@ namespace OpenSky.Client.Controls
 
                                 var zoomLevelParameter = item.AirportSize switch
                                 {
-                                    >=5 => 4.0,
+                                    >= 5 => 4.0,
                                     4 => 7.0,
                                     3 => 8.0,
                                     _ => 10.0
