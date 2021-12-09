@@ -220,7 +220,7 @@
                         <GroupBox.Header>
                             <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
                         </GroupBox.Header>
-                        <controls:MapView Margin="5" ShowFollowPlane="False" 
+                        <controls:MapView Margin="5" 
                                       x:Name="MapView"
                                       MinHeight="500"
                                       TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"

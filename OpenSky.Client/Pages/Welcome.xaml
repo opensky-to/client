@@ -15,9 +15,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:OpenSky.Client.Controls"
-             mc:Ignorable="d" 
+             xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+             mc:Ignorable="d" HorizontalScrollBar="False" VerticalScrollBar="False"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <models:WelcomeViewModel />
+    </UserControl.DataContext>
     <Grid Margin="15">
-            <TextBlock FontSize="18">Welcome to the Alpha2 version of the OpenSky client!</TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" FontSize="18">Welcome to the Alpha3 version of the OpenSky client!</TextBlock>
+        <TextBox Grid.Row="1" Margin="0,15,0,0" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" IsReadOnly="True" Text="{Binding ChangeLog, Mode=OneWay}" VerticalScrollBarVisibility="Visible" />
     </Grid>
 </controls:OpenSkyPage>
