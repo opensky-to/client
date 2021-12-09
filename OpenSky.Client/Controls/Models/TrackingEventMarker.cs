@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Controls.Models
 {
     using System;
+    using System.ComponentModel;
     using System.Device.Location;
     using System.Linq;
     using System.Windows;
@@ -33,6 +34,20 @@ namespace OpenSky.Client.Controls.Models
     /// -------------------------------------------------------------------------------------------------
     public class TrackingEventMarker : Canvas
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The text label font size property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register("TextLabelFontSize", typeof(double), typeof(TrackingEventMarker), new UIPropertyMetadata(11.0));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The text label visible property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register("TextLabelVisible", typeof(Visibility), typeof(TrackingEventMarker), new UIPropertyMetadata(Visibility.Visible));
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The flightLogXML marker object we are wrapping around.
@@ -90,16 +105,45 @@ namespace OpenSky.Client.Controls.Models
         /// <param name="textColor">
         /// The text color.
         /// </param>
+        /// <param name="dynamicFontSize">
+        /// (Optional) True to enable dynamic font size, bound to TextLabelFontSize property.
+        /// </param>
+        /// <param name="airportSize">
+        /// (Optional) The size of the airport.
+        /// </param>
+        /// <param name="supportsSuper">
+        /// (Optional) True if the airport supports super (underlines ICAO code).
+        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public TrackingEventMarker(GeoCoordinate location, string airportICAO, Color markerColor, Color textColor)
+        public TrackingEventMarker(GeoCoordinate location, string airportICAO, Color markerColor, Color textColor, bool dynamicFontSize = false, int airportSize = -1, bool supportsSuper = false)
         {
             this.Width = 40;
             this.Height = 40;
-            this.SetValue(ZIndexProperty, 998);
+            this.AirportSize = airportSize;
 
-            var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5) };
+            var minSize = 12;
+            if (airportSize is >= 0 and < 5)
+            {
+                minSize = 20;
+            }
+
+            var zIndex = airportSize switch
+            {
+                6 => 998,
+                5 => 997,
+                4 => 996,
+                3 => 995,
+                2 => 994,
+                1 => 993,
+                0 => 992,
+                _ => 998
+            };
+
+            this.SetValue(ZIndexProperty, zIndex);
+
+            var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5), MinHeight = minSize, MinWidth = minSize };
             this.Children.Add(textBorder);
-            textBorder.Child = new TextBlock
+            var textBlock = new TextBlock
             {
                 Text = airportICAO,
                 FontSize = 13,
@@ -110,6 +154,22 @@ namespace OpenSky.Client.Controls.Models
                 Margin = new Thickness(5),
                 Foreground = new SolidColorBrush(textColor)
             };
+            if (supportsSuper)
+            {
+                textBlock.TextDecorations.Add(TextDecorations.Underline);
+            }
+
+            textBorder.Child = textBlock;
+
+            if (dynamicFontSize)
+            {
+                var fontSizeBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelFontSize"), Mode = BindingMode.OneWay };
+                BindingOperations.SetBinding(textBlock, TextBlock.FontSizeProperty, fontSizeBinding);
+                this.HasDynamicFontSize = true;
+
+                var textLabelVisibleBinding = new Binding { Source = this, Path = new PropertyPath("TextLabelVisible"), Mode = BindingMode.OneWay };
+                BindingOperations.SetBinding(textBlock, VisibilityProperty, textLabelVisibleBinding);
+            }
 
             MapLayer.SetPosition(this, new Location(location.Latitude, location.Longitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
@@ -151,9 +211,9 @@ namespace OpenSky.Client.Controls.Models
 
                 var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5) };
                 this.Children.Add(textBorder);
-                textBorder.Child = new TextBlock
+                var textBlock = new TextBlock
                 {
-                    Text = airport.Icao,
+                    Text = $"{airport.Icao}: {airport.Name}",
                     FontSize = 13,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -162,6 +222,11 @@ namespace OpenSky.Client.Controls.Models
                     Margin = new Thickness(5),
                     Foreground = new SolidColorBrush(textColor)
                 };
+                textBorder.Child = textBlock;
+                if (airport.SupportsSuper)
+                {
+                    textBlock.TextDecorations.Add(TextDecorations.Underline);
+                }
 
                 var from = new Location(airport.Latitude, airport.Longitude);
                 var to = new Location(airport.Latitude, airport.Longitude);
@@ -193,7 +258,7 @@ namespace OpenSky.Client.Controls.Models
 
                 var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5) };
                 this.Children.Add(textBorder);
-                textBorder.Child = new TextBlock
+                var textBlock = new TextBlock
                 {
                     Text = airport.Icao,
                     FontSize = 13,
@@ -204,6 +269,11 @@ namespace OpenSky.Client.Controls.Models
                     Margin = new Thickness(5),
                     Foreground = new SolidColorBrush(textColor)
                 };
+                textBorder.Child = textBlock;
+                if (airport.SupportsSuper)
+                {
+                    textBlock.TextDecorations.Add(TextDecorations.Underline);
+                }
 
                 MapLayer.SetPosition(this, new Location(airport.Latitude, airport.Longitude));
                 MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
@@ -249,9 +319,9 @@ namespace OpenSky.Client.Controls.Models
 
                 var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5) };
                 this.Children.Add(textBorder);
-                textBorder.Child = new TextBlock
+                var textBlock = new TextBlock
                 {
-                    Text = airport.ICAO,
+                    Text = $"{airport.ICAO}: {airport.Name}",
                     FontSize = 13,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -260,6 +330,11 @@ namespace OpenSky.Client.Controls.Models
                     Margin = new Thickness(5),
                     Foreground = new SolidColorBrush(textColor)
                 };
+                textBorder.Child = textBlock;
+                if (airport.SupportsSuper)
+                {
+                    textBlock.TextDecorations.Add(TextDecorations.Underline);
+                }
 
                 var from = new Location(airport.Latitude, airport.Longitude);
                 var to = new Location(airport.Latitude, airport.Longitude);
@@ -291,7 +366,7 @@ namespace OpenSky.Client.Controls.Models
 
                 var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5) };
                 this.Children.Add(textBorder);
-                textBorder.Child = new TextBlock
+                var textBlock = new TextBlock
                 {
                     Text = airport.ICAO,
                     FontSize = 13,
@@ -302,6 +377,11 @@ namespace OpenSky.Client.Controls.Models
                     Margin = new Thickness(5),
                     Foreground = new SolidColorBrush(textColor)
                 };
+                textBorder.Child = textBlock;
+                if (airport.SupportsSuper)
+                {
+                    textBlock.TextDecorations.Add(TextDecorations.Underline);
+                }
 
                 MapLayer.SetPosition(this, new Location(airport.Latitude, airport.Longitude));
                 MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
@@ -328,7 +408,7 @@ namespace OpenSky.Client.Controls.Models
         {
             if (runway.RunwayEnds.Count == 2)
             {
-                this.SetValue(ZIndexProperty, 998);
+                this.SetValue(ZIndexProperty, 997);
                 var leftEnd = runway.RunwayEnds.First().Longitude <= runway.RunwayEnds.Last().Longitude ? runway.RunwayEnds.First() : runway.RunwayEnds.Last();
                 var rightEnd = runway.RunwayEnds.First().Longitude <= runway.RunwayEnds.Last().Longitude ? runway.RunwayEnds.Last() : runway.RunwayEnds.First();
                 var color = leftEnd.HasClosedMarkings && rightEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal;
@@ -430,7 +510,7 @@ namespace OpenSky.Client.Controls.Models
         {
             if (runway.RunwayEnds.Count == 2)
             {
-                this.SetValue(ZIndexProperty, 998);
+                this.SetValue(ZIndexProperty, 997);
                 var leftEnd = runway.RunwayEnds.First().Longitude <= runway.RunwayEnds.Last().Longitude ? runway.RunwayEnds.First() : runway.RunwayEnds.Last();
                 var rightEnd = runway.RunwayEnds.First().Longitude <= runway.RunwayEnds.Last().Longitude ? runway.RunwayEnds.Last() : runway.RunwayEnds.First();
                 var color = leftEnd.HasClosedMarkings && rightEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal;
@@ -458,7 +538,7 @@ namespace OpenSky.Client.Controls.Models
                 this.Children.Add(line);
 
                 {
-                    var runwayEnd = runway.RunwayEnds.First();
+                    var runwayEnd = leftEnd;
                     var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(runwayEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal), CornerRadius = new CornerRadius(1.5) };
                     this.Children.Add(textBorder);
                     textBorder.Child = new TextBlock
@@ -484,7 +564,7 @@ namespace OpenSky.Client.Controls.Models
                 }
 
                 {
-                    var runwayEnd = runway.RunwayEnds.Last();
+                    var runwayEnd = rightEnd;
                     var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(runwayEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal), CornerRadius = new CornerRadius(1.5) };
                     this.Children.Add(textBorder);
                     textBorder.Child = new TextBlock
@@ -519,11 +599,25 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the size of the airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int AirportSize { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the geo coordinate used to calculate distance to another event marker (not for position report).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [NotNull]
         public GeoCoordinate GeoCoordinate => new(this.marker.Latitude, this.marker.Longitude, this.marker.Altitude);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether this object has dynamic font size enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool HasDynamicFontSize { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -569,6 +663,30 @@ namespace OpenSky.Client.Controls.Models
         {
             get => this.marker.MarkerTooltip;
             set => this.marker.MarkerTooltip = value;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the size of the text label font.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public double TextLabelFontSize
+        {
+            get => (double)this.GetValue(TextLabelFontSizeProperty);
+            set => this.SetValue(TextLabelFontSizeProperty, value);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the fuel tank capacity.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public Visibility TextLabelVisible
+        {
+            get => (Visibility)this.GetValue(TextLabelVisibleProperty);
+            set => this.SetValue(TextLabelVisibleProperty, value);
         }
     }
 }
