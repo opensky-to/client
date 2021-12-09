@@ -25,7 +25,7 @@
         <GroupBox.Header>
             <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
         </GroupBox.Header>
-        <controls:MapView Margin="5" 
+        <controls:MapView Margin="5" ShowAllAirports="True"
                           x:Name="MapView"
                           MinHeight="500"
                           AircraftPositions="{Binding AircraftPositions, ElementName=ViewModel}" />

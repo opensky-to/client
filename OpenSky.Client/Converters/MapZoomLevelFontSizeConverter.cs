@@ -51,6 +51,12 @@ namespace OpenSky.Client.Converters
             if (value is double zoomLevel)
             {
                 var fontSize = Math.Round(zoomLevel, 1);
+
+                if (parameter is int offset)
+                {
+                    fontSize += offset;
+                }
+
                 fontSize = Math.Max(fontSize, 6);
                 fontSize = Math.Min(fontSize, 16);
                 return fontSize;

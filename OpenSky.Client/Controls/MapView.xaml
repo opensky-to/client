@@ -17,17 +17,13 @@
                  mc:Ignorable="d"
                  xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
                  xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
-                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                  Loaded="MapViewOnLoaded"
                  d:DesignHeight="450" d:DesignWidth="800" MouseWheel="MapViewOnMouseWheel">
     <UserControl.DataContext>
         <models:MapViewViewModel />
     </UserControl.DataContext>
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-    </UserControl.Resources>
     <Grid>
-        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="Full" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" />
+        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="Full" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
         <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
         <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top">
             <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
@@ -50,5 +46,26 @@
                 <CheckBox IsChecked="{Binding DarkenRoadMap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Darken road map</CheckBox>
             </Border>
         </StackPanel>
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
+        <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />
+        <StackPanel Orientation="Horizontal" Margin="5" >
+            <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealLightBrush}" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 6</TextBlock>
+            <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealBrush}" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 5</TextBlock>
+            <Rectangle Width="20" Height="20" Fill="Gold" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 4</TextBlock>
+            <Rectangle Width="20" Height="20" Fill="DarkMagenta" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 3</TextBlock>
+            <Rectangle Width="20" Height="20" Fill="DarkOrange" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 2</TextBlock>
+            <Rectangle Width="20" Height="20" Fill="DarkRed" RadiusX="3" RadiusY="3" />
+            <TextBlock Margin="3,0,8,0" VerticalAlignment="Center">Size 1+0</TextBlock>
+            <Border Width="20" Height="20" Background="White">
+                <TextBlock Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline">XX</TextBlock>
+            </Border>
+            <TextBlock Margin="3,0,0,0" VerticalAlignment="Center">Supports Super</TextBlock>
+</StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
