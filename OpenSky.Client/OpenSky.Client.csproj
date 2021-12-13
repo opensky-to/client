@@ -106,6 +106,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\DateTimeExpiry.xaml.cs">
+      <DependentUpon>DateTimeExpiry.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DockingAdapter.xaml.cs">
       <DependentUpon>DockingAdapter.xaml</DependentUpon>
     </Compile>
@@ -130,6 +133,7 @@
     <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\DateTimeTimeoutConverter.cs" />
     <Compile Include="Converters\MapZoomLevelFontSizeConverter.cs" />
     <Compile Include="Converters\MapZoomLevelVisibilityConverter.cs" />
     <Compile Include="Converters\NullItemToEnabledConverter.cs" />
@@ -142,10 +146,15 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\Job.cs" />
     <Compile Include="Pages\AircraftTypes.xaml.cs">
       <DependentUpon>AircraftTypes.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\JobMarket.xaml.cs">
+      <DependentUpon>JobMarket.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Models\AircraftTypesViewModel.cs" />
+    <Compile Include="Pages\Models\JobMarketViewModel.cs" />
     <Compile Include="Pages\Models\WelcomeViewModel.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
     <Compile Include="Pages\WorldMap.xaml.cs">
@@ -262,6 +271,10 @@
     <Compile Include="Views\Startup.xaml.cs">
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\DateTimeExpiry.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\DockingAdapter.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -303,6 +316,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\FlightPlans.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\JobMarket.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -590,6 +607,9 @@
   <ItemGroup>
     <Resource Include="Resources\addon16.png" />
     <Resource Include="Resources\vanilla16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\jobs16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

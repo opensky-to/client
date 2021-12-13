@@ -76,6 +76,9 @@ namespace OpenSky.Client.Views.Models
             var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
             this.NavigationItems.Add(worldMap);
 
+            var jobMarket = new NavMenuItem { Name = "Job market", Icon = "/Resources/jobs16.png", PageType = typeof(JobMarket) };
+            this.NavigationItems.Add(jobMarket);
+
             var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights) };
             this.NavigationItems.Add(flights);
 

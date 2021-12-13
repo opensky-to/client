@@ -239,7 +239,7 @@ namespace OpenSky.Client.Pages.Models
             try
             {
                 this.PopulateResult = string.Empty;
-                var result = OpenSkyService.Instance.PopulateAirportAsync(this.PopulateICAO).Result;
+                var result = OpenSkyService.Instance.PopulateAirportWithAircraftAsync(this.PopulateICAO).Result;
                 if (!result.IsError)
                 {
                     this.PopulateResult = result.Data;
