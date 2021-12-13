@@ -54,6 +54,13 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The job trails property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty JobTrailsProperty = DependencyProperty.Register("JobTrails", typeof(ObservableCollection<MapPolyline>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<MapPolyline>()));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The show all airports property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -155,6 +162,22 @@ namespace OpenSky.Client.Controls
         {
             get => (LocationCollection)this.GetValue(AircraftTrailLocationsProperty);
             set => this.SetValue(AircraftTrailLocationsProperty, value);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the job trails.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [Bindable(true)]
+        public ObservableCollection<MapPolyline> JobTrails
+        {
+            get => (ObservableCollection<MapPolyline>)this.GetValue(JobTrailsProperty);
+            set
+            {
+                this.SetValue(JobTrailsProperty, value);
+                value.CollectionChanged += this.JobTrailsCollectionChanged;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -365,6 +388,39 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Job trails collection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Notify collection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void JobTrailsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (MapPolyline item in e.NewItems)
+                {
+                    this.WpfMapView.Children.Add(item);
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (MapPolyline item in e.OldItems)
+                {
+                    this.WpfMapView.Children.Remove(item);
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Map type selection changed.
         /// </summary>
         /// <remarks>
@@ -449,6 +505,8 @@ namespace OpenSky.Client.Controls
                     viewModel.EnableAirportsCommand.DoExecute(null);
                 }
             }
+
+            this.JobTrails.CollectionChanged += this.JobTrailsCollectionChanged;
 
             this.Legend.Visibility = this.ShowAllAirports ? Visibility.Visible : Visibility.Collapsed;
         }

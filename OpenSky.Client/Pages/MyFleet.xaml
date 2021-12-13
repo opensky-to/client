@@ -22,7 +22,7 @@
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       mc:Ignorable="d" 
-                      HorizontalScrollBar="False"
+                      HorizontalScrollBar="False" VerticalScrollBar="False"
                       LoadingText="{Binding LoadingText}"
                       Loaded="MyFleetOnLoaded"
                       d:DesignHeight="450" d:DesignWidth="800">
