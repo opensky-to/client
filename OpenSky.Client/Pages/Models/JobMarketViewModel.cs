@@ -59,13 +59,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the tracking event markers.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="JobMarketViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -79,6 +72,7 @@ namespace OpenSky.Client.Pages.Models
             this.JobTrails = new ObservableCollection<MapPolyline>();
 
             this.SearchJobsCommand = new AsynchronousCommand(this.SearchJobs, false);
+            this.ClearSelectionCommand = new Command(this.ClearSelection);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -105,10 +99,31 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the tracking event markers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear selection command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearSelectionCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the jobs.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<Job> Jobs { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the job trails.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<MapPolyline> JobTrails { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -137,13 +152,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand SearchJobsCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the job trails.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<MapPolyline> JobTrails { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -201,16 +209,17 @@ namespace OpenSky.Client.Pages.Models
 
                                 if (origin != null)
                                 {
-                                    this.JobTrails.Add(new MapPolyline
-                                    {
-                                        Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
-                                        StrokeThickness = 4,
-                                        Locations = new LocationCollection
+                                    this.JobTrails.Add(
+                                        new MapPolyline
                                         {
-                                            new(origin.Latitude, origin.Longitude),
-                                            new(destination.Latitude, destination.Longitude)
-                                        }
-                                    });
+                                            Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
+                                            StrokeThickness = 4,
+                                            Locations = new LocationCollection
+                                            {
+                                                new(origin.Latitude, origin.Longitude),
+                                                new(destination.Latitude, destination.Longitude)
+                                            }
+                                        });
                                 }
                             }
                         }
@@ -241,25 +250,26 @@ namespace OpenSky.Client.Pages.Models
                                 if (!destinationsAdded.ContainsKey(destination.ICAO))
                                 {
                                     var destinationMarkers = new List<TrackingEventMarker>
-                                {
-                                    new(new GeoCoordinate(destination.Latitude, destination.Longitude), destination.ICAO, OpenSkyColors.OpenSkyTeal, Colors.White),
-                                    new(destination, OpenSkyColors.OpenSkyTeal, Colors.White)
-                                };
+                                    {
+                                        new(new GeoCoordinate(destination.Latitude, destination.Longitude), destination.ICAO, OpenSkyColors.OpenSkyTeal, Colors.White),
+                                        new(destination, OpenSkyColors.OpenSkyTeal, Colors.White)
+                                    };
                                     destinationMarkers.AddRange(destination.Runways.Select(runway => new TrackingEventMarker(runway)));
                                     destinationsAdded.Add(destination.ICAO, destinationMarkers);
 
                                     if (origin != null)
                                     {
-                                        this.JobTrails.Add(new MapPolyline
-                                        {
-                                            Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
-                                            StrokeThickness = 4,
-                                            Locations = new LocationCollection
+                                        this.JobTrails.Add(
+                                            new MapPolyline
                                             {
-                                                new(origin.Latitude, origin.Longitude),
-                                                new(destination.Latitude, destination.Longitude)
-                                            }
-                                        });
+                                                Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
+                                                StrokeThickness = 4,
+                                                Locations = new LocationCollection
+                                                {
+                                                    new(origin.Latitude, origin.Longitude),
+                                                    new(destination.Latitude, destination.Longitude)
+                                                }
+                                            });
                                     }
                                 }
                             }
@@ -283,6 +293,19 @@ namespace OpenSky.Client.Pages.Models
                     }
                 }
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Clears the job selection.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearSelection()
+        {
+            this.SelectedJob = null;
         }
 
         /// -------------------------------------------------------------------------------------------------

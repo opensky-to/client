@@ -17,7 +17,7 @@
                  mc:Ignorable="d"
                  xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
                  xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
-                 Loaded="MapViewOnLoaded"
+                 Loaded="MapViewOnLoaded" Unloaded="MapViewOnUnloaded"
                  d:DesignHeight="450" d:DesignWidth="800" MouseWheel="MapViewOnMouseWheel">
     <UserControl.DataContext>
         <models:MapViewViewModel />

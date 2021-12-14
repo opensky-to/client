@@ -45,6 +45,13 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The aircraft registry.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string registry;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="AircraftPosition"/> class.
         /// </summary>
         /// <remarks>
@@ -59,7 +66,7 @@ namespace OpenSky.Client.Controls.Models
             this.Width = 20;
             this.Height = 20;
 
-            var rotateTransform = new RotateTransform { CenterX = 20, CenterY = 20 };
+            var rotateTransform = new RotateTransform { CenterX = 10, CenterY = 10 };
             var headingBinding = new Binding { Source = this, Path = new PropertyPath("Heading"), Mode = BindingMode.OneWay };
             BindingOperations.SetBinding(rotateTransform, RotateTransform.AngleProperty, headingBinding);
             this.RenderTransform = rotateTransform;
@@ -120,27 +127,20 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The aircraft registry.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string registry;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the aircraft registry.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string Registry
         {
             get => this.registry;
-        
+
             set
             {
-                if(Equals(this.registry, value))
+                if (Equals(this.registry, value))
                 {
-                   return;
+                    return;
                 }
-        
+
                 this.registry = value;
                 this.OnPropertyChanged();
             }
