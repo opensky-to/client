@@ -106,6 +106,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Animations\MapPathAnimation.cs" />
     <Compile Include="Controls\DateTimeExpiry.xaml.cs">
       <DependentUpon>DateTimeExpiry.xaml</DependentUpon>
     </Compile>
@@ -245,6 +246,7 @@
     <Compile Include="Tools\CompressionExtensions.cs" />
     <Compile Include="Tools\DateTimeTextWriterTraceListener.cs" />
     <Compile Include="Tools\ExceptionExtensions.cs" />
+    <Compile Include="Tools\LocationExtensions.cs" />
     <Compile Include="Tools\MultiSelectExtension.cs" />
     <Compile Include="Tools\OrdinalsExtension.cs" />
     <Compile Include="Tools\SleepScheduler.cs" />
@@ -610,6 +612,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\jobs16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\job24.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

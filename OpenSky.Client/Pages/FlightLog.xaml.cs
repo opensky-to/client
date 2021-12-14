@@ -136,6 +136,7 @@ namespace OpenSky.Client.Pages
         private void ViewModelOnMapUpdated(object sender, EventArgs e)
         {
             this.MapView.ShowAllMarkers(true);
+            this.MapView.AnimateAircraftTrail();
         }
     }
 }

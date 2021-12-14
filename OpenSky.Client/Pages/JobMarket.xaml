@@ -56,11 +56,16 @@
                                     <ComboBoxItem>To</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <TextBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" CharacterCasing="Upper" MinWidth="80" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                            <TextBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" CharacterCasing="Upper" MinWidth="80" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SearchJobsCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
                             <ui:AppBarButton Icon="Find" Label="Search" ToolTip="Search for jobs at this airport" Command="{Binding SearchJobsCommand}" Style="{StaticResource LabelOnRightAppBarButton}" />
                         </StackPanel>
                     </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
+                        <ui:AppBarButton Icon="Clear" Label="Clear selection" ToolTip="Clear job selection" Command="{Binding ClearSelectionCommand}" />
                         <ui:AppBarButton Icon="Accept" Label="Accept" ToolTip="Accept this job"  />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>

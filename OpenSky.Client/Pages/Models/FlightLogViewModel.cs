@@ -754,7 +754,7 @@ namespace OpenSky.Client.Pages.Models
                                     this.NotifyPropertyChanged(nameof(this.GroundSpeed));
                                 }
 
-                                this.MapUpdated?.Invoke(this, EventArgs.Empty);
+                                this.LoadFlightLogCommand.ReportProgress(() => this.MapUpdated?.Invoke(this, EventArgs.Empty));
                             });
                     }
                     else
