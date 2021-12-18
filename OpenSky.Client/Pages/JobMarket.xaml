@@ -66,7 +66,7 @@
                     </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Clear" Label="Clear selection" ToolTip="Clear job selection" Command="{Binding ClearSelectionCommand}" />
-                        <ui:AppBarButton Icon="Accept" Label="Accept" ToolTip="Accept this job"  />
+                        <ui:AppBarButton Icon="Accept" Label="Accept" ToolTip="Accept this job" Command="{Binding AcceptJobCommand}" />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid 
