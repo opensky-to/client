@@ -8,6 +8,9 @@
 
 namespace OpenSkyApi
 {
+    using System.Windows;
+    using System.Windows.Controls;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Aircraft extensions.
@@ -97,7 +100,15 @@ namespace OpenSkyApi
                 displayString += $" ({this.Name})";
             }
 
-            displayString += $": {this.Type.Name}";
+            if (this.Registry != "----")
+            {
+                displayString += $": {this.Type.Name}";
+            }
+            else
+            {
+                displayString += $"{this.Type.Name}";
+            }
+
             return displayString;
         }
 
@@ -118,6 +129,87 @@ namespace OpenSkyApi
         protected bool Equals(Aircraft other)
         {
             return this.Registry == other.Registry;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the distance from the aircraft to the origin airport (used in flight planning page).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string DistanceInfo
+        {
+            get
+            {
+                if (this.Registry != "----")
+                {
+                    var info = $"[{this.AirportICAO}";
+                    if (this.Distance > 0)
+                    {
+                        info += $", {this.Distance} nm";
+                    }
+
+                    return $"{info}]";
+                }
+
+                return string.Empty;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the distance to the origin airport (used for sorting in flight planning page).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int Distance { get; set; }
+    }
+
+    /// -------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Aircraft select or not select combobox item style selector.
+    /// </summary>
+    /// <remarks>
+    /// sushi.at, 18/12/2021.
+    /// </remarks>
+    /// <seealso cref="T:System.Windows.Controls.StyleSelector"/>
+    /// -------------------------------------------------------------------------------------------------
+    public class AircraftSelectOrNotSelectComboItemStyleSelector : StyleSelector
+    {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// When overridden in a derived class, returns a <see cref="T:System.Windows.Style" /> based on
+        /// custom logic.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/12/2021.
+        /// </remarks>
+        /// <param name="item">
+        /// The content.
+        /// </param>
+        /// <param name="container">
+        /// The element to which the style will be applied.
+        /// </param>
+        /// <returns>
+        /// Returns an application-specific style to apply; otherwise, <see langword="null" />.
+        /// </returns>
+        /// <seealso cref="M:System.Windows.Controls.StyleSelector.SelectStyle(object,DependencyObject)"/>
+        /// -------------------------------------------------------------------------------------------------
+        public override Style SelectStyle(object item, DependencyObject container)
+        {
+            if (item is Aircraft aircraft)
+            {
+                var style = new Style(typeof(ComboBoxItem)) { BasedOn = (Style)Application.Current.FindResource("DefaultComboBoxItemStyle") };
+                if (aircraft.Registry == "----")
+                {
+                    style.Setters.Add(new Setter(UIElement.IsHitTestVisibleProperty, false));
+                    style.Setters.Add(new Setter(UIElement.FocusableProperty, false));
+                    style.Setters.Add(new Setter(Control.FontSizeProperty, 10.0));
+                    style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+                    style.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(-10, aircraft.Type.Name.Contains("other") ? 16 : 0, 0, 0)));
+                }
+                return style;
+            }
+
+            return base.SelectStyle(item, container);
         }
     }
 }

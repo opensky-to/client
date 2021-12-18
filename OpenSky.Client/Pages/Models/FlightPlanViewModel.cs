@@ -31,6 +31,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
+    using TomsToolbox.Essentials;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Flight plan view model.
@@ -760,6 +762,7 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
                 this.UpdateAirportMarkers();
+                this.UpdateAircraftDistances();
             }
         }
 
@@ -1596,15 +1599,55 @@ namespace OpenSky.Client.Pages.Models
             {
                 var currentSelection = this.SelectedAircraft;
                 var result = OpenSkyService.Instance.GetMyAircraftAsync().Result;
+                var airportPackage = AirportPackageClientHandler.GetPackage();
                 if (!result.IsError)
                 {
                     this.RefreshAircraftCommand.ReportProgress(
                         () =>
                         {
                             this.Aircraft.Clear();
-                            foreach (var aircraft in result.Data)
+                            if (string.IsNullOrEmpty(this.OriginICAO))
                             {
-                                this.Aircraft.Add(aircraft);
+                                foreach (var aircraft in result.Data.OrderBy(a => a.Registry))
+                                {
+                                    this.Aircraft.Add(aircraft);
+                                }
+                            }
+                            else
+                            {
+                                // Origin is already set, put the aircraft at that airport first
+                                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
+                                if (origin != null)
+                                {
+                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
+
+                                }
+
+                                foreach (var aircraft in result.Data.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
+                                {
+                                    this.Aircraft.Add(aircraft);
+                                }
+
+                                if (origin != null)
+                                {
+                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
+                                }
+
+                                var atOtherAirports = new List<Aircraft>();
+                                foreach (var aircraft in result.Data.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
+                                {
+                                    if (origin != null)
+                                    {
+                                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
+                                        if (aircraftAirport != null)
+                                        {
+                                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
+                                        }
+                                    }
+                                    atOtherAirports.Add(aircraft);
+                                }
+
+                                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
                             }
 
                             if (currentSelection != null && this.Aircraft.Contains(currentSelection))
@@ -1899,6 +1942,83 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Update aircraft distances when origin airport changes.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdateAircraftDistances()
+        {
+            new Thread(
+                    () =>
+                    {
+                        var currentSelection = this.SelectedAircraft;
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        var currentAircraft = new List<Aircraft>(this.Aircraft.Where(a => a.Registry != "----"));
+                        UpdateGUIDelegate refreshAircraftDistances = () =>
+                        {
+                            this.Aircraft.Clear();
+                            if (string.IsNullOrEmpty(this.OriginICAO))
+                            {
+                                foreach (var aircraft in currentAircraft.OrderBy(a => a.Registry))
+                                {
+                                    aircraft.Distance = 0;
+                                    this.Aircraft.Add(aircraft);
+                                }
+                            }
+                            else
+                            {
+                                // Origin is already set, put the aircraft at that airport first
+                                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
+                                if (origin != null)
+                                {
+                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
+
+                                }
+
+                                foreach (var aircraft in currentAircraft.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
+                                {
+                                    aircraft.Distance = 0;
+                                    this.Aircraft.Add(aircraft);
+                                }
+
+                                if (origin != null)
+                                {
+                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
+                                }
+
+                                var atOtherAirports = new List<Aircraft>();
+                                foreach (var aircraft in currentAircraft.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
+                                {
+                                    aircraft.Distance = 0;
+                                    if (origin != null)
+                                    {
+                                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
+                                        if (aircraftAirport != null)
+                                        {
+                                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
+                                        }
+                                    }
+
+                                    atOtherAirports.Add(aircraft);
+                                }
+
+                                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
+                            }
+
+                            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
+                            {
+                                this.SelectedAircraft = currentSelection;
+                            }
+                        };
+                        Application.Current.Dispatcher.BeginInvoke(refreshAircraftDistances);
+                    })
+            { Name = "FlightPlanViewModel.UpdateAircraftDistances" }.Start();
         }
 
         /// -------------------------------------------------------------------------------------------------
