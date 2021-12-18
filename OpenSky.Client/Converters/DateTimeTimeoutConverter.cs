@@ -68,7 +68,8 @@ namespace OpenSky.Client.Converters
                     return new SolidColorBrush(color);
                 }
 
-                return timeout.TotalDays > 1.0 ? $"{timeout.Days}d {timeout:hh\\:mm}" : timeout.ToString("hh\\:mm");
+                var minus = timeout.TotalHours < 0.0 ? "-" : string.Empty;
+                return timeout.TotalDays > 1.0 ? $"{minus}{timeout.Days}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
             }
 
             if (value is DateTimeOffset offset)
@@ -90,7 +91,8 @@ namespace OpenSky.Client.Converters
                     return new SolidColorBrush(color);
                 }
 
-                return timeout.TotalDays > 1.0 ? $"{timeout.Days}d {timeout:hh\\:mm}" : timeout.ToString("hh\\:mm");
+                var minus = timeout.TotalHours < 0.0 ? "-" : string.Empty;
+                return timeout.TotalDays > 1.0 ? $"{minus}{timeout.Days}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
             }
 
             return null;

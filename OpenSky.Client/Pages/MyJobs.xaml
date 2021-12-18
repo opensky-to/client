@@ -1,0 +1,115 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="MyJobs.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  My jobs page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.MyJobs"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+          xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+          xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+          xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+          xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+          xmlns:ui="http://schemas.modernwpf.com/2019"
+          xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+          mc:Ignorable="d" Loaded="MyJobsOnLoaded"
+          LoadingText="{Binding LoadingText}"
+          d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <models:MyJobsViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <CollectionViewSource Source="{Binding Jobs}" x:Key="JobsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="ExpiresAt.UtcDateTime" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+    </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshJobsCommand}" />
+    </UserControl.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Grid.Column="0">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Manage Jobs</TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
+                    <ui:CommandBar.PrimaryCommands>
+                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my jobs [F5]" Command="{Binding RefreshJobsCommand}" />
+                        <ui:AppBarButton Icon="Cancel" Label="Abort job" ToolTip="Abort the selected job" Command="{Binding AbortJobCommand}" />
+                    </ui:CommandBar.PrimaryCommands>
+                </ui:CommandBar>
+                <DataGrid 
+                    Grid.Row="1"
+                    ItemsSource="{Binding Source={StaticResource JobsViewSource}}"
+                    SelectedItem="{Binding SelectedJob, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    RowDetailsVisibilityMode="VisibleWhenSelected"
+                    >
+                    <DataGrid.Resources>
+                        <DataTemplate x:Key="JobValueCellTemplate" DataType="openSkyApi:Job">
+                            <controls:SkybucksCurrency Currency="{Binding Value}" Margin="15,0" />
+                        </DataTemplate>
+                        <DataTemplate x:Key="JobExpiryCellTemplate" DataType="openSkyApi:Job">
+                            <controls:DateTimeExpiry DateTime="{Binding ExpiresAt.DateTime}" Margin="15,0" />
+                        </DataTemplate>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
+                        <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
+                        <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" />
+                        <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
+                        <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                    </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate DataType="openSkyApi:Job">
+                            <DataGrid ItemsSource="{Binding Payloads}"
+                                      AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
+                                      CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                                      >
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding LocationDestinationInfo}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
+                                    <DataGridTextColumn Binding="{Binding Description}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+        <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" />
+        <GroupBox Grid.Column="2">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
+            </GroupBox.Header>
+            <controls:MapView
+                TrackingEventMarkers="{Binding AirportMarkers, ElementName=ViewModel}"
+                JobTrails="{Binding JobTrails, ElementName=ViewModel}"
+                />
+        </GroupBox>
+    </Grid>
+</controls:OpenSkyPage>

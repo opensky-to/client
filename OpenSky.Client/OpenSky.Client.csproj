@@ -148,6 +148,7 @@
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Job.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\Payload.cs" />
     <Compile Include="Pages\AircraftTypes.xaml.cs">
       <DependentUpon>AircraftTypes.xaml</DependentUpon>
     </Compile>
@@ -156,8 +157,12 @@
     </Compile>
     <Compile Include="Pages\Models\AircraftTypesViewModel.cs" />
     <Compile Include="Pages\Models\JobMarketViewModel.cs" />
+    <Compile Include="Pages\Models\MyJobsViewModel.cs" />
     <Compile Include="Pages\Models\WelcomeViewModel.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
+    <Compile Include="Pages\MyJobs.xaml.cs">
+      <DependentUpon>MyJobs.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\WorldMap.xaml.cs">
       <DependentUpon>WorldMap.xaml</DependentUpon>
     </Compile>
@@ -330,6 +335,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\MyFlights.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MyJobs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -615,6 +624,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\job24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\market16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
