@@ -73,7 +73,15 @@ namespace OpenSky.Client.Pages.Models
 
             this.SearchJobsCommand = new AsynchronousCommand(this.SearchJobs, false);
             this.ClearSelectionCommand = new Command(this.ClearSelection);
+            this.AcceptJobCommand = new AsynchronousCommand(this.AcceptJob, false);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the accept job command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand AcceptJobCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -171,6 +179,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedJob = value;
                 this.NotifyPropertyChanged();
+                this.AcceptJobCommand.CanExecute = value != null;
 
                 this.JobTrails.RemoveRange(this.JobTrails.ToList());
                 this.AirportMarkers.RemoveRange(this.AirportMarkers.ToList());
@@ -292,6 +301,54 @@ namespace OpenSky.Client.Pages.Models
                         }
                     }
                 }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Accept the selected job.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void AcceptJob()
+        {
+            if (this.SelectedJob == null)
+            {
+                return;
+            }
+
+            this.LoadingText = "Accepting job...";
+            try
+            {
+                var result = OpenSkyService.Instance.AcceptJobAsync(this.SelectedJob.Id, false).Result;
+                if (!result.IsError)
+                {
+                    this.AcceptJobCommand.ReportProgress(()=>ModernWpf.MessageBox.Show(result.Message));
+                }
+                else
+                {
+                    this.AcceptJobCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error accepting job: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error accepting job", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.AcceptJobCommand, "Error accepting job");
+            }
+            finally
+            {
+                this.LoadingText = null;
             }
         }
 

@@ -2579,7 +2579,7 @@
         "tags": [
           "Flight"
         ],
-        "summary": "Get active flights (up to one currently flying and possibly multiple paused).",
+        "summary": "Get \"my\" active flights (up to one currently flying and possibly multiple paused).",
         "description": "sushi.at, 10/11/2021.",
         "operationId": "GetMyFlights",
         "responses": {
@@ -2874,6 +2874,103 @@
         }
       }
     },
+    "/Job/abort/{jobID}": {
+      "delete": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Aborts the specified job.",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "CancelJob",
+        "parameters": [
+          {
+            "name": "jobID",
+            "in": "path",
+            "description": "Identifier for the job.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/accept/{jobID}/{forAirline}": {
+      "post": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Accept the specified job.",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "AcceptJob",
+        "parameters": [
+          {
+            "name": "jobID",
+            "in": "path",
+            "description": "Identifier for the job.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "forAirline",
+            "in": "path",
+            "description": "True to accept the job for the airline, false for private job.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Job/atAirport/{icao}": {
       "get": {
         "tags": [
@@ -2893,6 +2990,38 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/myJobs": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Get \"my\" jobs, both personal and airline (active only)",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "GetMyJobs",
         "responses": {
           "200": {
             "description": "Success",
@@ -3611,6 +3740,7 @@
           30,
           31,
           32,
+          33,
           40,
           41,
           42,
@@ -3619,7 +3749,7 @@
           92
         ],
         "type": "integer",
-        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
         "format": "int32",
         "x-enumNames": [
           "BuyAircraft",
@@ -3637,6 +3767,7 @@
           "AcceptJobs",
           "Dispatch",
           "OutsourceJobs",
+          "AbortJobs",
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
@@ -3660,6 +3791,7 @@
           "AcceptJobs",
           "Dispatch",
           "OutsourceJobs",
+          "AbortJobs",
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
