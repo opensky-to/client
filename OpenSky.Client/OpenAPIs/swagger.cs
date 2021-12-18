@@ -5302,9 +5302,9 @@ namespace OpenSkyApi
         /// <param name="jobID">Identifier for the job.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<StringApiResponse> CancelJobAsync(System.Guid jobID)
+        public System.Threading.Tasks.Task<StringApiResponse> AbortJobAsync(System.Guid jobID)
         {
-            return CancelJobAsync(jobID, System.Threading.CancellationToken.None);
+            return AbortJobAsync(jobID, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -5312,7 +5312,7 @@ namespace OpenSkyApi
         /// <param name="jobID">Identifier for the job.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<StringApiResponse> CancelJobAsync(System.Guid jobID, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<StringApiResponse> AbortJobAsync(System.Guid jobID, System.Threading.CancellationToken cancellationToken)
         {
             if (jobID == null)
                 throw new System.ArgumentNullException("jobID");

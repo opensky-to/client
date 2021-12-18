@@ -2881,7 +2881,7 @@
         ],
         "summary": "Aborts the specified job.",
         "description": "sushi.at, 18/12/2021.",
-        "operationId": "CancelJob",
+        "operationId": "AbortJob",
         "parameters": [
           {
             "name": "jobID",

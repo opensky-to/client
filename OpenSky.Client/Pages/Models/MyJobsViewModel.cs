@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="JobMarketViewModel.cs" company="OpenSky">
+// <copyright file="MyJobsViewModel.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -27,22 +27,15 @@ namespace OpenSky.Client.Pages.Models
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Job market view model.
+    /// My jobs view model.
     /// </summary>
     /// <remarks>
-    /// sushi.at, 13/12/2021.
+    /// sushi.at, 18/12/2021.
     /// </remarks>
     /// <seealso cref="T:OpenSky.Client.MVVM.ViewModel"/>
     /// -------------------------------------------------------------------------------------------------
-    public class JobMarketViewModel : ViewModel
+    public class MyJobsViewModel : ViewModel
     {
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The airport icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string airportICAO;
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The loading text.
@@ -59,13 +52,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="JobMarketViewModel"/> class.
+        /// Initializes a new instance of the <see cref="MyJobsViewModel"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 13/12/2021.
+        /// sushi.at, 18/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public JobMarketViewModel()
+        public MyJobsViewModel()
         {
             // Initialize data structures
             this.Jobs = new ObservableCollection<Job>();
@@ -73,39 +66,16 @@ namespace OpenSky.Client.Pages.Models
             this.JobTrails = new ObservableCollection<MapPolyline>();
 
             // Create commands
-            this.SearchJobsCommand = new AsynchronousCommand(this.SearchJobs, false);
-            this.ClearSelectionCommand = new Command(this.ClearSelection);
-            this.AcceptJobCommand = new AsynchronousCommand(this.AcceptJob, false);
+            this.RefreshJobsCommand = new AsynchronousCommand(this.RefreshJobs);
+            this.AbortJobCommand = new AsynchronousCommand(this.AbortJob, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the accept job command.
+        /// Gets the abort job command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand AcceptJobCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the airport icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string AirportICAO
-        {
-            get => this.airportICAO;
-
-            set
-            {
-                if (Equals(this.airportICAO, value))
-                {
-                    return;
-                }
-
-                this.airportICAO = value;
-                this.NotifyPropertyChanged();
-                this.SearchJobsCommand.CanExecute = !string.IsNullOrEmpty(value);
-            }
-        }
+        public AsynchronousCommand AbortJobCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -113,13 +83,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the clear selection command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command ClearSelectionCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -158,10 +121,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the search jobs command.
+        /// Gets the refresh jobs command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand SearchJobsCommand { get; }
+        public AsynchronousCommand RefreshJobsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -181,7 +144,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedJob = value;
                 this.NotifyPropertyChanged();
-                this.AcceptJobCommand.CanExecute = value != null;
+                this.AbortJobCommand.CanExecute = value != null;
 
                 this.JobTrails.RemoveRange(this.JobTrails.ToList());
                 this.AirportMarkers.RemoveRange(this.AirportMarkers.ToList());
@@ -308,45 +271,62 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Accept the selected job.
+        /// Abort the selected job.
         /// </summary>
         /// <remarks>
         /// sushi.at, 18/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void AcceptJob()
+        private void AbortJob()
         {
             if (this.SelectedJob == null)
             {
                 return;
             }
 
-            this.LoadingText = "Accepting job...";
+            MessageBoxResult? answer = MessageBoxResult.None;
+            this.AbortJobCommand.ReportProgress(
+                () =>
+                {
+                    answer = ModernWpf.MessageBox.Show(
+                        $"Are you sure you want to abort the {this.SelectedJob.Type} job from {this.SelectedJob.OriginICAO}?\r\n\r\nYou will be charged a 30 % penalty for doing so.",
+                        "Abort flight?",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Hand);
+                },
+                true);
+
+            if (answer != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = "Aborting job...";
             try
             {
-                var result = OpenSkyService.Instance.AcceptJobAsync(this.SelectedJob.Id, false).Result;
+                var result = OpenSkyService.Instance.AbortJobAsync(this.SelectedJob.Id).Result;
                 if (!result.IsError)
                 {
-                    this.AcceptJobCommand.ReportProgress(()=>ModernWpf.MessageBox.Show(result.Message));
+                    this.AbortJobCommand.ReportProgress(() => this.RefreshJobsCommand.DoExecute(null));
                 }
                 else
                 {
-                    this.AcceptJobCommand.ReportProgress(
+                    this.AbortJobCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error accepting job: " + result.Message);
+                            Debug.WriteLine("Error aborting job: " + result.Message);
                             if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error accepting job", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ModernWpf.MessageBox.Show(result.Message, "Error aborting job", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.AcceptJobCommand, "Error accepting job");
+                ex.HandleApiCallException(this.AbortJobCommand, "Error aborting job");
             }
             finally
             {
@@ -356,34 +336,21 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Clears the job selection.
+        /// Refresh my jobs.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 14/12/2021.
+        /// sushi.at, 18/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void ClearSelection()
+        private void RefreshJobs()
         {
-            this.SelectedJob = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Searches for jobs.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 13/12/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void SearchJobs()
-        {
-            this.LoadingText = "Searching for jobs...";
+            this.LoadingText = "Refreshing jobs...";
             try
             {
-                var result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO).Result;
+                var result = OpenSkyService.Instance.GetMyJobsAsync().Result;
                 if (!result.IsError)
                 {
-                    this.SearchJobsCommand.ReportProgress(
+                    this.RefreshJobsCommand.ReportProgress(
                         () =>
                         {
                             this.Jobs.Clear();
@@ -397,22 +364,22 @@ namespace OpenSky.Client.Pages.Models
                 }
                 else
                 {
-                    this.SearchJobsCommand.ReportProgress(
+                    this.RefreshJobsCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error searching for jobs: " + result.Message);
+                            Debug.WriteLine("Error refreshing jobs: " + result.Message);
                             if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error searching for jobs", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing jobs", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SearchJobsCommand, "Error searching for jobs");
+                ex.HandleApiCallException(this.RefreshJobsCommand, "Error refreshing jobs");
             }
             finally
             {
