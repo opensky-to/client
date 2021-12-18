@@ -111,17 +111,22 @@
                         <GroupBox.Header>
                             <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft</TextBlock>
                         </GroupBox.Header>
+                        <GroupBox.Resources>
+                            <openSkyApi:AircraftSelectOrNotSelectComboItemStyleSelector x:Key="AircraftSelectOrNotSelectComboItemStyleSelector" />
+                        </GroupBox.Resources>
                         <StackPanel Orientation="Vertical">
                             <Grid>
-                                <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0">
+                                <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" Grid.IsSharedSizeScope="True" ItemContainerStyleSelector="{StaticResource AircraftSelectOrNotSelectComboItemStyleSelector}">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate DataType="openSkyApi:Aircraft">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding}" />
-                                                <TextBlock Margin="8,0,0,0">[</TextBlock>
-                                                <TextBlock Text="{Binding AirportICAO}" />
-                                                <TextBlock>]</TextBlock>
-                                            </StackPanel>
+                                            <Grid IsHitTestVisible="False">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="AircraftTextColumn" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding}" IsHitTestVisible="False" />
+                                                <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="8,0,0,0" Text="{Binding DistanceInfo}" />
+                                            </Grid>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
