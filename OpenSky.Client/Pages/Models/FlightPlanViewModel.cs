@@ -235,6 +235,17 @@ namespace OpenSky.Client.Pages.Models
             this.TrackingEventMarkers = new ObservableCollection<TrackingEventMarker>();
             this.SimbriefRouteLocations = new LocationCollection();
             this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
+            this.PayloadsAtOrigin = new ObservableCollection<PlannablePayload>();
+            this.PayloadsTowardsOrigin = new ObservableCollection<PlannablePayload>();
+            this.OtherPayloads = new ObservableCollection<PlannablePayload>();
+            this.Payloads = new ObservableCollection<Guid>();
+            this.Payloads.CollectionChanged += (_, _) =>
+            {
+                this.NotifyPropertyChanged(nameof(this.PayloadWeight));
+                this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
+                this.NotifyPropertyChanged(nameof(this.GrossWeight));
+                this.IsDirty = true;
+            };
 
             // Populate UTC offsets from time zones
             foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
@@ -251,6 +262,7 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.LoadFlightPlanCommand = new AsynchronousCommand(this.LoadFlightPlanInBackground);
             this.RefreshAircraftCommand = new AsynchronousCommand(this.RefreshAircraft);
+            this.RefreshPayloadsCommand = new AsynchronousCommand(this.RefreshPayloads);
             this.ClearAircraftCommand = new Command(this.ClearAircraft);
             this.SaveCommand = new AsynchronousCommand(this.SaveFlightPlan, false);
             this.DiscardCommand = new Command(this.DiscardFlightPlan);
@@ -262,7 +274,16 @@ namespace OpenSky.Client.Pages.Models
 
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
+            this.RefreshPayloadsCommand.DoExecute(null);
         }
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the refresh payloads command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshPayloadsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -344,6 +365,13 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads planned for the flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Guid> Payloads { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -762,9 +790,17 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
                 this.UpdateAirportMarkers();
-                this.UpdateAircraftDistances();
+
+                UpdateGUIDelegate updateOriginRelated = () =>
+                {
+                    this.UpdateAircraftDistances();
+                    this.UpdatePlannablePayloads();
+                };
+                Application.Current.Dispatcher.BeginInvoke(updateOriginRelated);
             }
         }
+
+
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -775,8 +811,29 @@ namespace OpenSky.Client.Pages.Models
         {
             get
             {
-                // TODO Calculate the payload weight
-                return 0;
+                var totalPayload = 0.0;
+                foreach (var payloadID in this.Payloads)
+                {
+                    var atOriginPayload = this.PayloadsAtOrigin.SingleOrDefault(p => p.Id == payloadID);
+                    if (atOriginPayload != null)
+                    {
+                        totalPayload += atOriginPayload.Weight;
+                    }
+
+                    var towardsOriginPayload = this.PayloadsTowardsOrigin.SingleOrDefault(p => p.Id == payloadID);
+                    if (towardsOriginPayload != null)
+                    {
+                        totalPayload += towardsOriginPayload.Weight;
+                    }
+
+                    var otherPayload = this.OtherPayloads.SingleOrDefault(p => p.Id == payloadID);
+                    if (otherPayload != null)
+                    {
+                        totalPayload += otherPayload.Weight;
+                    }
+                }
+
+                return totalPayload;
             }
         }
 
@@ -1543,6 +1600,12 @@ namespace OpenSky.Client.Pages.Models
                     this.UtcOffset = flightPlan.UtcOffset;
                     this.Route = flightPlan.Route;
                     this.AlternateRoute = flightPlan.AlternateRoute;
+                    this.Payloads.Clear();
+                    if (flightPlan.Payloads != null)
+                    {
+                        this.Payloads.AddRange(flightPlan.Payloads.Select(p => p.PayloadID));
+                    }
+
                     this.navlogFixes.Clear();
                     if (flightPlan.NavlogFixes != null)
                     {
@@ -1583,6 +1646,78 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Refreshes the list of plannable payloads.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshPayloads()
+        {
+            this.LoadingText = "Refreshing payloads...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetPlannablePayloadsAsync().Result;
+                if (!result.IsError)
+                {
+                    this.RefreshPayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.OtherPayloads.Clear();
+                            this.OtherPayloads.AddRange(result.Data);
+                            this.UpdatePlannablePayloads();
+                        });
+                }
+                else
+                {
+                    this.RefreshPayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing payloads: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing payloads", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshPayloadsCommand, "Error refreshing payloads");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the plannable payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsAtOrigin { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads towards origin.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsTowardsOrigin { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the other payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> OtherPayloads { get; }
+
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Refreshes the list of available aircraft.
         /// </summary>
         /// <remarks>
@@ -1606,49 +1741,8 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             this.Aircraft.Clear();
-                            if (string.IsNullOrEmpty(this.OriginICAO))
-                            {
-                                foreach (var aircraft in result.Data.OrderBy(a => a.Registry))
-                                {
-                                    this.Aircraft.Add(aircraft);
-                                }
-                            }
-                            else
-                            {
-                                // Origin is already set, put the aircraft at that airport first
-                                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
-                                if (origin != null)
-                                {
-                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
-
-                                }
-
-                                foreach (var aircraft in result.Data.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
-                                {
-                                    this.Aircraft.Add(aircraft);
-                                }
-
-                                if (origin != null)
-                                {
-                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
-                                }
-
-                                var atOtherAirports = new List<Aircraft>();
-                                foreach (var aircraft in result.Data.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
-                                {
-                                    if (origin != null)
-                                    {
-                                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
-                                        if (aircraftAirport != null)
-                                        {
-                                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
-                                        }
-                                    }
-                                    atOtherAirports.Add(aircraft);
-                                }
-
-                                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
-                            }
+                            this.Aircraft.AddRange(result.Data.OrderBy(a => a.Registry));
+                            this.UpdateAircraftDistances();
 
                             if (currentSelection != null && this.Aircraft.Contains(currentSelection))
                             {
@@ -1760,8 +1854,14 @@ namespace OpenSky.Client.Pages.Models
                     Route = this.Route,
                     AlternateRoute = this.AlternateRoute,
                     OfpHtml = this.OfpHtml,
-                    NavlogFixes = this.navlogFixes
+                    NavlogFixes = this.navlogFixes,
+                    Payloads = new List<FlightPayload>()
                 };
+
+                foreach (var payloadID in this.Payloads)
+                {
+                    flightPlan.Payloads.Add(new FlightPayload { FlightID = this.ID, PayloadID = payloadID });
+                }
 
                 var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
                 if (!result.IsError)
@@ -1946,6 +2046,35 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Update plannable payloads distribution depending on selected Origin.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdatePlannablePayloads()
+        {
+            var payloads = new List<PlannablePayload>(this.PayloadsAtOrigin);
+            payloads.AddRange(this.PayloadsTowardsOrigin);
+            payloads.AddRange(this.OtherPayloads);
+            this.PayloadsAtOrigin.Clear();
+            this.PayloadsTowardsOrigin.Clear();
+            this.OtherPayloads.Clear();
+
+            if (string.IsNullOrEmpty(this.OriginICAO))
+            {
+                this.OtherPayloads.AddRange(payloads);
+            }
+            else
+            {
+                this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
+                this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
+                this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && !p.Destinations.Contains(this.OriginICAO)));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Update aircraft distances when origin airport changes.
         /// </summary>
         /// <remarks>
@@ -1954,71 +2083,62 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void UpdateAircraftDistances()
         {
-            new Thread(
-                    () =>
+            var currentSelection = this.SelectedAircraft;
+            var currentAircraft = new List<Aircraft>(this.Aircraft.Where(a => a.Registry != "----"));
+            this.Aircraft.Clear();
+            if (string.IsNullOrEmpty(this.OriginICAO))
+            {
+                foreach (var aircraft in currentAircraft.OrderBy(a => a.Registry))
+                {
+                    aircraft.Distance = 0;
+                    this.Aircraft.Add(aircraft);
+                }
+            }
+            else
+            {
+                // Origin is already set, put the aircraft at that airport first
+                var airportPackage = AirportPackageClientHandler.GetPackage();
+                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
+                if (origin != null)
+                {
+                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
+
+                }
+
+                foreach (var aircraft in currentAircraft.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
+                {
+                    aircraft.Distance = 0;
+                    this.Aircraft.Add(aircraft);
+                }
+
+                if (origin != null)
+                {
+                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
+                }
+
+                var atOtherAirports = new List<Aircraft>();
+                foreach (var aircraft in currentAircraft.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    aircraft.Distance = 0;
+                    if (origin != null)
                     {
-                        var currentSelection = this.SelectedAircraft;
-                        var airportPackage = AirportPackageClientHandler.GetPackage();
-                        var currentAircraft = new List<Aircraft>(this.Aircraft.Where(a => a.Registry != "----"));
-                        UpdateGUIDelegate refreshAircraftDistances = () =>
+                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
+                        if (aircraftAirport != null)
                         {
-                            this.Aircraft.Clear();
-                            if (string.IsNullOrEmpty(this.OriginICAO))
-                            {
-                                foreach (var aircraft in currentAircraft.OrderBy(a => a.Registry))
-                                {
-                                    aircraft.Distance = 0;
-                                    this.Aircraft.Add(aircraft);
-                                }
-                            }
-                            else
-                            {
-                                // Origin is already set, put the aircraft at that airport first
-                                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
-                                if (origin != null)
-                                {
-                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
+                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
+                        }
+                    }
 
-                                }
+                    atOtherAirports.Add(aircraft);
+                }
 
-                                foreach (var aircraft in currentAircraft.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
-                                {
-                                    aircraft.Distance = 0;
-                                    this.Aircraft.Add(aircraft);
-                                }
+                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
+            }
 
-                                if (origin != null)
-                                {
-                                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
-                                }
-
-                                var atOtherAirports = new List<Aircraft>();
-                                foreach (var aircraft in currentAircraft.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
-                                {
-                                    aircraft.Distance = 0;
-                                    if (origin != null)
-                                    {
-                                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
-                                        if (aircraftAirport != null)
-                                        {
-                                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
-                                        }
-                                    }
-
-                                    atOtherAirports.Add(aircraft);
-                                }
-
-                                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
-                            }
-
-                            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
-                            {
-                                this.SelectedAircraft = currentSelection;
-                            }
-                        };
-                        Application.Current.Dispatcher.BeginInvoke(refreshAircraftDistances);
-                    })
-            { Name = "FlightPlanViewModel.UpdateAircraftDistances" }.Start();
+            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
+            {
+                this.SelectedAircraft = currentSelection;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------

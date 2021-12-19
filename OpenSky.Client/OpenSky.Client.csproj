@@ -107,6 +107,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\Animations\MapPathAnimation.cs" />
+    <Compile Include="Controls\ListContainsValueCheckbox.xaml.cs">
+      <DependentUpon>ListContainsValueCheckbox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DateTimeExpiry.xaml.cs">
       <DependentUpon>DateTimeExpiry.xaml</DependentUpon>
     </Compile>
@@ -278,6 +281,10 @@
     <Compile Include="Views\Startup.xaml.cs">
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\ListContainsValueCheckbox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\DateTimeExpiry.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

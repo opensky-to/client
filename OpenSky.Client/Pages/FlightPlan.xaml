@@ -31,6 +31,10 @@
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}" />
+        <KeyBinding Key="F5" Command="{Binding RefreshPayloadsCommand}" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -38,7 +42,8 @@
         </Grid.RowDefinitions>
         <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
             <ui:CommandBar.PrimaryCommands>
-                <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft [F5]" Command="{Binding RefreshAircraftCommand}" />
+                <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft" Command="{Binding RefreshAircraftCommand}" />
+                <ui:AppBarButton Icon="Refresh" Label="Refresh payloads" ToolTip="Refresh available payloads [F5]" Command="{Binding RefreshPayloadsCommand}" />
                 <ui:AppBarButton Icon="Save" Label="Save" ToolTip="Save flight plan [Ctrl+S]" Command="{Binding SaveCommand}" />
                 <ui:AppBarButton Label="Create simBrief OFP" ToolTip="Create a simBrief OFP for this flight plan" Command="{Binding CreateSimBriefCommand}">
                     <ui:AppBarButton.Icon>
@@ -165,31 +170,145 @@
                             </Grid>
                         </StackPanel>
                     </GroupBox>
-                    <GroupBox Grid.Column="1">
+                    <GroupBox Grid.Column="1" Grid.ColumnSpan="2">
                         <GroupBox.Header>
-                            <TextBlock FontSize="15" FontWeight="DemiBold">Fuel</TextBlock>
+                            <TextBlock FontSize="15" FontWeight="DemiBold">Fuel and Payload</TextBlock>
                         </GroupBox.Header>
-                        <Grid IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
-                                <TextBlock VerticalAlignment="Center">Load</TextBlock>
-                                <TextBox Margin="5,0" Text="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|false}" />
-                                <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding SelectedAircraft.Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />
-                            </StackPanel>
-                            <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
+                            <GroupBox Grid.Column="0" Grid.Row="0">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="12" FontWeight="DemiBold">Fuel</TextBlock>
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
+                                        <TextBlock VerticalAlignment="Center">Load</TextBlock>
+                                        <TextBox Margin="5,0" Text="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|false}" />
+                                        <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding SelectedAircraft.Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />
+                                    </StackPanel>
+                                    <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Grid.Row="1" Grid.Column="0">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="12" FontWeight="DemiBold">Payloads at</TextBlock>
+                                        <TextBlock FontSize="12" FontWeight="DemiBold" Margin="3,0,0,0" Text="{Binding OriginICAO, FallbackValue=??}" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <ListBox Margin="5,0" ItemsSource="{Binding PayloadsAtOrigin}" MinHeight="160" MaxHeight="160">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="openSkyApi:PlannablePayload">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:ListContainsValueCheckbox List="{Binding ElementName=ViewModel, Path=Payloads}" Value="{Binding Id}" Grid.Column="0" />
+                                                <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" FontSize="11" />
+                                                        <TextBlock Text="{Binding Description}" Margin="5,0,0,0" FontSize="11" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock FontSize="11">Destination:</TextBlock>
+                                                        <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock FontSize="11">Current location:</TextBlock>
+                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Grid.Row="0" Grid.Column="1">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="12" FontWeight="DemiBold">Payloads with flights to</TextBlock>
+                                        <TextBlock FontSize="12" FontWeight="DemiBold" Margin="3,0,0,0" Text="{Binding OriginICAO, FallbackValue=??}" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <ListBox Margin="5,0" ItemsSource="{Binding PayloadsTowardsOrigin}" MinHeight="160" MaxHeight="160">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="openSkyApi:PlannablePayload">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:ListContainsValueCheckbox List="{Binding ElementName=ViewModel, Path=Payloads}" Value="{Binding Id}" Grid.Column="0" />
+                                                <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" FontSize="11" />
+                                                        <TextBlock Text="{Binding Description}" Margin="5,0,0,0" FontSize="11" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock FontSize="11">Destination:</TextBlock>
+                                                        <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock FontSize="11">Current location:</TextBlock>
+                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Grid.Row="1" Grid.Column="1">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="12" FontWeight="DemiBold">Other payloads</TextBlock>
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <ListBox Margin="5,0" ItemsSource="{Binding OtherPayloads}" MinHeight="160" MaxHeight="160">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="openSkyApi:PlannablePayload">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:ListContainsValueCheckbox List="{Binding ElementName=ViewModel, Path=Payloads}" Value="{Binding Id}" Grid.Column="0" />
+                                                <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" FontSize="11" />
+                                                        <TextBlock Text="{Binding Description}" Margin="5,0,0,0" FontSize="11" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock FontSize="11">Destination:</TextBlock>
+                                                        <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock FontSize="11">Current location:</TextBlock>
+                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </GroupBox>
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Column="2">
-                        <GroupBox.Header>
-                            <TextBlock FontSize="15" FontWeight="DemiBold">Payload</TextBlock>
-                        </GroupBox.Header>
-                        <TextBlock Margin="5,0">TODO</TextBlock>
-                    </GroupBox>
+
+
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -227,7 +346,7 @@
                         </GroupBox.Header>
                         <controls:MapView Margin="5" 
                                       x:Name="MapView"
-                                      MinHeight="500"
+                                      MinHeight="490" Height="490"
                                       TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
                                       SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
                                       SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
@@ -238,7 +357,7 @@
                             <TextBlock FontSize="15" FontWeight="DemiBold">simBrief OFP</TextBlock>
                         </GroupBox.Header>
                         <!--<wpf:HtmlPanel Text="{Binding OfpHtml}" Margin="5,5,20,5" />-->
-                        <TextBox Height="500" VerticalScrollBarVisibility="Auto" Margin="5" TextWrapping="Wrap" FontFamily="Consolas" FontSize="15" IsReadOnly="True" Text="{Binding OfpHtml}" />
+                        <TextBox Height="490" VerticalScrollBarVisibility="Auto" Margin="5" TextWrapping="Wrap" FontFamily="Consolas" FontSize="15" IsReadOnly="True" Text="{Binding OfpHtml}" />
                     </GroupBox>
                 </Grid>
             </StackPanel>
