@@ -3046,6 +3046,38 @@
         }
       }
     },
+    "/Job/plannablePayloads": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Get plannable payloads plus basic information about flights they are already planned for.",
+        "description": "sushi.at, 19/12/2021.",
+        "operationId": "GetPlannablePayloads",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/WorldPopulation": {
       "get": {
         "tags": [
@@ -5775,9 +5807,6 @@
       "FlightPayload": {
         "type": "object",
         "properties": {
-          "flight": {
-            "$ref": "#/components/schemas/Flight"
-          },
           "flightID": {
             "type": "string",
             "description": "Gets or sets the identifier of the flight.",
@@ -5933,6 +5962,14 @@
               "$ref": "#/components/schemas/FlightNavlogFix"
             },
             "description": "Gets or sets the navlog fixes.",
+            "nullable": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the payloads.",
             "nullable": true
           },
           "ofpHtml": {
@@ -6370,6 +6407,14 @@
             "description": "Gets or sets the destination icao for the payload.",
             "nullable": true
           },
+          "flightPayloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the flight payloads.",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "description": "Gets or sets the identifier for the payload.",
@@ -6405,6 +6450,88 @@
         },
         "additionalProperties": false,
         "description": "Pie chart value."
+      },
+      "PlannablePayload": {
+        "type": "object",
+        "properties": {
+          "currentLocation": {
+            "type": "string",
+            "description": "Gets or sets the current location (airport or aircraft).",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description.",
+            "nullable": true
+          },
+          "destinationICAO": {
+            "type": "string",
+            "description": "Gets or sets destination ICAO code.",
+            "nullable": true
+          },
+          "flights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets the flights the payload is planned to fly on.",
+            "nullable": true
+          },
+          "destinations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the destinations this payload is planning to go to.",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the payload.",
+            "format": "uuid"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Gets or sets the weight in lbs.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "(Flight)Plannable payload."
+      },
+      "PlannablePayloadIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlannablePayload"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "PositionReport": {
         "type": "object",
