@@ -161,6 +161,25 @@ namespace OpenSkyApi
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public int Distance { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the total payload weight in lbs currently loaded onto the aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double TotalPayloadWeight
+        {
+            get
+            {
+                var totalWeight = 0.0;
+                foreach (var payload in this.Payloads)
+                {
+                    totalWeight += payload.Weight;
+                }
+
+                return totalWeight;
+            }
+        }
     }
 
     /// -------------------------------------------------------------------------------------------------
@@ -206,6 +225,7 @@ namespace OpenSkyApi
                     style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
                     style.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(-10, aircraft.Type.Name.Contains("other") ? 16 : 0, 0, 0)));
                 }
+
                 return style;
             }
 

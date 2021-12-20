@@ -235,6 +235,7 @@ namespace OpenSky.Client.Pages.Models
             this.TrackingEventMarkers = new ObservableCollection<TrackingEventMarker>();
             this.SimbriefRouteLocations = new LocationCollection();
             this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
+            this.PayloadsOnBoard = new ObservableCollection<PlannablePayload>();
             this.PayloadsAtOrigin = new ObservableCollection<PlannablePayload>();
             this.PayloadsTowardsOrigin = new ObservableCollection<PlannablePayload>();
             this.OtherPayloads = new ObservableCollection<PlannablePayload>();
@@ -276,14 +277,6 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshAirlineCommand.DoExecute(null);
             this.RefreshPayloadsCommand.DoExecute(null);
         }
-
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the refresh payloads command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshPayloadsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -365,13 +358,6 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads planned for the flight.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Guid> Payloads { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -800,7 +786,33 @@ namespace OpenSky.Client.Pages.Models
             }
         }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the other payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> OtherPayloads { get; }
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads planned for the flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Guid> Payloads { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the plannable payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsAtOrigin { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads towards origin.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsTowardsOrigin { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -875,6 +887,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh payloads command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshPayloadsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the route.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -932,6 +951,9 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
                 this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
+
+                UpdateGUIDelegate updateAircraftRelated = this.UpdatePlannablePayloads;
+                Application.Current.Dispatcher.BeginInvoke(updateAircraftRelated);
             }
         }
 
@@ -997,7 +1019,38 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the zero fuel weight.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight;
+        public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight + this.CrewWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the crew weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double CrewWeight
+        {
+            get
+            {
+                if (this.SelectedAircraft != null)
+                {
+                    var crewWeight = 190.0;
+                    if (this.SelectedAircraft.Type.NeedsCoPilot)
+                    {
+                        crewWeight += 190;
+                    }
+
+                    if (this.SelectedAircraft.Type.NeedsFlightEngineer)
+                    {
+                        crewWeight += 190;
+                    }
+
+                    // todo add other non-flight crew later once implemented
+
+                    return crewWeight;
+                }
+
+                return 0;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1632,89 +1685,17 @@ namespace OpenSky.Client.Pages.Models
                                 }
                             }
                         });
+
+                    this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(null));
                 }
 
                 this.IsDirty = this.IsNewFlightPlan;
-
-                this.LoadFlightPlanCommand.ReportProgress(() => this.RefreshAircraftCommand.DoExecute(true));
             }
             finally
             {
                 this.LoadingText = null;
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Refreshes the list of plannable payloads.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 19/12/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void RefreshPayloads()
-        {
-            this.LoadingText = "Refreshing payloads...";
-            try
-            {
-                var result = OpenSkyService.Instance.GetPlannablePayloadsAsync().Result;
-                if (!result.IsError)
-                {
-                    this.RefreshPayloadsCommand.ReportProgress(
-                        () =>
-                        {
-                            this.OtherPayloads.Clear();
-                            this.OtherPayloads.AddRange(result.Data);
-                            this.UpdatePlannablePayloads();
-                        });
-                }
-                else
-                {
-                    this.RefreshPayloadsCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error refreshing payloads: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing payloads", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.RefreshPayloadsCommand, "Error refreshing payloads");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the plannable payloads.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsAtOrigin { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads towards origin.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsTowardsOrigin { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the other payloads.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> OtherPayloads { get; }
-
-
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1723,18 +1704,15 @@ namespace OpenSky.Client.Pages.Models
         /// <remarks>
         /// sushi.at, 31/10/2021.
         /// </remarks>
-        /// <param name="param">
-        /// The optional command parameter.
-        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void RefreshAircraft(object param)
+        private void RefreshAircraft()
         {
             this.LoadingText = "Refreshing aircraft...";
             try
             {
                 var currentSelection = this.SelectedAircraft;
+                var currentFuel = this.FuelGallons;
                 var result = OpenSkyService.Instance.GetMyAircraftAsync().Result;
-                var airportPackage = AirportPackageClientHandler.GetPackage();
                 if (!result.IsError)
                 {
                     this.RefreshAircraftCommand.ReportProgress(
@@ -1747,10 +1725,8 @@ namespace OpenSky.Client.Pages.Models
                             if (currentSelection != null && this.Aircraft.Contains(currentSelection))
                             {
                                 this.SelectedAircraft = currentSelection;
-                                if (param is null or false)
-                                {
-                                    this.IsDirty = false;
-                                }
+                                this.FuelGallons = currentFuel;
+                                this.IsDirty = false;
                             }
                         });
                 }
@@ -1818,6 +1794,55 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.RefreshAirlineCommand, "Error refreshing airline info");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refreshes the list of plannable payloads.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshPayloads()
+        {
+            this.LoadingText = "Refreshing payloads...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetPlannablePayloadsAsync().Result;
+                if (!result.IsError)
+                {
+                    this.RefreshPayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.OtherPayloads.Clear();
+                            this.OtherPayloads.AddRange(result.Data);
+                            this.UpdatePlannablePayloads();
+                        });
+                }
+                else
+                {
+                    this.RefreshPayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing payloads: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing payloads", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.RefreshPayloadsCommand, "Error refreshing payloads");
             }
             finally
             {
@@ -2046,35 +2071,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Update plannable payloads distribution depending on selected Origin.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 19/12/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void UpdatePlannablePayloads()
-        {
-            var payloads = new List<PlannablePayload>(this.PayloadsAtOrigin);
-            payloads.AddRange(this.PayloadsTowardsOrigin);
-            payloads.AddRange(this.OtherPayloads);
-            this.PayloadsAtOrigin.Clear();
-            this.PayloadsTowardsOrigin.Clear();
-            this.OtherPayloads.Clear();
-
-            if (string.IsNullOrEmpty(this.OriginICAO))
-            {
-                this.OtherPayloads.AddRange(payloads);
-            }
-            else
-            {
-                this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
-                this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
-                this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && !p.Destinations.Contains(this.OriginICAO)));
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Update aircraft distances when origin airport changes.
         /// </summary>
         /// <remarks>
@@ -2102,7 +2098,6 @@ namespace OpenSky.Client.Pages.Models
                 if (origin != null)
                 {
                     this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
-
                 }
 
                 foreach (var aircraft in currentAircraft.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
@@ -2243,6 +2238,63 @@ namespace OpenSky.Client.Pages.Models
                         }
                     })
             { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads on board.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsOnBoard { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Update plannable payloads distribution depending on selected Origin.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdatePlannablePayloads()
+        {
+            var payloads = new List<PlannablePayload>(this.PayloadsOnBoard);
+            payloads.AddRange(this.PayloadsAtOrigin);
+            payloads.AddRange(this.PayloadsTowardsOrigin);
+            payloads.AddRange(this.OtherPayloads);
+            this.PayloadsOnBoard.Clear();
+            this.PayloadsAtOrigin.Clear();
+            this.PayloadsTowardsOrigin.Clear();
+            this.OtherPayloads.Clear();
+
+            if (string.IsNullOrEmpty(this.OriginICAO) && this.SelectedAircraft == null)
+            {
+                // No origin, no aircraft
+                this.OtherPayloads.AddRange(payloads);
+            }
+            else
+            {
+                if (this.SelectedAircraft == null)
+                {
+                    // Origin selected, but no aircraft
+                    this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
+                    this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
+                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && !p.Destinations.Contains(this.OriginICAO)));
+                }
+                else if (string.IsNullOrEmpty(this.OriginICAO))
+                {
+                    // Aircraft selected, but no origin
+                    this.PayloadsOnBoard.AddRange(payloads.Where(p => p.CurrentLocation == this.SelectedAircraft.Registry));
+                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.SelectedAircraft.Registry));
+                }
+                else
+                {
+                    // Both origin and aircraft selected
+                    this.PayloadsOnBoard.AddRange(payloads.Where(p => p.CurrentLocation == this.SelectedAircraft.Registry));
+                    this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
+                    this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
+                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.CurrentLocation != this.SelectedAircraft.Registry && !p.Destinations.Contains(this.OriginICAO)));
+                }
+            }
         }
     }
 }

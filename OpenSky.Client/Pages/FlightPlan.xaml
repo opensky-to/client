@@ -119,71 +119,64 @@
                         <GroupBox.Resources>
                             <openSkyApi:AircraftSelectOrNotSelectComboItemStyleSelector x:Key="AircraftSelectOrNotSelectComboItemStyleSelector" />
                         </GroupBox.Resources>
-                        <StackPanel Orientation="Vertical">
-                            <Grid>
-                                <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" Grid.IsSharedSizeScope="True" ItemContainerStyleSelector="{StaticResource AircraftSelectOrNotSelectComboItemStyleSelector}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate DataType="openSkyApi:Aircraft">
-                                            <Grid IsHitTestVisible="False">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="AircraftTextColumn" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding}" IsHitTestVisible="False" />
-                                                <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="8,0,0,0" Text="{Binding DistanceInfo}" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2,30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=AircraftCombo, Converter={StaticResource NullItemToVisibilityConverter}}" Command="{Binding ClearAircraftCommand}" />
-                            </Grid>
-                            <Grid Margin="5" IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="1*" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="0">Empty weight</TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="1">Payload</TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="2">ZFW</TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="3"></TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="4">Fuel</TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="5">Gross</TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="6">MAX Gross</TextBlock>
-
-                                <TextBlock Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Text="{Binding SelectedAircraft.Type.EmptyWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-                                <TextBlock Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Text="{Binding PayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-                                <TextBlock Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Text="{Binding ZeroFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-
-                                <TextBlock Grid.Column="1" Grid.Row="4" HorizontalAlignment="Right" Text="{Binding FuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-                                <TextBlock Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Text="{Binding GrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-                                <TextBlock Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Text="{Binding SelectedAircraft.Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
-
-                            </Grid>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Grid.Column="1" Grid.ColumnSpan="2">
-                        <GroupBox.Header>
-                            <TextBlock FontSize="15" FontWeight="DemiBold">Fuel and Payload</TextBlock>
-                        </GroupBox.Header>
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="1*" />
-                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <GroupBox Grid.Column="0" Grid.Row="0">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" Grid.IsSharedSizeScope="True" ItemContainerStyleSelector="{StaticResource AircraftSelectOrNotSelectComboItemStyleSelector}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="openSkyApi:Aircraft">
+                                                <Grid IsHitTestVisible="False">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="AircraftTextColumn" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding}" IsHitTestVisible="False" />
+                                                    <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="8,0,0,0" Text="{Binding DistanceInfo}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2,30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=AircraftCombo, Converter={StaticResource NullItemToVisibilityConverter}}" Command="{Binding ClearAircraftCommand}" />
+                                </Grid>
+                                <Grid Margin="5" IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Column="0" Grid.Row="0">Empty weight</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="1">Crew</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="2">Payload</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="3">ZFW</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="4"></TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="5">Fuel</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="6">Gross</TextBlock>
+                                    <TextBlock Grid.Column="0" Grid.Row="7">MAX Gross</TextBlock>
+
+                                    <TextBlock Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Text="{Binding SelectedAircraft.Type.EmptyWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Text="{Binding CrewWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Text="{Binding PayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Text="{Binding ZeroFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+
+                                    <TextBlock Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Text="{Binding FuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Text="{Binding GrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right" Text="{Binding SelectedAircraft.Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                </Grid>
+                            </StackPanel>
+                            <GroupBox Grid.Row="1">
                                 <GroupBox.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontSize="12" FontWeight="DemiBold">Fuel</TextBlock>
@@ -202,6 +195,55 @@
                                     </StackPanel>
                                     <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
                                 </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Grid.Column="1" Grid.ColumnSpan="2">
+                        <GroupBox.Header>
+                            <TextBlock FontSize="15" FontWeight="DemiBold">Payload</TextBlock>
+                        </GroupBox.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <GroupBox Grid.Row="0" Grid.Column="0">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontSize="12" FontWeight="DemiBold">Payloads on board</TextBlock>
+                                        <TextBlock FontSize="12" FontWeight="DemiBold" Margin="3,0,0,0" Text="{Binding SelectedAircraft.Registry, FallbackValue=??}" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <ListBox Margin="5,0" ItemsSource="{Binding PayloadsOnBoard}" MinHeight="160" MaxHeight="160">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="openSkyApi:PlannablePayload">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:ListContainsValueCheckbox List="{Binding ElementName=ViewModel, Path=Payloads}" Value="{Binding Id}" Grid.Column="0" />
+                                                <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" FontSize="11" />
+                                                        <TextBlock Text="{Binding Description}" Margin="5,0,0,0" FontSize="11" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock FontSize="11">Destination:</TextBlock>
+                                                        <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock FontSize="11">Current location:</TextBlock>
+                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </GroupBox>
                             <GroupBox Grid.Row="1" Grid.Column="0">
                                 <GroupBox.Header>

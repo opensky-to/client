@@ -18,6 +18,7 @@
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                          xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           LoadingText="{Binding LoadingText}"
                           HorizontalScrollBar="False"
                           Loaded="FlightPlansOnLoaded"
@@ -35,6 +36,7 @@
                 <componentModel:SortDescription PropertyName="PlannedDepartureTime.UtcDateTime" Direction="Descending" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
     </UserControl.Resources>
     <Grid>
          <GroupBox>
@@ -74,7 +76,8 @@
                         <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="14" />
+                        <DataGridTextColumn Header="Payload" Binding="{Binding TotalPayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
                         <DataGridTextColumn Header="Utc Offset" Binding="{Binding UtcOffset}" />
                         <DataGridTextColumn Header="Airline pilot" />
                         <DataGridTextColumn Header="Dispatcher" Binding="{Binding DispatcherName}" />

@@ -6,6 +6,9 @@ OpenSky Client Changelog
 Version 0.3.0 (ALPHA3)
 --------------------------------------------------------------------------------------
 - Added airports to the world map
+- Added job market and "My Jobs"
+- Added payloads to flight planning
+- Added manual aircraft ground operations
 
 --------------------------------------------------------------------------------------
 Version 0.2.3 (ALPHA2)
