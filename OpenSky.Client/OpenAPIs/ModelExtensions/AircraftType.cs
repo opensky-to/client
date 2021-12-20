@@ -73,6 +73,7 @@ namespace OpenSkyApi
             this.Name = copyFrom.Name;
             this.Manufacturer = copyFrom.Manufacturer;
             this.NeedsCoPilot = copyFrom.NeedsCoPilot;
+            this.NeedsFlightEngineer = copyFrom.NeedsFlightEngineer;
             this.RequiresManualFuelling = copyFrom.RequiresManualFuelling;
             this.RequiresManualLoading = copyFrom.RequiresManualLoading;
             this.NextVersion = copyFrom.NextVersion;

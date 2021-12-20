@@ -949,6 +949,7 @@ namespace OpenSky.Client.Pages.Models
 
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
+                this.NotifyPropertyChanged(nameof(this.CrewWeight));
                 this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
 
