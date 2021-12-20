@@ -678,6 +678,85 @@ namespace OpenSkyApi
             }
         }
     
+        /// <summary>Perform ground operations for the specified aircraft.</summary>
+        /// <param name="body">The operations to be performed (fuel and payload loading).</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<StringApiResponse> PerformGroundOperationsAsync(GroundOperations body)
+        {
+            return PerformGroundOperationsAsync(body, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Perform ground operations for the specified aircraft.</summary>
+        /// <param name="body">The operations to be performed (fuel and payload loading).</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<StringApiResponse> PerformGroundOperationsAsync(GroundOperations body, System.Threading.CancellationToken cancellationToken)
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Aircraft/groundOperations");
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<StringApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
         /// <summary>Purchase specified aircraft.</summary>
         /// <param name="body">The purchase aircraft model.</param>
         /// <returns>Success</returns>
@@ -6015,9 +6094,21 @@ namespace OpenSkyApi
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string AirportICAO { get; set; }
     
+        /// <summary>Can the aircraft currently start a new flight?</summary>
+        [Newtonsoft.Json.JsonProperty("canStartFlight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool CanStartFlight { get; set; }
+    
         /// <summary>Gets or sets the current fuel in gallons.</summary>
         [Newtonsoft.Json.JsonProperty("fuel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Fuel { get; set; }
+    
+        /// <summary>Gets or sets the Date/Time until the aircraft is fuelling.</summary>
+        [Newtonsoft.Json.JsonProperty("fuellingUntil", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? FuellingUntil { get; set; }
+    
+        /// <summary>Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).</summary>
+        [Newtonsoft.Json.JsonProperty("loadingUntil", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? LoadingUntil { get; set; }
     
         /// <summary>Gets or sets the user-chosen name of the aircraft.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -6032,6 +6123,10 @@ namespace OpenSkyApi
         /// <summary>Gets the owner name.</summary>
         [Newtonsoft.Json.JsonProperty("ownerName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OwnerName { get; set; }
+    
+        /// <summary>Gets or sets the payloads currently loaded onto this aircraft.</summary>
+        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Payload> Payloads { get; set; }
     
         /// <summary>Gets or sets the purchase price for the aircraft. Null if not available for purchase.</summary>
         [Newtonsoft.Json.JsonProperty("purchasePrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -6277,6 +6372,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("needsCoPilot", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool NeedsCoPilot { get; set; }
     
+        /// <summary>Gets or sets a value indicating whether the aircraft needs a flight engineer.</summary>
+        [Newtonsoft.Json.JsonProperty("needsFlightEngineer", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool NeedsFlightEngineer { get; set; }
+    
         /// <summary>Gets or sets the next version of this aircraft type - to migrate existing aircraft to this
         /// new type.</summary>
         [Newtonsoft.Json.JsonProperty("nextVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -6436,7 +6535,7 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions</summary>
+    /// <summary>Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum AirlinePermission
     {
@@ -6477,6 +6576,8 @@ namespace OpenSkyApi
         MaintainAircraft = 41,
     
         ReplaceAircraftParts = 42,
+    
+        PerformGroundOperations = 43,
     
         ChangePermissions = 90,
     
@@ -8160,6 +8261,25 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>Ground operations model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class GroundOperations 
+    {
+        /// <summary>Gets or sets the target fuel in gallons.</summary>
+        [Newtonsoft.Json.JsonProperty("fuel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Fuel { get; set; }
+    
+        /// <summary>Gets or sets the target payloads.</summary>
+        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<System.Guid> Payloads { get; set; }
+    
+        /// <summary>Gets or sets the aircraft registry.</summary>
+        [Newtonsoft.Json.JsonProperty("registry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Registry { get; set; }
+    
+    
+    }
+    
     /// <summary>API standard response model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class GuidNullableApiResponse 
@@ -8426,10 +8546,6 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("destinationICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string DestinationICAO { get; set; }
-    
-        /// <summary>Gets or sets the flight payloads.</summary>
-        [Newtonsoft.Json.JsonProperty("flightPayloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FlightPayload> FlightPayloads { get; set; }
     
         /// <summary>Gets or sets the identifier for the payload.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]

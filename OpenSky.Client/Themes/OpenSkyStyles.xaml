@@ -396,6 +396,7 @@
                                     </Image.Triggers>
                                 </Image>
                                 <Image Grid.Row="0" Grid.Column="0" Width="40" Height="40" Source="{StaticResource OpenskyLogoPlaneAndTrail}" />
+                                <Image Grid.Row="0" Grid.Column="0" Width="60" Height="60" Source="{StaticResource SantaHat}" x:Name="SantaHat" Margin="-13,-17,-20,-20" />
                             </Grid>
                             <TextBlock Grid.Column="1" FontSize="30" VerticalAlignment="Center" Margin="5,0,0,0" FontFamily="/Fonts/#Montserrat" Text="{TemplateBinding Title}" />
                             <Rectangle Grid.Column="0" Grid.ColumnSpan="3" x:Name="MoveWindow" Fill="Transparent" Margin="-10" />

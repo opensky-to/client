@@ -23,5 +23,24 @@ namespace OpenSkyApi
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public bool IsNewFlightPlan { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the total payload weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double TotalPayloadWeight
+        {
+            get
+            {
+                var totalWeight = 0.0;
+                foreach (var flightPayload in this.Payloads)
+                {
+                    totalWeight += flightPayload.Payload?.Weight ?? 0;
+                }
+
+                return totalWeight;
+            }
+        }
     }
 }

@@ -332,6 +332,58 @@
         }
       }
     },
+    "/Aircraft/groundOperations": {
+      "put": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Perform ground operations for the specified aircraft.",
+        "description": "sushi.at, 20/12/2021.",
+        "operationId": "PerformGroundOperations",
+        "requestBody": {
+          "description": "The operations to be performed (fuel and payload loading).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/purchase": {
       "post": {
         "tags": [
@@ -3233,10 +3285,27 @@
             "type": "string",
             "description": "Gets or sets the airport ICAO the plane is located at, note this is the departure airport if\r\nthe aircraft currently is flying."
           },
+          "canStartFlight": {
+            "type": "boolean",
+            "description": "Can the aircraft currently start a new flight?",
+            "readOnly": true
+          },
           "fuel": {
             "type": "number",
             "description": "Gets or sets the current fuel in gallons.",
             "format": "double"
+          },
+          "fuellingUntil": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time until the aircraft is fuelling.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "loadingUntil": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "maxLength": 30,
@@ -3257,6 +3326,14 @@
             "description": "Gets the owner name.",
             "nullable": true,
             "readOnly": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payload"
+            },
+            "description": "Gets or sets the payloads currently loaded onto this aircraft.",
+            "nullable": true
           },
           "purchasePrice": {
             "type": "integer",
@@ -3547,6 +3624,10 @@
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the aircraft needs a co-pilot."
           },
+          "needsFlightEngineer": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft needs a flight engineer."
+          },
           "nextVersion": {
             "type": "string",
             "description": "Gets or sets the next version of this aircraft type - to migrate existing aircraft to this\r\nnew type.",
@@ -3776,12 +3857,13 @@
           40,
           41,
           42,
+          43,
           90,
           91,
           92
         ],
         "type": "integer",
-        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
         "format": "int32",
         "x-enumNames": [
           "BuyAircraft",
@@ -3803,6 +3885,7 @@
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
+          "PerformGroundOperations",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -3827,6 +3910,7 @@
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
+          "PerformGroundOperations",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -6077,6 +6161,32 @@
           "None"
         ]
       },
+      "GroundOperations": {
+        "type": "object",
+        "properties": {
+          "fuel": {
+            "type": "number",
+            "description": "Gets or sets the target fuel in gallons.",
+            "format": "double"
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Gets or sets the target payloads.",
+            "nullable": true
+          },
+          "registry": {
+            "type": "string",
+            "description": "Gets or sets the aircraft registry.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Ground operations model."
+      },
       "GuidNullableApiResponse": {
         "type": "object",
         "properties": {
@@ -6405,14 +6515,6 @@
             "minLength": 3,
             "type": "string",
             "description": "Gets or sets the destination icao for the payload.",
-            "nullable": true
-          },
-          "flightPayloads": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightPayload"
-            },
-            "description": "Gets or sets the flight payloads.",
             "nullable": true
           },
           "id": {
