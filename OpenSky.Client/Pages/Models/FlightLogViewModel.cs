@@ -28,8 +28,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
-    using TrackingEventLogEntry = Controls.Models.TrackingEventLogEntry;
-    using TrackingEventMarker = Controls.Models.TrackingEventMarker;
+    using TrackingEventLogEntry = OpenSky.Client.Controls.Models.TrackingEventLogEntry;
+    using TrackingEventMarker = OpenSky.Client.Controls.Models.TrackingEventMarker;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -82,6 +82,20 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private Visibility ofpVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The payload.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string payload;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// GThe payload weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private double payloadWeight;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -504,6 +518,48 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the payload.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string Payload
+        {
+            get => this.payload;
+
+            set
+            {
+                if (Equals(this.payload, value))
+                {
+                    return;
+                }
+
+                this.payload = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the payload weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double PayloadWeight
+        {
+            get => this.payloadWeight;
+
+            set
+            {
+                if (Equals(this.payloadWeight, value))
+                {
+                    return;
+                }
+
+                this.payloadWeight = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the show hide landing report button text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -649,6 +705,9 @@ namespace OpenSky.Client.Pages.Models
                         this.LoadFlightLogCommand.ReportProgress(
                             () =>
                             {
+                                this.PayloadWeight = flightLogXml.PayloadPounds;
+                                this.Payload = flightLogXml.Payload;
+
                                 this.TrackingEventMarkers.Clear();
 
                                 var originMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Origin.Latitude, flightLogXml.Origin.Longitude), flightLogXml.Origin.Icao, OpenSkyColors.OpenSkyTeal, Colors.White);

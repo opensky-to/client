@@ -11,7 +11,6 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -60,13 +59,6 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty JobTrailsProperty = DependencyProperty.Register("JobTrails", typeof(ObservableCollection<MapPolyline>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<MapPolyline>()));
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The show all airports property.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty ShowAllAirportsProperty = DependencyProperty.Register("ShowAllAirports", typeof(bool), typeof(MapView), new UIPropertyMetadata(false));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -222,12 +214,7 @@ namespace OpenSky.Client.Controls
         /// Gets or sets a value indicating whether to show all airports.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        [Bindable(true)]
-        public bool ShowAllAirports
-        {
-            get => (bool)this.GetValue(ShowAllAirportsProperty);
-            set => this.SetValue(ShowAllAirportsProperty, value);
-        }
+        public bool ShowAllAirports { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -277,14 +264,32 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets a value indicating whether to zoom for aircraft location changes.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ZoomForAircraftLocations { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Animate the aircraft trail.
         /// </summary>
         /// <remarks>
         /// sushi.at, 14/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public void AnimateAircraftTrail()
+        public void AnimateAircraftTrail(int duration = 25, int delay = 30)
         {
+            if (this.aircraftTrailAnimation != null)
+            {
+                this.aircraftTrailAnimation.Stop();
+                this.aircraftTrailAnimation = null;
+                if (this.animatedAircraftPosition != null)
+                {
+                    this.WpfMapView.Children.Remove(this.animatedAircraftPosition);
+                    this.animatedAircraftPosition = null;
+                }
+            }
+
             if (this.AircraftTrailLocations.Count >= 2)
             {
                 var aircraftPosition = new AircraftPosition
@@ -294,7 +299,6 @@ namespace OpenSky.Client.Controls
                 };
                 this.animatedAircraftPosition = aircraftPosition;
                 this.WpfMapView.Children.Add(aircraftPosition);
-                this.WpfMapView.AnimationLevel = AnimationLevel.Full;
 
                 this.aircraftTrailAnimation = new MapPathAnimation(
                     this.AircraftTrailLocations,
@@ -304,9 +308,9 @@ namespace OpenSky.Client.Controls
                         aircraftPosition.Heading = bearing;
                     },
                     false,
-                    25 * 1000,
+                    duration * 1000,
                     true,
-                    500);
+                    delay);
                 this.aircraftTrailAnimation.Play();
             }
         }
@@ -447,6 +451,10 @@ namespace OpenSky.Client.Controls
                     existingMapLayer?.Children.Remove(item);
 
                     this.WpfMapView.Children.Add(item);
+                    if (this.ZoomForAircraftLocations)
+                    {
+                        this.ShowAllMarkers(true);
+                    }
                 }
             }
 
@@ -455,6 +463,10 @@ namespace OpenSky.Client.Controls
                 foreach (AircraftPosition item in e.OldItems)
                 {
                     this.WpfMapView.Children.Remove(item);
+                    if (this.ZoomForAircraftLocations)
+                    {
+                        this.ShowAllMarkers();
+                    }
                 }
             }
         }
@@ -895,9 +907,6 @@ namespace OpenSky.Client.Controls
         {
             if (this.ShowAllAirports)
             {
-                Debug.WriteLine(
-                    $"end  : {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
-
                 if (this.DataContext is MapViewViewModel viewModel)
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
@@ -923,8 +932,6 @@ namespace OpenSky.Client.Controls
         {
             if (this.ShowAllAirports && (DateTime.Now - this.lastFrameUpdate).TotalMilliseconds > 500)
             {
-                Debug.WriteLine(
-                    $"frame: {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
                 this.lastFrameUpdate = DateTime.Now;
 
                 if (this.DataContext is MapViewViewModel viewModel)

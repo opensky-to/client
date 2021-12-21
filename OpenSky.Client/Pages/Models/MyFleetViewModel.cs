@@ -12,6 +12,9 @@ namespace OpenSky.Client.Pages.Models
     using System.Linq;
     using System.Windows;
 
+    using Microsoft.Maps.MapControl.WPF;
+
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -145,6 +148,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the aircraft positions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftPosition> AircraftPositions { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MyFleetViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -159,6 +169,7 @@ namespace OpenSky.Client.Pages.Models
             this.Payloads = new ObservableCollection<Guid>();
             this.AirportPayloads = new ObservableCollection<PlannablePayload>();
             this.AircraftPayloads = new ObservableCollection<Payload>();
+            this.AircraftPositions = new ObservableCollection<AircraftPosition>();
 
             // Create commands
             this.RefreshFleetCommand = new AsynchronousCommand(this.RefreshFleet);
@@ -787,9 +798,17 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             this.Aircraft.Clear();
+                            this.AircraftPositions.Clear();
                             foreach (var aircraft in result.Data)
                             {
                                 this.Aircraft.Add(aircraft);
+                                this.AircraftPositions.Add(new AircraftPosition
+                                {
+                                    Heading = aircraft.Heading,
+                                    Location = new Location(aircraft.Latitude, aircraft.Longitude),
+                                    Registry = aircraft.Registry,
+                                    ToolTip = aircraft.Registry
+                                });
                             }
                         });
                 }

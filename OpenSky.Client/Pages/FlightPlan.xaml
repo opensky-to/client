@@ -24,7 +24,7 @@
                           mc:Ignorable="d"
                           d:DesignHeight="900" d:DesignWidth="800">
     <UserControl.DataContext>
-        <models:FlightPlanViewModel x:Name="ViewModel" ClosePage="FlightPlanViewModelOnClosePage" />
+        <models:FlightPlanViewModel x:Name="ViewModel" ClosePage="FlightPlanViewModelOnClosePage" MapUpdated="ViewModelOnMapUpdated" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
@@ -348,9 +348,6 @@
                             </GroupBox>
                         </Grid>
                     </GroupBox>
-
-
-
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -390,6 +387,7 @@
                                       x:Name="MapView"
                                       MinHeight="490" Height="490"
                                       TrackingEventMarkers="{Binding TrackingEventMarkers, ElementName=ViewModel}"
+                                      AircraftTrailLocations="{Binding RouteTrailLocations, ElementName=ViewModel}"
                                       SimbriefRouteLocations="{Binding SimbriefRouteLocations, ElementName=ViewModel}"
                                       SimbriefWaypointMarkers="{Binding SimbriefWaypointMarkers, ElementName=ViewModel}"
                     />

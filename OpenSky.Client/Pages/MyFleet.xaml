@@ -35,6 +35,7 @@
     <UserControl.Resources>
         <converters:VisibilityInverterConverter x:Key="VisibilityInverterConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
         <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
             <CollectionViewSource.SortDescriptions>
                 <componentModel:SortDescription PropertyName="Registry" Direction="Ascending" />
@@ -43,7 +44,9 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
@@ -103,11 +106,33 @@
                         <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" />
                     </DataGrid.Columns>
-
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate DataType="openSkyApi:Aircraft">
+                            <DataGrid ItemsSource="{Binding Payloads}" Visibility="{Binding Payloads, Converter={StaticResource CollectionEmptyVisibilityConverter}}"
+                                      AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
+                                      CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding DestinationICAO}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
+                                    <DataGridTextColumn Binding="{Binding Description}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
                 </DataGrid>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="1" Visibility="{Binding EditAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
+        <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" />
+        <GroupBox Grid.Column="2">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Map</TextBlock>
+            </GroupBox.Header>
+            <controls:MapView x:Name="MapView" ZoomForAircraftLocations="True"
+                AircraftPositions="{Binding AircraftPositions, ElementName=ViewModel}"
+            />
+        </GroupBox>
+        <GroupBox Grid.Column="3" Visibility="{Binding EditAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="15" FontWeight="DemiBold">Edit Aircraft:</TextBlock>
@@ -156,7 +181,7 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="2" Visibility="{Binding GroundOperationsVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
+        <GroupBox Grid.Column="4" Visibility="{Binding GroundOperationsVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="15" FontWeight="DemiBold">Ground operations:</TextBlock>

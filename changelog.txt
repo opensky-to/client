@@ -9,6 +9,7 @@ Version 0.3.0 (ALPHA3)
 - Added job market and "My Jobs"
 - Added payloads to flight planning
 - Added manual aircraft ground operations
+- Added support for aircraft types with flight engineers
 
 --------------------------------------------------------------------------------------
 Version 0.2.3 (ALPHA2)
