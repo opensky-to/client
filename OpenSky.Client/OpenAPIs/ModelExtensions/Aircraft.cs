@@ -8,8 +8,11 @@
 
 namespace OpenSkyApi
 {
+    using System.Globalization;
     using System.Windows;
     using System.Windows.Controls;
+
+    using OpenSky.Client.Converters;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -140,12 +143,13 @@ namespace OpenSkyApi
         {
             get
             {
+                var converter = new SettingsUnitConverter();
                 if (this.Registry != "----")
                 {
                     var info = $"[{this.AirportICAO}";
                     if (this.Distance > 0)
                     {
-                        info += $", {this.Distance} nm";
+                        info += $", {converter.Convert(this.Distance, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture)}";
                     }
 
                     return $"{info}]";

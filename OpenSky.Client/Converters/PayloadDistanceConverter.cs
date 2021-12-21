@@ -54,43 +54,33 @@ namespace OpenSky.Client.Converters
         /// -------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType == typeof(double))
+            if (value is Payload payload)
             {
-                if (value is Payload payload)
+                if (!string.IsNullOrWhiteSpace(payload.AirportICAO))
                 {
-                    if (!string.IsNullOrWhiteSpace(payload.AirportICAO))
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.AirportICAO);
+                    var destination = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.DestinationICAO);
+
+                    if (origin != null && destination != null)
                     {
-                        var airportPackage = AirportPackageClientHandler.GetPackage();
-                        var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.AirportICAO);
-                        var destination = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.DestinationICAO);
-
-                        if (origin != null && destination != null)
+                        var distance = new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(destination.Latitude, destination.Longitude)) / 1852;
+                        if (targetType == typeof(string))
                         {
-                            return new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(destination.Latitude, destination.Longitude)) / 1852;
+                            return new SettingsUnitConverter().Convert(distance, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture);
                         }
-                    }
-                }
 
-                return 0.0;
-            }
-
-            {
-                if (value is Payload payload)
-                {
-                    if (!string.IsNullOrWhiteSpace(payload.AirportICAO))
-                    {
-                        var airportPackage = AirportPackageClientHandler.GetPackage();
-                        var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.AirportICAO);
-                        var destination = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.DestinationICAO);
-
-                        if (origin != null && destination != null)
-                        {
-                            return $"{new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(destination.Latitude, destination.Longitude)) / 1852:F0} nm";
-                        }
+                        return distance;
                     }
                 }
             }
-            return "?? nm";
+
+            if (targetType == typeof(string))
+            {
+                return new SettingsUnitConverter().Convert(0.0, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture);
+            }
+
+            return 0.0;
         }
 
         /// -------------------------------------------------------------------------------------------------

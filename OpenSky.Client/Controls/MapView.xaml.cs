@@ -11,7 +11,6 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -506,17 +505,32 @@ namespace OpenSky.Client.Controls
                         this.jobTrailAnimationImages.Add(boxImage);
                         this.WpfMapView.Children.Add(boxImage);
 
-                        var animation = new MapPathAnimation(
-                            item.Locations,
-                            (location, _, _) =>
+                        if (this.JobTrails.Count < 10)
+                        {
+                            var animation = new MapPathAnimation(
+                                item.Locations,
+                                (location, _, _) =>
+                                {
+                                    MapLayer.SetPosition(boxImage, location);
+                                },
+                                false,
+                                2000,
+                                true);
+                            this.jobTrailAnimations.Add(animation);
+                            animation.Play();
+                        }
+                        else
+                        {
+                            // Too many jobs, don't show animation
+                            foreach (var animation in this.jobTrailAnimations)
                             {
-                                MapLayer.SetPosition(boxImage, location);
-                            },
-                            false,
-                            2000,
-                            true);
-                        this.jobTrailAnimations.Add(animation);
-                        animation.Play();
+                                animation.Stop();
+                            }
+
+                            this.jobTrailAnimations.Clear();
+                            this.WpfMapView.Children.RemoveRange(this.jobTrailAnimationImages);
+                            this.jobTrailAnimationImages.Clear();
+                        }
                     }
                 }
             }
@@ -818,7 +832,8 @@ namespace OpenSky.Client.Controls
 
                                 var zoomLevelParameter = item.AirportSize switch
                                 {
-                                    >= 5 => 4.0,
+                                    6 => 0.1,
+                                    5 => 4.0,
                                     4 => 7.0,
                                     3 => 8.0,
                                     _ => 10.0
@@ -925,7 +940,6 @@ namespace OpenSky.Client.Controls
             if (this.ShowAllAirports && (DateTime.Now - this.lastFrameUpdate).TotalMilliseconds > 500)
             {
                 this.lastFrameUpdate = DateTime.Now;
-
                 if (this.DataContext is MapViewViewModel viewModel)
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);

@@ -35,7 +35,7 @@ namespace OpenSkyApi
         /// Gets the maximum distance of any payload within the job.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string MaxDistance
+        public double MaxDistance
         {
             get
             {
@@ -51,7 +51,7 @@ namespace OpenSkyApi
                     }
                 }
 
-                return $"{maxDistance:F0} nm";
+                return maxDistance;
             }
         }
 
