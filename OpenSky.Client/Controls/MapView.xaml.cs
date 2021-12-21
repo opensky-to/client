@@ -11,16 +11,17 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
     using System.Windows.Input;
     using System.Windows.Media;
+    using System.Windows.Media.Imaging;
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls.Animations;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Converters;
     using OpenSky.Client.Tools;
@@ -54,10 +55,10 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The show all airports property.
+        /// The job trails property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty ShowAllAirportsProperty = DependencyProperty.Register("ShowAllAirports", typeof(bool), typeof(MapView), new UIPropertyMetadata(false));
+        public static readonly DependencyProperty JobTrailsProperty = DependencyProperty.Register("JobTrails", typeof(ObservableCollection<MapPolyline>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<MapPolyline>()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -101,6 +102,41 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private static readonly MapZoomLevelVisibilityConverter ZoomLevelVisibilityConverter = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The collections we already subscribed the changed event.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly List<INotifyCollectionChanged> collectionChangedSubscribed = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The job trail animation images.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly List<UIElement> jobTrailAnimationImages = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The job trail animations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly List<MapPathAnimation> jobTrailAnimations = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The aircraft trail animation.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private MapPathAnimation aircraftTrailAnimation;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The animated aircraft position.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftPosition animatedAircraftPosition;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -159,15 +195,26 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether to show all airports.
+        /// Gets or sets the job trails.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [Bindable(true)]
-        public bool ShowAllAirports
+        public ObservableCollection<MapPolyline> JobTrails
         {
-            get => (bool)this.GetValue(ShowAllAirportsProperty);
-            set => this.SetValue(ShowAllAirportsProperty, value);
+            get => (ObservableCollection<MapPolyline>)this.GetValue(JobTrailsProperty);
+            set
+            {
+                this.SetValue(JobTrailsProperty, value);
+                value.CollectionChanged += this.JobTrailsCollectionChanged;
+            }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether to show all airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ShowAllAirports { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -212,6 +259,59 @@ namespace OpenSky.Client.Controls
             {
                 this.SetValue(TrackingEventMarkersProperty, value);
                 value.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether to zoom for aircraft location changes.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ZoomForAircraftLocations { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Animate the aircraft trail.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void AnimateAircraftTrail(int duration = 15, int delay = 30)
+        {
+            if (this.aircraftTrailAnimation != null)
+            {
+                this.aircraftTrailAnimation.Stop();
+                this.aircraftTrailAnimation = null;
+                if (this.animatedAircraftPosition != null)
+                {
+                    this.WpfMapView.Children.Remove(this.animatedAircraftPosition);
+                    this.animatedAircraftPosition = null;
+                }
+            }
+
+            if (this.AircraftTrailLocations.Count >= 2)
+            {
+                var aircraftPosition = new AircraftPosition
+                {
+                    Location = this.AircraftTrailLocations[0],
+                    Heading = 0.0
+                };
+                this.animatedAircraftPosition = aircraftPosition;
+                this.WpfMapView.Children.Add(aircraftPosition);
+
+                this.aircraftTrailAnimation = new MapPathAnimation(
+                    this.AircraftTrailLocations,
+                    (location, _, bearing) =>
+                    {
+                        aircraftPosition.Location = location;
+                        aircraftPosition.Heading = bearing;
+                    },
+                    false,
+                    duration * 1000,
+                    true,
+                    delay);
+                this.aircraftTrailAnimation.Play();
             }
         }
 
@@ -306,9 +406,7 @@ namespace OpenSky.Client.Controls
 
                     UpdateGUIDelegate moveMap = () =>
                     {
-                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
                         this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
-                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
                     };
                     this.Dispatcher.BeginInvoke(moveMap);
                     this.userMapInteraction = false;
@@ -317,9 +415,7 @@ namespace OpenSky.Client.Controls
                 {
                     UpdateGUIDelegate resetMap = () =>
                     {
-                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
                         this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
-                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
                     };
                     this.Dispatcher.BeginInvoke(resetMap);
                     this.userMapInteraction = false;
@@ -351,6 +447,10 @@ namespace OpenSky.Client.Controls
                     existingMapLayer?.Children.Remove(item);
 
                     this.WpfMapView.Children.Add(item);
+                    if (this.ZoomForAircraftLocations)
+                    {
+                        this.ShowAllMarkers(true);
+                    }
                 }
             }
 
@@ -359,7 +459,98 @@ namespace OpenSky.Client.Controls
                 foreach (AircraftPosition item in e.OldItems)
                 {
                     this.WpfMapView.Children.Remove(item);
+                    if (this.ZoomForAircraftLocations)
+                    {
+                        this.ShowAllMarkers();
+                    }
                 }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Job trails collection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Notify collection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void JobTrailsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (MapPolyline item in e.NewItems)
+                {
+                    var existingMapLayer = item.Parent as MapLayer;
+                    existingMapLayer?.Children.Remove(item);
+                    this.WpfMapView.Children.Add(item);
+
+                    if (item.Locations.Count >= 2)
+                    {
+                        var boxImage = new Image
+                        {
+                            Width = 24,
+                            Height = 24,
+                            Source = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/job24.png"))
+                        };
+
+                        MapLayer.SetPosition(boxImage, item.Locations[0]);
+                        MapLayer.SetPositionOrigin(boxImage, PositionOrigin.Center);
+                        this.jobTrailAnimationImages.Add(boxImage);
+                        this.WpfMapView.Children.Add(boxImage);
+
+                        if (this.JobTrails.Count < 10)
+                        {
+                            var animation = new MapPathAnimation(
+                                item.Locations,
+                                (location, _, _) =>
+                                {
+                                    MapLayer.SetPosition(boxImage, location);
+                                },
+                                false,
+                                2000,
+                                true);
+                            this.jobTrailAnimations.Add(animation);
+                            animation.Play();
+                        }
+                        else
+                        {
+                            // Too many jobs, don't show animation
+                            foreach (var animation in this.jobTrailAnimations)
+                            {
+                                animation.Stop();
+                            }
+
+                            this.jobTrailAnimations.Clear();
+                            this.WpfMapView.Children.RemoveRange(this.jobTrailAnimationImages);
+                            this.jobTrailAnimationImages.Clear();
+                        }
+                    }
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (MapPolyline item in e.OldItems)
+                {
+                    this.WpfMapView.Children.Remove(item);
+                }
+
+                // If trails are getting removed, stop all current animations
+                foreach (var animation in this.jobTrailAnimations)
+                {
+                    animation.Stop();
+                }
+
+                this.jobTrailAnimations.Clear();
+                this.WpfMapView.Children.RemoveRange(this.jobTrailAnimationImages);
+                this.jobTrailAnimationImages.Clear();
             }
         }
 
@@ -422,21 +613,33 @@ namespace OpenSky.Client.Controls
                 this.AircraftPositionsCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.AircraftPositions));
             }
 
-            this.AircraftPositions.CollectionChanged += this.AircraftPositionsCollectionChanged;
+            if (!this.collectionChangedSubscribed.Contains(this.AircraftPositions))
+            {
+                this.AircraftPositions.CollectionChanged += this.AircraftPositionsCollectionChanged;
+                this.collectionChangedSubscribed.Add(this.AircraftPositions);
+            }
 
             if (this.SimbriefWaypointMarkers.Count > 0)
             {
                 this.SimbriefWaypointMarkersCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.SimbriefWaypointMarkers));
             }
 
-            this.SimbriefWaypointMarkers.CollectionChanged += this.SimbriefWaypointMarkersCollectionChanged;
+            if (!this.collectionChangedSubscribed.Contains(this.SimbriefWaypointMarkers))
+            {
+                this.SimbriefWaypointMarkers.CollectionChanged += this.SimbriefWaypointMarkersCollectionChanged;
+                this.collectionChangedSubscribed.Add(this.SimbriefWaypointMarkers);
+            }
 
             if (this.TrackingEventMarkers.Count > 0)
             {
                 this.TrackingEventMarkersCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.TrackingEventMarkers));
             }
 
-            this.TrackingEventMarkers.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+            if (!this.collectionChangedSubscribed.Contains(this.TrackingEventMarkers))
+            {
+                this.TrackingEventMarkers.CollectionChanged += this.TrackingEventMarkersCollectionChanged;
+                this.collectionChangedSubscribed.Add(this.TrackingEventMarkers);
+            }
 
             this.ShowAllMarkers();
 
@@ -450,7 +653,24 @@ namespace OpenSky.Client.Controls
                 }
             }
 
+            if (this.JobTrails.Count > 0)
+            {
+                this.JobTrailsCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, this.JobTrails));
+            }
+
+            if (!this.collectionChangedSubscribed.Contains(this.JobTrails))
+            {
+                this.JobTrails.CollectionChanged += this.JobTrailsCollectionChanged;
+                this.collectionChangedSubscribed.Add(this.JobTrails);
+            }
+
             this.Legend.Visibility = this.ShowAllAirports ? Visibility.Visible : Visibility.Collapsed;
+
+            // Was the aircraft trail animated?
+            if (this.aircraftTrailAnimation != null)
+            {
+                this.AnimateAircraftTrail(this.aircraftTrailAnimation.Duration / 1000, this.aircraftTrailAnimation.Delay);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -471,6 +691,42 @@ namespace OpenSky.Client.Controls
         {
             // Prevent scrolling of outer containers, we want to zoom the map
             e.Handled = true;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Map view on unloaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void MapViewOnUnloaded(object sender, RoutedEventArgs e)
+        {
+            this.aircraftTrailAnimation?.Stop();
+            foreach (var animation in this.jobTrailAnimations)
+            {
+                animation.Stop();
+            }
+
+            this.jobTrailAnimations.Clear();
+
+            foreach (var image in this.jobTrailAnimationImages)
+            {
+                this.WpfMapView.Children.Remove(image);
+            }
+
+            if (this.animatedAircraftPosition != null)
+            {
+                this.WpfMapView.Children.Remove(this.animatedAircraftPosition);
+                this.animatedAircraftPosition = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -576,7 +832,8 @@ namespace OpenSky.Client.Controls
 
                                 var zoomLevelParameter = item.AirportSize switch
                                 {
-                                    >= 5 => 4.0,
+                                    6 => 0.1,
+                                    5 => 4.0,
                                     4 => 7.0,
                                     3 => 8.0,
                                     _ => 10.0
@@ -657,9 +914,6 @@ namespace OpenSky.Client.Controls
         {
             if (this.ShowAllAirports)
             {
-                Debug.WriteLine(
-                    $"end  : {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
-
                 if (this.DataContext is MapViewViewModel viewModel)
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
@@ -685,10 +939,7 @@ namespace OpenSky.Client.Controls
         {
             if (this.ShowAllAirports && (DateTime.Now - this.lastFrameUpdate).TotalMilliseconds > 500)
             {
-                Debug.WriteLine(
-                    $"frame: {this.WpfMapView.ZoomLevel}\t{this.WpfMapView.BoundingRectangle.Northwest.Latitude}, {this.WpfMapView.BoundingRectangle.Northwest.Longitude}\t{this.WpfMapView.BoundingRectangle.Southeast.Latitude}, {this.WpfMapView.BoundingRectangle.Southeast.Longitude}");
                 this.lastFrameUpdate = DateTime.Now;
-
                 if (this.DataContext is MapViewViewModel viewModel)
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);

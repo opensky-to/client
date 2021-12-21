@@ -6,6 +6,7 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Windows;
@@ -139,6 +140,25 @@ namespace OpenSky.Client.Pages
                     dockingManager.Children.Remove(control);
                 }
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// View model on map updated.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void ViewModelOnMapUpdated(object sender, EventArgs e)
+        {
+            this.MapView.AnimateAircraftTrail(2);
         }
 
         /// -------------------------------------------------------------------------------------------------

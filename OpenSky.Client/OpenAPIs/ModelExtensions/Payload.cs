@@ -1,45 +1,43 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FlightPlan.cs" company="OpenSky">
+// <copyright file="Payload.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 // ReSharper disable once CheckNamespace
+
 namespace OpenSkyApi
 {
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Flight plan extensions.
+    /// Payload extensions.
     /// </summary>
     /// <remarks>
-    /// sushi.at, 11/11/2021.
+    /// sushi.at, 18/12/2021.
     /// </remarks>
     /// -------------------------------------------------------------------------------------------------
-    public partial class FlightPlan
+    public partial class Payload
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether this object is new flight plan.
+        /// Gets information describing the current location and destination.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public bool IsNewFlightPlan { get; set; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the total payload weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double TotalPayloadWeight
+        public string LocationDestinationInfo
         {
             get
             {
-                var totalWeight = 0.0;
-                foreach (var flightPayload in this.Payloads)
+                if (!string.IsNullOrEmpty(this.AirportICAO))
                 {
-                    totalWeight += flightPayload.Payload?.Weight ?? 0;
+                    return $"{this.AirportICAO} ▷ {this.DestinationICAO}";
                 }
 
-                return totalWeight;
+                if (!string.IsNullOrEmpty(this.AircraftRegistry))
+                {
+                    return $"{this.AircraftRegistry} ▷ {this.DestinationICAO}";
+                }
+
+                return $"??? ▷ {this.DestinationICAO}";
             }
         }
     }

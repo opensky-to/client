@@ -52,6 +52,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DistanceUnit distanceUnit;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The fuel unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -112,6 +119,7 @@ namespace OpenSky.Client.Pages.Models
             // Create data structures
             this.WeightUnits = new ObservableCollection<WeightUnit>();
             this.FuelUnits = new ObservableCollection<FuelUnit>();
+            this.DistanceUnits = new ObservableCollection<DistanceUnit>();
             this.UtcOffsets = new SortedSet<double>();
 
             // Populate UTC offsets from time zones
@@ -131,6 +139,11 @@ namespace OpenSky.Client.Pages.Models
                 this.FuelUnits.Add(unit);
             }
 
+            foreach (DistanceUnit unit in Enum.GetValues(typeof(DistanceUnit)))
+            {
+                this.DistanceUnits.Add(unit);
+            }
+
             // Create command first so that IsDirty can set the CanExecute property
             this.SaveSettingsCommand = new AsynchronousCommand(this.SaveSettings, false);
             this.RestoreDefaultsCommand = new Command(this.RestoreDefaults);
@@ -145,6 +158,7 @@ namespace OpenSky.Client.Pages.Models
             Properties.Settings.Default.Reload();
             this.WeightUnit = (WeightUnit)Properties.Settings.Default.WeightUnit;
             this.FuelUnit = (FuelUnit)Properties.Settings.Default.FuelUnit;
+            this.DistanceUnit = (DistanceUnit)Properties.Settings.Default.DistanceUnit;
             this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
@@ -230,6 +244,35 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command ChangePasswordCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public DistanceUnit DistanceUnit
+        {
+            get => this.distanceUnit;
+
+            set
+            {
+                if (Equals(this.distanceUnit, value))
+                {
+                    return;
+                }
+
+                this.distanceUnit = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the distance units.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<DistanceUnit> DistanceUnits { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -646,6 +689,7 @@ namespace OpenSky.Client.Pages.Models
             {
                 Properties.Settings.Default.WeightUnit = (int)this.WeightUnit;
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
+                Properties.Settings.Default.DistanceUnit = (int)this.DistanceUnit;
                 Properties.Settings.Default.DefaultUTCOffset = this.UtcOffset;
 
                 Properties.Settings.Default.Save();

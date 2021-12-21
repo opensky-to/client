@@ -17,13 +17,13 @@
                  mc:Ignorable="d"
                  xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
                  xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
-                 Loaded="MapViewOnLoaded"
+                 Loaded="MapViewOnLoaded" Unloaded="MapViewOnUnloaded"
                  d:DesignHeight="450" d:DesignWidth="800" MouseWheel="MapViewOnMouseWheel">
     <UserControl.DataContext>
         <models:MapViewViewModel />
     </UserControl.DataContext>
     <Grid>
-        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="Full" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
+        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
         <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
         <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top">
             <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
