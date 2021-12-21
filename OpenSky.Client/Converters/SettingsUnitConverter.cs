@@ -108,6 +108,20 @@ namespace OpenSky.Client.Converters
                                 _ => throw new Exception("Unsupported fuel unit")
                             };
                             break;
+                        case "distance":
+                            unitValue = (DistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                            {
+                                DistanceUnit.nm => unitValue,
+                                DistanceUnit.km => unitValue * 1.852,
+                                _ => throw new Exception("Unsupported distance unit")
+                            };
+                            unitName = (DistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                            {
+                                DistanceUnit.nm => " nm",
+                                DistanceUnit.km => " km",
+                                _ => throw new Exception("Unsupported distance unit")
+                            };
+                            break;
                         default:
                             return "Unsupported unit";
                     }
@@ -204,6 +218,23 @@ namespace OpenSky.Client.Converters
                                     FuelUnit.gal => unitValue,
                                     FuelUnit.l => unitValue * 0.264172,
                                     _ => throw new Exception("Unsupported fuel unit")
+                                };
+                                break;
+                            case "distance":
+                                unitName = (DistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                                {
+                                    DistanceUnit.nm => "nm",
+                                    DistanceUnit.km => "km",
+                                    _ => throw new Exception("Unsupported distance unit")
+                                };
+                                valueString = valueString.Replace(unitName, string.Empty).Trim();
+                                unitValue = double.Parse(valueString);
+
+                                unitValue = (DistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                                {
+                                    DistanceUnit.nm => unitValue,
+                                    DistanceUnit.km => unitValue * 0.539957,
+                                    _ => throw new Exception("Unsupported distance unit")
                                 };
                                 break;
                             default:

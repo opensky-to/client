@@ -332,6 +332,58 @@
         }
       }
     },
+    "/Aircraft/groundOperations": {
+      "put": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Perform ground operations for the specified aircraft.",
+        "description": "sushi.at, 20/12/2021.",
+        "operationId": "PerformGroundOperations",
+        "requestBody": {
+          "description": "The operations to be performed (fuel and payload loading).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundOperations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/purchase": {
       "post": {
         "tags": [
@@ -2579,7 +2631,7 @@
         "tags": [
           "Flight"
         ],
-        "summary": "Get active flights (up to one currently flying and possibly multiple paused).",
+        "summary": "Get \"my\" active flights (up to one currently flying and possibly multiple paused).",
         "description": "sushi.at, 10/11/2021.",
         "operationId": "GetMyFlights",
         "responses": {
@@ -2874,6 +2926,219 @@
         }
       }
     },
+    "/Job/abort/{jobID}": {
+      "delete": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Aborts the specified job.",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "AbortJob",
+        "parameters": [
+          {
+            "name": "jobID",
+            "in": "path",
+            "description": "Identifier for the job.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/accept/{jobID}/{forAirline}": {
+      "post": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Accept the specified job.",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "AcceptJob",
+        "parameters": [
+          {
+            "name": "jobID",
+            "in": "path",
+            "description": "Identifier for the job.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "forAirline",
+            "in": "path",
+            "description": "True to accept the job for the airline, false for private job.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/atAirport/{icao}/{direction}": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Gets the available jobs at the specified airport.",
+        "description": "sushi.at, 10/12/2021.",
+        "operationId": "GetJobsAtAirport",
+        "parameters": [
+          {
+            "name": "icao",
+            "in": "path",
+            "description": "The ICAO code of the airport.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "path",
+            "description": "The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/JobDirection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/myJobs": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Get \"my\" jobs, both personal and airline (active only)",
+        "description": "sushi.at, 18/12/2021.",
+        "operationId": "GetMyJobs",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Job/plannablePayloads": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Get plannable payloads plus basic information about flights they are already planned for.",
+        "description": "sushi.at, 19/12/2021.",
+        "operationId": "GetPlannablePayloads",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannablePayloadIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/WorldPopulation": {
       "get": {
         "tags": [
@@ -2906,14 +3171,14 @@
         }
       }
     },
-    "/WorldPopulation/populate/{icao}": {
+    "/WorldPopulation/populateAircraft/{icao}": {
       "post": {
         "tags": [
           "WorldPopulation"
         ],
         "summary": "Manually request to populate an airport and return info text results.",
         "description": "sushi.at, 05/07/2021.",
-        "operationId": "PopulateAirport",
+        "operationId": "PopulateAirportWithAircraft",
         "parameters": [
           {
             "name": "icao",
@@ -3029,10 +3294,45 @@
             "type": "string",
             "description": "Gets or sets the airport ICAO the plane is located at, note this is the departure airport if\r\nthe aircraft currently is flying."
           },
+          "canStartFlight": {
+            "type": "boolean",
+            "description": "Can the aircraft currently start a new flight?",
+            "readOnly": true
+          },
           "fuel": {
             "type": "number",
             "description": "Gets or sets the current fuel in gallons.",
             "format": "double"
+          },
+          "fuellingUntil": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time until the aircraft is fuelling.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "heading": {
+            "type": "number",
+            "description": "Gets the current heading of the aircraft, or 0 if not available.",
+            "format": "double",
+            "readOnly": true
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets the latitude.",
+            "format": "double",
+            "readOnly": true
+          },
+          "loadingUntil": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets the longitude.",
+            "format": "double",
+            "readOnly": true
           },
           "name": {
             "maxLength": 30,
@@ -3053,6 +3353,14 @@
             "description": "Gets the owner name.",
             "nullable": true,
             "readOnly": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payload"
+            },
+            "description": "Gets or sets the payloads currently loaded onto this aircraft.",
+            "nullable": true
           },
           "purchasePrice": {
             "type": "integer",
@@ -3343,6 +3651,10 @@
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the aircraft needs a co-pilot."
           },
+          "needsFlightEngineer": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the aircraft needs a flight engineer."
+          },
           "nextVersion": {
             "type": "string",
             "description": "Gets or sets the next version of this aircraft type - to migrate existing aircraft to this\r\nnew type.",
@@ -3568,15 +3880,17 @@
           30,
           31,
           32,
+          33,
           40,
           41,
           42,
+          43,
           90,
           91,
           92
         ],
         "type": "integer",
-        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
         "format": "int32",
         "x-enumNames": [
           "BuyAircraft",
@@ -3594,9 +3908,11 @@
           "AcceptJobs",
           "Dispatch",
           "OutsourceJobs",
+          "AbortJobs",
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
+          "PerformGroundOperations",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -3617,9 +3933,11 @@
           "AcceptJobs",
           "Dispatch",
           "OutsourceJobs",
+          "AbortJobs",
           "ModifyAircraft",
           "MaintainAircraft",
           "ReplaceAircraftParts",
+          "PerformGroundOperations",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -3753,7 +4071,7 @@
           },
           "previousSize": {
             "type": "integer",
-            "description": "Gets or sets the previous size of the airport (if available, used to detect size changes and\r\ntrigger other services like the plane world populator).",
+            "description": "Gets or sets the previous size of the airport (if available, used to detect size changes and\r\ntrigger other services like the aircraft world populator).",
             "format": "int32",
             "nullable": true
           },
@@ -3769,6 +4087,41 @@
             },
             "description": "Gets or sets the runways.",
             "nullable": true
+          },
+          "s2Cell3": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 3.",
+            "format": "int64"
+          },
+          "s2Cell4": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 4.",
+            "format": "int64"
+          },
+          "s2Cell5": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 5.",
+            "format": "int64"
+          },
+          "s2Cell6": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 6.",
+            "format": "int64"
+          },
+          "s2Cell7": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 7.",
+            "format": "int64"
+          },
+          "s2Cell8": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 8.",
+            "format": "int64"
+          },
+          "s2Cell9": {
+            "type": "integer",
+            "description": "S2 geometry cell ID for level 9.",
+            "format": "int64"
           },
           "size": {
             "type": "integer",
@@ -4997,6 +5350,14 @@
             "description": "Gets or sets the flight number (1-9999).",
             "format": "int32"
           },
+          "flightPayloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the flight payloads.",
+            "nullable": true
+          },
           "flightPhase": {
             "$ref": "#/components/schemas/FlightPhase"
           },
@@ -5390,16 +5751,6 @@
             "description": "Gets or sets the origin airport ICAO code.",
             "nullable": true
           },
-          "payload": {
-            "type": "string",
-            "description": "Gets or sets the payload.",
-            "nullable": true
-          },
-          "payloadWeight": {
-            "type": "number",
-            "description": "Gets or sets the payload weight.",
-            "format": "double"
-          },
           "pilot": {
             "type": "string",
             "description": "Gets or sets the pilot.",
@@ -5554,6 +5905,26 @@
         "additionalProperties": false,
         "description": "Flight navigation log fix model."
       },
+      "FlightPayload": {
+        "type": "object",
+        "properties": {
+          "flightID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the flight.",
+            "format": "uuid"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Payload"
+          },
+          "payloadID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the payload.",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Flight payload model."
+      },
       "FlightPhase": {
         "enum": [
           0,
@@ -5694,6 +6065,14 @@
             "description": "Gets or sets the navlog fixes.",
             "nullable": true
           },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the payloads.",
+            "nullable": true
+          },
           "ofpHtml": {
             "type": "string",
             "description": "Gets or sets the OFP HTML (most likely from simBrief).",
@@ -5799,6 +6178,32 @@
           "None"
         ]
       },
+      "GroundOperations": {
+        "type": "object",
+        "properties": {
+          "fuel": {
+            "type": "number",
+            "description": "Gets or sets the target fuel in gallons.",
+            "format": "double"
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Gets or sets the target payloads.",
+            "nullable": true
+          },
+          "registry": {
+            "type": "string",
+            "description": "Gets or sets the aircraft registry.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Ground operations model."
+      },
       "GuidNullableApiResponse": {
         "type": "object",
         "properties": {
@@ -5830,6 +6235,154 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "Job": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "assignedAirlineDispatcherID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the assigned airline dispatcher (should not be set for user operated flights - will be ignored).",
+            "nullable": true
+          },
+          "category": {
+            "$ref": "#/components/schemas/AircraftTypeCategory"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time the job expires at.",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the job.",
+            "format": "uuid"
+          },
+          "operatorAirlineID": {
+            "maxLength": 3,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the airline operator of this flight (either this or OperatorID\r\nmust be set.",
+            "nullable": true
+          },
+          "operatorID": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the identifier of the operator of this flight (either this or OperatorAirlineID\r\nmust be set.",
+            "nullable": true
+          },
+          "operatorName": {
+            "type": "string",
+            "description": "Gets the name of the flight operator.",
+            "nullable": true,
+            "readOnly": true
+          },
+          "originICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the origin airport icao.",
+            "nullable": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payload"
+            },
+            "description": "Gets or sets the payloads.",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/JobType"
+          },
+          "userIdentifier": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets a user-settable identifier string for the job.",
+            "nullable": true
+          },
+          "value": {
+            "type": "integer",
+            "description": "Gets or sets the job value in SkyBucks.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Job model."
+      },
+      "JobDirection": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Job directions. 0 = From, 1 = To, 2 = RoundTrip",
+        "format": "int32",
+        "x-enumNames": [
+          "From",
+          "To",
+          "RoundTrip"
+        ],
+        "x-enum-varnames": [
+          "From",
+          "To",
+          "RoundTrip"
+        ]
+      },
+      "JobIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "JobType": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "description": "Job types. 0 = Cargo",
+        "format": "int32",
+        "x-enumNames": [
+          "Cargo"
+        ],
+        "x-enum-varnames": [
+          "Cargo"
+        ]
       },
       "LinkedAccounts": {
         "type": "object",
@@ -5966,6 +6519,60 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "Payload": {
+        "required": [
+          "description",
+          "id",
+          "jobID"
+        ],
+        "type": "object",
+        "properties": {
+          "aircraftRegistry": {
+            "maxLength": 10,
+            "minLength": 5,
+            "type": "string",
+            "description": "Gets or sets the aircraft registry the payload is currently loaded on, or NULL if stored at an airport.",
+            "nullable": true
+          },
+          "airportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airport icao the payload is currently stored at, or NULL if onboard an aircraft.",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 50,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the payload description."
+          },
+          "destinationICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the destination icao for the payload.",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the payload.",
+            "format": "uuid"
+          },
+          "jobID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the job.",
+            "format": "uuid"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Gets or sets the payload weight in lbs.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Payload model."
+      },
       "PieChartValue": {
         "type": "object",
         "properties": {
@@ -5982,6 +6589,88 @@
         },
         "additionalProperties": false,
         "description": "Pie chart value."
+      },
+      "PlannablePayload": {
+        "type": "object",
+        "properties": {
+          "currentLocation": {
+            "type": "string",
+            "description": "Gets or sets the current location (airport or aircraft).",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description.",
+            "nullable": true
+          },
+          "destinationICAO": {
+            "type": "string",
+            "description": "Gets or sets destination ICAO code.",
+            "nullable": true
+          },
+          "flights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets the flights the payload is planned to fly on.",
+            "nullable": true
+          },
+          "destinations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the destinations this payload is planning to go to.",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the payload.",
+            "format": "uuid"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Gets or sets the weight in lbs.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "(Flight)Plannable payload."
+      },
+      "PlannablePayloadIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlannablePayload"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "PositionReport": {
         "type": "object",

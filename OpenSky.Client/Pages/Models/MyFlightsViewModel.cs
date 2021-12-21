@@ -183,7 +183,7 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error resuming flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ModernWpf.MessageBox.Show(result.Message, "Error aborting flight", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                 }
             }

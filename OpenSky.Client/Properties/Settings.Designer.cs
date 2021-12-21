@@ -164,5 +164,17 @@ namespace OpenSky.Client.Properties {
                 this["DefaultUTCOffset"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DistanceUnit {
+            get {
+                return ((int)(this["DistanceUnit"]));
+            }
+            set {
+                this["DistanceUnit"] = value;
+            }
+        }
     }
 }

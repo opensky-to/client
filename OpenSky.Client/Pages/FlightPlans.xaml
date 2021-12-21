@@ -18,6 +18,8 @@
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                          xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                          xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                           LoadingText="{Binding LoadingText}"
                           HorizontalScrollBar="False"
                           Loaded="FlightPlansOnLoaded"
@@ -35,6 +37,8 @@
                 <componentModel:SortDescription PropertyName="PlannedDepartureTime.UtcDateTime" Direction="Descending" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
          <GroupBox>
@@ -74,12 +78,27 @@
                         <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="16" />
+                        <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="14" />
+                        <DataGridTextColumn Header="Payload" Binding="{Binding TotalPayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
                         <DataGridTextColumn Header="Utc Offset" Binding="{Binding UtcOffset}" />
                         <DataGridTextColumn Header="Airline pilot" />
                         <DataGridTextColumn Header="Dispatcher" Binding="{Binding DispatcherName}" />
                         <DataGridTextColumn Header="Dispatcher remarks" Binding="{Binding DispatcherRemarks}" MinWidth="150" Width="1*" FontFamily="Consolas" FontSize="11" />
                     </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate DataType="openSkyApi:FlightPlan">
+                            <DataGrid ItemsSource="{Binding Payloads}" Visibility="{Binding Payloads, Converter={StaticResource CollectionEmptyVisibilityConverter}}"
+                                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
+                                CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Payload.DestinationICAO}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding Payload.Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
+                                    <DataGridTextColumn Binding="{Binding Payload.Description}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
                 </DataGrid>
             </Grid>
         </GroupBox>   

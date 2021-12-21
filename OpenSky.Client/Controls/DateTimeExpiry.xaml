@@ -1,0 +1,28 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="DateTimeExpiry.xaml" company="OpenSky">
+  OpenSky project 2021
+</copyright>
+<summary>
+  DateTime expiry control
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.DateTimeExpiry"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 mc:Ignorable="d" 
+                 d:DesignHeight="20" d:DesignWidth="200">
+    <UserControl.Resources>
+        <converters:DateTimeTimeoutConverter x:Key="DateTimeTimeoutConverter" />
+    </UserControl.Resources>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+        <Border Width="16" Height="16" CornerRadius="2" Background="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:DateTimeExpiry}}, Path=DateTime, Converter={StaticResource DateTimeTimeoutConverter}, ConverterParameter=color}" />
+        <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:DateTimeExpiry}}, Path=DateTime, Converter={StaticResource DateTimeTimeoutConverter}}" />
+    </StackPanel>
+</UserControl>

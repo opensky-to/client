@@ -224,6 +224,11 @@ namespace OpenSky.Client.Controls
                         }
                     }
                 }
+
+                if (this.GetTemplateChild("SantaHat") is Image santaHat)
+                {
+                    santaHat.Visibility = DateTime.UtcNow.Month == 12 ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
 
             base.OnApplyTemplate();

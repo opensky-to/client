@@ -12,6 +12,9 @@ namespace OpenSky.Client.Pages.Models
     using System.Linq;
     using System.Windows;
 
+    using Microsoft.Maps.MapControl.WPF;
+
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -31,6 +34,13 @@ namespace OpenSky.Client.Pages.Models
     /// -------------------------------------------------------------------------------------------------
     public class MyFleetViewModel : ViewModel
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The edit aircraft variants visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility editAircraftVariantsVisibility = Visibility.Collapsed;
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The edit aircraft visibility.
@@ -61,6 +71,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The edited aircraft original variant ID.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Guid? editedAircraftOriginalVariant;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The edited aircraft purchase price.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -82,6 +99,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The ground operations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private GroundOperations groundOperations;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The ground operations maximum fuel.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private double groundOperationsMaxFuel;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The ground operations visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility groundOperationsVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The loading text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -96,13 +134,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private MyFleet viewReference;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The selected edit variant.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -110,24 +141,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the selected edit variant.
+        /// The view reference.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AircraftType SelectedEditVariant
-        {
-            get => this.selectedEditVariant;
+        private MyFleet viewReference;
 
-            set
-            {
-                if (Equals(this.selectedEditVariant, value))
-                {
-                    return;
-                }
-
-                this.selectedEditVariant = value;
-                this.NotifyPropertyChanged();
-            }
-        }
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft positions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftPosition> AircraftPositions { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -142,6 +166,10 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.EditAircraftVariants = new ObservableCollection<AircraftType>();
+            this.Payloads = new ObservableCollection<Guid>();
+            this.AirportPayloads = new ObservableCollection<PlannablePayload>();
+            this.AircraftPayloads = new ObservableCollection<Payload>();
+            this.AircraftPositions = new ObservableCollection<AircraftPosition>();
 
             // Create commands
             this.RefreshFleetCommand = new AsynchronousCommand(this.RefreshFleet);
@@ -150,14 +178,53 @@ namespace OpenSky.Client.Pages.Models
             this.SaveEditedAircraftCommand = new AsynchronousCommand(this.SaveEditedAircraft, false);
             this.PlanFlightCommand = new Command(this.PlanFlight, false);
             this.GetEditAircraftVariantsCommand = new AsynchronousCommand(this.GetEditAircraftVariants);
+            this.StartGroundOperationsCommand = new Command(this.StartGroundOperations, false);
+            this.CancelGroundOperationsCommand = new Command(this.CancelGroundOperations, false);
+            this.GetPlannablePayloadsCommand = new AsynchronousCommand(this.GetPlannablePayloads);
+            this.SubmitGroundOperationsCommand = new AsynchronousCommand(this.SubmitGroundOperations, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The edit aircraft variants visibility.
+        /// Gets the aircraft list.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private Visibility editAircraftVariantsVisibility = Visibility.Collapsed;
+        public ObservableCollection<Aircraft> Aircraft { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Payload> AircraftPayloads { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the airport payloads.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> AirportPayloads { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the cancel edit aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command CancelEditAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the cancel ground operations command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command CancelGroundOperationsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the edit aircraft variants.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftType> EditAircraftVariants { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -179,95 +246,6 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the available variants of the aircraft the player is currently editing.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 24/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void GetEditAircraftVariants()
-        {
-            if (!this.editedAircraftOriginalVariant.HasValue)
-            {
-                return;
-            }
-
-            this.LoadingText = "Retrieving aircraft variants...";
-            try
-            {
-                var result = OpenSkyService.Instance.GetVariantsOfTypeAsync(this.editedAircraftOriginalVariant.Value).Result;
-                if (!result.IsError)
-                {
-                    this.GetEditAircraftVariantsCommand.ReportProgress(
-                        () =>
-                        {
-                            this.EditAircraftVariants.Clear();
-                            this.EditAircraftVariants.AddRange(result.Data);
-
-                            this.EditAircraftVariantsVisibility = this.EditAircraftVariants.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
-
-                            if (this.EditAircraftVariants.Count > 0)
-                            {
-                                // Select the current variant
-                                this.SelectedEditVariant = this.EditAircraftVariants.SingleOrDefault(v => v.Id == this.editedAircraftOriginalVariant.Value);
-                            }
-                        });
-                }
-                else
-                {
-                    this.GetEditAircraftVariantsCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error retrieving variants for aircraft: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.GetEditAircraftVariantsCommand, "Error retrieving variants for aircraft.");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the get edit aircraft variants command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand GetEditAircraftVariantsCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the edit aircraft variants.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<AircraftType> EditAircraftVariants { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the aircraft list.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Aircraft> Aircraft { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the cancel edit aircraft command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command CancelEditAircraftCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -421,6 +399,86 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the get edit aircraft variants command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetEditAircraftVariantsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the get plannable payloads command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetPlannablePayloadsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ground operations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public GroundOperations GroundOperations
+        {
+            get => this.groundOperations;
+
+            set
+            {
+                if (Equals(this.groundOperations, value))
+                {
+                    return;
+                }
+
+                this.groundOperations = value;
+                this.NotifyPropertyChanged();
+                this.CancelGroundOperationsCommand.CanExecute = value != null;
+                this.SubmitGroundOperationsCommand.CanExecute = value != null;
+                this.GroundOperationsVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ground operations maximum fuel.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double GroundOperationsMaxFuel
+        {
+            get => this.groundOperationsMaxFuel;
+
+            set
+            {
+                if (Equals(this.groundOperationsMaxFuel, value))
+                {
+                    return;
+                }
+
+                this.groundOperationsMaxFuel = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ground operations visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility GroundOperationsVisibility
+        {
+            get => this.groundOperationsVisibility;
+
+            set
+            {
+                if (Equals(this.groundOperationsVisibility, value))
+                {
+                    return;
+                }
+
+                this.groundOperationsVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the loading text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -439,6 +497,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the payloads the player wants on the aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Guid> Payloads { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -479,8 +544,30 @@ namespace OpenSky.Client.Pages.Models
 
                 this.selectedAircraft = value;
                 this.NotifyPropertyChanged();
-                this.StartEditAircraftCommand.CanExecute = value != null;
+                this.StartEditAircraftCommand.CanExecute = value is { CanStartFlight: true };
+                this.StartGroundOperationsCommand.CanExecute = value is { CanStartFlight: true };
                 this.PlanFlightCommand.CanExecute = value != null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected edit variant.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftType SelectedEditVariant
+        {
+            get => this.selectedEditVariant;
+
+            set
+            {
+                if (Equals(this.selectedEditVariant, value))
+                {
+                    return;
+                }
+
+                this.selectedEditVariant = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -490,6 +577,20 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command StartEditAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the start ground operations command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command StartGroundOperationsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the submit ground operations command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand SubmitGroundOperationsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -526,6 +627,129 @@ namespace OpenSky.Client.Pages.Models
             this.EditedAircraftRentPrice = 0;
             this.editedAircraftOriginalVariant = null;
             this.EditAircraftVariantsVisibility = Visibility.Collapsed;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Cancel ground operations.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void CancelGroundOperations()
+        {
+            this.GroundOperations = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the available variants of the aircraft the player is currently editing.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 24/11/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetEditAircraftVariants()
+        {
+            if (!this.editedAircraftOriginalVariant.HasValue)
+            {
+                return;
+            }
+
+            this.LoadingText = "Retrieving aircraft variants...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetVariantsOfTypeAsync(this.editedAircraftOriginalVariant.Value).Result;
+                if (!result.IsError)
+                {
+                    this.GetEditAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.EditAircraftVariants.Clear();
+                            this.EditAircraftVariants.AddRange(result.Data);
+
+                            this.EditAircraftVariantsVisibility = this.EditAircraftVariants.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+                            if (this.EditAircraftVariants.Count > 0)
+                            {
+                                // Select the current variant
+                                this.SelectedEditVariant = this.EditAircraftVariants.SingleOrDefault(v => v.Id == this.editedAircraftOriginalVariant.Value);
+                            }
+                        });
+                }
+                else
+                {
+                    this.GetEditAircraftVariantsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error retrieving variants for aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.GetEditAircraftVariantsCommand, "Error retrieving variants for aircraft.");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the plannable payloads once the player opens the ground operations editor for an
+        /// aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetPlannablePayloads()
+        {
+            this.LoadingText = "Retrieving payloads...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetPlannablePayloadsAsync().Result;
+                if (!result.IsError)
+                {
+                    this.GetPlannablePayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.AirportPayloads.Clear();
+                            this.AirportPayloads.AddRange(result.Data.Where(p => p.CurrentLocation == this.SelectedAircraft.AirportICAO));
+                        });
+                }
+                else
+                {
+                    this.GetPlannablePayloadsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error retrieving payloads: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving payloads", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.GetPlannablePayloadsCommand, "Error retrieving payloads.");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -574,9 +798,17 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             this.Aircraft.Clear();
+                            this.AircraftPositions.Clear();
                             foreach (var aircraft in result.Data)
                             {
                                 this.Aircraft.Add(aircraft);
+                                this.AircraftPositions.Add(new AircraftPosition
+                                {
+                                    Heading = aircraft.Heading,
+                                    Location = new Location(aircraft.Latitude, aircraft.Longitude),
+                                    Registry = aircraft.Registry,
+                                    ToolTip = aircraft.Registry
+                                });
                             }
                         });
                 }
@@ -704,9 +936,87 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The edited aircraft original variant ID.
+        /// Starts ground operations.
         /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/12/2021.
+        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private Guid? editedAircraftOriginalVariant;
+        private void StartGroundOperations()
+        {
+            if (this.SelectedAircraft == null)
+            {
+                ModernWpf.MessageBox.Show("Please select the aircraft to perform ground operations for!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            this.GroundOperations = new GroundOperations
+            {
+                Registry = this.SelectedAircraft.Registry,
+                Fuel = this.SelectedAircraft.Fuel
+            };
+            this.GroundOperationsMaxFuel = this.SelectedAircraft.Type.FuelTotalCapacity;
+            this.Payloads.Clear();
+            this.Payloads.AddRange(this.SelectedAircraft.Payloads.Select(p => p.Id));
+            this.AircraftPayloads.Clear();
+            this.AircraftPayloads.AddRange(this.SelectedAircraft.Payloads);
+            this.GetPlannablePayloadsCommand.DoExecute(null);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Submit ground operations.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SubmitGroundOperations()
+        {
+            if (this.GroundOperations == null)
+            {
+                return;
+            }
+
+            this.GroundOperations.Payloads = this.Payloads.ToList();
+
+            this.LoadingText = "Starting ground operations...";
+            try
+            {
+                var result = OpenSkyService.Instance.PerformGroundOperationsAsync(this.GroundOperations).Result;
+                if (!result.IsError)
+                {
+                    this.SubmitGroundOperationsCommand.ReportProgress(
+                        () =>
+                        {
+                            ModernWpf.MessageBox.Show(result.Message, "Ground operations", MessageBoxButton.OK, MessageBoxImage.Information);
+                            this.CancelGroundOperations(); // This resets the input form and hides the groupbox
+                            this.RefreshFleetCommand.DoExecute(null);
+                        });
+                }
+                else
+                {
+                    this.SubmitGroundOperationsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error starting ground operations: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error starting ground operations", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SubmitGroundOperationsCommand, "Error starting ground operations");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
     }
 }

@@ -85,6 +85,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The payload.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string payload;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// GThe payload weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private double payloadWeight;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The show hide landing report button text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -504,6 +518,48 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the payload.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string Payload
+        {
+            get => this.payload;
+
+            set
+            {
+                if (Equals(this.payload, value))
+                {
+                    return;
+                }
+
+                this.payload = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the payload weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double PayloadWeight
+        {
+            get => this.payloadWeight;
+
+            set
+            {
+                if (Equals(this.payloadWeight, value))
+                {
+                    return;
+                }
+
+                this.payloadWeight = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the show hide landing report button text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -649,6 +705,9 @@ namespace OpenSky.Client.Pages.Models
                         this.LoadFlightLogCommand.ReportProgress(
                             () =>
                             {
+                                this.PayloadWeight = flightLogXml.PayloadPounds;
+                                this.Payload = flightLogXml.Payload;
+
                                 this.TrackingEventMarkers.Clear();
 
                                 var originMarker = new TrackingEventMarker(new GeoCoordinate(flightLogXml.Origin.Latitude, flightLogXml.Origin.Longitude), flightLogXml.Origin.Icao, OpenSkyColors.OpenSkyTeal, Colors.White);
@@ -754,7 +813,7 @@ namespace OpenSky.Client.Pages.Models
                                     this.NotifyPropertyChanged(nameof(this.GroundSpeed));
                                 }
 
-                                this.MapUpdated?.Invoke(this, EventArgs.Empty);
+                                this.LoadFlightLogCommand.ReportProgress(() => this.MapUpdated?.Invoke(this, EventArgs.Empty));
                             });
                     }
                     else
