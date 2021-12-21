@@ -3023,7 +3023,7 @@
         }
       }
     },
-    "/Job/atAirport/{icao}": {
+    "/Job/atAirport/{icao}/{direction}": {
       "get": {
         "tags": [
           "Job"
@@ -3039,6 +3039,15 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "path",
+            "description": "The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/JobDirection"
             }
           }
         ],
@@ -6306,6 +6315,26 @@
         },
         "additionalProperties": false,
         "description": "Job model."
+      },
+      "JobDirection": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Job directions. 0 = From, 1 = To, 2 = RoundTrip",
+        "format": "int32",
+        "x-enumNames": [
+          "From",
+          "To",
+          "RoundTrip"
+        ],
+        "x-enum-varnames": [
+          "From",
+          "To",
+          "RoundTrip"
+        ]
       },
       "JobIEnumerableApiResponse": {
         "type": "object",

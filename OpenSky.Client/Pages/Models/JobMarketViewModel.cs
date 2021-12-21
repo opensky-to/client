@@ -174,7 +174,7 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
-                if (Equals(this.selectedJob, value) && (this.Jobs.Count == 0 || value != null))
+                if (Equals(this.selectedJob, value) && value != null)
                 {
                     return;
                 }
@@ -206,8 +206,11 @@ namespace OpenSky.Client.Pages.Models
                         }
 
                         var destinationsAdded = new List<string>();
+                        var jobTrailsAdded = new List<string>();
                         foreach (var destination in destinations)
                         {
+                            var jobTrailKey = $"{origin?.ICAO}|{destination.ICAO}";
+
                             if (!destinationsAdded.Contains(destination.ICAO))
                             {
                                 destinationsAdded.Add(destination.ICAO);
@@ -217,21 +220,22 @@ namespace OpenSky.Client.Pages.Models
                                 {
                                     this.AirportMarkers.Add(new TrackingEventMarker(runway));
                                 }
+                            }
 
-                                if (origin != null)
-                                {
-                                    this.JobTrails.Add(
-                                        new MapPolyline
+                            if (origin != null && !jobTrailsAdded.Contains(jobTrailKey))
+                            {
+                                jobTrailsAdded.Add(jobTrailKey);
+                                this.JobTrails.Add(
+                                    new MapPolyline
+                                    {
+                                        Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
+                                        StrokeThickness = 4,
+                                        Locations = new LocationCollection
                                         {
-                                            Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
-                                            StrokeThickness = 4,
-                                            Locations = new LocationCollection
-                                            {
-                                                new(origin.Latitude, origin.Longitude),
-                                                new(destination.Latitude, destination.Longitude)
-                                            }
-                                        });
-                                }
+                                            new(origin.Latitude, origin.Longitude),
+                                            new(destination.Latitude, destination.Longitude)
+                                        }
+                                    });
                             }
                         }
                     }
@@ -240,6 +244,7 @@ namespace OpenSky.Client.Pages.Models
                         // Show all
                         var originsAdded = new Dictionary<string, List<TrackingEventMarker>>();
                         var destinationsAdded = new Dictionary<string, List<TrackingEventMarker>>();
+                        var jobTrailsAdded = new List<string>();
                         foreach (var job in this.Jobs)
                         {
                             var origin = airportPackage.Airports.SingleOrDefault(a => a.ICAO == job.OriginICAO);
@@ -258,6 +263,8 @@ namespace OpenSky.Client.Pages.Models
 
                             foreach (var destination in destinations)
                             {
+                                var jobTrailKey = $"{origin?.ICAO}|{destination.ICAO}";
+
                                 if (!destinationsAdded.ContainsKey(destination.ICAO))
                                 {
                                     var destinationMarkers = new List<TrackingEventMarker>
@@ -267,21 +274,22 @@ namespace OpenSky.Client.Pages.Models
                                     };
                                     destinationMarkers.AddRange(destination.Runways.Select(runway => new TrackingEventMarker(runway)));
                                     destinationsAdded.Add(destination.ICAO, destinationMarkers);
+                                }
 
-                                    if (origin != null)
-                                    {
-                                        this.JobTrails.Add(
-                                            new MapPolyline
+                                if (origin != null && !jobTrailsAdded.Contains(jobTrailKey))
+                                {
+                                    jobTrailsAdded.Add(jobTrailKey);
+                                    this.JobTrails.Add(
+                                        new MapPolyline
+                                        {
+                                            Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
+                                            StrokeThickness = 4,
+                                            Locations = new LocationCollection
                                             {
-                                                Stroke = new SolidColorBrush(OpenSkyColors.OpenSkyTeal),
-                                                StrokeThickness = 4,
-                                                Locations = new LocationCollection
-                                                {
-                                                    new(origin.Latitude, origin.Longitude),
-                                                    new(destination.Latitude, destination.Longitude)
-                                                }
-                                            });
-                                    }
+                                                new(origin.Latitude, origin.Longitude),
+                                                new(destination.Latitude, destination.Longitude)
+                                            }
+                                        });
                                 }
                             }
                         }
@@ -327,7 +335,11 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.AcceptJobAsync(this.SelectedJob.Id, false).Result;
                 if (!result.IsError)
                 {
-                    this.AcceptJobCommand.ReportProgress(()=>ModernWpf.MessageBox.Show(result.Message));
+                    this.AcceptJobCommand.ReportProgress(()=>
+                    {
+                        ModernWpf.MessageBox.Show(result.Message);
+                        this.SearchJobsCommand.DoExecute(null);
+                    });
                 }
                 else
                 {
@@ -369,6 +381,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected job direction.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private JobDirection selectedJobDirection;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected job direction.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public JobDirection SelectedJobDirection
+        {
+            get => this.selectedJobDirection;
+        
+            set
+            {
+                if(Equals(this.selectedJobDirection, value))
+                {
+                   return;
+                }
+        
+                this.selectedJobDirection = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Searches for jobs.
         /// </summary>
         /// <remarks>
@@ -380,7 +420,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Searching for jobs...";
             try
             {
-                var result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO).Result;
+                var result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result;
                 if (!result.IsError)
                 {
                     this.SearchJobsCommand.ReportProgress(

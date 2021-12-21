@@ -19,6 +19,7 @@
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                      xmlns:system="clr-namespace:System;assembly=mscorlib"
                       mc:Ignorable="d" 
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" VerticalScrollBar="False"
@@ -28,8 +29,13 @@
     </UserControl.DataContext>
     <UserControl.Resources>
         <CollectionViewSource Source="{Binding Jobs}" x:Key="JobsViewSource">
-
         </CollectionViewSource>
+        <ObjectDataProvider x:Key="JobDirections" MethodName="GetValues"
+                            ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="openSkyApi:JobDirection"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:PayloadDistanceConverter x:Key="PayloadDistanceConverter" />
     </UserControl.Resources>
@@ -51,12 +57,7 @@
                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
                     <ui:CommandBar.Content>
                         <StackPanel Orientation="Horizontal">
-                            <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13">
-                                <ComboBox.Items>
-                                    <ComboBoxItem IsSelected="True">From</ComboBoxItem>
-                                    <ComboBoxItem>To</ComboBoxItem>
-                                </ComboBox.Items>
-                            </ComboBox>
+                            <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" CharacterCasing="Upper" MinWidth="80" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center">
                                 <TextBox.InputBindings>
                                     <KeyBinding Key="Enter" Command="{Binding SearchJobsCommand}" />

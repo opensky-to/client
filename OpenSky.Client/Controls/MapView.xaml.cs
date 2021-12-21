@@ -11,6 +11,7 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -277,7 +278,7 @@ namespace OpenSky.Client.Controls
         /// sushi.at, 14/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public void AnimateAircraftTrail(int duration = 25, int delay = 30)
+        public void AnimateAircraftTrail(int duration = 15, int delay = 30)
         {
             if (this.aircraftTrailAnimation != null)
             {
@@ -406,9 +407,7 @@ namespace OpenSky.Client.Controls
 
                     UpdateGUIDelegate moveMap = () =>
                     {
-                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
                         this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
-                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
                     };
                     this.Dispatcher.BeginInvoke(moveMap);
                     this.userMapInteraction = false;
@@ -417,9 +416,7 @@ namespace OpenSky.Client.Controls
                 {
                     UpdateGUIDelegate resetMap = () =>
                     {
-                        this.WpfMapView.AnimationLevel = AnimationLevel.None;
                         this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
-                        this.WpfMapView.AnimationLevel = AnimationLevel.Full;
                     };
                     this.Dispatcher.BeginInvoke(resetMap);
                     this.userMapInteraction = false;
@@ -511,14 +508,9 @@ namespace OpenSky.Client.Controls
 
                         var animation = new MapPathAnimation(
                             item.Locations,
-                            (location, progress, _) =>
+                            (location, _, _) =>
                             {
                                 MapLayer.SetPosition(boxImage, location);
-
-                                if (progress >= 1.0)
-                                {
-                                    boxImage.Visibility = Visibility.Collapsed;
-                                }
                             },
                             false,
                             2000,
@@ -663,7 +655,7 @@ namespace OpenSky.Client.Controls
             // Was the aircraft trail animated?
             if (this.aircraftTrailAnimation != null)
             {
-                this.AnimateAircraftTrail();
+                this.AnimateAircraftTrail(this.aircraftTrailAnimation.Duration / 1000, this.aircraftTrailAnimation.Delay);
             }
         }
 
