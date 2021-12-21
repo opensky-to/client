@@ -19,6 +19,7 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                          xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                           LoadingText="{Binding LoadingText}"
                           HorizontalScrollBar="False"
                           Loaded="FlightPlansOnLoaded"
@@ -37,6 +38,7 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
          <GroupBox>
@@ -83,6 +85,20 @@
                         <DataGridTextColumn Header="Dispatcher" Binding="{Binding DispatcherName}" />
                         <DataGridTextColumn Header="Dispatcher remarks" Binding="{Binding DispatcherRemarks}" MinWidth="150" Width="1*" FontFamily="Consolas" FontSize="11" />
                     </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate DataType="openSkyApi:FlightPlan">
+                            <DataGrid ItemsSource="{Binding Payloads}" Visibility="{Binding Payloads, Converter={StaticResource CollectionEmptyVisibilityConverter}}"
+                                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
+                                CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Payload.DestinationICAO}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding Payload.Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
+                                    <DataGridTextColumn Binding="{Binding Payload.Description}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
                 </DataGrid>
             </Grid>
         </GroupBox>   

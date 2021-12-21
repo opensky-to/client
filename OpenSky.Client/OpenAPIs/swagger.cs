@@ -6106,9 +6106,21 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("fuellingUntil", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? FuellingUntil { get; set; }
     
+        /// <summary>Gets the current heading of the aircraft, or 0 if not available.</summary>
+        [Newtonsoft.Json.JsonProperty("heading", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Heading { get; set; }
+    
+        /// <summary>Gets the latitude.</summary>
+        [Newtonsoft.Json.JsonProperty("latitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Latitude { get; set; }
+    
         /// <summary>Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).</summary>
         [Newtonsoft.Json.JsonProperty("loadingUntil", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? LoadingUntil { get; set; }
+    
+        /// <summary>Gets the longitude.</summary>
+        [Newtonsoft.Json.JsonProperty("longitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Longitude { get; set; }
     
         /// <summary>Gets or sets the user-chosen name of the aircraft.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -7923,14 +7935,6 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the origin airport ICAO code.</summary>
         [Newtonsoft.Json.JsonProperty("originICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OriginICAO { get; set; }
-    
-        /// <summary>Gets or sets the payload.</summary>
-        [Newtonsoft.Json.JsonProperty("payload", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Payload { get; set; }
-    
-        /// <summary>Gets or sets the payload weight.</summary>
-        [Newtonsoft.Json.JsonProperty("payloadWeight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double PayloadWeight { get; set; }
     
         /// <summary>Gets or sets the pilot.</summary>
         [Newtonsoft.Json.JsonProperty("pilot", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

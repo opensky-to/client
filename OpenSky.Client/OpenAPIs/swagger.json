@@ -3301,11 +3301,29 @@
             "format": "date-time",
             "nullable": true
           },
+          "heading": {
+            "type": "number",
+            "description": "Gets the current heading of the aircraft, or 0 if not available.",
+            "format": "double",
+            "readOnly": true
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets the latitude.",
+            "format": "double",
+            "readOnly": true
+          },
           "loadingUntil": {
             "type": "string",
             "description": "Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).",
             "format": "date-time",
             "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets the longitude.",
+            "format": "double",
+            "readOnly": true
           },
           "name": {
             "maxLength": 30,
@@ -5723,16 +5741,6 @@
             "type": "string",
             "description": "Gets or sets the origin airport ICAO code.",
             "nullable": true
-          },
-          "payload": {
-            "type": "string",
-            "description": "Gets or sets the payload.",
-            "nullable": true
-          },
-          "payloadWeight": {
-            "type": "number",
-            "description": "Gets or sets the payload weight.",
-            "format": "double"
           },
           "pilot": {
             "type": "string",

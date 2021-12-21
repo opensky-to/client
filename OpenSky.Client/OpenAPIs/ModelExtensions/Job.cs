@@ -8,7 +8,10 @@
 
 namespace OpenSkyApi
 {
+    using System.Globalization;
     using System.Linq;
+
+    using OpenSky.Client.Converters;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -26,6 +29,31 @@ namespace OpenSkyApi
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string Destinations => this.Payloads.Select(p => p.DestinationICAO).Distinct().OrderBy(d => d).Aggregate(string.Empty, (current, destination) => current + $"{destination}, ").TrimEnd(' ', ',');
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the maximum distance of any payload within the job.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string MaxDistance
+        {
+            get
+            {
+                var distanceConverter = new PayloadDistanceConverter();
+                var maxDistance = 0.0;
+
+                foreach (var payload in this.Payloads)
+                {
+                    var distanceObj = distanceConverter.Convert(payload, typeof(double), null, CultureInfo.CurrentCulture);
+                    if (distanceObj is double distance && distance > maxDistance)
+                    {
+                        maxDistance = distance;
+                    }
+                }
+
+                return $"{maxDistance:F0} nm";
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

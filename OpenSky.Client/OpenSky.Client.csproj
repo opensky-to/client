@@ -136,6 +136,8 @@
     </Compile>
     <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
+    <Compile Include="Converters\CollectionEmptyVisibilityConverter.cs" />
+    <Compile Include="Converters\PayloadDistanceConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\DateTimeTimeoutConverter.cs" />
     <Compile Include="Converters\MapZoomLevelFontSizeConverter.cs" />

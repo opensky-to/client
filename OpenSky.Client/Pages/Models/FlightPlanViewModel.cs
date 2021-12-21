@@ -239,6 +239,7 @@ namespace OpenSky.Client.Pages.Models
             this.PayloadsAtOrigin = new ObservableCollection<PlannablePayload>();
             this.PayloadsTowardsOrigin = new ObservableCollection<PlannablePayload>();
             this.OtherPayloads = new ObservableCollection<PlannablePayload>();
+            this.RouteTrailLocations = new LocationCollection();
             this.Payloads = new ObservableCollection<Guid>();
             this.Payloads.CollectionChanged += (_, _) =>
             {
@@ -284,6 +285,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public event EventHandler<object> ClosePage;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Occurs when the map was updated, tell the mapviewer to zoom to contained child elements.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public event EventHandler MapUpdated;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -372,6 +380,37 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command CreateSimBriefCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the crew weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double CrewWeight
+        {
+            get
+            {
+                if (this.SelectedAircraft != null)
+                {
+                    var crewWeight = 190.0;
+                    if (this.SelectedAircraft.Type.NeedsCoPilot)
+                    {
+                        crewWeight += 190;
+                    }
+
+                    if (this.SelectedAircraft.Type.NeedsFlightEngineer)
+                    {
+                        crewWeight += 190;
+                    }
+
+                    // todo add other non-flight crew later once implemented
+
+                    return crewWeight;
+                }
+
+                return 0;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -809,6 +848,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the payloads on board.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<PlannablePayload> PayloadsOnBoard { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the payloads towards origin.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -913,6 +959,13 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the route trail locations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public LocationCollection RouteTrailLocations { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1021,37 +1074,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public double ZeroFuelWeight => (this.SelectedAircraft?.Type.EmptyWeight ?? 0) + this.PayloadWeight + this.CrewWeight;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the crew weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double CrewWeight
-        {
-            get
-            {
-                if (this.SelectedAircraft != null)
-                {
-                    var crewWeight = 190.0;
-                    if (this.SelectedAircraft.Type.NeedsCoPilot)
-                    {
-                        crewWeight += 190;
-                    }
-
-                    if (this.SelectedAircraft.Type.NeedsFlightEngineer)
-                    {
-                        crewWeight += 190;
-                    }
-
-                    // todo add other non-flight crew later once implemented
-
-                    return crewWeight;
-                }
-
-                return 0;
-            }
-        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1821,6 +1843,9 @@ namespace OpenSky.Client.Pages.Models
                     this.RefreshPayloadsCommand.ReportProgress(
                         () =>
                         {
+                            this.PayloadsOnBoard.Clear();
+                            this.PayloadsAtOrigin.Clear();
+                            this.PayloadsTowardsOrigin.Clear();
                             this.OtherPayloads.Clear();
                             this.OtherPayloads.AddRange(result.Data);
                             this.UpdatePlannablePayloads();
@@ -2155,56 +2180,12 @@ namespace OpenSky.Client.Pages.Models
                             var localAirportPackage = AirportPackageClientHandler.GetPackage();
                             if (this.TrackingEventMarkers.Count > 0)
                             {
-                                UpdateGUIDelegate clearExisting = () => this.TrackingEventMarkers.Clear();
+                                UpdateGUIDelegate clearExisting = () =>
+                                {
+                                    this.TrackingEventMarkers.Clear();
+                                    this.RouteTrailLocations.Clear();
+                                };
                                 Application.Current.Dispatcher.Invoke(clearExisting);
-                            }
-
-                            // Origin
-                            if (!string.IsNullOrEmpty(this.OriginICAO))
-                            {
-                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
-                                if (airport != null)
-                                {
-                                    UpdateGUIDelegate addOrigin = () =>
-                                    {
-                                        var originMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(originMarker);
-
-                                        var originDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(originDetailMarker);
-
-                                        foreach (var runway in airport.Runways)
-                                        {
-                                            var runwayMarker = new TrackingEventMarker(runway);
-                                            this.TrackingEventMarkers.Add(runwayMarker);
-                                        }
-                                    };
-                                    Application.Current.Dispatcher.BeginInvoke(addOrigin);
-                                }
-                            }
-
-                            // Destination
-                            if (!string.IsNullOrEmpty(this.DestinationICAO))
-                            {
-                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.DestinationICAO);
-                                if (airport != null)
-                                {
-                                    UpdateGUIDelegate addDestination = () =>
-                                    {
-                                        var destinationMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(destinationMarker);
-
-                                        var destinationDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(destinationDetailMarker);
-
-                                        foreach (var runway in airport.Runways)
-                                        {
-                                            var runwayMarker = new TrackingEventMarker(runway);
-                                            this.TrackingEventMarkers.Add(runwayMarker);
-                                        }
-                                    };
-                                    Application.Current.Dispatcher.BeginInvoke(addDestination);
-                                }
                             }
 
                             // Alternate
@@ -2230,6 +2211,59 @@ namespace OpenSky.Client.Pages.Models
                                     Application.Current.Dispatcher.BeginInvoke(addAlternate);
                                 }
                             }
+
+                            // Origin
+                            if (!string.IsNullOrEmpty(this.OriginICAO))
+                            {
+                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
+                                if (airport != null)
+                                {
+                                    UpdateGUIDelegate addOrigin = () =>
+                                    {
+                                        this.RouteTrailLocations.Add(new Location(airport.Latitude, airport.Longitude));
+                                        var originMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(originMarker);
+
+                                        var originDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(originDetailMarker);
+
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
+                                    };
+                                    Application.Current.Dispatcher.BeginInvoke(addOrigin);
+                                }
+                            }
+
+                            // Destination
+                            if (!string.IsNullOrEmpty(this.DestinationICAO))
+                            {
+                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.DestinationICAO);
+                                if (airport != null)
+                                {
+                                    UpdateGUIDelegate addDestination = () =>
+                                    {
+                                        this.RouteTrailLocations.Add(new Location(airport.Latitude, airport.Longitude));
+                                        var destinationMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(destinationMarker);
+
+                                        var destinationDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.TrackingEventMarkers.Add(destinationDetailMarker);
+
+                                        foreach (var runway in airport.Runways)
+                                        {
+                                            var runwayMarker = new TrackingEventMarker(runway);
+                                            this.TrackingEventMarkers.Add(runwayMarker);
+                                        }
+                                    };
+                                    Application.Current.Dispatcher.BeginInvoke(addDestination);
+                                }
+                            }
+
+                            UpdateGUIDelegate mapUpdated = () => this.MapUpdated?.Invoke(this, EventArgs.Empty);
+                            Application.Current.Dispatcher.BeginInvoke(mapUpdated);
                         }
                         catch (Exception ex)
                         {
@@ -2240,13 +2274,6 @@ namespace OpenSky.Client.Pages.Models
                     })
             { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads on board.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsOnBoard { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

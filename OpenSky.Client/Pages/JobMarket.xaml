@@ -31,6 +31,7 @@
 
         </CollectionViewSource>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:PayloadDistanceConverter x:Key="PayloadDistanceConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -89,9 +90,11 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
+                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance}" />
                         <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
                         <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                        <DataGridTextColumn Header="Ideal for" Binding="{Binding Category}" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate>
                         <DataTemplate DataType="openSkyApi:Job">
@@ -102,6 +105,7 @@
                                       >
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding DestinationICAO}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding .,Converter={StaticResource PayloadDistanceConverter}}" />
                                     <DataGridTextColumn Binding="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
                                     <DataGridTextColumn Binding="{Binding Description}" />
                                 </DataGrid.Columns>

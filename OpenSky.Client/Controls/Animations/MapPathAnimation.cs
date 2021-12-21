@@ -143,9 +143,7 @@ namespace OpenSky.Client.Controls.Animations
                 if (!this.isPaused)
                 {
                     var frameIndex = (int)(DateTime.Now - this.animationStarted).TotalMilliseconds / this.delay;
-
                     var progress = (frameIndex * this.delay) / (double)this.duration;
-
                     if (progress >= 1.0)
                     {
                         if (loop)
