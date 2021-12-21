@@ -152,6 +152,7 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
+    <Compile Include="Models\Enums\DistanceUnit.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Job.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Payload.cs" />
     <Compile Include="Pages\AircraftTypes.xaml.cs">

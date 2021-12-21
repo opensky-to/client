@@ -97,7 +97,7 @@
                 <RadioButton IsChecked="{Binding AtAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">At airport</RadioButton>
                 <DockPanel Grid.Row="1" Grid.Column="1" Margin="20,3, 0, 3">
                     <Button DockPanel.Dock="Right" Margin="5,0,0,0" IsEnabled="False">Search</Button>
-                    <TextBox VerticalAlignment="Center" Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox VerticalAlignment="Center" Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" CharacterCasing="Upper">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
                         </TextBox.InputBindings>

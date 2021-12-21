@@ -254,7 +254,7 @@ namespace OpenSky.Client.Pages.Models
                             {
                                 var originMarkers = new List<TrackingEventMarker>
                                 {
-                                    new(new GeoCoordinate(origin.Latitude, origin.Longitude), origin.ICAO, Colors.DarkGray, Colors.Black),
+                                    new(new GeoCoordinate(origin.Latitude, origin.Longitude), origin.ICAO, Colors.DarkGray, Colors.Black, true, 6),
                                     new(origin, Colors.DarkGray, Colors.Black)
                                 };
                                 originMarkers.AddRange(origin.Runways.Select(runway => new TrackingEventMarker(runway)));
@@ -269,7 +269,7 @@ namespace OpenSky.Client.Pages.Models
                                 {
                                     var destinationMarkers = new List<TrackingEventMarker>
                                     {
-                                        new(new GeoCoordinate(destination.Latitude, destination.Longitude), destination.ICAO, OpenSkyColors.OpenSkyTeal, Colors.White),
+                                        new(new GeoCoordinate(destination.Latitude, destination.Longitude), destination.ICAO, OpenSkyColors.OpenSkyTeal, Colors.White, true, 6),
                                         new(destination, OpenSkyColors.OpenSkyTeal, Colors.White)
                                     };
                                     destinationMarkers.AddRange(destination.Runways.Select(runway => new TrackingEventMarker(runway)));
@@ -335,7 +335,7 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.AcceptJobAsync(this.SelectedJob.Id, false).Result;
                 if (!result.IsError)
                 {
-                    this.AcceptJobCommand.ReportProgress(()=>
+                    this.AcceptJobCommand.ReportProgress(() =>
                     {
                         ModernWpf.MessageBox.Show(result.Message);
                         this.SearchJobsCommand.DoExecute(null);
@@ -394,14 +394,14 @@ namespace OpenSky.Client.Pages.Models
         public JobDirection SelectedJobDirection
         {
             get => this.selectedJobDirection;
-        
+
             set
             {
-                if(Equals(this.selectedJobDirection, value))
+                if (Equals(this.selectedJobDirection, value))
                 {
-                   return;
+                    return;
                 }
-        
+
                 this.selectedJobDirection = value;
                 this.NotifyPropertyChanged();
             }

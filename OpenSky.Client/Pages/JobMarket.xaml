@@ -20,6 +20,7 @@
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:system="clr-namespace:System;assembly=mscorlib"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       mc:Ignorable="d" 
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" VerticalScrollBar="False"
@@ -29,6 +30,9 @@
     </UserControl.DataContext>
     <UserControl.Resources>
         <CollectionViewSource Source="{Binding Jobs}" x:Key="JobsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Category" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <ObjectDataProvider x:Key="JobDirections" MethodName="GetValues"
                             ObjectType="{x:Type system:Enum}">
@@ -91,7 +95,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
-                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance}" />
+                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=distance|F0|true}" />
                         <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
                         <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
