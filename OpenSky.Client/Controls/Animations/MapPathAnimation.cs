@@ -42,17 +42,10 @@ namespace OpenSky.Client.Controls.Animations
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The animation started Date/Time.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private DateTime animationStarted;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The pre-calculated bearings between locations.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private List<double> bearings;
+        private double[] bearings;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -91,6 +84,13 @@ namespace OpenSky.Client.Controls.Animations
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Zero-based index of the frame.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int frameIndex;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MapPathAnimation"/> class.
         /// </summary>
         /// <remarks>
@@ -120,7 +120,7 @@ namespace OpenSky.Client.Controls.Animations
         /// The animation dispatcher delay.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        public MapPathAnimation([NotNull] LocationCollection path, [CanBeNull] IntervalCallback intervalCallback, bool isGeodesic, int duration = 150, bool loop = false, int delay = 30)
+        public MapPathAnimation([NotNull] LocationCollection path, [CanBeNull] IntervalCallback intervalCallback, bool isGeodesic, int duration = 2000, bool loop = false, int delay = 30)
         {
             if (path.Count < 2)
             {
@@ -134,21 +134,21 @@ namespace OpenSky.Client.Controls.Animations
 
             this.PreCalculate();
 
-            this.dispatcherTimer = new DispatcherTimer
+            this.dispatcherTimer = new DispatcherTimer(DispatcherPriority.Render)
             {
-                Interval = TimeSpan.FromMilliseconds(this.delay)
+                Interval = TimeSpan.FromMilliseconds(this.delay),
             };
+
             this.dispatcherTimer.Tick += (_, _) =>
             {
                 if (!this.isPaused)
                 {
-                    var frameIndex = (int)(DateTime.Now - this.animationStarted).TotalMilliseconds / this.delay;
-                    var progress = (frameIndex * this.delay) / (double)this.duration;
+                    var progress = (double)(this.frameIndex * this.delay) / this.duration;
                     if (progress >= 1.0)
                     {
                         if (loop)
                         {
-                            this.animationStarted = DateTime.Now;
+                            this.frameIndex = 0;
                         }
                         else
                         {
@@ -159,13 +159,15 @@ namespace OpenSky.Client.Controls.Animations
                     {
                         try
                         {
-                            intervalCallback?.Invoke(this.intervalLocs[frameIndex], progress, this.bearings[frameIndex]);
+                            intervalCallback?.Invoke(this.intervalLocs[this.frameIndex], progress, this.bearings[this.frameIndex]);
                         }
                         catch
                         {
                             // Ignore
                         }
                     }
+
+                    this.frameIndex++;
                 }
             };
         }
@@ -203,6 +205,13 @@ namespace OpenSky.Client.Controls.Animations
                 this.PreCalculate();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the delay.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int Delay => this.delay;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -264,7 +273,6 @@ namespace OpenSky.Client.Controls.Animations
         public void Play()
         {
             this.isPaused = false;
-            this.animationStarted = DateTime.Now;
             this.dispatcherTimer.Start();
         }
 
@@ -302,14 +310,14 @@ namespace OpenSky.Client.Controls.Animations
             }
 
             this.intervalLocs = new LocationCollection { this.path[0] };
-            this.bearings = new List<double> { 0.0 };
+            var bearingsList = new List<double> { 0.0 };
 
             double dlat, dlon;
             double totalDistance = 0;
 
             if (this.isGeodesic)
             {
-                //Calculate the total distance along the path in KMs.
+                // Calculate the total distance along the path in KMs
                 for (var i = 0; i < this.path.Count - 1; i++)
                 {
                     totalDistance += this.path[i].HaversineDistance(this.path[i + 1]);
@@ -317,7 +325,7 @@ namespace OpenSky.Client.Controls.Animations
             }
             else
             {
-                //Calculate the total distance along the path in degrees.
+                // Calculate the total distance along the path in degrees
                 for (var i = 0; i < this.path.Count - 1; i++)
                 {
                     dlat = this.path[i + 1].Latitude - this.path[i].Latitude;
@@ -330,7 +338,7 @@ namespace OpenSky.Client.Controls.Animations
             var frameCount = (int)Math.Ceiling((double)this.duration / this.delay);
             var idx = 0;
 
-            //Pre-calculate step points for smoother rendering.
+            // Pre-calculate step points for smoother rendering
             for (var f = 0; f < frameCount; f++)
             {
                 var progress = (double)(f * this.delay) / this.duration;
@@ -372,7 +380,7 @@ namespace OpenSky.Client.Controls.Animations
 
                         if (f > 0)
                         {
-                            this.bearings.Add(this.intervalLocs[f - 1].CalculateBearing(this.intervalLocs[f]));
+                            bearingsList.Add(this.intervalLocs[f - 1].CalculateBearing(this.intervalLocs[f]));
                         }
                     }
                     else
@@ -383,15 +391,16 @@ namespace OpenSky.Client.Controls.Animations
                         this.intervalLocs.Add(new Location(this.path[idx].Latitude + dlat, this.path[idx].Longitude + dlon));
                         if (f > 0)
                         {
-                            this.bearings.Add(this.intervalLocs[f - 1].CalculateBearing(this.intervalLocs[f]));
+                            bearingsList.Add(this.intervalLocs[f - 1].CalculateBearing(this.intervalLocs[f]));
                         }
                     }
                 }
             }
 
-            //Ensure the last location is the last coordinate in the path.
+            // Ensure the last location is the last coordinate in the path
             this.intervalLocs.Add(this.path[this.path.Count - 1]);
-            this.bearings.Add(this.intervalLocs[this.intervalLocs.Count - 1].CalculateBearing(this.path[this.path.Count - 1]));
+            bearingsList.Add(this.intervalLocs[this.intervalLocs.Count - 1].CalculateBearing(this.path[this.path.Count - 1]));
+            this.bearings = bearingsList.ToArray();
         }
     }
 }

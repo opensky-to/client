@@ -5546,26 +5546,32 @@ namespace OpenSkyApi
     
         /// <summary>Gets the available jobs at the specified airport.</summary>
         /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportAsync(string icao)
+        public System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportAsync(string icao, JobDirection direction)
         {
-            return GetJobsAtAirportAsync(icao, System.Threading.CancellationToken.None);
+            return GetJobsAtAirportAsync(icao, direction, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets the available jobs at the specified airport.</summary>
         /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportAsync(string icao, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportAsync(string icao, JobDirection direction, System.Threading.CancellationToken cancellationToken)
         {
             if (icao == null)
                 throw new System.ArgumentNullException("icao");
     
+            if (direction == null)
+                throw new System.ArgumentNullException("direction");
+    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirport/{icao}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirport/{icao}/{direction}");
             urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{direction}", System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -8369,6 +8375,18 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Value { get; set; }
     
+    
+    }
+    
+    /// <summary>Job directions. 0 = From, 1 = To, 2 = RoundTrip</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public enum JobDirection
+    {
+        From = 0,
+    
+        To = 1,
+    
+        RoundTrip = 2,
     
     }
     
