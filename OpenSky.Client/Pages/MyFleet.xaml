@@ -21,6 +21,7 @@
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                      xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       mc:Ignorable="d" 
                       HorizontalScrollBar="False" VerticalScrollBar="False"
                       LoadingText="{Binding LoadingText}"
@@ -73,6 +74,7 @@
                                 <ui:BitmapIcon UriSource="/Resources/plan16.png" Width="16" Height="16" ShowAsMonochrome="True" />
                             </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
+                        <ui:AppBarButton Icon="Find" Label="Find job" ToolTip="Find a job for the selected aircraft" Command="{Binding FindJobCommand}" />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid
@@ -82,6 +84,7 @@
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True"
                     >
                     <DataGrid.Resources>
                         <DataTemplate x:Key="FuelCellTemplate" DataType="openSkyApi:Aircraft">
