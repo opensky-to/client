@@ -6368,6 +6368,11 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("maxGrossWeight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double MaxGrossWeight { get; set; }
     
+        /// <summary>Gets or sets the maximum payload delta allowed during a flight (to compensate for consumables
+        /// like de-icing fluid).</summary>
+        [Newtonsoft.Json.JsonProperty("maxPayloadDeltaAllowed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int MaxPayloadDeltaAllowed { get; set; }
+    
         /// <summary>Gets or sets the maximum selling price.</summary>
         [Newtonsoft.Json.JsonProperty("maxPrice", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int MaxPrice { get; set; }
