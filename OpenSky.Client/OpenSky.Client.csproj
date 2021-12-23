@@ -637,7 +637,7 @@
     <Resource Include="Resources\vanilla16.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\jobs16.png" />
+    <Resource Include="Resources\job16.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\job24.png" />

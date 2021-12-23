@@ -148,13 +148,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the aircraft positions.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<AircraftPosition> AircraftPositions { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="MyFleetViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -182,6 +175,7 @@ namespace OpenSky.Client.Pages.Models
             this.CancelGroundOperationsCommand = new Command(this.CancelGroundOperations, false);
             this.GetPlannablePayloadsCommand = new AsynchronousCommand(this.GetPlannablePayloads);
             this.SubmitGroundOperationsCommand = new AsynchronousCommand(this.SubmitGroundOperations, false);
+            this.FindJobCommand = new Command(this.FindJob, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -197,6 +191,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<Payload> AircraftPayloads { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft positions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftPosition> AircraftPositions { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -399,6 +400,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the find job command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command FindJobCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the get edit aircraft variants command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -547,6 +555,7 @@ namespace OpenSky.Client.Pages.Models
                 this.StartEditAircraftCommand.CanExecute = value is { CanStartFlight: true };
                 this.StartGroundOperationsCommand.CanExecute = value is { CanStartFlight: true };
                 this.PlanFlightCommand.CanExecute = value != null;
+                this.FindJobCommand.CanExecute = value != null;
             }
         }
 
@@ -640,6 +649,26 @@ namespace OpenSky.Client.Pages.Models
         private void CancelGroundOperations()
         {
             this.GroundOperations = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Find a job for the selected aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void FindJob()
+        {
+            if (this.SelectedAircraft != null)
+            {
+                var navMenuItem = new NavMenuItem
+                {
+                    Icon = "/Resources/market16.png", PageType = typeof(JobMarket), Name = "Job market", Parameter = this.SelectedAircraft
+                };
+                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -802,13 +831,14 @@ namespace OpenSky.Client.Pages.Models
                             foreach (var aircraft in result.Data)
                             {
                                 this.Aircraft.Add(aircraft);
-                                this.AircraftPositions.Add(new AircraftPosition
-                                {
-                                    Heading = aircraft.Heading,
-                                    Location = new Location(aircraft.Latitude, aircraft.Longitude),
-                                    Registry = aircraft.Registry,
-                                    ToolTip = aircraft.Registry
-                                });
+                                this.AircraftPositions.Add(
+                                    new AircraftPosition
+                                    {
+                                        Heading = aircraft.Heading,
+                                        Location = new Location(aircraft.Latitude, aircraft.Longitude),
+                                        Registry = aircraft.Registry,
+                                        ToolTip = aircraft.Registry
+                                    });
                             }
                         });
                 }
