@@ -3626,6 +3626,11 @@
             "description": "Gets or sets the maximum gross weight in pounds.",
             "format": "double"
           },
+          "maxPayloadDeltaAllowed": {
+            "type": "integer",
+            "description": "Gets or sets the maximum payload delta allowed during a flight (to compensate for consumables\r\nlike de-icing fluid).",
+            "format": "int32"
+          },
           "maxPrice": {
             "type": "integer",
             "description": "Gets or sets the maximum selling price.",

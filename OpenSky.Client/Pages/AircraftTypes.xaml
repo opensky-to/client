@@ -121,6 +121,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -155,6 +156,7 @@
                 <Border Grid.Row="25" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
                 <Border Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
                 <Border Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
+                <Border Grid.Row="28" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,0">Manufacturer</TextBlock>
                 <TextBlock Grid.Column="0" Grid.Row="2" Margin="0,5,10,0">Category</TextBlock>
@@ -181,9 +183,10 @@
                 <TextBlock Grid.Column="0" Grid.Row="23" Margin="0,5,10,0">Needs flight engineer?</TextBlock>
                 <TextBlock Grid.Column="0" Grid.Row="24" Margin="0,5,10,0">Manual fuelling?</TextBlock>
                 <TextBlock Grid.Column="0" Grid.Row="25" Margin="0,5,10,0">Manual loading?</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="26" Margin="0,5,10,0">Uploaded by</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="27" Margin="0,5,10,0">Last edited by</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="28" Margin="0,5,10,0">Comments</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="26" Margin="0,5,10,0">Max payload Δ?</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="27" Margin="0,5,10,0">Uploaded by</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="28" Margin="0,5,10,0">Last edited by</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="29" Margin="0,5,10,0">Comments</TextBlock>
 
                 <TextBlock Grid.Column="1" Grid.Row="0" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0]}" FontWeight="Bold" />
                 <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Manufacturer}" />
@@ -211,9 +214,10 @@
                 <TextBlock Grid.Column="1" Grid.Row="23" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].NeedsFlightEngineer}" />
                 <TextBlock Grid.Column="1" Grid.Row="24" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].RequiresManualFuelling}" />
                 <TextBlock Grid.Column="1" Grid.Row="25" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].RequiresManualLoading}" />
-                <TextBlock Grid.Column="1" Grid.Row="26" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].UploaderName}" />
-                <TextBlock Grid.Column="1" Grid.Row="27" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].LastEditedByName}" />
-                <TextBlock Grid.Column="1" Grid.Row="28" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="1" Grid.Row="26" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].MaxPayloadDeltaAllowed}" />
+                <TextBlock Grid.Column="1" Grid.Row="27" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].UploaderName}" />
+                <TextBlock Grid.Column="1" Grid.Row="28" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].LastEditedByName}" />
+                <TextBlock Grid.Column="1" Grid.Row="29" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
 
                 <TextBlock Grid.Column="2" Grid.Row="0" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1]}" FontWeight="Bold" />
                 <TextBlock Grid.Column="2" Grid.Row="1" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Manufacturer}" />
@@ -241,11 +245,12 @@
                 <TextBlock Grid.Column="2" Grid.Row="23" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].NeedsFlightEngineer}" />
                 <TextBlock Grid.Column="2" Grid.Row="24" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].RequiresManualFuelling}" />
                 <TextBlock Grid.Column="2" Grid.Row="25" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].RequiresManualLoading}" />
-                <TextBlock Grid.Column="2" Grid.Row="26" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].UploaderName}" />
-                <TextBlock Grid.Column="2" Grid.Row="27" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].LastEditedByName}" />
-                <TextBlock Grid.Column="2" Grid.Row="28" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="2" Grid.Row="26" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].MaxPayloadDeltaAllowed}" />
+                <TextBlock Grid.Column="2" Grid.Row="27" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].UploaderName}" />
+                <TextBlock Grid.Column="2" Grid.Row="28" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].LastEditedByName}" />
+                <TextBlock Grid.Column="2" Grid.Row="29" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
 
-                <TextBlock Grid.Column="0" Grid.Row="29" Grid.ColumnSpan="3" Margin="0,30,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" FontSize="11">Tip: Use the CTRL key to select two aircraft types to compare them.</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="30" Grid.ColumnSpan="3" Margin="0,30,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" FontSize="11">Tip: Use the CTRL key to select two aircraft types to compare them.</TextBlock>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Column="1">
@@ -292,6 +297,7 @@
                         <DataGridTextColumn Header="Next version" Binding="{Binding NextVersion, Converter={StaticResource AircraftTypeForeignKeyConverter}}" />
                         <DataGridTextColumn Header="Variant of" Binding="{Binding IsVariantOf, Converter={StaticResource AircraftTypeForeignKeyConverter}}" />
                         <DataGridCheckBoxColumn Header="Vanilla?" Binding="{Binding IsVanilla}" />
+                        <DataGridCheckBoxColumn Header="World pop?" Binding="{Binding IncludeInWorldPopulation}" />
                         <DataGridTextColumn Header="Comments" Binding="{Binding Comments}" Width="*" MinWidth="150" />
                     </DataGrid.Columns>
                 </DataGrid>
@@ -346,6 +352,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -374,7 +381,8 @@
                 <TextBlock Grid.Column="0" Grid.Row="22" VerticalAlignment="Center" Margin="0,0,5,0">Next version</TextBlock>
                 <TextBlock Grid.Column="0" Grid.Row="23" VerticalAlignment="Center" Margin="0,0,5,0">Minimum price</TextBlock>
                 <TextBlock Grid.Column="0" Grid.Row="24" VerticalAlignment="Center" Margin="0,0,5,0">Maximum price</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="25" VerticalAlignment="Center" Margin="0,0,5,0">Comments</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="25" VerticalAlignment="Center" Margin="0,0,5,0">Max payload Δ lbs</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="26" VerticalAlignment="Center" Margin="0,0,5,0">Comments</TextBlock>
 
                 <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding EditedAircraftType.AtcType}" Margin="5,2" />
                 <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding EditedAircraftType.AtcModel}" Margin="5,2" />
@@ -409,8 +417,9 @@
                 </Grid>
                 <TextBox Grid.Column="1" Grid.Row="23" Text="{Binding EditedAircraftType.MinPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Minimum price" ui:ControlHelper.PlaceholderForeground="#666" />
                 <TextBox Grid.Column="1" Grid.Row="24" Text="{Binding EditedAircraftType.MaxPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Maximum price" ui:ControlHelper.PlaceholderForeground="#666" />
-                <TextBox Grid.Column="1" Grid.Row="25" Text="{Binding EditedAircraftType.Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinLines="3" ui:ControlHelper.PlaceholderText="Optional comments here" ui:ControlHelper.PlaceholderForeground="#666" />
-                <Grid Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="2">
+                <TextBox Grid.Column="1" Grid.Row="25" Text="{Binding EditedAircraftType.MaxPayloadDeltaAllowed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Max payload Δ" ui:ControlHelper.PlaceholderForeground="#666" />
+                <TextBox Grid.Column="1" Grid.Row="26" Text="{Binding EditedAircraftType.Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinLines="3" ui:ControlHelper.PlaceholderText="Optional comments here" ui:ControlHelper.PlaceholderForeground="#666" />
+                <Grid Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
