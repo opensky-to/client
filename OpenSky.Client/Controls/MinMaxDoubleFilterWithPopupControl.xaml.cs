@@ -1,13 +1,15 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FilterWithPopupControl.xaml.cs" company="OpenSky">
+// <copyright file="MinMaxDoubleFilterWithPopupControl.xaml.cs" company="OpenSky">
 // OpenSky project 2021
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Controls
 {
+    using System.Globalization;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Data;
 
     using DataGridExtensions;
 
@@ -16,7 +18,7 @@ namespace OpenSky.Client.Controls
     /// Filter with range min/max popup control control.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class FilterWithPopupControl
+    public partial class MinMaxDoubleFilterWithPopupControl
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -26,7 +28,7 @@ namespace OpenSky.Client.Controls
         public static readonly DependencyProperty CaptionProperty = DependencyProperty.Register(
             "Caption",
             typeof(string),
-            typeof(FilterWithPopupControl),
+            typeof(MinMaxDoubleFilterWithPopupControl),
             new FrameworkPropertyMetadata("Specify the limits:", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         /// -------------------------------------------------------------------------------------------------
@@ -38,8 +40,8 @@ namespace OpenSky.Client.Controls
             DependencyProperty.Register(
                 "Filter",
                 typeof(IContentFilter),
-                typeof(FilterWithPopupControl),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((FilterWithPopupControl)sender).FilterChanged()));
+                typeof(MinMaxDoubleFilterWithPopupControl),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((MinMaxDoubleFilterWithPopupControl)sender).FilterChanged(sender)));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -47,7 +49,7 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty IsPopupVisibleProperty =
-            DependencyProperty.Register("IsPopupVisible", typeof(bool), typeof(FilterWithPopupControl), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            DependencyProperty.Register("IsPopupVisible", typeof(bool), typeof(MinMaxDoubleFilterWithPopupControl), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -57,8 +59,8 @@ namespace OpenSky.Client.Controls
         public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register(
             "Maximum",
             typeof(double),
-            typeof(FilterWithPopupControl),
-            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((FilterWithPopupControl)sender).RangeChanged()));
+            typeof(MinMaxDoubleFilterWithPopupControl),
+            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((MinMaxDoubleFilterWithPopupControl)sender).RangeChanged()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -68,18 +70,18 @@ namespace OpenSky.Client.Controls
         public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
             "Minimum",
             typeof(double),
-            typeof(FilterWithPopupControl),
-            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((FilterWithPopupControl)sender).RangeChanged()));
+            typeof(MinMaxDoubleFilterWithPopupControl),
+            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (sender, _) => ((MinMaxDoubleFilterWithPopupControl)sender).RangeChanged()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterWithPopupControl"/> class.
+        /// Initializes a new instance of the <see cref="MinMaxDoubleFilterWithPopupControl"/> class.
         /// </summary>
         /// <remarks>
         /// sushi.at, 23/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public FilterWithPopupControl()
+        public MinMaxDoubleFilterWithPopupControl()
         {
             this.InitializeComponent();
         }
@@ -94,6 +96,13 @@ namespace OpenSky.Client.Controls
             get => (string)this.GetValue(CaptionProperty);
             set => this.SetValue(CaptionProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the converter parameter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public object ConverterParameter { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -141,21 +150,56 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the value converter.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public IValueConverter ValueConverter { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Filter changed.
         /// </summary>
         /// <remarks>
         /// sushi.at, 23/12/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void FilterChanged()
+        private void FilterChanged(object sender)
         {
             if (this.Filter is not MinMaxDoubleFilter filter)
             {
                 return;
             }
 
-            this.Minimum = filter.Min;
-            this.Maximum = filter.Max;
+            if (sender is not MinMaxDoubleFilterWithPopupControl)
+            {
+                this.Minimum = filter.Min;
+                this.Maximum = filter.Max;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Filter text box on lost focus.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void FilterTextBoxOnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                if (string.IsNullOrEmpty(textBox.Text))
+                {
+                    textBox.Text = "0";
+                }
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -168,17 +212,32 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         private void RangeChanged()
         {
-            this.Filter = this.Maximum != 0 || this.Minimum != 0 ? new MinMaxDoubleFilter(this.Minimum, this.Maximum) : null;
-        }
-
-        private void FilterTextBoxOnLostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox textBox)
+            if (this.Maximum != 0 || this.Minimum != 0)
             {
-                if (string.IsNullOrEmpty(textBox.Text))
+                var maximum = this.Maximum;
+                var minimum = this.Minimum;
+
+                if (this.ValueConverter != null)
                 {
-                    textBox.Text = "0";
+                    var convertedMaximum = (double?)this.ValueConverter.ConvertBack($"{maximum}", typeof(double), this.ConverterParameter, CultureInfo.CurrentCulture);
+                    var convertedMinimum = (double?)this.ValueConverter.ConvertBack($"{minimum}", typeof(double), this.ConverterParameter, CultureInfo.CurrentCulture);
+
+                    if (convertedMaximum.HasValue)
+                    {
+                        maximum = convertedMaximum.Value;
+                    }
+
+                    if (convertedMinimum.HasValue)
+                    {
+                        minimum = convertedMinimum.Value;
+                    }
                 }
+
+                this.Filter = new MinMaxDoubleFilter(minimum, maximum);
+            }
+            else
+            {
+                this.Filter = null;
             }
         }
     }

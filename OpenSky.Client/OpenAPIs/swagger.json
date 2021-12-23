@@ -488,6 +488,49 @@
         }
       }
     },
+    "/Aircraft/sellToSystem/{registry}": {
+      "post": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Sell aircraft back to system.",
+        "description": "sushi.at, 23/12/2021.",
+        "operationId": "SellAircraftToSystem",
+        "parameters": [
+          {
+            "name": "registry",
+            "in": "path",
+            "description": "The registry of the aircraft to sell.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft": {
       "put": {
         "tags": [

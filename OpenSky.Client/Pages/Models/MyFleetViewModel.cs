@@ -176,6 +176,7 @@ namespace OpenSky.Client.Pages.Models
             this.GetPlannablePayloadsCommand = new AsynchronousCommand(this.GetPlannablePayloads);
             this.SubmitGroundOperationsCommand = new AsynchronousCommand(this.SubmitGroundOperations, false);
             this.FindJobCommand = new Command(this.FindJob, false);
+            this.SellAircraftNowCommand = new AsynchronousCommand(this.SellAircraftNow, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -556,6 +557,7 @@ namespace OpenSky.Client.Pages.Models
                 this.StartGroundOperationsCommand.CanExecute = value is { CanStartFlight: true };
                 this.PlanFlightCommand.CanExecute = value != null;
                 this.FindJobCommand.CanExecute = value != null;
+                this.SellAircraftNowCommand.CanExecute = value != null;
             }
         }
 
@@ -579,6 +581,13 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the sell aircraft now command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand SellAircraftNowCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -931,6 +940,76 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.SaveEditedAircraftCommand, "Error saving changed aircraft");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sell the selected aircraft to the system NOW.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SellAircraftNow()
+        {
+            if (this.SelectedAircraft == null)
+            {
+                return;
+            }
+
+            MessageBoxResult? answer = MessageBoxResult.None;
+            this.SellAircraftNowCommand.ReportProgress(
+                () =>
+                {
+                    answer = ModernWpf.MessageBox.Show(
+                        $"Are you sure you want to sell the aircraft {this.SelectedAircraft.Registry}?\r\n\r\nYou will only receive 70 % of the market value of the aircraft.",
+                        "Sell aircraft?",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Hand);
+                },
+                true);
+
+            if (answer != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            this.LoadingText = "Selling aircraft...";
+            try
+            {
+                var result = OpenSkyService.Instance.SellAircraftToSystemAsync(this.SelectedAircraft.Registry).Result;
+                if (!result.IsError)
+                {
+                    this.SellAircraftNowCommand.ReportProgress(
+                        () =>
+                        {
+                            ModernWpf.MessageBox.Show(result.Message, "Sell aircraft", MessageBoxButton.OK, MessageBoxImage.Information);
+                            this.RefreshFleetCommand.DoExecute(null);
+                        });
+                }
+                else
+                {
+                    this.SellAircraftNowCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error selling aircraft: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            ModernWpf.MessageBox.Show(result.Message, "Error selling aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.SellAircraftNowCommand, "Error selling aircraft");
             }
             finally
             {

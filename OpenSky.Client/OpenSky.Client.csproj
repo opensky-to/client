@@ -107,8 +107,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\Animations\MapPathAnimation.cs" />
-    <Compile Include="Controls\FilterWithPopupControl.xaml.cs">
-      <DependentUpon>FilterWithPopupControl.xaml</DependentUpon>
+    <Compile Include="Controls\MinMaxDoubleFilterWithPopupControl.xaml.cs">
+      <DependentUpon>MinMaxDoubleFilterWithPopupControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ListContainsValueCheckbox.xaml.cs">
       <DependentUpon>ListContainsValueCheckbox.xaml</DependentUpon>
@@ -287,7 +287,7 @@
     <Compile Include="Views\Startup.xaml.cs">
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
-    <Page Include="Controls\FilterWithPopupControl.xaml">
+    <Page Include="Controls\MinMaxDoubleFilterWithPopupControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
