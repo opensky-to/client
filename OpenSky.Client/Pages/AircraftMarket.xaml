@@ -210,8 +210,8 @@
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" Visibility="{Binding Source={x:Reference LocationVisibilityProxy}, Path=Visibility}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTemplateColumn Header="Type" CellTemplate="{StaticResource AircraftTypeCellTemplate}" SortMemberPath="Type.Name" CanUserSort="True" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
-                        <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" SortDirection="Ascending" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
-                        <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
+                        <DataGridTemplateColumn Header="Purchase Price" CellTemplate="{StaticResource PurchasePriceCellTemplate}" SortMemberPath="PurchasePrice" CanUserSort="True" SortDirection="Ascending" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControl}" />
+                        <DataGridTemplateColumn Header="Rental Price" CellTemplate="{StaticResource RentPriceCellTemplate}" SortMemberPath="RentPrice" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControl}" />
                         <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" />
                     </DataGrid.Columns>
                 </DataGrid>

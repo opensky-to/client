@@ -6,6 +6,10 @@ OpenSky Client Changelog
 Version 0.3.1 (ALPHA3)
 --------------------------------------------------------------------------------------
 - Aircraft type max allowed payload delta
+- Job market filtering enhancements
+- More datagrid filtering options throughout
+- Added cross links between modules
+- Added sell aircraft back to system
 
 --------------------------------------------------------------------------------------
 Version 0.3.0 (ALPHA3)
