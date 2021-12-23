@@ -75,6 +75,11 @@
                             </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
                         <ui:AppBarButton Icon="Find" Label="Find job" ToolTip="Find a job for the selected aircraft" Command="{Binding FindJobCommand}" />
+                        <ui:AppBarButton Label="Sell now" ToolTip="Sells the selected aircraft back to the system" Command="{Binding SellAircraftNowCommand}">
+                            <ui:AppBarButton.Icon>
+                                <ui:FontIcon Glyph="&#xE945;" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid
