@@ -20,6 +20,7 @@
           xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
           xmlns:ui="http://schemas.modernwpf.com/2019"
           xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+          xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
           mc:Ignorable="d" Loaded="MyJobsOnLoaded"
           LoadingText="{Binding LoadingText}"
           d:DesignHeight="450" d:DesignWidth="800">
@@ -65,7 +66,7 @@
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
-                    RowDetailsVisibilityMode="VisibleWhenSelected"
+                    RowDetailsVisibilityMode="VisibleWhenSelected" dgx:DataGridFilter.IsAutoFilterEnabled="True"
                     >
                     <DataGrid.Resources>
                         <DataTemplate x:Key="JobValueCellTemplate" DataType="openSkyApi:Job">
@@ -77,11 +78,11 @@
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
-                        <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" />
+                        <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
-                        <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                        <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate>
                         <DataTemplate DataType="openSkyApi:Job">
