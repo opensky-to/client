@@ -4,7 +4,8 @@
                     xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                     xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-                    xmlns:toms="urn:TomsToolbox">
+                    xmlns:toms="urn:TomsToolbox"
+                    xmlns:controls="clr-namespace:OpenSky.Client.Controls">
     <Style x:Key="DeleteButtonStyle" TargetType="Button">
         <Setter Property="Template">
             <Setter.Value>
@@ -400,4 +401,20 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="{x:Type controls:FilterWithPopupControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:FilterWithPopupControl}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="FilterWithPopup">
+        <controls:FilterWithPopupControl Filter="{Binding Path=Filter, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=dgx:DataGridFilterColumnControl}}" />
+    </ControlTemplate>
 </ResourceDictionary>

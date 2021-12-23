@@ -19,6 +19,7 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
+    using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
 
     using OpenSkyApi;
@@ -36,6 +37,13 @@ namespace OpenSky.Client.Pages.Models
     /// -------------------------------------------------------------------------------------------------
     public class JobMarketViewModel : ViewModel
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The selected aircraft type category, or NULL for all.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftTypeCategoryComboItem aircraftTypeCategory;
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The airport icao.
@@ -59,6 +67,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected job direction.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private JobDirection selectedJobDirection;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="JobMarketViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -68,14 +83,22 @@ namespace OpenSky.Client.Pages.Models
         public JobMarketViewModel()
         {
             // Initialize data structures
+            this.TypeCategories = new ObservableCollection<AircraftTypeCategoryComboItem>();
             this.Jobs = new ObservableCollection<Job>();
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
             this.JobTrails = new ObservableCollection<MapPolyline>();
+
+            // Initial values
+            foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
+            {
+                this.TypeCategories.Add(categoryItem);
+            }
 
             // Create commands
             this.SearchJobsCommand = new AsynchronousCommand(this.SearchJobs, false);
             this.ClearSelectionCommand = new Command(this.ClearSelection);
             this.AcceptJobCommand = new AsynchronousCommand(this.AcceptJob, false);
+            this.ClearCategoryCommand = new Command(this.ClearCategory);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -84,6 +107,27 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand AcceptJobCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected aircraft type category, or NULL for all.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftTypeCategoryComboItem AircraftTypeCategory
+        {
+            get => this.aircraftTypeCategory;
+
+            set
+            {
+                if (Equals(this.aircraftTypeCategory, value))
+                {
+                    return;
+                }
+
+                this.aircraftTypeCategory = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -113,6 +157,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear category command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearCategoryCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -316,6 +367,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the selected job direction.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public JobDirection SelectedJobDirection
+        {
+            get => this.selectedJobDirection;
+
+            set
+            {
+                if (Equals(this.selectedJobDirection, value))
+                {
+                    return;
+                }
+
+                this.selectedJobDirection = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the aircraft type categories.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftTypeCategoryComboItem> TypeCategories { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Accept the selected job.
         /// </summary>
         /// <remarks>
@@ -335,11 +414,12 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.AcceptJobAsync(this.SelectedJob.Id, false).Result;
                 if (!result.IsError)
                 {
-                    this.AcceptJobCommand.ReportProgress(() =>
-                    {
-                        ModernWpf.MessageBox.Show(result.Message);
-                        this.SearchJobsCommand.DoExecute(null);
-                    });
+                    this.AcceptJobCommand.ReportProgress(
+                        () =>
+                        {
+                            ModernWpf.MessageBox.Show(result.Message);
+                            this.SearchJobsCommand.DoExecute(null);
+                        });
                 }
                 else
                 {
@@ -368,6 +448,19 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Clears the aircraft type category.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearCategory()
+        {
+            this.AircraftTypeCategory = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Clears the job selection.
         /// </summary>
         /// <remarks>
@@ -377,34 +470,6 @@ namespace OpenSky.Client.Pages.Models
         private void ClearSelection()
         {
             this.SelectedJob = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The selected job direction.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private JobDirection selectedJobDirection;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the selected job direction.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public JobDirection SelectedJobDirection
-        {
-            get => this.selectedJobDirection;
-
-            set
-            {
-                if (Equals(this.selectedJobDirection, value))
-                {
-                    return;
-                }
-
-                this.selectedJobDirection = value;
-                this.NotifyPropertyChanged();
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -420,7 +485,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Searching for jobs...";
             try
             {
-                var result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result;
+                var result = this.AircraftTypeCategory == null ? OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result : OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
                 if (!result.IsError)
                 {
                     this.SearchJobsCommand.ReportProgress(

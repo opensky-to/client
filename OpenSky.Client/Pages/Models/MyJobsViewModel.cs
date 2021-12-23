@@ -20,6 +20,8 @@ namespace OpenSky.Client.Pages.Models
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
+    using OpenSky.Client.Views.Models;
 
     using OpenSkyApi;
 
@@ -52,6 +54,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private MyJobs viewReference;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MyJobsViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -68,6 +77,7 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.RefreshJobsCommand = new AsynchronousCommand(this.RefreshJobs);
             this.AbortJobCommand = new AsynchronousCommand(this.AbortJob, false);
+            this.PlanFlightCommand = new Command(this.PlanFlight, false);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -121,6 +131,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the plan flight command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command PlanFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the refresh jobs command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -145,6 +162,7 @@ namespace OpenSky.Client.Pages.Models
                 this.selectedJob = value;
                 this.NotifyPropertyChanged();
                 this.AbortJobCommand.CanExecute = value != null;
+                this.PlanFlightCommand.CanExecute = value != null;
 
                 this.JobTrails.RemoveRange(this.JobTrails.ToList());
                 this.AirportMarkers.RemoveRange(this.AirportMarkers.ToList());
@@ -271,6 +289,23 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
+        /// case the user has multiple open windows)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 28/10/2021.
+        /// </remarks>
+        /// <param name="view">
+        /// The view reference.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetViewReference(MyJobs view)
+        {
+            this.viewReference = view;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Abort the selected job.
         /// </summary>
         /// <remarks>
@@ -331,6 +366,26 @@ namespace OpenSky.Client.Pages.Models
             finally
             {
                 this.LoadingText = null;
+            }
+        }
+
+        // Create a flight plan for the selected job.
+        private void PlanFlight()
+        {
+            if (this.SelectedJob != null)
+            {
+                var flightNumber = new Random().Next(1, 9999);
+                var destination = !string.IsNullOrEmpty(this.SelectedJob.Destinations) && !this.SelectedJob.Destinations.Contains(",") ? this.SelectedJob.Destinations : null;
+                var navMenuItem = new NavMenuItem
+                {
+                    Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
+                    Parameter = new FlightPlan
+                    {
+                        Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, OriginICAO = this.SelectedJob.OriginICAO,
+                        UtcOffset = Properties.Settings.Default.DefaultUTCOffset, DestinationICAO = destination
+                    }
+                };
+                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
             }
         }
 

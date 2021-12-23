@@ -3075,6 +3075,67 @@
         }
       }
     },
+    "/Job/atAirport/{icao}/{direction}/{category}": {
+      "get": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Gets the available jobs at the specified airport for the specified aircraft type category.",
+        "description": "sushi.at, 10/12/2021.",
+        "operationId": "GetJobsAtAirportForCategory",
+        "parameters": [
+          {
+            "name": "icao",
+            "in": "path",
+            "description": "The ICAO code of the airport.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "path",
+            "description": "The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/JobDirection"
+            }
+          },
+          {
+            "name": "category",
+            "in": "path",
+            "description": "The aircraft type category to return jobs for (recommended category). 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = JET, 5 = REG, 6 = NBA, 7 = WBA, 8 = HEL",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AircraftTypeCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Job/myJobs": {
       "get": {
         "tags": [
