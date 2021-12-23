@@ -42,6 +42,7 @@
         </ObjectDataProvider>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:PayloadDistanceConverter x:Key="PayloadDistanceConverter" />
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -67,12 +68,16 @@
                                     <KeyBinding Key="Enter" Command="{Binding SearchJobsCommand}" />
                                 </TextBox.InputBindings>
                             </TextBox>
+                            <Grid>
+                                <ComboBox x:Name="CategoryCombo" VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding TypeCategories}" SelectedItem="{Binding AircraftTypeCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All categories" ui:ControlHelper.PlaceholderForeground="#666" />
+                                <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=CategoryCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearCategoryCommand}" />
+                            </Grid>
                             <ui:AppBarButton Icon="Find" Label="Search" ToolTip="Search for jobs at this airport" Command="{Binding SearchJobsCommand}" Style="{StaticResource LabelOnRightAppBarButton}" />
                         </StackPanel>
                     </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
-                        <ui:AppBarButton Icon="Clear" Label="Clear selection" ToolTip="Clear job selection" Command="{Binding ClearSelectionCommand}" />
                         <ui:AppBarButton Icon="Accept" Label="Accept" ToolTip="Accept this job" Command="{Binding AcceptJobCommand}" />
+                        <ui:AppBarButton Icon="Clear" Label="Clear selection" ToolTip="Clear job selection" Command="{Binding ClearSelectionCommand}" />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid 

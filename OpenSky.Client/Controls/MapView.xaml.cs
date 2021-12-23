@@ -505,7 +505,7 @@ namespace OpenSky.Client.Controls
                         this.jobTrailAnimationImages.Add(boxImage);
                         this.WpfMapView.Children.Add(boxImage);
 
-                        if (this.JobTrails.Count < 10)
+                        if (this.JobTrails.Count <= 10)
                         {
                             var animation = new MapPathAnimation(
                                 item.Locations,
