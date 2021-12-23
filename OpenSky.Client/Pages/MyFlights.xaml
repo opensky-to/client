@@ -19,6 +19,7 @@
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                      xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" Loaded="MyFlightsOnLoaded"
                       mc:Ignorable="d" d:DesignHeight="450" d:DesignWidth="800">
@@ -61,7 +62,8 @@
                 SelectedItem="{Binding SelectedFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
-                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                dgx:DataGridFilter.IsAutoFilterEnabled="True">
                 <DataGrid.Resources>
                     <DataTemplate x:Key="FlightPausedCellTemplate" DataType="openSkyApi:Flight">
                         <Image Source="{Binding FlightPausedImage}" Width="16" Height="16" />

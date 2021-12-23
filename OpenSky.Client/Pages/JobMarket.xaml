@@ -21,6 +21,7 @@
                       xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       xmlns:system="clr-namespace:System;assembly=mscorlib"
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                      xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       mc:Ignorable="d" 
                       LoadingText="{Binding LoadingText}"
                       HorizontalScrollBar="False" VerticalScrollBar="False"
@@ -32,6 +33,7 @@
         <CollectionViewSource Source="{Binding Jobs}" x:Key="JobsViewSource">
             <CollectionViewSource.SortDescriptions>
                 <componentModel:SortDescription PropertyName="Category" Direction="Ascending" />
+                <componentModel:SortDescription PropertyName="Value" Direction="Ascending" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <ObjectDataProvider x:Key="JobDirections" MethodName="GetValues"
@@ -87,7 +89,7 @@
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
-                    RowDetailsVisibilityMode="VisibleWhenSelected"
+                    RowDetailsVisibilityMode="VisibleWhenSelected" dgx:DataGridFilter.IsAutoFilterEnabled="True"
                     >
                     <DataGrid.Resources>
                         <DataTemplate x:Key="JobValueCellTemplate" DataType="openSkyApi:Job">
@@ -98,13 +100,13 @@
                         </DataTemplate>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
-                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=distance|F0|true}" />
-                        <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" />
+                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=distance|F0|true}" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
+                        <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
-                        <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
-                        <DataGridTextColumn Header="Ideal for" Binding="{Binding Category}" />
+                        <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" dgx:DataGridFilterColumn.Template="{StaticResource FilterWithPopup}" />
+                        <DataGridTextColumn Header="Ideal for" Binding="{Binding Category}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate>
                         <DataTemplate DataType="openSkyApi:Job">

@@ -20,6 +20,7 @@
                           xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                          xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                           LoadingText="{Binding LoadingText}"
                           HorizontalScrollBar="False"
                           Loaded="FlightPlansOnLoaded"
@@ -69,7 +70,8 @@
                     SelectedItem="{Binding SelectedFlightPlan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
-                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
                     <DataGrid.InputBindings>
                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditPlanCommand}" />
                     </DataGrid.InputBindings>
