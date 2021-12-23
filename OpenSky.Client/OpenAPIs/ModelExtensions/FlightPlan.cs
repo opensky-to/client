@@ -34,9 +34,12 @@ namespace OpenSkyApi
             get
             {
                 var totalWeight = 0.0;
-                foreach (var flightPayload in this.Payloads)
+                if (this.Payloads != null)
                 {
-                    totalWeight += flightPayload.Payload?.Weight ?? 0;
+                    foreach (var flightPayload in this.Payloads)
+                    {
+                        totalWeight += flightPayload.Payload?.Weight ?? 0;
+                    }
                 }
 
                 return totalWeight;

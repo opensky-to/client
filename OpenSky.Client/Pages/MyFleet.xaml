@@ -74,6 +74,7 @@
                                 <ui:BitmapIcon UriSource="/Resources/plan16.png" Width="16" Height="16" ShowAsMonochrome="True" />
                             </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
+                        <ui:AppBarButton Icon="Find" Label="Find job" ToolTip="Find a job for the selected aircraft" Command="{Binding FindJobCommand}" />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>
                 <DataGrid

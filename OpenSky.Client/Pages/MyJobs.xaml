@@ -56,6 +56,11 @@
                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my jobs [F5]" Command="{Binding RefreshJobsCommand}" />
+                        <ui:AppBarButton Label="Plan flight" ToolTip="Plan a flight for the selected job" Command="{Binding PlanFlightCommand}">
+                            <ui:AppBarButton.Icon>
+                                <ui:BitmapIcon UriSource="/Resources/plan16.png" Width="16" Height="16" ShowAsMonochrome="True" />
+                            </ui:AppBarButton.Icon>
+                        </ui:AppBarButton>
                         <ui:AppBarButton Icon="Cancel" Label="Abort job" ToolTip="Abort the selected job" Command="{Binding AbortJobCommand}" />
                     </ui:CommandBar.PrimaryCommands>
                 </ui:CommandBar>

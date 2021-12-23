@@ -6,6 +6,12 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System.Linq;
+
+    using OpenSky.Client.Pages.Models;
+
+    using OpenSkyApi;
+
     using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
@@ -63,7 +69,12 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         public override void PassPageParameter(object parameter)
         {
-            // None so far
+            if (this.DataContext is JobMarketViewModel viewModel && parameter is Aircraft aircraft)
+            {
+                viewModel.AirportICAO = aircraft.AirportICAO;
+                viewModel.AircraftTypeCategory = viewModel.TypeCategories.SingleOrDefault(c => c.AircraftTypeCategory == aircraft.Type.Category);
+                viewModel.SearchJobsCommand.DoExecute(null);
+            }
         }
     }
 }
