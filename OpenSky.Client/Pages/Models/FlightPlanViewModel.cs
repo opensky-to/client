@@ -1986,8 +1986,14 @@ namespace OpenSky.Client.Pages.Models
                         Route = this.Route,
                         AlternateRoute = this.AlternateRoute,
                         OfpHtml = this.OfpHtml,
-                        NavlogFixes = this.navlogFixes
+                        NavlogFixes = this.navlogFixes,
+                        Payloads = new List<FlightPayload>()
                     };
+
+                    foreach (var payloadID in this.Payloads)
+                    {
+                        flightPlan.Payloads.Add(new FlightPayload { FlightID = this.ID, PayloadID = payloadID });
+                    }
 
                     var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
                     if (!result.IsError)

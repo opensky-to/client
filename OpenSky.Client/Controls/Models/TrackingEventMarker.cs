@@ -436,7 +436,7 @@ namespace OpenSky.Client.Controls.Models
                 this.Children.Add(line);
 
                 {
-                    var runwayEnd = runway.RunwayEnds.First();
+                    var runwayEnd = leftEnd;
                     var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(runwayEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal), CornerRadius = new CornerRadius(1.5) };
                     this.Children.Add(textBorder);
                     textBorder.Child = new TextBlock
@@ -462,7 +462,7 @@ namespace OpenSky.Client.Controls.Models
                 }
 
                 {
-                    var runwayEnd = runway.RunwayEnds.Last();
+                    var runwayEnd = rightEnd;
                     var textBorder = new Border { BorderBrush = null, Background = new SolidColorBrush(runwayEnd.HasClosedMarkings ? OpenSkyColors.OpenSkyRed : OpenSkyColors.OpenSkyTeal), CornerRadius = new CornerRadius(1.5) };
                     this.Children.Add(textBorder);
                     textBorder.Child = new TextBlock
