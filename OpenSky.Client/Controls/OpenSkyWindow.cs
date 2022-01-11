@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Controls
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.InteropServices;
     using System.Windows;
@@ -16,8 +17,11 @@ namespace OpenSky.Client.Controls
     using System.Windows.Interop;
     using System.Windows.Shapes;
 
+    using OpenSky.Client.Controls.Models;
+
     using Button = System.Windows.Controls.Button;
     using Cursors = System.Windows.Input.Cursors;
+    using ListBox = System.Windows.Controls.ListBox;
     using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
     /// -------------------------------------------------------------------------------------------------
@@ -179,6 +183,8 @@ namespace OpenSky.Client.Controls
             set => this.SetValue(VerticalScrollBarProperty, value);
         }
 
+        private readonly ObservableCollection<OpenSkyNotification> notifications = new();
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// When overridden in a derived class, is invoked whenever application code or internal
@@ -213,7 +219,16 @@ namespace OpenSky.Client.Controls
                     moveWindow.MouseLeftButtonDown += this.MoveWindowMouseLeftButtonDown;
                 }
 
-                if (this.GetTemplateChild("resizeGrid") is Grid resizeGrid)
+                if (this.GetTemplateChild("NotificationsList") is ItemsControl notificationsList)
+                {
+                    notificationsList.ItemsSource = this.notifications;
+
+                    // Add first test notifications
+                    this.notifications.Add(new OpenSkyNotification("Test1", "This is a first wee test message", MessageBoxButton.OK, MessageBoxImage.Information));
+                    this.notifications.Add(new OpenSkyNotification("Test1", "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it", null, MessageBoxImage.Question, 99));
+                }
+
+                if (this.GetTemplateChild("ResizeGrid") is Grid resizeGrid)
                 {
                     foreach (UIElement element in resizeGrid.Children)
                     {
