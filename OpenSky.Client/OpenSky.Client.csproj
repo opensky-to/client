@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Controls\Models\AircraftPosition.cs" />
     <Compile Include="Controls\Models\AircraftTrailLocation.cs" />
+    <Compile Include="Controls\Models\ExtendedMessageBoxImage.cs" />
     <Compile Include="Controls\Models\MapViewViewModel.cs" />
     <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
     <Compile Include="Controls\Models\TrackingEventMarker.cs" />

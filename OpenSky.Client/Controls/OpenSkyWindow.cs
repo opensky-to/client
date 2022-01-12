@@ -9,7 +9,9 @@ namespace OpenSky.Client.Controls
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Forms;
@@ -18,10 +20,10 @@ namespace OpenSky.Client.Controls
     using System.Windows.Shapes;
 
     using OpenSky.Client.Controls.Models;
+    using OpenSky.Client.Tools;
 
     using Button = System.Windows.Controls.Button;
     using Cursors = System.Windows.Input.Cursors;
-    using ListBox = System.Windows.Controls.ListBox;
     using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
     /// -------------------------------------------------------------------------------------------------
@@ -69,6 +71,8 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty VerticalScrollBarProperty = DependencyProperty.Register("VerticalScrollBar", typeof(bool), typeof(OpenSkyWindow), new UIPropertyMetadata(true));
+
+        private readonly ObservableCollection<OpenSkyNotification> notifications = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -183,8 +187,6 @@ namespace OpenSky.Client.Controls
             set => this.SetValue(VerticalScrollBarProperty, value);
         }
 
-        private readonly ObservableCollection<OpenSkyNotification> notifications = new();
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// When overridden in a derived class, is invoked whenever application code or internal
@@ -224,8 +226,54 @@ namespace OpenSky.Client.Controls
                     notificationsList.ItemsSource = this.notifications;
 
                     // Add first test notifications
-                    this.notifications.Add(new OpenSkyNotification("Test1", "This is a first wee test message", MessageBoxButton.OK, MessageBoxImage.Information));
-                    this.notifications.Add(new OpenSkyNotification("Test1", "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it", null, MessageBoxImage.Question, 99));
+                    // TODO remove this notification test code when implemented
+
+                    new Thread(
+                        () =>
+                        {
+                            Thread.Sleep(2500);
+                            UpdateGUIDelegate addFirstTwo = () =>
+                            {
+                                var okNotification = new OpenSkyNotification("Test1", "This is a first wee test message", MessageBoxButton.OK, ExtendedMessageBoxImage.Information);
+                                this.ShowNotification(okNotification);
+                                okNotification.Closed += (sender, _) =>
+                                {
+                                    if (sender is OpenSkyNotification notification)
+                                    {
+                                        Debug.WriteLine($"1:{notification.Result}");
+                                    }
+                                };
+
+                                this.ShowNotification(new OpenSkyNotification(
+                                    "Test2",
+                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                    null,
+                                    ExtendedMessageBoxImage.None,
+                                    10));
+                            };
+                            this.Dispatcher.BeginInvoke(addFirstTwo);
+
+                            Thread.Sleep(4000);
+                            UpdateGUIDelegate addAnother = () =>
+                            {
+                                var yesNoNotification = new OpenSkyNotification(
+                                    "Test3",
+                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Hand,
+                                    10,
+                                    MessageBoxResult.Cancel);
+                                this.ShowNotification(yesNoNotification);
+                                yesNoNotification.Closed += (sender, _) =>
+                                {
+                                    if (sender is OpenSkyNotification notification)
+                                    {
+                                        Debug.WriteLine($"3:{notification.Result}");
+                                    }
+                                };
+                            };
+                            this.Dispatcher.BeginInvoke(addAnother);
+                        }).Start();
                 }
 
                 if (this.GetTemplateChild("ResizeGrid") is Grid resizeGrid)
@@ -247,6 +295,65 @@ namespace OpenSky.Client.Controls
             }
 
             base.OnApplyTemplate();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Show OpenSky notification in this window.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 11/01/2022.
+        /// </remarks>
+        /// <param name="notification">
+        /// The notification to show.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void ShowNotification(OpenSkyNotification notification)
+        {
+            this.notifications.Add(notification);
+            notification.Closed += this.NotificationClosed;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Notification closed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 12/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="args">
+        /// Event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void NotificationClosed(object sender, EventArgs args)
+        {
+            if (sender is OpenSkyNotification closedNotification)
+            {
+                if (this.notifications.Contains(closedNotification))
+                {
+                    new Thread(
+                        () =>
+                        {
+                            try
+                            {
+                                // Wait 3 seconds before removing the notification, so the slide out animation has time to run
+                                Thread.Sleep(3000);
+                                UpdateGUIDelegate removeNotification = () => this.notifications.Remove(closedNotification);
+                                this.Dispatcher.BeginInvoke(removeNotification);
+                            }
+                            catch
+                            {
+                                // Ignore
+                            }
+                        })
+                    { Name = "OpenSkyWindow.NotificationClosed" }.Start();
+                }
+
+                closedNotification.Closed -= this.NotificationClosed;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
