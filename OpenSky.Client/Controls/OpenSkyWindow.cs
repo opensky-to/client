@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Controls
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -72,6 +73,18 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty VerticalScrollBarProperty = DependencyProperty.Register("VerticalScrollBar", typeof(bool), typeof(OpenSkyWindow), new UIPropertyMetadata(true));
 
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Queue of message boxes.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly ConcurrentQueue<OpenSkyMessageBox> messageBoxQueue = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The notifications.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
         private readonly ObservableCollection<OpenSkyNotification> notifications = new();
 
         /// -------------------------------------------------------------------------------------------------
@@ -80,6 +93,13 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private HwndSource hwndSource;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The message box container (dock panel with LastChildFill=true).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private DockPanel messageBoxContainer;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -244,12 +264,35 @@ namespace OpenSky.Client.Controls
                                     }
                                 };
 
-                                this.ShowNotification(new OpenSkyNotification(
-                                    "Test2",
-                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                    null,
-                                    ExtendedMessageBoxImage.None,
-                                    10));
+                                this.ShowNotification(
+                                    new OpenSkyNotification(
+                                        "Test2",
+                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                        null,
+                                        ExtendedMessageBoxImage.None,
+                                        10));
+
+                                this.ShowNotification(
+                                    new OpenSkyNotification(
+                                        "Test2",
+                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                        null,
+                                        ExtendedMessageBoxImage.Hand,
+                                        10));
+                                this.ShowNotification(
+                                    new OpenSkyNotification(
+                                        "Test2",
+                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                        null,
+                                        ExtendedMessageBoxImage.Asterisk,
+                                        10));
+                                this.ShowNotification(
+                                    new OpenSkyNotification(
+                                        "Test2",
+                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                        null,
+                                        ExtendedMessageBoxImage.Stop,
+                                        10));
                             };
                             this.Dispatcher.BeginInvoke(addFirstTwo);
 
@@ -262,7 +305,7 @@ namespace OpenSky.Client.Controls
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Hand,
                                     10,
-                                    MessageBoxResult.Cancel);
+                                    ExtendedMessageBoxResult.Cancel);
                                 this.ShowNotification(yesNoNotification);
                                 yesNoNotification.Closed += (sender, _) =>
                                 {
@@ -271,8 +314,57 @@ namespace OpenSky.Client.Controls
                                         Debug.WriteLine($"3:{notification.Result}");
                                     }
                                 };
+
+                                var errorNotification = new OpenSkyNotification(
+                                    new ErrorDetails { DetailedMessage = "This is the detailed error message, explaining what just happened.", Exception = new Exception("This is an exception") },
+                                    "Error Test",
+                                    "Shorter error message",
+                                    ExtendedMessageBoxImage.Hand);
+                                this.ShowNotification(errorNotification);
                             };
                             this.Dispatcher.BeginInvoke(addAnother);
+                        }).Start();
+                }
+
+                if (this.GetTemplateChild("MessageBoxContainer") is DockPanel dockPanel)
+                {
+                    // ReSharper disable once InconsistentlySynchronizedField
+                    this.messageBoxContainer = dockPanel;
+
+                    new Thread(
+                        () =>
+                        {
+                            Thread.Sleep(5000);
+
+                            UpdateGUIDelegate addMessageBox = () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "Test X",
+                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
+                                    MessageBoxButton.OKCancel,
+                                    ExtendedMessageBoxImage.Question,
+                                    30,
+                                    ExtendedMessageBoxResult.Cancel);
+                                this.ShowMessageBox(messageBox);
+                                messageBox.Closed += (sender, _) =>
+                                {
+                                    if (sender is OpenSkyMessageBox closedMessageBox)
+                                    {
+                                        Debug.WriteLine($"X: {closedMessageBox.Result}");
+                                    }
+                                };
+
+                                var secondMessageBox = new OpenSkyMessageBox("Test Y", "This is a second queued message", MessageBoxButton.OK, ExtendedMessageBoxImage.Check);
+                                this.ShowMessageBox(secondMessageBox);
+                                secondMessageBox.Closed += (sender, _) =>
+                                {
+                                    if (sender is OpenSkyMessageBox closedMessageBox)
+                                    {
+                                        Debug.WriteLine($"Y: {closedMessageBox.Result}");
+                                    }
+                                };
+                            };
+                            this.Dispatcher.BeginInvoke(addMessageBox);
                         }).Start();
                 }
 
@@ -299,6 +391,35 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Shows an OpenSky message box in this window.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 12/01/2022.
+        /// </remarks>
+        /// <param name="messageBox">
+        /// The message box to show.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void ShowMessageBox(OpenSkyMessageBox messageBox)
+        {
+            // No active message box, just display it
+            lock (this.messageBoxContainer)
+            {
+                if (this.messageBoxContainer.Children.Count == 0)
+                {
+                    this.messageBoxContainer.Children.Add(messageBox);
+                    messageBox.Closed += this.MessageBoxClosed;
+                }
+                else
+                {
+                    // There is still another active message box, add it to the queue
+                    this.messageBoxQueue.Enqueue(messageBox);
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Show OpenSky notification in this window.
         /// </summary>
         /// <remarks>
@@ -312,48 +433,6 @@ namespace OpenSky.Client.Controls
         {
             this.notifications.Add(notification);
             notification.Closed += this.NotificationClosed;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Notification closed.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 12/01/2022.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="args">
-        /// Event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void NotificationClosed(object sender, EventArgs args)
-        {
-            if (sender is OpenSkyNotification closedNotification)
-            {
-                if (this.notifications.Contains(closedNotification))
-                {
-                    new Thread(
-                        () =>
-                        {
-                            try
-                            {
-                                // Wait 3 seconds before removing the notification, so the slide out animation has time to run
-                                Thread.Sleep(3000);
-                                UpdateGUIDelegate removeNotification = () => this.notifications.Remove(closedNotification);
-                                this.Dispatcher.BeginInvoke(removeNotification);
-                            }
-                            catch
-                            {
-                                // Ignore
-                            }
-                        })
-                    { Name = "OpenSkyWindow.NotificationClosed" }.Start();
-                }
-
-                closedNotification.Closed -= this.NotificationClosed;
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -561,6 +640,84 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Message box was closed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 12/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="args">
+        /// Event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void MessageBoxClosed(object sender, EventArgs args)
+        {
+            if (sender is OpenSkyMessageBox messageBox)
+            {
+                messageBox.Closed -= this.MessageBoxClosed;
+            }
+
+            if (!this.messageBoxQueue.IsEmpty)
+            {
+                if (this.messageBoxQueue.TryDequeue(out var nextMessageBox))
+                {
+                    new Thread(
+                            () =>
+                            {
+                                try
+                                {
+                                    // Wait 500 milliseconds before removing the message box, so the fade out animation has time to run
+                                    Thread.Sleep(500);
+                                    UpdateGUIDelegate removeNotification = () =>
+                                    {
+                                        lock (this.messageBoxContainer)
+                                        {
+                                            this.messageBoxContainer.Children.Clear();
+                                            this.messageBoxContainer.Children.Add(nextMessageBox);
+                                            nextMessageBox.Closed += this.MessageBoxClosed;
+                                        }
+                                    };
+                                    this.Dispatcher.BeginInvoke(removeNotification);
+                                }
+                                catch
+                                {
+                                    // Ignore
+                                }
+                            })
+                    { Name = "OpenSkyWindow.MessageBoxClosed" }.Start();
+                }
+            }
+            else
+            {
+                new Thread(
+                    () =>
+                    {
+                        try
+                        {
+                            // Wait 500 milliseconds before removing the message box, so the fade out animation has time to run
+                            Thread.Sleep(500);
+                            UpdateGUIDelegate removeNotification = () =>
+                            {
+                                lock (this.messageBoxContainer)
+                                {
+                                    this.messageBoxContainer.Children.Clear();
+                                }
+                            };
+                            this.Dispatcher.BeginInvoke(removeNotification);
+                        }
+                        catch
+                        {
+                            // Ignore
+                        }
+                    })
+                { Name = "OpenSkyWindow.MessageBoxClosed" }.Start();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Move window mouse left button down.
         /// </summary>
         /// <remarks>
@@ -590,6 +747,59 @@ namespace OpenSky.Client.Controls
                 }
 
                 this.DragMove();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Notification was closed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 12/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="args">
+        /// Event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void NotificationClosed(object sender, EventArgs args)
+        {
+            if (sender is OpenSkyNotification closedNotification)
+            {
+                if (this.notifications.Contains(closedNotification))
+                {
+                    new Thread(
+                            () =>
+                            {
+                                try
+                                {
+                                    // Wait 500 milliseconds before removing the notification, so the slide out animation has time to run
+                                    Thread.Sleep(500);
+                                    UpdateGUIDelegate removeNotification = () => this.notifications.Remove(closedNotification);
+                                    this.Dispatcher.BeginInvoke(removeNotification);
+                                }
+                                catch
+                                {
+                                    // Ignore
+                                }
+                            })
+                    { Name = "OpenSkyWindow.NotificationClosed" }.Start();
+                }
+
+                closedNotification.Closed -= this.NotificationClosed;
+                if (closedNotification.Result == ExtendedMessageBoxResult.Details && args is OpenSkyNotification.ErrorDetailsEventArgs detailEventArgs)
+                {
+                    var messageBox = new OpenSkyMessageBox(detailEventArgs.ErrorDetails.Exception, closedNotification.Title.Text, detailEventArgs.ErrorDetails.DetailedMessage)
+                    {
+                        Image =
+                        {
+                            Source = closedNotification.Image.Source
+                        }
+                    };
+                    this.ShowMessageBox(messageBox);
+                }
             }
         }
 

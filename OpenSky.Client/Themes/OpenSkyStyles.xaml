@@ -433,6 +433,7 @@
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </Grid>
+                        <DockPanel Grid.Row="1" LastChildFill="True" x:Name="MessageBoxContainer" />
                         <Grid Grid.Row="0" Grid.RowSpan="2" x:Name="ResizeGrid">
                             <Rectangle Stroke="{x:Null}" Fill="Transparent" VerticalAlignment="Top" Height="5" Margin="5,0,5,0" x:Name="top" />
                             <Rectangle Stroke="{x:Null}" Fill="Transparent" VerticalAlignment="Bottom" Height="5" Margin="5,0,5,0" x:Name="bottom" />
