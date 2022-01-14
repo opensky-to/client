@@ -8,12 +8,13 @@ namespace OpenSky.Client.Pages
 {
     using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Windows;
-    using System.Windows.Controls;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Pages.Models;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using Syncfusion.Windows.Tools.Controls;
 
@@ -57,17 +58,23 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is FlightPlanViewModel { IsDirty: true } viewModel)
             {
-                var answer = ModernWpf.MessageBox.Show("Flight plan has unsaved changes, do you want to save them now?", "Save flight plan?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-                if (answer == MessageBoxResult.Yes)
+                var messageBox = new OpenSkyMessageBox("Save flight plan?", "Flight plan has unsaved changes, do you want to save them now?", MessageBoxButton.YesNoCancel, ExtendedMessageBoxImage.Question);
+                messageBox.Closed += (_, _) =>
                 {
-                    viewModel.SaveCommand.DoExecute(null);
-                }
+                    if (messageBox.Result == ExtendedMessageBoxResult.Yes)
+                    {
+                        viewModel.SaveCommand.DoExecute(null);
+                        this.ClosePage();
+                    }
 
-                if (answer == MessageBoxResult.Cancel)
-                {
-                    e.Cancel = true;
-                }
+                    if (messageBox.Result == ExtendedMessageBoxResult.No)
+                    {
+                        this.ClosePage();
+                    }
+                };
+
+                Main.ShowMessageBoxInSaveViewAs(this, messageBox);
+                e.Cancel = true;
             }
         }
 
@@ -109,7 +116,7 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is FlightPlanViewModel viewModel)
             {
-                viewModel.SetViewReference(this);
+                viewModel.ViewReference = this;
                 viewModel.PropertyChanged += this.ViewModelPropertyChanged;
                 this.ViewModelPropertyChanged(this, new PropertyChangedEventArgs("IsDirty"));
             }
@@ -131,15 +138,7 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void FlightPlanViewModelOnClosePage(object sender, object e)
         {
-            if (this.Parent is ContentControl control)
-            {
-                Debug.WriteLine(control);
-                if (control.Parent is DockingManager dockingManager)
-                {
-                    Debug.WriteLine(dockingManager);
-                    dockingManager.Children.Remove(control);
-                }
-            }
+            this.ClosePage();
         }
 
         /// -------------------------------------------------------------------------------------------------

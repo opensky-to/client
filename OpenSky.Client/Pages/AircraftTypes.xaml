@@ -23,7 +23,7 @@
       xmlns:ui="http://schemas.modernwpf.com/2019"
       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
       xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
-      LoadingText="{Binding LoadingText}"
+      LoadingText="{Binding LoadingText}" Loaded="AircraftTypesOnLoaded"
       HorizontalScrollBar="False" VerticalScrollBar="False"
       mc:Ignorable="d" 
       d:DesignHeight="800" d:DesignWidth="2000">

@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Pages
 {
     using System.Linq;
+    using System.Windows;
 
     using OpenSky.Client.Pages.Models;
 
@@ -74,6 +75,28 @@ namespace OpenSky.Client.Pages
                 viewModel.AirportICAO = aircraft.AirportICAO;
                 viewModel.AircraftTypeCategory = viewModel.TypeCategories.SingleOrDefault(c => c.AircraftTypeCategory == aircraft.Type.Category);
                 viewModel.SearchJobsCommand.DoExecute(null);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Job market on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void JobMarketOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is JobMarketViewModel viewModel)
+            {
+                viewModel.ViewReference = this;
             }
         }
     }

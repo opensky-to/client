@@ -14,9 +14,12 @@ namespace OpenSky.Client.Pages.Models
     using System.Threading;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -1265,13 +1268,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error retrieving variants for aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.GetPurchaseAircraftVariantsCommand, "Error retrieving variants for aircraft.");
+                ex.HandleApiCallException(this.ViewReference, this.GetPurchaseAircraftVariantsCommand, "Error retrieving variants for aircraft.");
             }
             finally
             {
@@ -1407,13 +1412,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft types", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing aircraft types", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshTypesCommand, "Error refreshing aircraft types");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshTypesCommand, "Error refreshing aircraft types");
             }
             finally
             {
@@ -1470,7 +1477,12 @@ namespace OpenSky.Client.Pages.Models
                     // This one is easy as one airport will never contain huge amounts of aircraft
                     if (string.IsNullOrEmpty(this.AirportIcao))
                     {
-                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No airport ICAO code specified.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        this.SearchCommand.ReportProgress(() =>
+                        {
+                            var notification = new OpenSkyNotification("Error searching for aircraft", "No airport ICAO code specified.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                         return;
                     }
 
@@ -1483,14 +1495,24 @@ namespace OpenSky.Client.Pages.Models
                     // Country search needs a bit of preparation to build search criteria from selections
                     if (string.IsNullOrEmpty(this.Country))
                     {
-                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No country selected.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        this.SearchCommand.ReportProgress(() =>
+                        {
+                            var notification = new OpenSkyNotification("Error searching for aircraft", "No country selected.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                         return;
                     }
 
                     var countryCode = this.Country.Split('-')[0].Trim();
                     if (!Enum.TryParse(countryCode, out Country parsedCountry))
                     {
-                        this.SearchCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Could not parse country string.", "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error));
+                        this.SearchCommand.ReportProgress(() =>
+                        {
+                            var notification = new OpenSkyNotification("Error searching for aircraft", "Could not parse country string.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                         return;
                     }
 
@@ -1504,18 +1526,27 @@ namespace OpenSky.Client.Pages.Models
 
                     if (this.AllAircraftTypesChecked)
                     {
-                        MessageBoxResult? answer = null;
+                        ExtendedMessageBoxResult? answer = null;
                         this.SearchCommand.ReportProgress(
                             () =>
                             {
-                                answer = ModernWpf.MessageBox.Show(
-                                    "Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?",
+                                var messageBox = new OpenSkyMessageBox(
                                     "Aircraft search",
+                                    "Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?",
                                     MessageBoxButton.YesNo,
-                                    MessageBoxImage.Question);
-                            },
-                            true);
-                        if (answer is not MessageBoxResult.Yes)
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer != ExtendedMessageBoxResult.Yes)
                         {
                             return;
                         }
@@ -1566,14 +1597,16 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, "Error searching for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification("Error searching for aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SearchCommand, "Error searching for aircraft");
+                ex.HandleApiCallException(this.ViewReference, this.SearchCommand, "Error searching for aircraft");
             }
             finally
             {
@@ -1639,12 +1672,14 @@ namespace OpenSky.Client.Pages.Models
                             Debug.WriteLine(result.ErrorDetails);
                         }
 
-                        ModernWpf.MessageBox.Show(result.Message, "Error purchasing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                        var notification = new OpenSkyNotification("Error purchasing aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                     });
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SignPurchaseCommand, "Error purchasing aircraft");
+                ex.HandleApiCallException(this.ViewReference, this.SignPurchaseCommand, "Error purchasing aircraft");
             }
 
             this.Signature = string.Empty;
