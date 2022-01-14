@@ -87,6 +87,69 @@ namespace OpenSky.Client.Views
         /// -------------------------------------------------------------------------------------------------
         public static void ActivateNavMenuItemInSameViewAs(FrameworkElement sourceView, NavMenuItem navMenuItem)
         {
+            var mainWindow = FindMainForFrameworkElement(sourceView);
+            if (mainWindow.DataContext is MainViewModel viewModel)
+            {
+                viewModel.NavigationItemInvoked(navMenuItem, true, false, true);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Shows the message box in save view as the specified framework element (typically OpenSkyPage).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/01/2022.
+        /// </remarks>
+        /// <param name="sourceView">
+        /// Source view.
+        /// </param>
+        /// <param name="messageBox">
+        /// The message box.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public static void ShowMessageBoxInSaveViewAs(FrameworkElement sourceView, OpenSkyMessageBox messageBox)
+        {
+            var mainWindow = FindMainForFrameworkElement(sourceView);
+            mainWindow.ShowMessageBox(messageBox);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Shows the notification in same view as the specified framework element (typically OpenSkyPage).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/01/2022.
+        /// </remarks>
+        /// <param name="sourceView">
+        /// Source view.
+        /// </param>
+        /// <param name="notification">
+        /// The notification.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public static void ShowNotificationInSameViewAs(FrameworkElement sourceView, OpenSkyNotification notification)
+        {
+            var mainWindow = FindMainForFrameworkElement(sourceView);
+            mainWindow.ShowNotification(notification);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Find the main window containing the specified framework element inside it's docking adapter.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/01/2022.
+        /// </remarks>
+        /// <param name="element">
+        /// The element (typically an OpenSkyPage).
+        /// </param>
+        /// <returns>
+        /// The found main for framework element.
+        /// </returns>
+        /// -------------------------------------------------------------------------------------------------
+        private static Main FindMainForFrameworkElement(FrameworkElement element)
+        {
             Main mainWindow = null;
             foreach (var instance in Instances)
             {
@@ -94,7 +157,7 @@ namespace OpenSky.Client.Views
                 {
                     if (dockItem is DockItemEx itemEx)
                     {
-                        if (itemEx.Content == sourceView)
+                        if (itemEx.Content == element)
                         {
                             mainWindow = instance;
                         }
@@ -103,10 +166,7 @@ namespace OpenSky.Client.Views
             }
 
             mainWindow ??= Instances[0];
-            if (mainWindow.DataContext is MainViewModel viewModel)
-            {
-                viewModel.NavigationItemInvoked(navMenuItem, true, false, true);
-            }
+            return mainWindow;
         }
 
         /// -------------------------------------------------------------------------------------------------

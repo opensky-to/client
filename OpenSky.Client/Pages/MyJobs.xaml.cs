@@ -88,7 +88,7 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is MyJobsViewModel viewModel)
             {
-                viewModel.SetViewReference(this);
+                viewModel.ViewReference = this;
                 viewModel.RefreshJobsCommand.DoExecute(null);
             }
         }

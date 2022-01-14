@@ -23,7 +23,7 @@
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       mc:Ignorable="d" 
-                      LoadingText="{Binding LoadingText}"
+                      LoadingText="{Binding LoadingText}" Loaded="JobMarketOnLoaded"
                       HorizontalScrollBar="False" VerticalScrollBar="False"
                       d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>

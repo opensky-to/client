@@ -88,6 +88,7 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is MyFlightsViewModel viewModel)
             {
+                viewModel.ViewReference = this;
                 viewModel.RefreshFlightsCommand.DoExecute(null);
             }
         }

@@ -9,10 +9,14 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Threading;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -147,19 +151,27 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            MessageBoxResult? answer = MessageBoxResult.None;
+            ExtendedMessageBoxResult? answer = null;
             this.AbortFlightCommand.ReportProgress(
                 () =>
                 {
-                    answer = ModernWpf.MessageBox.Show(
-                        $"Are you sure you want to abort flight {this.SelectedFlight.FullFlightNumber}?\r\n\r\nAll progress will be lost and the flight be reverted back to the planning phase.",
+                    var messageBox = new OpenSkyMessageBox(
                         "Abort flight?",
+                        $"Are you sure you want to abort flight {this.SelectedFlight.FullFlightNumber}?\r\n\r\nAll progress will be lost and the flight be reverted back to the planning phase.",
                         MessageBoxButton.YesNo,
-                        MessageBoxImage.Hand);
-                },
-                true);
+                        ExtendedMessageBoxImage.Question);
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
 
-            if (answer != MessageBoxResult.Yes)
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -183,13 +195,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error aborting flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error aborting flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.AbortFlightCommand, "Error aborting flight");
+                ex.HandleApiCallException(this.ViewReference, this.AbortFlightCommand, "Error aborting flight");
             }
             finally
             {
@@ -234,13 +248,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing active flights", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing active flights", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshFlightsCommand, "Error refreshing active flights");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshFlightsCommand, "Error refreshing active flights");
             }
             finally
             {
@@ -282,13 +298,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error resuming flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error resuming flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.ResumeFlightCommand, "Error resuming flight");
+                ex.HandleApiCallException(this.ViewReference, this.ResumeFlightCommand, "Error resuming flight");
             }
             finally
             {

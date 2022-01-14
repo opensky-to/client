@@ -17,6 +17,13 @@ namespace OpenSky.Client.Views
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the currently active instance.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static AutoUpdate Instance { get; private set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="AutoUpdate"/> class.
         /// </summary>
         /// <remarks>
@@ -25,6 +32,7 @@ namespace OpenSky.Client.Views
         /// -------------------------------------------------------------------------------------------------
         public AutoUpdate()
         {
+            Instance = this;
             this.InitializeComponent();
         }
 

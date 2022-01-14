@@ -23,7 +23,7 @@
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       mc:Ignorable="d"
-                      LoadingText="{Binding LoadingText}"
+                      LoadingText="{Binding LoadingText}" Loaded="AircraftMarketOnLoaded"
                       VerticalScrollBar="False" HorizontalScrollBar="False"
                       d:DesignHeight="700" d:DesignWidth="1500">
     <UserControl.DataContext>

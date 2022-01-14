@@ -23,6 +23,7 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
@@ -211,13 +212,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private double utcOffset;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Pages.FlightPlan viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1093,23 +1087,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(Pages.FlightPlan view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Clears the selected aircraft.
         /// </summary>
         /// <remarks>
@@ -1133,7 +1110,9 @@ namespace OpenSky.Client.Pages.Models
         {
             if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
             {
-                ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning);
+                var notification = new OpenSkyNotification("simBrief OFP", "To use this feature, please configure your simBrief username in the settings!", MessageBoxButton.OK, ExtendedMessageBoxImage.Warning, 30);
+                notification.SetWarningColorStyle();
+                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                 return;
             }
 
@@ -1201,11 +1180,8 @@ namespace OpenSky.Client.Pages.Models
             Debug.WriteLine(url);
             Process.Start(url);
 
-            ModernWpf.MessageBox.Show(
-                "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.",
-                "simBrief OFP",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            var fuelNotification = new OpenSkyNotification("simBrief OFP", "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 30);
+            Main.ShowNotificationInSameViewAs(this.ViewReference, fuelNotification);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1218,11 +1194,27 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void DeleteFlightPlan()
         {
-            MessageBoxResult? answer = null;
+            ExtendedMessageBoxResult? answer = null;
             this.DeleteCommand.ReportProgress(
-                () => { answer = ModernWpf.MessageBox.Show($"Are you sure you want to delete this flight plan?", "Delete flight plan?", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                true);
-            if (answer is not MessageBoxResult.Yes)
+                () =>
+                {
+                    var messageBox = new OpenSkyMessageBox(
+                        "Delete flight plan?",
+                        "Are you sure you want to delete this flight plan?",
+                        MessageBoxButton.YesNo,
+                        ExtendedMessageBoxImage.Question);
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
+
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -1246,13 +1238,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error deleting flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error deleting flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.DeleteCommand, "Error deleting flight plan");
+                ex.HandleApiCallException(this.ViewReference, this.DeleteCommand, "Error deleting flight plan");
             }
             finally
             {
@@ -1285,12 +1279,17 @@ namespace OpenSky.Client.Pages.Models
         {
             if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
             {
-                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show("To use this feature, please configure your simBrief username in the settings!", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Warning));
+                this.DownloadSimBriefCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("simBrief OFP", "To use this feature, please configure your simBrief username in the settings!", MessageBoxButton.OK, ExtendedMessageBoxImage.Warning, 30);
+                    notification.SetWarningColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
             this.LoadingText = "Downloading simBrief OFP...";
-            MessageBoxResult? answer;
+            ExtendedMessageBoxResult? answer;
             try
             {
                 var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?username={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
@@ -1318,11 +1317,27 @@ namespace OpenSky.Client.Pages.Models
                     }
                     else
                     {
-                        answer = MessageBoxResult.None;
+                        answer = null;
                         this.DownloadSimBriefCommand.ReportProgress(
-                            () => { answer = ModernWpf.MessageBox.Show("Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.OriginICAO = sbOriginICAO;
                             this.DestinationICAO = sbDestinationICAO;
@@ -1340,11 +1355,27 @@ namespace OpenSky.Client.Pages.Models
                     }
                     else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        answer = MessageBoxResult.None;
+                        answer = null;
                         this.DownloadSimBriefCommand.ReportProgress(
-                            () => { answer = ModernWpf.MessageBox.Show("Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.AlternateICAO = sbAlternateICAO;
                         }
@@ -1365,11 +1396,27 @@ namespace OpenSky.Client.Pages.Models
                     var plannedGallons = fuelPlanRamp / this.SelectedAircraft.Type.FuelWeightPerGallon;
                     if (plannedGallons < (this.FuelGallons ?? 0))
                     {
-                        answer = MessageBoxResult.None;
+                        answer = null;
                         this.DownloadSimBriefCommand.ReportProgress(
-                            () => answer = ModernWpf.MessageBox.Show("simBrief planned fuel is less than the currently selected value, do you want to use it anyway?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question),
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "simBrief planned fuel is less than the currently selected value, do you want to use it anyway?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.DownloadSimBriefCommand.ReportProgress(() => this.FuelGallons = plannedGallons);
                         }
@@ -1381,7 +1428,11 @@ namespace OpenSky.Client.Pages.Models
                 }
                 else
                 {
-                    this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show("No aircraft selected, can't set planned fuel.", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Information), true);
+                    this.DownloadSimBriefCommand.ReportProgress(() =>
+                    {
+                        var notification = new OpenSkyNotification("simBrief OFP", "No aircraft selected, can't set planned fuel.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 }
 
                 // ZFW sanity check?
@@ -1422,11 +1473,27 @@ namespace OpenSky.Client.Pages.Models
                     }
                     else if (!sbRoute.Equals(this.Route, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        answer = MessageBoxResult.None;
+                        answer = null;
                         this.DownloadSimBriefCommand.ReportProgress(
-                            () => { answer = ModernWpf.MessageBox.Show("Route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "Route doesn't match this flight plan. Do you want to use the values from simBrief?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.Route = sbRoute;
                         }
@@ -1456,11 +1523,27 @@ namespace OpenSky.Client.Pages.Models
                     }
                     else if (!sbAlternateRoute.Equals(this.AlternateRoute, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        answer = MessageBoxResult.None;
+                        answer = null;
                         this.DownloadSimBriefCommand.ReportProgress(
-                            () => { answer = ModernWpf.MessageBox.Show("Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?", "simBrief OFP", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.AlternateRoute = sbAlternateRoute;
                         }
@@ -1619,7 +1702,12 @@ namespace OpenSky.Client.Pages.Models
                                 return;
                             }
 
-                            this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show(status, "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
+                            this.DownloadSimBriefCommand.ReportProgress(() =>
+                            {
+                                var notification = new OpenSkyNotification("simBrief OFP", status, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
                             return;
                         }
                     }
@@ -1630,7 +1718,11 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                this.DownloadSimBriefCommand.ReportProgress(() => ModernWpf.MessageBox.Show($"Error downloading simBrief OFP!\r\n{ex.Message}", "simBrief OFP", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.DownloadSimBriefCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "simBrief OFP", "Error downloading simBrief OFP!", ExtendedMessageBoxImage.Error, 30);
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
             }
             finally
             {
@@ -1764,13 +1856,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshAircraftCommand, "Error refreshing aircraft");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshAircraftCommand, "Error refreshing aircraft");
             }
             finally
             {
@@ -1810,13 +1904,16 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing airline info", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing airline info", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshAirlineCommand, "Error refreshing airline info");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshAirlineCommand, "Error refreshing airline info");
             }
             finally
             {
@@ -1862,13 +1959,16 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing payloads", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing payloads", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshPayloadsCommand, "Error refreshing payloads");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshPayloadsCommand, "Error refreshing payloads");
             }
             finally
             {
@@ -1917,6 +2017,13 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
                 if (!result.IsError)
                 {
+                    this.SaveCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+
                     this.IsNewFlightPlan = false;
                     this.SaveCommand.ReportProgress(() => this.IsDirty = false);
                 }
@@ -1931,13 +2038,16 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error saving flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
+                ex.HandleApiCallException(this.ViewReference, this.SaveCommand, "Error saving flight plan");
             }
             finally
             {
@@ -1957,12 +2067,27 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.IsDirty)
             {
-                MessageBoxResult? answer = MessageBoxResult.None;
+                ExtendedMessageBoxResult? answer = null;
                 this.StartFlightCommand.ReportProgress(
-                    () => { answer = ModernWpf.MessageBox.Show("You first have to save your changes, do you want to save the flight plan now?", "Save flight plan?", MessageBoxButton.YesNo); },
-                    true);
+                    () =>
+                    {
+                        var messageBox = new OpenSkyMessageBox(
+                            "Save flight plan?",
+                            "You first have to save your changes, do you want to save the flight plan now?",
+                            MessageBoxButton.YesNo,
+                            ExtendedMessageBoxImage.Question);
+                        messageBox.Closed += (_, _) =>
+                        {
+                            answer = messageBox.Result;
+                        };
+                        Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                    });
+                while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                {
+                    Thread.Sleep(500);
+                }
 
-                if (answer != MessageBoxResult.Yes)
+                if (answer != ExtendedMessageBoxResult.Yes)
                 {
                     return;
                 }
@@ -2012,13 +2137,15 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, "Error saving flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification("Error saving flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
                 }
                 catch (Exception ex)
                 {
-                    ex.HandleApiCallException(this.SaveCommand, "Error saving flight plan");
+                    ex.HandleApiCallException(this.ViewReference, this.SaveCommand, "Error saving flight plan");
                     return;
                 }
                 finally
@@ -2036,7 +2163,8 @@ namespace OpenSky.Client.Pages.Models
                     this.StartFlightCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var messageBox = new OpenSkyMessageBox("Start flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                             this.ClosePage?.Invoke(this, null);
                         });
                 }
@@ -2044,17 +2172,27 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (result.Data == "AircraftNotAtOrigin")
                     {
-                        MessageBoxResult? answer = MessageBoxResult.None;
+                        ExtendedMessageBoxResult? answer = null;
                         this.StartFlightCommand.ReportProgress(
                             () =>
                             {
-                                answer = ModernWpf.MessageBox.Show(
-                                    "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
+                                var messageBox = new OpenSkyMessageBox(
                                     "Aircraft not at Origin",
-                                    MessageBoxButton.YesNo);
-                            },
-                            true);
-                        if (answer == MessageBoxResult.Yes)
+                                    "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.StartFlightCommand.ReportProgress(
                                 () =>
@@ -2071,7 +2209,7 @@ namespace OpenSky.Client.Pages.Models
                                             UtcOffset = Properties.Settings.Default.DefaultUTCOffset
                                         }
                                     };
-                                    Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                                    Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
                                 });
                         }
                     }
@@ -2086,14 +2224,16 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, "Error starting flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification("Error starting flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.StartFlightCommand, "Error starting flight");
+                ex.HandleApiCallException(this.ViewReference, this.StartFlightCommand, "Error starting flight");
             }
             finally
             {
@@ -2274,7 +2414,13 @@ namespace OpenSky.Client.Pages.Models
                         catch (Exception ex)
                         {
                             Debug.WriteLine(ex);
-                            UpdateGUIDelegate showError = () => ModernWpf.MessageBox.Show(ex.Message, "Update airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                            UpdateGUIDelegate showError = () =>
+                            {
+                                var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "Update airports", ex.Message, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
+                            };
                             Application.Current.Dispatcher.BeginInvoke(showError);
                         }
                     })

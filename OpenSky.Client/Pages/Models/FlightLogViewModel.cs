@@ -21,9 +21,11 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
     using OpenSky.FlightLogXML;
 
     using OpenSkyApi;
@@ -827,13 +829,15 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, $"Error loading flight log {log.FullFlightNumber}", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification($"Error loading flight log {log.FullFlightNumber}", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
                 }
                 catch (Exception ex)
                 {
-                    ex.HandleApiCallException(this.LoadFlightLogCommand, $"Error loading flight log {log.FullFlightNumber}");
+                    ex.HandleApiCallException(this.ViewReference, this.LoadFlightLogCommand, $"Error loading flight log {log.FullFlightNumber}");
                 }
                 finally
                 {

@@ -8,7 +8,7 @@
              xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Loaded="WorldPopulationOnLoaded"
              d:DesignHeight="1500" d:DesignWidth="1500" HorizontalScrollBar="True" LoadingText="{Binding LoadingText}">
     <UserControl.DataContext>
         <models:WorldPopulationViewModel />
@@ -310,7 +310,7 @@
                     <DockPanel LastChildFill="True" DockPanel.Dock="Top" Margin="0,0,0,10">
                         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center">Populate the airport with the following ICAO code:</TextBlock>
                         <Button DockPanel.Dock="Right" Style="{StaticResource OpenSkyButtonStyle}" Command="{Binding PopulateAirportCommand}">Populate</Button>
-                        <TextBox Margin="10,0" Text="{Binding PopulateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="ICAO code" ui:ControlHelper.PlaceholderForeground="#666" />
+                        <TextBox Margin="10,0" Text="{Binding PopulateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="ICAO code" ui:ControlHelper.PlaceholderForeground="#666" CharacterCasing="Upper" />
                     </DockPanel>
                     <TextBox Text="{Binding PopulateResult, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" />
                 </DockPanel>

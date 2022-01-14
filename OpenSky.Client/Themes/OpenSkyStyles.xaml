@@ -424,8 +424,17 @@
                                 <TextBlock HorizontalAlignment="Center" FontSize="25" Margin="0,10,0,0" Text="{TemplateBinding controls:OpenSkyWindow.LoadingText}" />
                             </StackPanel>
                         </Border>
-
-                        <Grid Grid.Row="0" Grid.RowSpan="2" x:Name="resizeGrid">
+                        <Grid Grid.Row="1">
+                            <ItemsControl x:Name="NotificationsList" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" HorizontalContentAlignment="Stretch" Grid.IsSharedSizeScope="True">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel VerticalAlignment="Bottom" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                        <DockPanel Grid.Row="1" LastChildFill="True" x:Name="MessageBoxContainer" />
+                        <Grid Grid.Row="0" Grid.RowSpan="2" x:Name="ResizeGrid">
                             <Rectangle Stroke="{x:Null}" Fill="Transparent" VerticalAlignment="Top" Height="5" Margin="5,0,5,0" x:Name="top" />
                             <Rectangle Stroke="{x:Null}" Fill="Transparent" VerticalAlignment="Bottom" Height="5" Margin="5,0,5,0" x:Name="bottom" />
                             <Rectangle Stroke="{x:Null}" Fill="Transparent" HorizontalAlignment="Left" Width="5" Margin="0,5,0,5" x:Name="left"/>

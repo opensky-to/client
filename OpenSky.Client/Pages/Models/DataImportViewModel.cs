@@ -18,8 +18,11 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Win32;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -538,7 +541,11 @@ namespace OpenSky.Client.Pages.Models
                 if (!result.IsError)
                 {
                     this.GenerateClientAirportPackageCommand.ReportProgress(
-                        () => { ModernWpf.MessageBox.Show(result.Message, "Generate airport package", MessageBoxButton.OK, MessageBoxImage.Information); });
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Generate airport package", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                 }
                 else
                 {
@@ -551,13 +558,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error generating client airport package", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error generating client airport package", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshDataImportsCommand, "Error generating client airport package");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshDataImportsCommand, "Error generating client airport package");
             }
             finally
             {
@@ -602,13 +611,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing data imports", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing data imports", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshDataImportsCommand, "Error refreshing data imports");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshDataImportsCommand, "Error refreshing data imports");
             }
             finally
             {
@@ -705,7 +716,7 @@ namespace OpenSky.Client.Pages.Models
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.BrowseLittleNavmapMSFSCommand, "Error uploading or monitoring database import.");
+                ex.HandleApiCallException(this.ViewReference, this.BrowseLittleNavmapMSFSCommand, "Error uploading or monitoring database import.");
                 throw;
             }
         }

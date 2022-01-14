@@ -9,8 +9,11 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Threading;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -42,13 +45,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private FlightPlan selectedFlightPlan;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private FlightPlans viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -160,23 +156,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(FlightPlans view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Deletes the selected flight plan.
         /// </summary>
         /// <remarks>
@@ -190,11 +169,27 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            MessageBoxResult? answer = null;
+            ExtendedMessageBoxResult? answer = null;
             this.DeletePlanCommand.ReportProgress(
-                () => { answer = ModernWpf.MessageBox.Show($"Are you sure you want to delete the flight plan {this.SelectedFlightPlan.FullFlightNumber}?", "Delete flight plan?", MessageBoxButton.YesNo, MessageBoxImage.Question); },
-                true);
-            if (answer is not MessageBoxResult.Yes)
+                () =>
+                {
+                    var messageBox = new OpenSkyMessageBox(
+                        "Delete flight plan?",
+                        $"Are you sure you want to delete the flight plan {this.SelectedFlightPlan.FullFlightNumber}?",
+                        MessageBoxButton.YesNo,
+                        ExtendedMessageBoxImage.Question);
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
+
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -218,13 +213,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error deleting flight plan", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error deleting flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.DeletePlanCommand, "Error deleting flight plan");
+                ex.HandleApiCallException(this.ViewReference, this.DeletePlanCommand, "Error deleting flight plan");
             }
             finally
             {
@@ -245,7 +242,7 @@ namespace OpenSky.Client.Pages.Models
             if (this.SelectedFlightPlan != null)
             {
                 var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"Flight plan  {this.SelectedFlightPlan.FullFlightNumber}", Parameter = this.SelectedFlightPlan };
-                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
             }
         }
 
@@ -265,7 +262,7 @@ namespace OpenSky.Client.Pages.Models
                 Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
                 Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, UtcOffset = Properties.Settings.Default.DefaultUTCOffset }
             };
-            Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+            Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -305,13 +302,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing flight plans", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing flight plans", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshPlansCommand, "Error refreshing flight plans");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshPlansCommand, "Error refreshing flight plans");
             }
             finally
             {
@@ -342,7 +341,8 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.StartFlightCommand.ReportProgress(() =>
                     {
-                        ModernWpf.MessageBox.Show(result.Message, "Start flight", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var messageBox = new OpenSkyMessageBox("Start flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                        Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                         this.RefreshPlansCommand.DoExecute(null);
                     });
                 }
@@ -350,13 +350,27 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (result.Data == "AircraftNotAtOrigin")
                     {
-                        MessageBoxResult? answer = MessageBoxResult.None;
+                        ExtendedMessageBoxResult? answer = null;
                         this.StartFlightCommand.ReportProgress(
                             () =>
                             {
-                                answer = ModernWpf.MessageBox.Show("The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?", "Aircraft not at Origin", MessageBoxButton.YesNo);
-                            }, true);
-                        if (answer == MessageBoxResult.Yes)
+                                var messageBox = new OpenSkyMessageBox(
+                                    "Aircraft not at Origin",
+                                    "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) =>
+                                {
+                                    answer = messageBox.Result;
+                                };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
                         {
                             this.StartFlightCommand.ReportProgress(
                                 () =>
@@ -373,7 +387,7 @@ namespace OpenSky.Client.Pages.Models
                                             UtcOffset = Properties.Settings.Default.DefaultUTCOffset
                                         }
                                     };
-                                    Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                                    Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
                                 });
                         }
                     }
@@ -388,14 +402,16 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, "Error starting flight", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification("Error starting flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.StartFlightCommand, "Error starting flight");
+                ex.HandleApiCallException(this.ViewReference, this.StartFlightCommand, "Error starting flight");
             }
             finally
             {

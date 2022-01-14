@@ -15,9 +15,11 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -145,13 +147,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing world map", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing world map", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshCommand, "Error refreshing world map");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshCommand, "Error refreshing world map");
             }
         }
     }

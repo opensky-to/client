@@ -12,6 +12,8 @@ namespace OpenSky.Client.Pages
 
     using DataGridExtensions;
 
+    using OpenSky.Client.Pages.Models;
+
     using Syncfusion.Windows.Tools.Controls;
 
     /// -------------------------------------------------------------------------------------------------
@@ -89,6 +91,28 @@ namespace OpenSky.Client.Pages
         private void ClearAllFiltersOnClick(object sender, RoutedEventArgs e)
         {
             this.DataImportsGrid.GetFilter().Clear();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Data import on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void DataImportOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is DataImportViewModel viewModel)
+            {
+                viewModel.ViewReference = this;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
