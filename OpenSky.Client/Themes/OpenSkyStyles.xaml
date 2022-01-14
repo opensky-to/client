@@ -425,7 +425,7 @@
                             </StackPanel>
                         </Border>
                         <Grid Grid.Row="1">
-                            <ItemsControl x:Name="NotificationsList" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="Transparent" HorizontalContentAlignment="Stretch" Grid.IsSharedSizeScope="True">
+                            <ItemsControl x:Name="NotificationsList" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" HorizontalContentAlignment="Stretch" Grid.IsSharedSizeScope="True">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <VirtualizingStackPanel VerticalAlignment="Bottom" />

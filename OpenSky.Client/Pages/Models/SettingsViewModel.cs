@@ -538,7 +538,6 @@ namespace OpenSky.Client.Pages.Models
                     this.DownloadAirportPackageCommand.ReportProgress(() =>
                     {
                         var notification = new OpenSkyNotification("Airport package", "The package file is up-to-date, no download is required.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
-                        notification.SetErrorColorStyle();
                         Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                     });
                 }
@@ -548,7 +547,6 @@ namespace OpenSky.Client.Pages.Models
                     this.DownloadAirportPackageCommand.ReportProgress(() =>
                     {
                         var notification = new OpenSkyNotification("Airport package", "Successfully downloaded new package file.", MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
-                        notification.SetErrorColorStyle();
                         Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
 
                     });
@@ -750,6 +748,12 @@ namespace OpenSky.Client.Pages.Models
                 if (!result.IsError)
                 {
                     _ = UserSessionService.Instance.RefreshLinkedAccounts();
+                    this.SaveSettingsCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Saving settings", "Successfully saved settings.", MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                 }
                 else
                 {

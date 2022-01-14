@@ -2017,6 +2017,13 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.SaveFlightPlanAsync(flightPlan).Result;
                 if (!result.IsError)
                 {
+                    this.SaveCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+
                     this.IsNewFlightPlan = false;
                     this.SaveCommand.ReportProgress(() => this.IsDirty = false);
                 }

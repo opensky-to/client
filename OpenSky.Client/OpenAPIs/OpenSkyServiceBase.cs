@@ -18,6 +18,8 @@ namespace OpenSkyApi
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Newtonsoft.Json;
+
     using OpenSky.Client;
     using OpenSky.Client.Properties;
 
@@ -50,7 +52,7 @@ namespace OpenSkyApi
         /// JSON serializer settings.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private readonly Lazy<Newtonsoft.Json.JsonSerializerSettings> settings;
+        private readonly Lazy<JsonSerializerSettings> settings;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -79,7 +81,7 @@ namespace OpenSkyApi
         {
             this.httpClient = httpClient;
 
-            this.settings = new Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
+            this.settings = new Lazy<JsonSerializerSettings>(CreateSerializerSettings);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -94,7 +96,7 @@ namespace OpenSkyApi
         /// Gets the JSON serializer settings.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        protected Newtonsoft.Json.JsonSerializerSettings JsonSerializerSettings => this.settings.Value;
+        protected JsonSerializerSettings JsonSerializerSettings => this.settings.Value;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -193,31 +195,29 @@ namespace OpenSkyApi
                 var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
-                    var typedBody = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(responseText, this.JsonSerializerSettings);
+                    var typedBody = JsonConvert.DeserializeObject<T>(responseText, this.JsonSerializerSettings);
                     return new ObjectResponseResult<T>(typedBody, responseText);
                 }
-                catch (Newtonsoft.Json.JsonException exception)
+                catch (JsonException exception)
                 {
                     var message = "Could not deserialize the response body string as " + typeof(T).FullName + ".";
                     throw new ApiException(message, (int)response.StatusCode, responseText, headers, exception);
                 }
             }
-            else
+
+            try
             {
-                try
-                {
-                    using var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                    using var streamReader = new System.IO.StreamReader(responseStream);
-                    using var jsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader);
-                    var serializer = Newtonsoft.Json.JsonSerializer.Create(this.JsonSerializerSettings);
-                    var typedBody = serializer.Deserialize<T>(jsonTextReader);
-                    return new ObjectResponseResult<T>(typedBody, string.Empty);
-                }
-                catch (Newtonsoft.Json.JsonException exception)
-                {
-                    var message = "Could not deserialize the response body stream as " + typeof(T).FullName + ".";
-                    throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
-                }
+                using var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var streamReader = new System.IO.StreamReader(responseStream);
+                using var jsonTextReader = new JsonTextReader(streamReader);
+                var serializer = JsonSerializer.Create(this.JsonSerializerSettings);
+                var typedBody = serializer.Deserialize<T>(jsonTextReader);
+                return new ObjectResponseResult<T>(typedBody, string.Empty);
+            }
+            catch (JsonException exception)
+            {
+                var message = "Could not deserialize the response body stream as " + typeof(T).FullName + ".";
+                throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
             }
         }
 
@@ -232,9 +232,9 @@ namespace OpenSkyApi
         /// The new serializer settings.
         /// </returns>
         /// -------------------------------------------------------------------------------------------------
-        private static Newtonsoft.Json.JsonSerializerSettings CreateSerializerSettings()
+        private static JsonSerializerSettings CreateSerializerSettings()
         {
-            return new();
+            return new JsonSerializerSettings();
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -282,7 +282,7 @@ namespace OpenSkyApi
                 urlBuilder.Append(baseUrl != null ? baseUrl.TrimEnd('/') : "").Append("/Authentication/refreshToken");
 
                 using var request = new HttpRequestMessage();
-                var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(requestBody, this.settings.Value));
+                var content = new StringContent(JsonConvert.SerializeObject(requestBody, this.settings.Value));
                 content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                 request.Content = content;
                 request.Method = new HttpMethod("POST");
