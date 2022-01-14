@@ -12,11 +12,13 @@ namespace OpenSky.Client.Pages.Models
     using System.Device.Location;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
@@ -51,13 +53,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private Job selectedJob;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private MyJobs viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -289,23 +284,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(MyJobs view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Abort the selected job.
         /// </summary>
         /// <remarks>
@@ -319,19 +297,28 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            MessageBoxResult? answer = MessageBoxResult.None;
+            ExtendedMessageBoxResult? answer = null;
             this.AbortJobCommand.ReportProgress(
                 () =>
                 {
-                    answer = ModernWpf.MessageBox.Show(
+                    var messageBox = new OpenSkyMessageBox(
+                        "Abort job?",
                         $"Are you sure you want to abort the {this.SelectedJob.Type} job from {this.SelectedJob.OriginICAO}?\r\n\r\nYou will be charged a 30 % penalty for doing so.",
-                        "Abort flight?",
                         MessageBoxButton.YesNo,
-                        MessageBoxImage.Hand);
-                },
-                true);
-
-            if (answer != MessageBoxResult.Yes)
+                        ExtendedMessageBoxImage.Hand);
+                    messageBox.SetWarningColorStyle();
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
+            
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -355,13 +342,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error aborting job", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error aborting job", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.AbortJobCommand, "Error aborting job");
+                ex.HandleApiCallException(this.ViewReference, this.AbortJobCommand, "Error aborting job");
             }
             finally
             {
@@ -385,7 +374,7 @@ namespace OpenSky.Client.Pages.Models
                         UtcOffset = Properties.Settings.Default.DefaultUTCOffset, DestinationICAO = destination
                     }
                 };
-                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
             }
         }
 
@@ -428,13 +417,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing jobs", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing jobs", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshJobsCommand, "Error refreshing jobs");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshJobsCommand, "Error refreshing jobs");
             }
             finally
             {

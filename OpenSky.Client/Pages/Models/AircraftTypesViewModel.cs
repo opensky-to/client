@@ -10,10 +10,14 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -518,15 +522,37 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DeleteTypeCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.DeleteTypeCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
-            MessageBoxResult? confirmResult = MessageBoxResult.None;
+            ExtendedMessageBoxResult? answer = null;
             this.DeleteTypeCommand.ReportProgress(
-                () => confirmResult = ModernWpf.MessageBox.Show($"Are you sure you want to delete the aircraft type: {this.SelectedAircraftType}", "Delete type?", MessageBoxButton.YesNo, MessageBoxImage.Question),
-                true);
-            if (confirmResult != MessageBoxResult.Yes)
+                () =>
+                {
+                    var messageBox = new OpenSkyMessageBox(
+                        "Delete type?",
+                        $"Are you sure you want to delete the aircraft type: {this.SelectedAircraftType}",
+                        MessageBoxButton.YesNo,
+                        ExtendedMessageBoxImage.Hand);
+                    messageBox.SetWarningColorStyle();
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
+
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -551,13 +577,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error deleting aircraft type", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error deleting aircraft type", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.DeleteTypeCommand, "Error deleting aircraft type");
+                ex.HandleApiCallException(this.ViewReference, this.DeleteTypeCommand, "Error deleting aircraft type");
             }
             finally
             {
@@ -577,7 +605,12 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DisableDetailedChecksCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.DisableDetailedChecksCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
@@ -601,13 +634,16 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error disabling aircraft type detailed checks", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error disabling aircraft type detailed checks", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.DisableDetailedChecksCommand, "Error disabling aircraft type detailed checks");
+                ex.HandleApiCallException(this.ViewReference, this.DisableDetailedChecksCommand, "Error disabling aircraft type detailed checks");
             }
             finally
             {
@@ -627,7 +663,12 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DisableTypeCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.DisableTypeCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
@@ -651,13 +692,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error disabling aircraft type", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error disabling aircraft type", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.DisableTypeCommand, "Error disabling aircraft type");
+                ex.HandleApiCallException(this.ViewReference, this.DisableTypeCommand, "Error disabling aircraft type");
             }
             finally
             {
@@ -677,7 +720,12 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.EnableDetailedChecksCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.EnableDetailedChecksCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
@@ -701,13 +749,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error enabling aircraft type detailed checks", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error enabling aircraft type detailed checks", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.EnableDetailedChecksCommand, "Error enabling aircraft type detailed checks");
+                ex.HandleApiCallException(this.ViewReference, this.EnableDetailedChecksCommand, "Error enabling aircraft type detailed checks");
             }
             finally
             {
@@ -727,7 +777,12 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.EnableTypeCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.EnableTypeCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
                 return;
             }
 
@@ -751,13 +806,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error enabling aircraft type", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error enabling aircraft type", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.EnableTypeCommand, "Error enabling aircraft type");
+                ex.HandleApiCallException(this.ViewReference, this.EnableTypeCommand, "Error enabling aircraft type");
             }
             finally
             {
@@ -805,13 +862,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error checking for aircraft type upgrades", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error checking for aircraft type upgrades", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.GetAircraftUpgradesCommand, "Error checking for aircraft type upgrades");
+                ex.HandleApiCallException(this.ViewReference, this.GetAircraftUpgradesCommand, "Error checking for aircraft type upgrades");
             }
             finally
             {
@@ -845,7 +904,10 @@ namespace OpenSky.Client.Pages.Models
                 this.GetUserRolesCommand.ReportProgress(
                     () =>
                     {
-                        ModernWpf.MessageBox.Show("Error fetching your user roles.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        var notification = new OpenSkyNotification("Error", "Error fetching your user roles.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                         this.GetAircraftUpgradesCommand.CanExecute = false;
                     });
             }
@@ -890,13 +952,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing aircraft types", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing aircraft types", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshAircraftTypesCommand, "Error refreshing aircraft types");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshAircraftTypesCommand, "Error refreshing aircraft types");
             }
             finally
             {
@@ -921,7 +985,9 @@ namespace OpenSky.Client.Pages.Models
 
             if (string.IsNullOrEmpty(this.EditedAircraftType.Name) || this.EditedAircraftType.Name.Length < 5)
             {
-                this.SaveEditedAircraftTypeCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Name not specified or less than 5 characters!", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                var notification = new OpenSkyNotification("Error", "Name not specified or less than 5 characters!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                notification.SetErrorColorStyle();
+                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                 return;
             }
 
@@ -937,7 +1003,9 @@ namespace OpenSky.Client.Pages.Models
                     this.SaveEditedAircraftTypeCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message, "Update aircraft type", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var notification = new OpenSkyNotification("Update aircraft type", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 5);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                             this.CancelEditAircraft(); // This resets the input form and hides the groupbox
                             this.RefreshAircraftTypesCommand.DoExecute(null);
                         });
@@ -953,13 +1021,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error saving changed aircraft type", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error saving changed aircraft type", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SaveEditedAircraftTypeCommand, "Error saving changed aircraft type");
+                ex.HandleApiCallException(this.ViewReference, this.SaveEditedAircraftTypeCommand, "Error saving changed aircraft type");
             }
             finally
             {
@@ -979,7 +1049,9 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                ModernWpf.MessageBox.Show("Please select exactly one aircraft type!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                notification.SetErrorColorStyle();
+                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                 return;
             }
 
@@ -1029,13 +1101,16 @@ namespace OpenSky.Client.Pages.Models
                                     Debug.WriteLine(result.ErrorDetails);
                                 }
 
-                                ModernWpf.MessageBox.Show(result.Message, "Error performing aircraft type upgrade", MessageBoxButton.OK, MessageBoxImage.Error);
+                                var notification = new OpenSkyNotification("Error performing aircraft type upgrade", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
                             });
                     }
                 }
                 catch (Exception ex)
                 {
-                    ex.HandleApiCallException(this.UpdateAircraftTypeCommand, "Error performing aircraft type upgrade");
+                    ex.HandleApiCallException(this.ViewReference, this.UpdateAircraftTypeCommand, "Error performing aircraft type upgrade");
                 }
                 finally
                 {

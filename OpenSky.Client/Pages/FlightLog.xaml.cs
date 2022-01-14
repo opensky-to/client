@@ -102,6 +102,28 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Flight log on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void FlightLogOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is FlightLogViewModel viewModel)
+            {
+                viewModel.ViewReference = this;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Map view on size changed.
         /// </summary>
         /// <remarks>

@@ -16,6 +16,7 @@ namespace OpenSky.Client.Views.Models
 
     using Newtonsoft.Json;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
 
@@ -413,7 +414,7 @@ namespace OpenSky.Client.Views.Models
                 Debug.WriteLine(e.Error);
                 UpdateGUIDelegate showError = () =>
                 {
-                    ModernWpf.MessageBox.Show("Error downloading update: " + e.Error.Message);
+                    AutoUpdate.Instance.ShowMessageBox(new OpenSkyMessageBox(e.Error, "Error downloading update", e.Error.Message));
                     this.DownloadUpdateCommand.CanExecute = true;
                 };
                 Application.Current.Dispatcher.BeginInvoke(showError);

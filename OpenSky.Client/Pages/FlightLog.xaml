@@ -16,6 +16,7 @@
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                           LoadingText="{Binding LoadingText}"
+                          Loaded="FlightLogOnLoaded"
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:models1="clr-namespace:OpenSky.Client.Controls.Models"

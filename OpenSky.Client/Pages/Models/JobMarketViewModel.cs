@@ -17,10 +17,12 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -417,7 +419,8 @@ namespace OpenSky.Client.Pages.Models
                     this.AcceptJobCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message);
+                            var notification = new OpenSkyNotification("Accept job", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             this.SearchJobsCommand.DoExecute(null);
                         });
                 }
@@ -432,13 +435,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error accepting job", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error accepting job", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.AcceptJobCommand, "Error accepting job");
+                ex.HandleApiCallException(this.ViewReference, this.AcceptJobCommand, "Error accepting job");
             }
             finally
             {
@@ -511,13 +516,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error searching for jobs", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error searching for jobs", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SearchJobsCommand, "Error searching for jobs");
+                ex.HandleApiCallException(this.ViewReference, this.SearchJobsCommand, "Error searching for jobs");
             }
             finally
             {

@@ -142,6 +142,22 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Closes the page by removing in from the docking manager.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void ClosePage()
+        {
+            if (this.Parent is ContentControl { Parent: DockingManager dockingManager } control)
+            {
+                dockingManager.Children.Remove(control);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Method that receives an optional page parameter when the page is opened.
         /// </summary>
         /// <remarks>

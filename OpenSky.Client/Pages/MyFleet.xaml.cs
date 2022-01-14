@@ -88,7 +88,7 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is MyFleetViewModel viewModel)
             {
-                viewModel.SetViewReference(this);
+                viewModel.ViewReference = this;
                 viewModel.RefreshFleetCommand.DoExecute(null);
             }
         }

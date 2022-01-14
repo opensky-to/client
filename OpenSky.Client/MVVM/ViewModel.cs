@@ -15,6 +15,7 @@ namespace OpenSky.Client.MVVM
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
+    using System.Windows;
 
     using JetBrains.Annotations;
 
@@ -75,6 +76,13 @@ namespace OpenSky.Client.MVVM
                 return this.errors.Any(kv => kv.Value is { Count: > 0 });
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the view reference.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public FrameworkElement ViewReference { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

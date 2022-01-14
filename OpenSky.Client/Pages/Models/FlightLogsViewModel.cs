@@ -11,6 +11,8 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -42,13 +44,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private FlightLog selectedFlightLog;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private FlightLogs viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -134,23 +129,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(FlightLogs view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Open the selected flight log.
         /// </summary>
         /// <remarks>
@@ -162,7 +140,7 @@ namespace OpenSky.Client.Pages.Models
             if (this.SelectedFlightLog != null)
             {
                 var navMenuItem = new NavMenuItem { Icon = "/Resources/book16.png", PageType = typeof(Pages.FlightLog), Name = $"Flight log {this.SelectedFlightLog.FullFlightNumber}", Parameter = this.SelectedFlightLog };
-                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
             }
         }
 
@@ -203,13 +181,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing flight logs", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing flight logs", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshFlightLogsCommand, "Error refreshing flight logs");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshFlightLogsCommand, "Error refreshing flight logs");
             }
             finally
             {
