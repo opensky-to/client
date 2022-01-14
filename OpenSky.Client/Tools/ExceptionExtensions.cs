@@ -95,7 +95,7 @@ namespace OpenSky.Client.Tools
                                     Debug.WriteLine($"{friendlyErrorMessage}: {ex.Message}");
                                     Main.ShowNotificationInSameViewAs(viewReference, new OpenSkyNotification(new ErrorDetails { DetailedMessage = friendlyErrorMessage, Exception = ex }, "Authorization", "Authorization token is invalid, please login with your OpenSky account again.", ExtendedMessageBoxImage.Error, 30));
 
-                                }, true);
+                                });
                         }
 
                         command.ReportProgress(() => LoginNotification.Open());
