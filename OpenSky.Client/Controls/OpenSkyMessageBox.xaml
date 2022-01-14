@@ -47,14 +47,14 @@
                 <Image Name="Image" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Height="64" Width="64" Source="{StaticResource OpenskyLogo}" Margin="0,0,10,0" VerticalAlignment="Top" />
                 <TextBlock Name="TimeoutText" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontFamily="/Fonts/#Montserrat" FontSize="12" Visibility="Collapsed" Margin="0,1,0,0">39</TextBlock>
                 <sf:SfCircularProgressBar Name="TimeoutProgress" Grid.Row="0" Grid.Column="2" Width="16" Height="6" ShowProgressValue="False" Progress="25" Minimum="0" Maximum="30" MinHeight="25" MinWidth="25" IndicatorOuterRadius="1.0" IndicatorInnerRadius="0.8" TrackInnerRadius="0" TrackOuterRadius="0" ProgressColor="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
-                <TextBlock Grid.Row="0" Grid.Column="1" Name="Title" FontFamily="/Fonts/#Montserrat" FontSize="20" FontWeight="SemiBold" Text="Title goes here" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Name="Title" FontFamily="/Fonts/#Montserrat" FontSize="20" FontWeight="SemiBold" Text="Title goes here" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="Message" FontFamily="/Fonts/#Montserrat" FontSize="17" TextWrapping="WrapWithOverflow" Margin="0,5,0,5" Text="Message text goes here and can wrap multiple lines especially once the text gets a lot longer and won't fit on a single one anymore." />
                 <TextBox Name="ExceptionText" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" IsReadOnly="True" MinLines="5" MaxLines="10" FontFamily="Consolas" Visibility="Collapsed" HorizontalScrollBarVisibility="Auto" Margin="0,10,0,0" />
                 <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,10,0,0">
                     <Button Name="OkButton" Style="{StaticResource OpenSkyButtonStyle}" Margin="0,0,5,0" MinWidth="40" Visibility="Collapsed" Click="OkButtonOnClick">OK</Button>
-                    <Button Name="CancelButton" Style="{StaticResource OpenSkyButtonStyle}" Margin="0,0,5,0" MinWidth="40" Visibility="Collapsed" Click="CancelButtonOnClick">Cancel</Button>
                     <Button Name="YesButton" Style="{StaticResource OpenSkyButtonStyle}" Margin="0,0,5,0" MinWidth="40" Visibility="Collapsed" Click="YesButtonOnClick">Yes</Button>
                     <Button Name="NoButton" Style="{StaticResource OpenSkyButtonStyle}" Margin="0,0,5,0" MinWidth="40" Visibility="Collapsed" Click="NoButtonOnClick">No</Button>
+                    <Button Name="CancelButton" Style="{StaticResource OpenSkyButtonStyle}" Margin="0,0,5,0" MinWidth="40" Visibility="Collapsed" Click="CancelButtonOnClick">Cancel</Button>
                 </StackPanel>
             </Grid>
         </Border>
