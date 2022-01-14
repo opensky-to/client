@@ -236,6 +236,41 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Sets error color style (red background with red buttons).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 13/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetErrorColorStyle()
+        {
+            this.NotificationBackground = new SolidColorBrush(Color.FromRgb(180, 0, 0));
+            this.OkButton.Style = this.FindResource("OpenSkyRedButtonStyle") as Style;
+            this.CancelButton.Style = this.FindResource("OpenSkyRedButtonStyle") as Style;
+            this.YesButton.Style = this.FindResource("OpenSkyRedButtonStyle") as Style;
+            this.NoButton.Style = this.FindResource("OpenSkyRedButtonStyle") as Style;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sets warning color style (light orange background with orange buttons, text set to black).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public void SetWarningColorStyle()
+        {
+            this.NotificationBackground = this.FindResource("OpenSkyWarningOrangeLightBrush") as SolidColorBrush;
+            this.Foreground = new SolidColorBrush(Colors.Black);
+            this.OkButton.Style = this.FindResource("OpenSkyOrangeButtonStyle") as Style;
+            this.CancelButton.Style = this.FindResource("OpenSkyOrangeButtonStyle") as Style;
+            this.YesButton.Style = this.FindResource("OpenSkyOrangeButtonStyle") as Style;
+            this.NoButton.Style = this.FindResource("OpenSkyOrangeButtonStyle") as Style;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Black cover on mouse left button down.
         /// </summary>
         /// <remarks>

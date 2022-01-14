@@ -10,7 +10,6 @@ namespace OpenSky.Client.Controls
     using System.Collections.Concurrent;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Windows;
@@ -244,128 +243,14 @@ namespace OpenSky.Client.Controls
                 if (this.GetTemplateChild("NotificationsList") is ItemsControl notificationsList)
                 {
                     notificationsList.ItemsSource = this.notifications;
-
-                    // Add first test notifications
-                    // TODO remove this notification test code when implemented
-
-                    new Thread(
-                        () =>
-                        {
-                            Thread.Sleep(2500);
-                            UpdateGUIDelegate addFirstTwo = () =>
-                            {
-                                var okNotification = new OpenSkyNotification("Test1", "This is a first wee test message", MessageBoxButton.OK, ExtendedMessageBoxImage.Information);
-                                this.ShowNotification(okNotification);
-                                okNotification.Closed += (sender, _) =>
-                                {
-                                    if (sender is OpenSkyNotification notification)
-                                    {
-                                        Debug.WriteLine($"1:{notification.Result}");
-                                    }
-                                };
-
-                                this.ShowNotification(
-                                    new OpenSkyNotification(
-                                        "Test2",
-                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                        null,
-                                        ExtendedMessageBoxImage.None,
-                                        10));
-
-                                this.ShowNotification(
-                                    new OpenSkyNotification(
-                                        "Test2",
-                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                        null,
-                                        ExtendedMessageBoxImage.Hand,
-                                        10));
-                                this.ShowNotification(
-                                    new OpenSkyNotification(
-                                        "Test2",
-                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                        null,
-                                        ExtendedMessageBoxImage.Asterisk,
-                                        10));
-                                this.ShowNotification(
-                                    new OpenSkyNotification(
-                                        "Test2",
-                                        "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                        null,
-                                        ExtendedMessageBoxImage.Stop,
-                                        10));
-                            };
-                            this.Dispatcher.BeginInvoke(addFirstTwo);
-
-                            Thread.Sleep(4000);
-                            UpdateGUIDelegate addAnother = () =>
-                            {
-                                var yesNoNotification = new OpenSkyNotification(
-                                    "Test3",
-                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Hand,
-                                    10,
-                                    ExtendedMessageBoxResult.Cancel);
-                                this.ShowNotification(yesNoNotification);
-                                yesNoNotification.Closed += (sender, _) =>
-                                {
-                                    if (sender is OpenSkyNotification notification)
-                                    {
-                                        Debug.WriteLine($"3:{notification.Result}");
-                                    }
-                                };
-
-                                var errorNotification = new OpenSkyNotification(
-                                    new ErrorDetails { DetailedMessage = "This is the detailed error message, explaining what just happened.", Exception = new Exception("This is an exception") },
-                                    "Error Test",
-                                    "Shorter error message",
-                                    ExtendedMessageBoxImage.Hand);
-                                this.ShowNotification(errorNotification);
-                            };
-                            this.Dispatcher.BeginInvoke(addAnother);
-                        }).Start();
                 }
 
                 if (this.GetTemplateChild("MessageBoxContainer") is DockPanel dockPanel)
                 {
-                    // ReSharper disable once InconsistentlySynchronizedField
-                    this.messageBoxContainer = dockPanel;
-
-                    new Thread(
-                        () =>
-                        {
-                            Thread.Sleep(5000);
-
-                            UpdateGUIDelegate addMessageBox = () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "Test X",
-                                    "This is a first wee test message, but this one is a hell of lot longer so will need to wrap over multiple lines. Let's see how well it handles it",
-                                    MessageBoxButton.OKCancel,
-                                    ExtendedMessageBoxImage.Question,
-                                    30,
-                                    ExtendedMessageBoxResult.Cancel);
-                                this.ShowMessageBox(messageBox);
-                                messageBox.Closed += (sender, _) =>
-                                {
-                                    if (sender is OpenSkyMessageBox closedMessageBox)
-                                    {
-                                        Debug.WriteLine($"X: {closedMessageBox.Result}");
-                                    }
-                                };
-
-                                var secondMessageBox = new OpenSkyMessageBox("Test Y", "This is a second queued message", MessageBoxButton.OK, ExtendedMessageBoxImage.Check);
-                                this.ShowMessageBox(secondMessageBox);
-                                secondMessageBox.Closed += (sender, _) =>
-                                {
-                                    if (sender is OpenSkyMessageBox closedMessageBox)
-                                    {
-                                        Debug.WriteLine($"Y: {closedMessageBox.Result}");
-                                    }
-                                };
-                            };
-                            this.Dispatcher.BeginInvoke(addMessageBox);
-                        }).Start();
+                    lock (this.messageBoxContainer)
+                    {
+                        this.messageBoxContainer = dockPanel;
+                    }
                 }
 
                 if (this.GetTemplateChild("ResizeGrid") is Grid resizeGrid)
