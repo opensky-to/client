@@ -19,9 +19,12 @@ namespace OpenSky.Client.Pages.Models
 
     using Microsoft.Win32;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Models.Enums;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -532,19 +535,35 @@ namespace OpenSky.Client.Pages.Models
             {
                 if (AirportPackageClientHandler.IsPackageUpToDate())
                 {
-                    this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show("The package file is up-to-date, no download is required.", "Airport package", MessageBoxButton.OK, MessageBoxImage.Information));
+                    this.DownloadAirportPackageCommand.ReportProgress(() =>
+                    {
+                        var notification = new OpenSkyNotification("Airport package", "The package file is up-to-date, no download is required.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 }
                 else
                 {
                     AirportPackageClientHandler.DownloadPackage();
-                    this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show("Successfully downloaded new package file.", "Airport package", MessageBoxButton.OK, MessageBoxImage.Information));
+                    this.DownloadAirportPackageCommand.ReportProgress(() =>
+                    {
+                        var notification = new OpenSkyNotification("Airport package", "Successfully downloaded new package file.", MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+
+                    });
                     this.RefreshAirportPackageInfoCommand.DoExecute(null);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                this.DownloadAirportPackageCommand.ReportProgress(() => ModernWpf.MessageBox.Show($"Error downloading airport package file.\r\n\r\n{ex.Message}", "Airport package", MessageBoxButton.OK, MessageBoxImage.Error));
+                this.DownloadAirportPackageCommand.ReportProgress(() =>
+                {
+                    var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = "Error downloading airport package file.", Exception = ex }, "Airport package", "Error downloading airport package file.", ExtendedMessageBoxImage.Error, 30);
+                    notification.SetErrorColorStyle();
+                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                });
             }
         }
 
@@ -585,13 +604,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error revoking application token", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error revoking application token", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.LogoutOpenSkyUserCommand, "Error revoking application token", false);
+                ex.HandleApiCallException(this.ViewReference, this.LogoutOpenSkyUserCommand, "Error revoking application token", false);
             }
 
             this.UserSession.Logout();
@@ -661,14 +682,22 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RestoreDefaults()
         {
-            var answer = ModernWpf.MessageBox.Show("Are you sure you want to restore all default settings except for keys and users?", "Restore settings?", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (answer == MessageBoxResult.Yes)
+            var messageBox = new OpenSkyMessageBox(
+                "Restore settings?",
+                "Are you sure you want to restore all default settings except for keys and users?",
+                MessageBoxButton.YesNo,
+                ExtendedMessageBoxImage.Question);
+            messageBox.Closed += (_, _) =>
             {
-                Debug.WriteLine("Resetting settings to defaults...");
+                if (messageBox.Result == ExtendedMessageBoxResult.Yes)
+                {
+                    Debug.WriteLine("Resetting settings to defaults...");
 
-                this.WeightUnit = WeightUnit.lbs;
-                this.FuelUnit = FuelUnit.gal;
-            }
+                    this.WeightUnit = WeightUnit.lbs;
+                    this.FuelUnit = FuelUnit.gal;
+                }
+            };
+            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -701,7 +730,11 @@ namespace OpenSky.Client.Pages.Models
                 Debug.WriteLine("Error saving settings: " + ex);
                 this.SaveSettingsCommand.ReportProgress(
                     () =>
-                        ModernWpf.MessageBox.Show(ex.Message, "Error saving settings", MessageBoxButton.OK, MessageBoxImage.Error));
+                    {
+                        var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "Error saving settings", ex.Message, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
             }
 
             // Save server-side settings
@@ -729,13 +762,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error saving settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error saving settings", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SaveSettingsCommand, "Error saving settings.");
+                ex.HandleApiCallException(this.ViewReference, this.SaveSettingsCommand, "Error saving settings.");
             }
 
             this.LoadingText = null;
@@ -790,7 +825,9 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error updating profile image", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error updating profile image", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
                 else
@@ -822,7 +859,7 @@ namespace OpenSky.Client.Pages.Models
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.UpdateProfileImageCommand, "Error updating profile image.");
+                ex.HandleApiCallException(this.ViewReference, this.UpdateProfileImageCommand, "Error updating profile image.");
             }
         }
 

@@ -302,7 +302,7 @@ namespace OpenSky.Client.Pages.Models
                 () =>
                 {
                     var messageBox = new OpenSkyMessageBox(
-                        "Abort flight?",
+                        "Abort job?",
                         $"Are you sure you want to abort the {this.SelectedJob.Type} job from {this.SelectedJob.OriginICAO}?\r\n\r\nYou will be charged a 30 % penalty for doing so.",
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);

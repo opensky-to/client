@@ -11,8 +11,11 @@ namespace OpenSky.Client.Pages.Models
     using System.Diagnostics;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using OpenSkyApi;
 
@@ -255,13 +258,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error populating airport", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error populating airport", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshViewCommand, "Error populating airport");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshViewCommand, "Error populating airport");
             }
             finally
             {
@@ -312,7 +317,9 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(overviewResult.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing world population overview", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing world population overview", overviewResult.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
 
@@ -334,13 +341,15 @@ namespace OpenSky.Client.Pages.Models
                     this.RefreshViewCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error refreshing failed airports: " + overviewResult.Message);
-                            if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
+                            Debug.WriteLine("Error refreshing failed airports: " + failedAirportsResult.Message);
+                            if (!string.IsNullOrEmpty(failedAirportsResult.ErrorDetails))
                             {
-                                Debug.WriteLine(overviewResult.ErrorDetails);
+                                Debug.WriteLine(failedAirportsResult.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing failed airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing failed airports", failedAirportsResult.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
 
@@ -362,19 +371,21 @@ namespace OpenSky.Client.Pages.Models
                     this.RefreshViewCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error refreshing unprocessed airports: " + overviewResult.Message);
-                            if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
+                            Debug.WriteLine("Error refreshing unprocessed airports: " + unprocessedAirportsResult.Message);
+                            if (!string.IsNullOrEmpty(unprocessedAirportsResult.ErrorDetails))
                             {
-                                Debug.WriteLine(overviewResult.ErrorDetails);
+                                Debug.WriteLine(unprocessedAirportsResult.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(overviewResult.Message, "Error refreshing unprocessed airports", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing unprocessed airports", unprocessedAirportsResult.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshViewCommand, "Error refreshing world population");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshViewCommand, "Error refreshing world population");
             }
             finally
             {

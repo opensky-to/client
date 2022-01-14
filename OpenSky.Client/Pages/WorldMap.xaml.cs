@@ -107,6 +107,7 @@ namespace OpenSky.Client.Pages
             this.updateMap = true;
             if (this.DataContext is WorldMapViewModel viewModel)
             {
+                viewModel.ViewReference = this;
                 new Thread(
                     () =>
                     {

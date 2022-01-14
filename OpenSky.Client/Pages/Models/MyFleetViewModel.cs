@@ -10,10 +10,12 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
 
     using Microsoft.Maps.MapControl.WPF;
 
+    using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
@@ -138,13 +140,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private AircraftType selectedEditVariant;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The view reference.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private MyFleet viewReference;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -612,23 +607,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sets the view reference for this view model (to determine main window to open new tabs in, in
-        /// case the user has multiple open windows)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 28/10/2021.
-        /// </remarks>
-        /// <param name="view">
-        /// The view reference.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        public void SetViewReference(MyFleet view)
-        {
-            this.viewReference = view;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Cancel edit aircraft.
         /// </summary>
         /// <remarks>
@@ -676,7 +654,7 @@ namespace OpenSky.Client.Pages.Models
                 {
                     Icon = "/Resources/market16.png", PageType = typeof(JobMarket), Name = "Job market", Parameter = this.SelectedAircraft
                 };
-                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
             }
         }
 
@@ -727,13 +705,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving variants for aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error retrieving variants for aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.GetEditAircraftVariantsCommand, "Error retrieving variants for aircraft.");
+                ex.HandleApiCallException(this.ViewReference, this.GetEditAircraftVariantsCommand, "Error retrieving variants for aircraft.");
             }
             finally
             {
@@ -776,13 +756,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error retrieving payloads", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error retrieving payloads", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.GetPlannablePayloadsCommand, "Error retrieving payloads.");
+                ex.HandleApiCallException(this.ViewReference, this.GetPlannablePayloadsCommand, "Error retrieving payloads.");
             }
             finally
             {
@@ -812,7 +794,7 @@ namespace OpenSky.Client.Pages.Models
                         Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel, UtcOffset = Properties.Settings.Default.DefaultUTCOffset
                     }
                 };
-                Main.ActivateNavMenuItemInSameViewAs(this.viewReference, navMenuItem);
+                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
             }
         }
 
@@ -862,13 +844,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error refreshing your fleet", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error refreshing your fleet", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.RefreshFleetCommand, "Error refreshing your fleet");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshFleetCommand, "Error refreshing your fleet");
             }
             finally
             {
@@ -917,7 +901,8 @@ namespace OpenSky.Client.Pages.Models
                     this.SaveEditedAircraftCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message, "Update aircraft", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var notification = new OpenSkyNotification("Update aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             this.CancelEditAircraft(); // This resets the input form and hides the groupbox
                             this.RefreshFleetCommand.DoExecute(null);
                         });
@@ -933,13 +918,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error saving changed aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error saving changed aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SaveEditedAircraftCommand, "Error saving changed aircraft");
+                ex.HandleApiCallException(this.ViewReference, this.SaveEditedAircraftCommand, "Error saving changed aircraft");
             }
             finally
             {
@@ -962,19 +949,28 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            MessageBoxResult? answer = MessageBoxResult.None;
+            ExtendedMessageBoxResult? answer = null;
             this.SellAircraftNowCommand.ReportProgress(
                 () =>
                 {
-                    answer = ModernWpf.MessageBox.Show(
-                        $"Are you sure you want to sell the aircraft {this.SelectedAircraft.Registry}?\r\n\r\nYou will only receive 70 % of the market value of the aircraft.",
+                    var messageBox = new OpenSkyMessageBox(
                         "Sell aircraft?",
+                        $"Are you sure you want to sell the aircraft {this.SelectedAircraft.Registry}?\r\n\r\nYou will only receive 70 % of the market value of the aircraft.",
                         MessageBoxButton.YesNo,
-                        MessageBoxImage.Hand);
-                },
-                true);
+                        ExtendedMessageBoxImage.Hand);
+                    messageBox.SetWarningColorStyle();
+                    messageBox.Closed += (_, _) =>
+                    {
+                        answer = messageBox.Result;
+                    };
+                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                });
+            while (answer == null && !SleepScheduler.IsShutdownInProgress)
+            {
+                Thread.Sleep(500);
+            }
 
-            if (answer != MessageBoxResult.Yes)
+            if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;
             }
@@ -988,7 +984,8 @@ namespace OpenSky.Client.Pages.Models
                     this.SellAircraftNowCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message, "Sell aircraft", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var notification = new OpenSkyNotification("Sell aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             this.RefreshFleetCommand.DoExecute(null);
                         });
                 }
@@ -1003,13 +1000,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error selling aircraft", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error selling aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SellAircraftNowCommand, "Error selling aircraft");
+                ex.HandleApiCallException(this.ViewReference, this.SellAircraftNowCommand, "Error selling aircraft");
             }
             finally
             {
@@ -1029,7 +1028,9 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraft == null)
             {
-                ModernWpf.MessageBox.Show("Please select the aircraft to edit!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var notification = new OpenSkyNotification("Error", "Please select the aircraft to edit!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                notification.SetErrorColorStyle();
+                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                 return;
             }
 
@@ -1055,7 +1056,9 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraft == null)
             {
-                ModernWpf.MessageBox.Show("Please select the aircraft to perform ground operations for!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var notification = new OpenSkyNotification("Error", "Please select the aircraft to perform ground operations for!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                notification.SetErrorColorStyle();
+                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                 return;
             }
 
@@ -1098,7 +1101,8 @@ namespace OpenSky.Client.Pages.Models
                     this.SubmitGroundOperationsCommand.ReportProgress(
                         () =>
                         {
-                            ModernWpf.MessageBox.Show(result.Message, "Ground operations", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var notification = new OpenSkyNotification("Ground operations", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             this.CancelGroundOperations(); // This resets the input form and hides the groupbox
                             this.RefreshFleetCommand.DoExecute(null);
                         });
@@ -1114,13 +1118,15 @@ namespace OpenSky.Client.Pages.Models
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            ModernWpf.MessageBox.Show(result.Message, "Error starting ground operations", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var notification = new OpenSkyNotification("Error starting ground operations", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.SubmitGroundOperationsCommand, "Error starting ground operations");
+                ex.HandleApiCallException(this.ViewReference, this.SubmitGroundOperationsCommand, "Error starting ground operations");
             }
             finally
             {
