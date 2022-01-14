@@ -544,7 +544,6 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             var notification = new OpenSkyNotification("Generate airport package", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
-                            notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
