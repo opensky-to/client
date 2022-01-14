@@ -12,8 +12,11 @@ namespace OpenSky.Client.Pages
     using System.Windows.Input;
     using System.Windows.Navigation;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Pages.Models;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using Syncfusion.Windows.Tools.Controls;
 
@@ -57,17 +60,23 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is SettingsViewModel { IsDirty: true } viewModel)
             {
-                var answer = ModernWpf.MessageBox.Show("There are unsaved setting changes, do you want to save them now?", "Save settings?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-                if (answer == MessageBoxResult.Yes)
+                var messageBox = new OpenSkyMessageBox("Save settings?", "There are unsaved setting changes, do you want to save them now?", MessageBoxButton.YesNoCancel, ExtendedMessageBoxImage.Question);
+                messageBox.Closed += (_, _) =>
                 {
-                    viewModel.SaveSettingsCommand.DoExecute(null);
-                }
+                    if (messageBox.Result == ExtendedMessageBoxResult.Yes)
+                    {
+                        viewModel.SaveSettingsCommand.DoExecute(null);
+                        this.ClosePage();
+                    }
 
-                if (answer == MessageBoxResult.Cancel)
-                {
-                    e.Cancel = true;
-                }
+                    if (messageBox.Result == ExtendedMessageBoxResult.No)
+                    {
+                        this.ClosePage();
+                    }
+                };
+
+                Main.ShowMessageBoxInSaveViewAs(this, messageBox);
+                e.Cancel = true;
             }
         }
 
@@ -163,6 +172,7 @@ namespace OpenSky.Client.Pages
         {
             if (this.DataContext is SettingsViewModel viewModel)
             {
+                viewModel.ViewReference = this;
                 viewModel.PropertyChanged += this.ViewModelPropertyChanged;
             }
         }

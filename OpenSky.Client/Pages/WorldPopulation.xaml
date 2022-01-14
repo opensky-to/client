@@ -8,7 +8,7 @@
              xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Loaded="WorldPopulationOnLoaded"
              d:DesignHeight="1500" d:DesignWidth="1500" HorizontalScrollBar="True" LoadingText="{Binding LoadingText}">
     <UserControl.DataContext>
         <models:WorldPopulationViewModel />

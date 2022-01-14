@@ -247,10 +247,8 @@ namespace OpenSky.Client.Controls
 
                 if (this.GetTemplateChild("MessageBoxContainer") is DockPanel dockPanel)
                 {
-                    lock (this.messageBoxContainer)
-                    {
-                        this.messageBoxContainer = dockPanel;
-                    }
+                    // ReSharper disable once InconsistentlySynchronizedField
+                    this.messageBoxContainer = dockPanel;
                 }
 
                 if (this.GetTemplateChild("ResizeGrid") is Grid resizeGrid)
