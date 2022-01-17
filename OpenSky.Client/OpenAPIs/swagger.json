@@ -4198,37 +4198,37 @@
             "nullable": true
           },
           "s2Cell3": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 3.",
             "format": "int64"
           },
           "s2Cell4": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 4.",
             "format": "int64"
           },
           "s2Cell5": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 5.",
             "format": "int64"
           },
           "s2Cell6": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 6.",
             "format": "int64"
           },
           "s2Cell7": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 7.",
             "format": "int64"
           },
           "s2Cell8": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 8.",
             "format": "int64"
           },
           "s2Cell9": {
-            "type": "integer",
+            "type": "string",
             "description": "S2 geometry cell ID for level 9.",
             "format": "int64"
           },
