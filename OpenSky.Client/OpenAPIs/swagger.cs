@@ -6903,31 +6903,31 @@ namespace OpenSkyApi
     
         /// <summary>S2 geometry cell ID for level 3.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell3", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell3 { get; set; }
+        public string S2Cell3 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 4.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell4", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell4 { get; set; }
+        public string S2Cell4 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 5.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell5", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell5 { get; set; }
+        public string S2Cell5 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 6.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell6", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell6 { get; set; }
+        public string S2Cell6 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 7.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell7", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell7 { get; set; }
+        public string S2Cell7 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 8.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell8", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell8 { get; set; }
+        public string S2Cell8 { get; set; }
     
         /// <summary>S2 geometry cell ID for level 9.</summary>
         [Newtonsoft.Json.JsonProperty("s2Cell9", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long S2Cell9 { get; set; }
+        public string S2Cell9 { get; set; }
     
         /// <summary>Gets or sets the size of the airport (from -1 to 6, NULL means size isn't calculated yet).</summary>
         [Newtonsoft.Json.JsonProperty("size", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
