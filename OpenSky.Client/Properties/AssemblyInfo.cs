@@ -21,8 +21,8 @@ using System.Windows.Markup;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
-[assembly: AssemblyVersion("0.3.3")]
-[assembly: AssemblyFileVersion("0.3.3")]
+[assembly: AssemblyVersion("0.3.4")]
+[assembly: AssemblyFileVersion("0.3.4")]
 
 // This allows us to detect debug mode in XAML
 #if DEBUG
