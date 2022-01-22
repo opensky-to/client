@@ -19,7 +19,8 @@
                           Loaded="FlightLogOnLoaded"
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
-                          xmlns:models1="clr-namespace:OpenSky.Client.Controls.Models"
+                          xmlns:controlModels="clr-namespace:OpenSky.Client.Controls.Models"
+                          xmlns:sf="http://schemas.syncfusion.com/wpf"
                           mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="1500"
                           HorizontalScrollBar="False" VerticalScrollBar="False">
     <UserControl.DataContext>
@@ -281,21 +282,89 @@
                               SizeChanged="MapViewOnSizeChanged"
                               />
         </GroupBox>
-        <GroupBox Grid.Column="4">
-            <GroupBox.Header>
-                <TextBlock FontSize="15" FontWeight="DemiBold">Events</TextBlock>
-            </GroupBox.Header>
-            <ListBox Name="EventLog" FontFamily="Consolas" ItemsSource="{Binding TrackingEventLogEntries}" MouseDoubleClick="EventLogMouseDoubleClick" BorderThickness="0" Background="#1a1e22">
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="models1:TrackingEventLogEntry">
-                        <StackPanel Orientation="Horizontal" Margin="-5">
-                            <Rectangle Width="15" Height="15" Fill="{Binding EventColorBrush, Mode=OneWay}" RadiusX="2" RadiusY="2" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding EventTime, StringFormat=HH:mm:ss}" Margin="5,0, 5, 0" VerticalAlignment="Center" FontSize="13" />
-                            <TextBlock Text="{Binding LogMessage}" VerticalAlignment="Center" FontSize="13" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </GroupBox>
+        <Grid Grid.Column="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Events</TextBlock>
+                </GroupBox.Header>
+                <ListBox Name="EventLog" FontFamily="Consolas" ItemsSource="{Binding TrackingEventLogEntries}" MouseDoubleClick="EventLogMouseDoubleClick" BorderThickness="0" Background="#1a1e22">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="controlModels:TrackingEventLogEntry">
+                            <StackPanel Orientation="Horizontal" Margin="-5">
+                                <Rectangle Width="15" Height="15" Fill="{Binding EventColorBrush, Mode=OneWay}" RadiusX="2" RadiusY="2" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding EventTime, StringFormat=HH:mm:ss}" Margin="5,0, 5, 0" VerticalAlignment="Center" FontSize="13" />
+                                <TextBlock Text="{Binding LogMessage}" VerticalAlignment="Center" FontSize="13" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+            <GroupBox Grid.Row="1">
+                <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Graphs</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10" HorizontalAlignment="Center">
+                        <StackPanel.RenderTransform>
+                            <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+                        </StackPanel.RenderTransform>
+                        <CheckBox IsChecked="{Binding ChartAltitudeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" MinWidth="0">
+                            <Border CornerRadius="3" Background="#05826c">
+                                <TextBlock Margin="5,1" Foreground="Black">Altitude</TextBlock>
+                            </Border>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding ChartGroundSpeedChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0" MinWidth="0">
+                            <Border CornerRadius="3" Background="DarkMagenta">
+                                <TextBlock Margin="5,1">Ground Speed</TextBlock>
+                            </Border>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding ChartFuelChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0" MinWidth="0">
+                            <Border CornerRadius="3" Background="DarkOrange">
+                                <TextBlock Margin="5,1" Foreground="Black">Fuel</TextBlock>
+                            </Border>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding ChartSimRateChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0" MinWidth="0">
+                            <Border CornerRadius="3" Background="DarkRed">
+                                <TextBlock Margin="5,1">SimRate</TextBlock>
+                            </Border>
+                        </CheckBox>
+                    </StackPanel>
+                    <sf:SfChart Grid.Row="1" Padding="0" Height="200">
+                        <sf:SfChart.PrimaryAxis>
+                            <sf:DateTimeAxis Visibility="Collapsed" ShowGridLines="False" />
+                        </sf:SfChart.PrimaryAxis>
+                        <sf:SfChart.SecondaryAxis>
+                            <sf:NumericalAxis Name="Altitude" Header="Altitude [Feet]" ShowGridLines="False" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" />
+                        </sf:SfChart.SecondaryAxis>
+                        <sf:SfChart.Series>
+                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Altitude" EnableAnimation="True" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" StrokeThickness="3" Interior="#05826c" Label="Altitude" />
+                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Groundspeed" EnableAnimation="True" Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkMagenta" Label="Groundspeed">
+                                <sf:FastLineSeries.YAxis>
+                                    <sf:NumericalAxis Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" ShowGridLines="False" Header="Speed [Knots]" />
+                                </sf:FastLineSeries.YAxis>
+                            </sf:FastLineSeries>
+                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.FuelOnBoard" EnableAnimation="True" Visibility="{Binding FuelAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkOrange" Label="Fuel">
+                                <sf:FastLineSeries.YAxis>
+                                    <sf:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="Fuel [Gallons]" Visibility="{Binding FuelAxisAndSeriesVisibility}" Minimum="0" />
+                                </sf:FastLineSeries.YAxis>
+                            </sf:FastLineSeries>
+                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.SimulationRate" EnableAnimation="True" Visibility="{Binding SimRateAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkRed" Label="SimRate">
+                                <sf:FastLineSeries.YAxis>
+                                    <sf:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="SimRate" Interval="1" Visibility="{Binding SimRateAxisAndSeriesVisibility}" />
+                                </sf:FastLineSeries.YAxis>
+                            </sf:FastLineSeries>
+                        </sf:SfChart.Series>
+                    </sf:SfChart>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </controls:OpenSkyPage>
