@@ -45,6 +45,34 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True if chart altitude is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool chartAltitudeChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if chart fuel is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool chartFuelChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if chart ground speed is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool chartGroundSpeedChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if chart simulation rate is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool chartSimRateChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The flight log.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -160,10 +188,105 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the altitude series visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AltitudeAxisAndSeriesVisibility => this.ChartAltitudeChecked ? Visibility.Visible : Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the bounces.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public int Bounces => this.TouchDowns.Count > 1 ? this.TouchDowns.Count - 1 : 0;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the chart altitude is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ChartAltitudeChecked
+        {
+            get => this.chartAltitudeChecked;
+
+            set
+            {
+                if (Equals(this.chartAltitudeChecked, value))
+                {
+                    return;
+                }
+
+                this.chartAltitudeChecked = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.AltitudeAxisAndSeriesVisibility));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the chart fuel is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ChartFuelChecked
+        {
+            get => this.chartFuelChecked;
+
+            set
+            {
+                if (Equals(this.chartFuelChecked, value))
+                {
+                    return;
+                }
+
+                this.chartFuelChecked = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.FuelAxisAndSeriesVisibility));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the chart ground speed is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ChartGroundSpeedChecked
+        {
+            get => this.chartGroundSpeedChecked;
+
+            set
+            {
+                if (Equals(this.chartGroundSpeedChecked, value))
+                {
+                    return;
+                }
+
+                this.chartGroundSpeedChecked = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.GroundSpeedAxisAndSeriesVisibility));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the chart simulation rate is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ChartSimRateChecked
+        {
+            get => this.chartSimRateChecked;
+
+            set
+            {
+                if (Equals(this.chartSimRateChecked, value))
+                {
+                    return;
+                }
+
+                this.chartSimRateChecked = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.SimRateAxisAndSeriesVisibility));
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -195,10 +318,24 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the fuel axis and series visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility FuelAxisAndSeriesVisibility => this.ChartFuelChecked ? Visibility.Visible : Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the ground speed (only from first touchdown).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public double GroundSpeed => this.TouchDowns.Count > 0 ? this.TouchDowns[0].GroundSpeed : 0.0;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the ground speed series visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility GroundSpeedAxisAndSeriesVisibility => this.ChartGroundSpeedChecked ? Visibility.Visible : Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -615,6 +752,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<SimbriefWaypointMarker> SimbriefWaypointMarkers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the simulation rate axis and series visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility SimRateAxisAndSeriesVisibility => this.ChartSimRateChecked ? Visibility.Visible : Visibility.Collapsed;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
