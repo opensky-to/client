@@ -38,6 +38,13 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The account balances.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AccountBalances accountBalances;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// True if "aircraft category" is checked.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -277,6 +284,7 @@ namespace OpenSky.Client.Pages.Models
 
             // Create commands
             this.RefreshTypesCommand = new AsynchronousCommand(this.RefreshTypes);
+            this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);
             this.ClearCategoryCommand = new Command(this.ClearCategory);
             this.ClearSimulatorCommand = new Command(this.ClearSimulator);
             this.ResetSearchCommand = new Command(this.ResetSearch);
@@ -290,6 +298,28 @@ namespace OpenSky.Client.Pages.Models
 
             // Fire off initial commands
             this.RefreshTypesCommand.DoExecute(null);
+            this.RefreshBalancesCommand.DoExecute(null);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the account balances.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AccountBalances AccountBalances
+        {
+            get => this.accountBalances;
+
+            set
+            {
+                if (Equals(this.accountBalances, value))
+                {
+                    return;
+                }
+
+                this.accountBalances = value;
+                this.NotifyPropertyChanged();
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -987,6 +1017,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh balances command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshBalancesCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the refresh types command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1369,6 +1406,51 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Refresh account balances.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 26/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshBalances()
+        {
+            this.LoadingText = "Refreshing account balances...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAccountBalancesAsync().Result;
+                if (!result.IsError)
+                {
+                    this.AccountBalances = result.Data;
+                }
+                else
+                {
+                    this.RefreshBalancesCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing account balances: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error refreshing account balances", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.RefreshBalancesCommand, "Error refreshing account balances");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Refresh aircraft types.
         /// </summary>
         /// <remarks>
@@ -1477,12 +1559,13 @@ namespace OpenSky.Client.Pages.Models
                     // This one is easy as one airport will never contain huge amounts of aircraft
                     if (string.IsNullOrEmpty(this.AirportIcao))
                     {
-                        this.SearchCommand.ReportProgress(() =>
-                        {
-                            var notification = new OpenSkyNotification("Error searching for aircraft", "No airport ICAO code specified.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                        });
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                var notification = new OpenSkyNotification("Error searching for aircraft", "No airport ICAO code specified.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
                         return;
                     }
 
@@ -1495,24 +1578,26 @@ namespace OpenSky.Client.Pages.Models
                     // Country search needs a bit of preparation to build search criteria from selections
                     if (string.IsNullOrEmpty(this.Country))
                     {
-                        this.SearchCommand.ReportProgress(() =>
-                        {
-                            var notification = new OpenSkyNotification("Error searching for aircraft", "No country selected.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                        });
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                var notification = new OpenSkyNotification("Error searching for aircraft", "No country selected.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
                         return;
                     }
 
                     var countryCode = this.Country.Split('-')[0].Trim();
                     if (!Enum.TryParse(countryCode, out Country parsedCountry))
                     {
-                        this.SearchCommand.ReportProgress(() =>
-                        {
-                            var notification = new OpenSkyNotification("Error searching for aircraft", "Could not parse country string.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                        });
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                var notification = new OpenSkyNotification("Error searching for aircraft", "Could not parse country string.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
                         return;
                     }
 
@@ -1535,10 +1620,7 @@ namespace OpenSky.Client.Pages.Models
                                     "Performing a country wide aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                                 Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                             });
                         while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -1612,6 +1694,8 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+
+            this.SearchCommand.ReportProgress(() => this.RefreshBalancesCommand.DoExecute(null));
         }
 
         /// -------------------------------------------------------------------------------------------------

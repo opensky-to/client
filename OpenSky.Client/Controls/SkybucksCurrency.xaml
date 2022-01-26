@@ -16,13 +16,25 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                  xmlns:converters="clr-namespace:OpenSky.Client.Converters"
-                 mc:Ignorable="d" 
+                 mc:Ignorable="d" FontSize="14"
                  d:DesignHeight="16" d:DesignWidth="200">
     <UserControl.Resources>
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+        <converters:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
     </UserControl.Resources>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
         <Image Width="16" Height="16" Source="/Resources/skybucks16.png" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, Converter={StaticResource NullItemToVisibilityConverter}}" />
-        <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, StringFormat=N0}" />
+        <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" 
+                   Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, StringFormat=N0}" 
+                   FontFamily="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=FontFamily}"
+                   FontSize="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=FontSize}"
+                   Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=CurrencyFractions, Converter={StaticResource BooleanVisibilityConverter}, ConverterParameter=invert}"
+                   />
+        <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" 
+                   Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=Currency, StringFormat=N2}" 
+                   FontFamily="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=FontFamily}"
+                   FontSize="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=FontSize}"
+                   Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:SkybucksCurrency}}, Path=CurrencyFractions, Converter={StaticResource BooleanVisibilityConverter}}"
+        />
     </StackPanel>
 </UserControl>
