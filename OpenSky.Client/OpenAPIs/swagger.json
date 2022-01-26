@@ -2283,6 +2283,102 @@
         }
       }
     },
+    "/bobsYourUncle": {
+      "post": {
+        "tags": [
+          "Financial"
+        ],
+        "summary": "Free money :)",
+        "description": "sushi.at, 25/01/2022.",
+        "operationId": "BobsYourUncle",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/balances": {
+      "get": {
+        "tags": [
+          "Financial"
+        ],
+        "summary": "Get the current account balances.",
+        "description": "sushi.at, 25/01/2022.",
+        "operationId": "GetAccountBalances",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountBalancesApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountBalancesApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountBalancesApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overview": {
+      "get": {
+        "tags": [
+          "Financial"
+        ],
+        "summary": "Get financial overview (with transactions of the last 30 days)",
+        "description": "sushi.at, 24/01/2022.",
+        "operationId": "GetFinancialOverview",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialOverviewApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialOverviewApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialOverviewApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/abort/{flightID}": {
       "post": {
         "tags": [
@@ -3321,9 +3417,61 @@
   },
   "components": {
     "schemas": {
+      "AccountBalances": {
+        "type": "object",
+        "properties": {
+          "accountBalance": {
+            "type": "integer",
+            "description": "Gets or sets the account balance (of the user).",
+            "format": "int64"
+          },
+          "airlineAccountBalance": {
+            "type": "integer",
+            "description": "Gets or sets the airline account balance (if user has the permission).",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Account balances model."
+      },
+      "AccountBalancesApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AccountBalances"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "AccountOverview": {
         "type": "object",
         "properties": {
+          "airlineName": {
+            "type": "string",
+            "description": "Gets or sets the name of the airline (if the user is a member of one).",
+            "nullable": true
+          },
           "joined": {
             "type": "string",
             "description": "Gets or sets the Date/Time of when the user joined.",
@@ -3994,12 +4142,13 @@
           41,
           42,
           43,
+          50,
           90,
           91,
           92
         ],
         "type": "integer",
-        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 50 = FinancialRecords, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
         "format": "int32",
         "x-enumNames": [
           "BuyAircraft",
@@ -4022,6 +4171,7 @@
           "MaintainAircraft",
           "ReplaceAircraftParts",
           "PerformGroundOperations",
+          "FinancialRecords",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -4047,6 +4197,7 @@
           "MaintainAircraft",
           "ReplaceAircraftParts",
           "PerformGroundOperations",
+          "FinancialRecords",
           "ChangePermissions",
           "BoardMember",
           "AllPermissions"
@@ -4105,6 +4256,11 @@
             "format": "int32",
             "nullable": true
           },
+          "avGasPrice": {
+            "type": "number",
+            "description": "Gets or sets the AV gas price in SkyBucks/Gallon.",
+            "format": "float"
+          },
           "city": {
             "maxLength": 50,
             "minLength": 0,
@@ -4146,6 +4302,11 @@
           "isMilitary": {
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the airport is a military one."
+          },
+          "jetFuelPrice": {
+            "type": "number",
+            "description": "Gets or sets the jet fuel price in SkyBucks/Gallon.",
+            "format": "float"
           },
           "latitude": {
             "type": "number",
@@ -5405,6 +5566,119 @@
         },
         "additionalProperties": false,
         "description": "Flight final report model."
+      },
+      "FinancialOverview": {
+        "type": "object",
+        "properties": {
+          "accountBalance": {
+            "type": "integer",
+            "description": "Gets or sets the account balance (of the user).",
+            "format": "int64"
+          },
+          "airlineAccountBalance": {
+            "type": "integer",
+            "description": "Gets or sets the airline account balance (if user has the permission).",
+            "format": "int64",
+            "nullable": true
+          },
+          "recentAirlineFinancialRecords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinancialRecord"
+            },
+            "description": "Gets or sets the recent airline financial records (if user has the permission).",
+            "nullable": true
+          },
+          "recentFinancialRecords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinancialRecord"
+            },
+            "description": "Gets or sets the recent financial records (of the user).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Financial overview model."
+      },
+      "FinancialOverviewApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FinancialOverview"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "FinancialRecord": {
+        "required": [
+          "description",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "aircraftRegistry": {
+            "maxLength": 10,
+            "minLength": 5,
+            "type": "string",
+            "description": "Gets or sets the aircraft registry (optional, if record relates to an aircraft).",
+            "nullable": true
+          },
+          "childRecords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinancialRecord"
+            },
+            "description": "Gets or sets the child records.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description of the record."
+          },
+          "expense": {
+            "type": "integer",
+            "description": "Gets or sets the expense amount in SkyBucks.",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier for the financial record.",
+            "format": "uuid"
+          },
+          "income": {
+            "type": "integer",
+            "description": "Gets or sets the income amount in SkyBucks.",
+            "format": "int64"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Gets or sets the timestamp of the record.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Financial record model."
       },
       "Flight": {
         "required": [

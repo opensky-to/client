@@ -26,6 +26,7 @@ namespace OpenSky.Client.Pages.Models
     using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
+    using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
     using OpenSky.Client.Views.Models;
@@ -267,6 +268,7 @@ namespace OpenSky.Client.Pages.Models
             this.CreateSimBriefCommand = new Command(this.CreateSimBrief);
             this.DownloadSimBriefCommand = new AsynchronousCommand(this.DownloadSimBrief);
             this.StartFlightCommand = new AsynchronousCommand(this.StartFlight);
+            this.UpdateAirportsCommand = new AsynchronousCommand(this.UpdateAirports);
 
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
@@ -335,7 +337,7 @@ namespace OpenSky.Client.Pages.Models
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
-                this.UpdateAirportMarkers();
+                this.UpdateAirportsCommand.DoExecute(null);
             }
         }
 
@@ -499,8 +501,8 @@ namespace OpenSky.Client.Pages.Models
 
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
-                this.UpdateAirportMarkers();
                 this.IsDirty = true;
+                this.UpdateAirportsCommand.DoExecute(null);
             }
         }
 
@@ -631,6 +633,7 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
                 this.NotifyPropertyChanged(nameof(this.FuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
+                this.NotifyPropertyChanged(nameof(this.FuelPrice));
             }
         }
 
@@ -640,6 +643,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public double FuelWeight => (this.FuelGallons ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the maximum fuel weight in lbs.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double MaxFuelWeight => (this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -808,7 +818,7 @@ namespace OpenSky.Client.Pages.Models
                 this.originICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
-                this.UpdateAirportMarkers();
+                this.UpdateAirportsCommand.DoExecute(null);
 
                 UpdateGUIDelegate updateOriginRelated = () =>
                 {
@@ -999,9 +1009,72 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.CrewWeight));
                 this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
+                this.NotifyPropertyChanged(nameof(this.MaxFuelWeight));
+                this.NotifyPropertyChanged(nameof(this.FuelPricePerGallon));
+                this.NotifyPropertyChanged(nameof(this.FuelPrice));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportFuelWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportFuelWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
 
                 UpdateGUIDelegate updateAircraftRelated = this.UpdatePlannablePayloads;
                 Application.Current.Dispatcher.BeginInvoke(updateAircraftRelated);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the fuel dump warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility FuelDumpWarningVisibility
+        {
+            get => this.fuelDumpWarningVisibility;
+
+            set
+            {
+                if (Equals(this.fuelDumpWarningVisibility, value))
+                {
+                    return;
+                }
+
+                this.fuelDumpWarningVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The fuel dump warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility fuelDumpWarningVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the fuel price.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int FuelPrice
+        {
+            get
+            {
+                if (this.SelectedAircraft != null && this.FuelGallons.HasValue)
+                {
+                    if (this.FuelGallons.Value < this.SelectedAircraft.Fuel)
+                    {
+                        this.FuelDumpWarningVisibility = Visibility.Visible;
+                        return 0;
+                    }
+
+                    this.FuelDumpWarningVisibility = Visibility.Collapsed;
+                    var gallons = this.FuelGallons.Value - this.SelectedAircraft.Fuel;
+                    return (int)(gallons * this.FuelPricePerGallon);
+                }
+
+                return 0;
             }
         }
 
@@ -2310,121 +2383,496 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Update map airport markers.
+        /// The alternate airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Airport alternateAirport;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the alternate airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Airport AlternateAirport
+        {
+            get => this.alternateAirport;
+
+            set
+            {
+                if (Equals(this.alternateAirport, value))
+                {
+                    return;
+                }
+
+                this.alternateAirport = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportFuelWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateAirportClosedErrorVisibility));
+
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate airport fuel warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateAirportFuelWarningVisibility
+        {
+            get
+            {
+                if (this.AlternateAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.FuelType == FuelType.AvGas && !this.AlternateAirport.HasAvGas)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.FuelType == FuelType.JetFuel && !this.AlternateAirport.HasJetFuel)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets destination airport short runway warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationAirportShortRunwayWarningVisibility
+        {
+            get
+            {
+                if (this.DestinationAirport != null && this.SelectedAircraft != null)
+                {
+                    var runways = this.DestinationAirport.Runways;
+                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
+                    {
+                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
+                    }
+
+                    if (runways.Count == 0)
+                    {
+                        return Visibility.Collapsed;
+                    }
+
+                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
+                    return longestRunwayDelta is >= -1000 and < 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate airport closed error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateAirportClosedErrorVisibility => this.AlternateAirport?.IsClosed == true ? Visibility.Visible : Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets destination airport closed error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationAirportClosedErrorVisibility => this.DestinationAirport?.IsClosed == true ? Visibility.Visible : Visibility.Collapsed;
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate airport short runway warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateAirportShortRunwayWarningVisibility
+        {
+            get
+            {
+                if (this.AlternateAirport != null && this.SelectedAircraft != null)
+                {
+                    var runways = this.AlternateAirport.Runways;
+                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
+                    {
+                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
+                    }
+
+                    if (runways.Count == 0)
+                    {
+                        return Visibility.Collapsed;
+                    }
+
+                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
+                    return longestRunwayDelta is >= -1000 and < 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets destination airport short runway error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationAirportShortRunwayErrorVisibility
+        {
+            get
+            {
+                if (this.DestinationAirport != null && this.SelectedAircraft != null)
+                {
+                    var runways = this.DestinationAirport.Runways;
+                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
+                    {
+                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
+                    }
+
+                    if (runways.Count == 0)
+                    {
+                        return Visibility.Visible;
+                    }
+
+
+                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
+                    return longestRunwayDelta < -1000 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate airport short runway error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateAirportShortRunwayErrorVisibility
+        {
+            get
+            {
+                if (this.AlternateAirport != null && this.SelectedAircraft != null)
+                {
+                    var runways = this.AlternateAirport.Runways;
+                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
+                    {
+                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
+                    }
+
+                    if (runways.Count == 0)
+                    {
+                        return Visibility.Visible;
+                    }
+
+
+                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
+                    return longestRunwayDelta < -1000 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets destination airport fuel warning visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationAirportFuelWarningVisibility
+        {
+            get
+            {
+                if (this.DestinationAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.FuelType == FuelType.AvGas && !this.DestinationAirport.HasAvGas)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.FuelType == FuelType.JetFuel && !this.DestinationAirport.HasJetFuel)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Destination airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Airport destinationAirport;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets destination airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Airport DestinationAirport
+        {
+            get => this.destinationAirport;
+
+            set
+            {
+                if (Equals(this.destinationAirport, value))
+                {
+                    return;
+                }
+
+                this.destinationAirport = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportFuelWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationAirportClosedErrorVisibility));
+
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The origin airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Airport originAirport;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the origin airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Airport OriginAirport
+        {
+            get => this.originAirport;
+
+            set
+            {
+                if (Equals(this.originAirport, value))
+                {
+                    return;
+                }
+
+                this.originAirport = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.FuelPricePerGallon));
+                this.NotifyPropertyChanged(nameof(this.FuelPrice));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the fuel price per gallon.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double FuelPricePerGallon
+        {
+            get
+            {
+                if (this.SelectedAircraft != null && this.OriginAirport != null)
+                {
+                    return this.SelectedAircraft.Type.FuelType switch
+                    {
+                        FuelType.AvGas => this.OriginAirport.AvGasPrice,
+                        FuelType.JetFuel => this.OriginAirport.JetFuelPrice,
+                        _ => 0
+                    };
+                }
+
+                return 0;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the update airports command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand UpdateAirportsCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Update airports and their map markers.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 08/11/2021.
+        /// sushi.at, 26/01/2022.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void UpdateAirportMarkers()
+        private void UpdateAirports()
         {
-            new Thread(
-                    () =>
-                    {
-                        try
+            Debug.WriteLine("Updating airports...");
+            try
+            {
+                if (this.TrackingEventMarkers.Count > 0)
+                {
+                    this.UpdateAirportsCommand.ReportProgress(
+                        () =>
                         {
-                            var localAirportPackage = AirportPackageClientHandler.GetPackage();
-                            if (this.TrackingEventMarkers.Count > 0)
-                            {
-                                UpdateGUIDelegate clearExisting = () =>
-                                {
-                                    this.TrackingEventMarkers.Clear();
-                                    this.RouteTrailLocations.Clear();
-                                };
-                                Application.Current.Dispatcher.Invoke(clearExisting);
-                            }
+                            this.TrackingEventMarkers.Clear();
+                            this.RouteTrailLocations.Clear();
+                        }, true);
+                }
 
-                            // Alternate
-                            if (!string.IsNullOrEmpty(this.AlternateICAO))
+                // Alternate
+                if (!string.IsNullOrEmpty(this.AlternateICAO))
+                {
+                    try
+                    {
+                        this.AlternateAirport = null;
+                        var result = OpenSkyService.Instance.GetAirportAsync(this.AlternateICAO).Result;
+                        if (!result.IsError)
+                        {
+                            this.AlternateAirport = result.Data;
+                            if (this.AlternateAirport != null)
                             {
-                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.AlternateICAO);
-                                if (airport != null)
-                                {
-                                    UpdateGUIDelegate addAlternate = () =>
+                                this.UpdateAirportsCommand.ReportProgress(
+                                    () =>
                                     {
-                                        var alternateMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.AlternateICAO, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
+                                        var alternateMarker = new TrackingEventMarker(new GeoCoordinate(this.AlternateAirport.Latitude, this.AlternateAirport.Longitude), this.AlternateICAO, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
                                         this.TrackingEventMarkers.Add(alternateMarker);
 
-                                        var alternateDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
+                                        var alternateDetailMarker = new TrackingEventMarker(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
                                         this.TrackingEventMarkers.Add(alternateDetailMarker);
 
-                                        foreach (var runway in airport.Runways)
+                                        foreach (var runway in this.AlternateAirport.Runways)
                                         {
                                             var runwayMarker = new TrackingEventMarker(runway);
                                             this.TrackingEventMarkers.Add(runwayMarker);
                                         }
-                                    };
-                                    Application.Current.Dispatcher.BeginInvoke(addAlternate);
-                                }
+                                    });
                             }
-
-                            // Origin
-                            if (!string.IsNullOrEmpty(this.OriginICAO))
+                        }
+                        else
+                        {
+                            var message = result.Message;
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
-                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
-                                if (airport != null)
-                                {
-                                    UpdateGUIDelegate addOrigin = () =>
+                                message += $"\r\n\r\n{result.ErrorDetails}";
+                            }
+                            throw new Exception(message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving alternate airport information.");
+                    }
+                }
+
+                // Origin
+                if (!string.IsNullOrEmpty(this.OriginICAO))
+                {
+                    try
+                    {
+                        this.OriginAirport = null;
+                        var result = OpenSkyService.Instance.GetAirportAsync(this.OriginICAO).Result;
+                        if (!result.IsError)
+                        {
+                            this.OriginAirport = result.Data;
+                            if (this.OriginAirport != null)
+                            {
+                                this.UpdateAirportsCommand.ReportProgress(
+                                    () =>
                                     {
-                                        this.RouteTrailLocations.Add(new Location(airport.Latitude, airport.Longitude));
-                                        var originMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.RouteTrailLocations.Add(new Location(this.OriginAirport.Latitude, this.OriginAirport.Longitude));
+                                        var originMarker = new TrackingEventMarker(new GeoCoordinate(this.OriginAirport.Latitude, this.OriginAirport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(originMarker);
 
-                                        var originDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        var originDetailMarker = new TrackingEventMarker(this.OriginAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(originDetailMarker);
 
-                                        foreach (var runway in airport.Runways)
+                                        foreach (var runway in this.OriginAirport.Runways)
                                         {
                                             var runwayMarker = new TrackingEventMarker(runway);
                                             this.TrackingEventMarkers.Add(runwayMarker);
                                         }
-                                    };
-                                    Application.Current.Dispatcher.BeginInvoke(addOrigin);
-                                }
+                                    });
                             }
-
-                            // Destination
-                            if (!string.IsNullOrEmpty(this.DestinationICAO))
+                        }
+                        else
+                        {
+                            var message = result.Message;
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
-                                var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.DestinationICAO);
-                                if (airport != null)
-                                {
-                                    UpdateGUIDelegate addDestination = () =>
+                                message += $"\r\n\r\n{result.ErrorDetails}";
+                            }
+                            throw new Exception(message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving origin airport information.");
+                    }
+                }
+
+                // Destination
+                if (!string.IsNullOrEmpty(this.DestinationICAO))
+                {
+                    try
+                    {
+                        this.DestinationAirport = null;
+                        var result = OpenSkyService.Instance.GetAirportAsync(this.DestinationICAO).Result;
+                        if (!result.IsError)
+                        {
+                            this.DestinationAirport = result.Data;
+                            if (this.DestinationAirport != null)
+                            {
+                                this.UpdateAirportsCommand.ReportProgress(
+                                    () =>
                                     {
-                                        this.RouteTrailLocations.Add(new Location(airport.Latitude, airport.Longitude));
-                                        var destinationMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        this.RouteTrailLocations.Add(new Location(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude));
+                                        var destinationMarker = new TrackingEventMarker(new GeoCoordinate(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(destinationMarker);
 
-                                        var destinationDetailMarker = new TrackingEventMarker(airport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                        var destinationDetailMarker = new TrackingEventMarker(this.DestinationAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         this.TrackingEventMarkers.Add(destinationDetailMarker);
 
-                                        foreach (var runway in airport.Runways)
+                                        foreach (var runway in this.DestinationAirport.Runways)
                                         {
                                             var runwayMarker = new TrackingEventMarker(runway);
                                             this.TrackingEventMarkers.Add(runwayMarker);
                                         }
-                                    };
-                                    Application.Current.Dispatcher.BeginInvoke(addDestination);
-                                }
+                                    });
                             }
-
-                            UpdateGUIDelegate mapUpdated = () => this.MapUpdated?.Invoke(this, EventArgs.Empty);
-                            Application.Current.Dispatcher.BeginInvoke(mapUpdated);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Debug.WriteLine(ex);
-                            UpdateGUIDelegate showError = () =>
+                            var message = result.Message;
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
-                                var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "Update airports", ex.Message, ExtendedMessageBoxImage.Error, 30);
-                                notification.SetErrorColorStyle();
-                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
-                            };
-                            Application.Current.Dispatcher.BeginInvoke(showError);
+                                message += $"\r\n\r\n{result.ErrorDetails}";
+                            }
+                            throw new Exception(message);
                         }
-                    })
-            { Name = "FlightPlanViewModel.UpdateAirportMarkers" }.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving destination airport information.");
+                    }
+                }
+
+                this.UpdateAirportsCommand.ReportProgress(
+                    () =>
+                    {
+                        this.MapUpdated?.Invoke(this, EventArgs.Empty);
+                    });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                this.UpdateAirportsCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "Update airports", ex.Message, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------

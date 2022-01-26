@@ -45,5 +45,12 @@ namespace OpenSky.Client.Controls
             get => (int?)this.GetValue(CurrencyProperty);
             set => this.SetValue(CurrencyProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the currency should be shown with fractions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool CurrencyFractions { get; set; } = false;
     }
 }

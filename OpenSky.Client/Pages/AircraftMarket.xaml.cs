@@ -91,6 +91,7 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is AircraftMarketViewModel viewModel)
             {
                 viewModel.ViewReference = this;
+                viewModel.RefreshBalancesCommand.DoExecute(null);
             }
         }
 
