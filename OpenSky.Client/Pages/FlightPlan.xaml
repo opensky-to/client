@@ -40,7 +40,25 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+        <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
+            <ui:CommandBar.Content>
+                <Grid Height="35" Margin="5,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="1" Grid.Column="0">Personal account balance:</TextBlock>
+                    <controls:SkybucksCurrency Grid.Row="1" Grid.Column="1" Currency="{Binding AccountBalances.AccountBalance}" Margin="5,0,0,0" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}">Airline account balance:</TextBlock>
+                    <controls:SkybucksCurrency Grid.Row="2" Grid.Column="1" Currency="{Binding AccountBalances.AirlineAccountBalance, FallbackValue=0}" Margin="5,0,0,0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}" />
+                </Grid>
+            </ui:CommandBar.Content>
             <ui:CommandBar.PrimaryCommands>
                 <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft" Command="{Binding RefreshAircraftCommand}" />
                 <ui:AppBarButton Icon="Refresh" Label="Refresh payloads" ToolTip="Refresh available payloads [F5]" Command="{Binding RefreshPayloadsCommand}" />
@@ -106,7 +124,22 @@
                         <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
                         <ComboBox Grid.Row="1" Grid.Column="8" ItemsSource="{Binding UtcOffsets}" SelectedValue="{Binding UtcOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
+                        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding OriginInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
                         <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="3">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
                             <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationAirportFuelWarningVisibility}" ToolTip="The alternate airport doesn't sell the required fuel type for the selected aircraft.">
                                 <StackPanel Orientation="Horizontal" Margin="5">
                                     <Image Width="16" Height="16" Source="{StaticResource Warning}" />
@@ -134,6 +167,12 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Vertical">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
                             <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateAirportFuelWarningVisibility}" ToolTip="The alternate airport doesn't sell the required fuel type for the selected aircraft.">
                                 <StackPanel Orientation="Horizontal" Margin="5">
                                     <Image Width="16" Height="16" Source="{StaticResource Warning}" />

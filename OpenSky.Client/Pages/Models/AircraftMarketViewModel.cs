@@ -298,7 +298,6 @@ namespace OpenSky.Client.Pages.Models
 
             // Fire off initial commands
             this.RefreshTypesCommand.DoExecute(null);
-            this.RefreshBalancesCommand.DoExecute(null);
         }
 
         /// -------------------------------------------------------------------------------------------------
