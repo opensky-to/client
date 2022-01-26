@@ -7,11 +7,8 @@
 namespace OpenSky.Client.Tools
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
-    using System.Linq;
 
     using JetBrains.Annotations;
 
@@ -184,42 +181,6 @@ namespace OpenSky.Client.Tools
                 Debug.WriteLine($"Error checking for updated airport client package hash: {ex}");
                 throw;
             }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Validates the specified airport icao.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 10/11/2021.
-        /// </remarks>
-        /// <param name="icao">
-        /// The icao.
-        /// </param>
-        /// <returns>
-        /// A ValidationResult.
-        /// </returns>
-        /// -------------------------------------------------------------------------------------------------
-        public static ValidationResult ValidateAirportICAO(string icao)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(icao))
-                {
-                    var localAirportPackage = GetPackage();
-                    var airport = localAirportPackage?.Airports.SingleOrDefault(a => a.ICAO == icao.ToUpper(CultureInfo.InvariantCulture));
-                    if (airport == null)
-                    {
-                        return new ValidationResult($"No airport with ICAO code {icao}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ValidationResult(ex.Message);
-            }
-
-            return ValidationResult.Success;
         }
     }
 }

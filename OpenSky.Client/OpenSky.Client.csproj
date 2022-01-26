@@ -177,6 +177,11 @@
       <DependentUpon>JobMarket.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Models\AircraftTypesViewModel.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.Aircraft.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.Airports.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.Fuel.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.Payload.cs" />
+    <Compile Include="Pages\Models\FlightPlanViewModel.SimBrief.cs" />
     <Compile Include="Pages\Models\JobMarketViewModel.cs" />
     <Compile Include="Pages\Models\MyJobsViewModel.cs" />
     <Compile Include="Pages\Models\WelcomeViewModel.cs" />

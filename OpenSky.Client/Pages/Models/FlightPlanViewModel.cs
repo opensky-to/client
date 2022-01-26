@@ -10,23 +10,16 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
-    using System.Device.Location;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
-    using System.Net;
-    using System.Text;
     using System.Threading;
     using System.Windows;
-    using System.Windows.Media;
-    using System.Xml.Linq;
 
     using Microsoft.Maps.MapControl.WPF;
 
     using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
-    using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
     using OpenSky.Client.Views.Models;
@@ -44,14 +37,14 @@ namespace OpenSky.Client.Pages.Models
     /// </remarks>
     /// <seealso cref="T:OpenSky.Client.MVVM.ViewModel"/>
     /// -------------------------------------------------------------------------------------------------
-    public class FlightPlanViewModel : ViewModel
+    public partial class FlightPlanViewModel : ViewModel
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The navlog fixes.
+        /// The account balances.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private readonly List<FlightNavlogFix> navlogFixes = new();
+        private AccountBalances accountBalances;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -59,20 +52,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private UserAirline airline;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The alternate icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string alternateICAO;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The alternate route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string alternateRoute;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -97,13 +76,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The destination icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string destinationICAO;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The discard visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -118,24 +90,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The dispatcher remarks.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string dispatcherRemarks;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The flight number (1-9999).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private int flightNumber = 1;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The fuel gallons.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private double? fuelGallons;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -174,38 +132,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The simBrief OFP HTML.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string ofpHtml;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The origin icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string originICAO;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The planned departure time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DateTime plannedDepartureTime;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string route;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The selected aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Aircraft selectedAircraft;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -269,6 +199,7 @@ namespace OpenSky.Client.Pages.Models
             this.DownloadSimBriefCommand = new AsynchronousCommand(this.DownloadSimBrief);
             this.StartFlightCommand = new AsynchronousCommand(this.StartFlight);
             this.UpdateAirportsCommand = new AsynchronousCommand(this.UpdateAirports);
+            this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);
 
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);
@@ -291,10 +222,24 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the aircraft list.
+        /// Gets or sets the account balances.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Aircraft> Aircraft { get; }
+        public AccountBalances AccountBalances
+        {
+            get => this.accountBalances;
+
+            set
+            {
+                if (Equals(this.accountBalances, value))
+                {
+                    return;
+                }
+
+                this.accountBalances = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -316,66 +261,6 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the alternate icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
-        public string AlternateICAO
-        {
-            get => this.alternateICAO;
-
-            set
-            {
-                if (Equals(this.alternateICAO, value))
-                {
-                    return;
-                }
-
-                this.alternateICAO = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-                this.UpdateAirportsCommand.DoExecute(null);
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the alternate route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string AlternateRoute
-        {
-            get => this.alternateRoute;
-
-            set
-            {
-                if (Equals(this.alternateRoute, value))
-                {
-                    return;
-                }
-
-                this.alternateRoute = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the clear aircraft command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command ClearAircraftCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the create simulation brief command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command CreateSimBriefCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -484,30 +369,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the destination icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
-        public string DestinationICAO
-        {
-            get => this.destinationICAO;
-
-            set
-            {
-                if (Equals(this.destinationICAO, value))
-                {
-                    return;
-                }
-
-                this.destinationICAO = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-                this.UpdateAirportsCommand.DoExecute(null);
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the discard command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -557,35 +418,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the dispatcher remarks.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string DispatcherRemarks
-        {
-            get => this.dispatcherRemarks;
-
-            set
-            {
-                if (Equals(this.dispatcherRemarks, value))
-                {
-                    return;
-                }
-
-                this.dispatcherRemarks = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the download simulation brief command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand DownloadSimBriefCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the flight number  (1-9999).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -606,50 +438,6 @@ namespace OpenSky.Client.Pages.Models
                 this.IsDirty = true;
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the fuel gallons.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double? FuelGallons
-        {
-            get => this.fuelGallons;
-
-            set
-            {
-                if (Equals(this.fuelGallons, value))
-                {
-                    return;
-                }
-
-                if (value.HasValue && value > (this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0))
-                {
-                    value = this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0;
-                }
-
-                this.fuelGallons = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-                this.NotifyPropertyChanged(nameof(this.FuelWeight));
-                this.NotifyPropertyChanged(nameof(this.GrossWeight));
-                this.NotifyPropertyChanged(nameof(this.FuelPrice));
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the fuel weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double FuelWeight => (this.FuelGallons ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the maximum fuel weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double MaxFuelWeight => (this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -778,129 +566,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the simBrief OFP HTML.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string OfpHtml
-        {
-            get => this.ofpHtml;
-
-            set
-            {
-                if (Equals(this.ofpHtml, value))
-                {
-                    return;
-                }
-
-                this.ofpHtml = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the origin icao.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        [CustomValidation(typeof(AirportPackageClientHandler), "ValidateAirportICAO")] // todo validation is called, but the textbox isn't showing it
-        public string OriginICAO
-        {
-            get => this.originICAO;
-
-            set
-            {
-                if (Equals(this.originICAO, value))
-                {
-                    return;
-                }
-
-                this.originICAO = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-                this.UpdateAirportsCommand.DoExecute(null);
-
-                UpdateGUIDelegate updateOriginRelated = () =>
-                {
-                    this.UpdateAircraftDistances();
-                    this.UpdatePlannablePayloads();
-                };
-                Application.Current.Dispatcher.BeginInvoke(updateOriginRelated);
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the other payloads.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> OtherPayloads { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads planned for the flight.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<Guid> Payloads { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the plannable payloads.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsAtOrigin { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads on board.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsOnBoard { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payloads towards origin.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<PlannablePayload> PayloadsTowardsOrigin { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the payload weight in lbs.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double PayloadWeight
-        {
-            get
-            {
-                var totalPayload = 0.0;
-                foreach (var payloadID in this.Payloads)
-                {
-                    var atOriginPayload = this.PayloadsAtOrigin.SingleOrDefault(p => p.Id == payloadID);
-                    if (atOriginPayload != null)
-                    {
-                        totalPayload += atOriginPayload.Weight;
-                    }
-
-                    var towardsOriginPayload = this.PayloadsTowardsOrigin.SingleOrDefault(p => p.Id == payloadID);
-                    if (towardsOriginPayload != null)
-                    {
-                        totalPayload += towardsOriginPayload.Weight;
-                    }
-
-                    var otherPayload = this.OtherPayloads.SingleOrDefault(p => p.Id == payloadID);
-                    if (otherPayload != null)
-                    {
-                        totalPayload += otherPayload.Weight;
-                    }
-                }
-
-                return totalPayload;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the planned departure time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -923,13 +588,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the refresh aircraft command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshAircraftCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the refresh airline command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -937,39 +595,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the refresh payloads command.
+        /// Gets the refresh balances command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshPayloadsCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the route.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string Route
-        {
-            get => this.route;
-
-            set
-            {
-                if (Equals(this.route, value))
-                {
-                    return;
-                }
-
-                this.route = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the route trail locations.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public LocationCollection RouteTrailLocations { get; }
+        public AsynchronousCommand RefreshBalancesCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -977,120 +606,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand SaveCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the selected aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Aircraft SelectedAircraft
-        {
-            get => this.selectedAircraft;
-
-            set
-            {
-                if (Equals(this.selectedAircraft, value))
-                {
-                    return;
-                }
-
-                this.selectedAircraft = value;
-                if (value != null)
-                {
-                    this.FuelGallons = value.Fuel;
-                }
-                else
-                {
-                    this.FuelGallons = null;
-                }
-
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-                this.NotifyPropertyChanged(nameof(this.CrewWeight));
-                this.NotifyPropertyChanged(nameof(this.ZeroFuelWeight));
-                this.NotifyPropertyChanged(nameof(this.GrossWeight));
-                this.NotifyPropertyChanged(nameof(this.MaxFuelWeight));
-                this.NotifyPropertyChanged(nameof(this.FuelPricePerGallon));
-                this.NotifyPropertyChanged(nameof(this.FuelPrice));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportFuelWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayErrorVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportFuelWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
-
-                UpdateGUIDelegate updateAircraftRelated = this.UpdatePlannablePayloads;
-                Application.Current.Dispatcher.BeginInvoke(updateAircraftRelated);
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the fuel dump warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility FuelDumpWarningVisibility
-        {
-            get => this.fuelDumpWarningVisibility;
-
-            set
-            {
-                if (Equals(this.fuelDumpWarningVisibility, value))
-                {
-                    return;
-                }
-
-                this.fuelDumpWarningVisibility = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The fuel dump warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility fuelDumpWarningVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the fuel price.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public int FuelPrice
-        {
-            get
-            {
-                if (this.SelectedAircraft != null && this.FuelGallons.HasValue)
-                {
-                    if (this.FuelGallons.Value < this.SelectedAircraft.Fuel)
-                    {
-                        this.FuelDumpWarningVisibility = Visibility.Visible;
-                        return 0;
-                    }
-
-                    this.FuelDumpWarningVisibility = Visibility.Collapsed;
-                    var gallons = this.FuelGallons.Value - this.SelectedAircraft.Fuel;
-                    return (int)(gallons * this.FuelPricePerGallon);
-                }
-
-                return 0;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the simbrief route locations.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public LocationCollection SimbriefRouteLocations { get; set; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the simbrief waypoint markers.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<SimbriefWaypointMarker> SimbriefWaypointMarkers { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1160,105 +675,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Clears the selected aircraft.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 31/10/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void ClearAircraft()
-        {
-            this.SelectedAircraft = null;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Creates the dispatch URL for simbrief with the selected flight plan options.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 02/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void CreateSimBrief()
-        {
-            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
-            {
-                var notification = new OpenSkyNotification("simBrief OFP", "To use this feature, please configure your simBrief username in the settings!", MessageBoxButton.OK, ExtendedMessageBoxImage.Warning, 30);
-                notification.SetWarningColorStyle();
-                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                return;
-            }
-
-            var url = "https://www.simbrief.com/system/dispatch.php?";
-            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Iata))
-            {
-                url += $"airline={this.Airline.Iata}&";
-            }
-
-            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Icao))
-            {
-                url += $"airline={this.Airline.Icao}&";
-            }
-
-            url += $"fltnum={this.FlightNumber}&";
-
-            if (!string.IsNullOrEmpty(this.OriginICAO))
-            {
-                url += $"orig={this.OriginICAO}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.DestinationICAO))
-            {
-                url += $"dest={this.DestinationICAO}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.Route))
-            {
-                url += $"route={WebUtility.UrlEncode(this.Route)}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.AlternateICAO))
-            {
-                url += $"altn={this.AlternateICAO}&";
-
-                // todo revisit alternate simbrief upload, seems to ignore all the advanced stuff and only accepts the primary
-                url += "altn_count=1&";
-                url += $"altn_1_id={this.AlternateICAO}&";
-
-                if (!string.IsNullOrEmpty(this.AlternateRoute))
-                {
-                    url += $"altn_1_route={WebUtility.UrlEncode(this.AlternateRoute)}&";
-                }
-            }
-
-            url += $"date={this.PlannedDepartureTime:ddMMMyy}&";
-            url += $"deph={this.DepartureHour:00}&";
-            url += $"depm={this.DepartureMinute:00}&";
-
-            if (this.SelectedAircraft != null)
-            {
-                url += $"reg={this.SelectedAircraft.Registry}&";
-            }
-
-            url += $"cpt={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&"; // todo add assigned airline pilot once we add that
-            url += $"dxname={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&";
-
-            if (!string.IsNullOrEmpty(this.DispatcherRemarks))
-            {
-                url += $"manualrmk={WebUtility.UrlEncode(this.DispatcherRemarks.Replace("\r", string.Empty).Replace("\n", "\\n"))}&";
-            }
-
-            url += $"static_id={this.ID}&";
-
-            Debug.WriteLine(url);
-            Process.Start(url);
-
-            var fuelNotification = new OpenSkyNotification("simBrief OFP", "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 30);
-            Main.ShowNotificationInSameViewAs(this.ViewReference, fuelNotification);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Deletes the flight plan.
         /// </summary>
         /// <remarks>
@@ -1276,10 +692,7 @@ namespace OpenSky.Client.Pages.Models
                         "Are you sure you want to delete this flight plan?",
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Question);
-                    messageBox.Closed += (_, _) =>
-                    {
-                        answer = messageBox.Result;
-                    };
+                    messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                     Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                 });
             while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -1338,469 +751,6 @@ namespace OpenSky.Client.Pages.Models
         private void DiscardFlightPlan()
         {
             this.ClosePage?.Invoke(this, null);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Downloads the created simBrief OFP.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 03/11/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void DownloadSimBrief(object param)
-        {
-            if (string.IsNullOrEmpty(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername))
-            {
-                this.DownloadSimBriefCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("simBrief OFP", "To use this feature, please configure your simBrief username in the settings!", MessageBoxButton.OK, ExtendedMessageBoxImage.Warning, 30);
-                    notification.SetWarningColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
-                return;
-            }
-
-            this.LoadingText = "Downloading simBrief OFP...";
-            ExtendedMessageBoxResult? answer;
-            try
-            {
-                var ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?username={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}&static_id={this.ID}";
-                if (param is true)
-                {
-                    ofpFetchUrl = $"https://www.simbrief.com/api/xml.fetcher.php?username={WebUtility.UrlEncode(UserSessionService.Instance.LinkedAccounts?.SimbriefUsername)}";
-                }
-
-                Debug.WriteLine(ofpFetchUrl);
-
-                using var client = new WebClient();
-                var xml = client.DownloadString(ofpFetchUrl);
-                var ofp = XElement.Parse(xml);
-
-                // Origin and Destination
-                var sbOriginICAO = (string)ofp.Element("origin")?.Element("icao_code");
-                var sbDestinationICAO = (string)ofp.Element("destination")?.Element("icao_code");
-                if (!string.IsNullOrEmpty(sbOriginICAO) && !string.IsNullOrEmpty(sbDestinationICAO) &&
-                    (!sbOriginICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase) || !sbDestinationICAO.Equals(this.DestinationICAO, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    if (string.IsNullOrEmpty(this.OriginICAO) && string.IsNullOrEmpty(this.DestinationICAO))
-                    {
-                        this.OriginICAO = sbOriginICAO;
-                        this.DestinationICAO = sbDestinationICAO;
-                    }
-                    else
-                    {
-                        answer = null;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "simBrief OFP",
-                                    "Origin or destination ICAO don't match this flight plan. Do you want to use the values from simBrief?",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
-                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            });
-                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
-                        {
-                            Thread.Sleep(500);
-                        }
-
-                        if (answer == ExtendedMessageBoxResult.Yes)
-                        {
-                            this.OriginICAO = sbOriginICAO;
-                            this.DestinationICAO = sbDestinationICAO;
-                        }
-                    }
-                }
-
-                // Alternate
-                var sbAlternateICAO = (string)ofp.Element("alternate")?.Element("icao_code");
-                if (!string.IsNullOrEmpty(sbAlternateICAO))
-                {
-                    if (string.IsNullOrEmpty(this.AlternateICAO))
-                    {
-                        this.AlternateICAO = sbAlternateICAO;
-                    }
-                    else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = null;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "simBrief OFP",
-                                    "Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
-                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            });
-                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
-                        {
-                            Thread.Sleep(500);
-                        }
-
-                        if (answer == ExtendedMessageBoxResult.Yes)
-                        {
-                            this.AlternateICAO = sbAlternateICAO;
-                        }
-                    }
-                }
-
-                // Fuel
-                if (this.SelectedAircraft != null)
-                {
-                    var fuelPlanRamp = double.Parse((string)ofp.Element("fuel")?.Element("plan_ramp"));
-                    var weightUnit = (string)ofp.Element("params")?.Element("units");
-                    if ("kgs".Equals(weightUnit, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        // Convert to lbs
-                        fuelPlanRamp *= 2.20462;
-                    }
-
-                    var plannedGallons = fuelPlanRamp / this.SelectedAircraft.Type.FuelWeightPerGallon;
-                    if (plannedGallons < (this.FuelGallons ?? 0))
-                    {
-                        answer = null;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "simBrief OFP",
-                                    "simBrief planned fuel is less than the currently selected value, do you want to use it anyway?",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
-                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            });
-                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
-                        {
-                            Thread.Sleep(500);
-                        }
-
-                        if (answer == ExtendedMessageBoxResult.Yes)
-                        {
-                            this.DownloadSimBriefCommand.ReportProgress(() => this.FuelGallons = plannedGallons);
-                        }
-                    }
-                    else
-                    {
-                        this.DownloadSimBriefCommand.ReportProgress(() => this.FuelGallons = plannedGallons);
-                    }
-                }
-                else
-                {
-                    this.DownloadSimBriefCommand.ReportProgress(() =>
-                    {
-                        var notification = new OpenSkyNotification("simBrief OFP", "No aircraft selected, can't set planned fuel.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
-                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                    });
-                }
-
-                // ZFW sanity check?
-                // todo decide if we want to add ZFW sanity check to see if the aircraft from simbrief at least roughly matches the one here
-
-                // Route
-                var sbRoute = (string)ofp.Element("general")?.Element("route");
-                if (!string.IsNullOrEmpty(sbRoute))
-                {
-                    // Add airports and runways to route
-                    var sbOriginRunway = (string)ofp.Element("origin")?.Element("plan_rwy");
-                    var sbDestinationRunway = (string)ofp.Element("destination")?.Element("plan_rwy");
-                    if (!string.IsNullOrEmpty(sbOriginICAO))
-                    {
-                        var prefix = sbOriginICAO;
-                        if (!string.IsNullOrEmpty(sbOriginRunway))
-                        {
-                            prefix += $"/{sbOriginRunway}";
-                        }
-
-                        sbRoute = $"{prefix} {sbRoute}";
-                    }
-
-                    if (!string.IsNullOrEmpty(sbDestinationICAO))
-                    {
-                        var postFix = sbDestinationICAO;
-                        if (!string.IsNullOrEmpty(sbDestinationRunway))
-                        {
-                            postFix += $"/{sbDestinationRunway}";
-                        }
-
-                        sbRoute += $" {postFix}";
-                    }
-
-                    if (string.IsNullOrEmpty(this.Route))
-                    {
-                        this.Route = sbRoute;
-                    }
-                    else if (!sbRoute.Equals(this.Route, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = null;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "simBrief OFP",
-                                    "Route doesn't match this flight plan. Do you want to use the values from simBrief?",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
-                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            });
-                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
-                        {
-                            Thread.Sleep(500);
-                        }
-
-                        if (answer == ExtendedMessageBoxResult.Yes)
-                        {
-                            this.Route = sbRoute;
-                        }
-                    }
-                }
-
-                // Alternate route
-                var sbAlternateRoute = (string)ofp.Element("alternate")?.Element("route");
-                if (!string.IsNullOrEmpty(sbAlternateRoute))
-                {
-                    // Add airport and runway to route
-                    var sbAlternateRunway = (string)ofp.Element("alternate")?.Element("plan_rwy");
-                    if (!string.IsNullOrEmpty(sbAlternateICAO))
-                    {
-                        var postFix = sbAlternateICAO;
-                        if (!string.IsNullOrEmpty(sbAlternateRunway))
-                        {
-                            postFix += $"/{sbAlternateRunway}";
-                        }
-
-                        sbAlternateRoute += $" {postFix}";
-                    }
-
-                    if (string.IsNullOrEmpty(this.AlternateRoute))
-                    {
-                        this.AlternateRoute = sbAlternateRoute;
-                    }
-                    else if (!sbAlternateRoute.Equals(this.AlternateRoute, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        answer = null;
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                var messageBox = new OpenSkyMessageBox(
-                                    "simBrief OFP",
-                                    "Alternate route doesn't match this flight plan. Do you want to use the values from simBrief?",
-                                    MessageBoxButton.YesNo,
-                                    ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
-                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            });
-                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
-                        {
-                            Thread.Sleep(500);
-                        }
-
-                        if (answer == ExtendedMessageBoxResult.Yes)
-                        {
-                            this.AlternateRoute = sbAlternateRoute;
-                        }
-                    }
-                }
-
-                // Dispatcher remarks
-                var sbRemarks = string.Empty;
-                foreach (var dispatcherRemark in ofp.Element("general")?.Elements("dx_rmk"))
-                {
-                    if (!string.IsNullOrEmpty(dispatcherRemark.Value))
-                    {
-                        sbRemarks += $"{dispatcherRemark.Value}\r\n";
-                    }
-                }
-
-                sbRemarks = sbRemarks.TrimEnd('\r', '\n');
-                if (this.DispatcherRemarks == null || sbRemarks.Length > this.DispatcherRemarks.Length)
-                {
-                    this.DispatcherRemarks = sbRemarks;
-                }
-
-                // OFP html
-                var sbOfpHtml = (string)ofp.Element("text")?.Element("plan_html");
-                if (!string.IsNullOrEmpty(sbOfpHtml))
-                {
-                    // todo maybe can use this in the future if we find more performant html rendering control
-                    //if (!sbOfpHtml.StartsWith("<html>"))
-                    //{
-                    //    const string style = "body { background-color: #29323c; color: #c2c2c2; margin: -1px; } div { margin-top: 10px; margin-left: 10px; margin-bottom: -10px; }";
-                    //    sbOfpHtml = $"<html><head><style type=\"text/css\">{style}</style></head><body>{sbOfpHtml}</body></html>";
-                    //}
-
-                    // Remove comments
-                    while (sbOfpHtml.Contains("<!--") && sbOfpHtml.Contains("-->"))
-                    {
-                        var start = sbOfpHtml.IndexOf("<!--", StringComparison.InvariantCultureIgnoreCase);
-                        var end = sbOfpHtml.IndexOf("-->", start, StringComparison.InvariantCultureIgnoreCase);
-                        if (start != -1 && end != -1)
-                        {
-                            sbOfpHtml = sbOfpHtml.Substring(0, start) + sbOfpHtml.Substring(end + 3);
-                        }
-                    }
-
-                    // Replace page breaks
-                    sbOfpHtml = sbOfpHtml.Replace("<h2 style=\"page-break-after: always;\"> </h2>", "\r\n\r\n");
-
-                    // Remove html tags
-                    while (sbOfpHtml.Contains("<") && sbOfpHtml.Contains(">"))
-                    {
-                        var start = sbOfpHtml.IndexOf("<", StringComparison.InvariantCultureIgnoreCase);
-                        var end = sbOfpHtml.IndexOf(">", start, StringComparison.InvariantCultureIgnoreCase);
-                        if (start != -1 && end != -1)
-                        {
-                            // Are we removing an image?
-                            if (sbOfpHtml.Substring(start, 4) == "<img")
-                            {
-                                sbOfpHtml = sbOfpHtml.Substring(0, start) + "---Image removed---" + sbOfpHtml.Substring(end + 1);
-                            }
-                            else
-                            {
-                                sbOfpHtml = sbOfpHtml.Substring(0, start) + sbOfpHtml.Substring(end + 1);
-                            }
-                        }
-                    }
-
-                    this.DownloadSimBriefCommand.ReportProgress(() => this.OfpHtml = sbOfpHtml);
-                }
-
-                // Navlog fixes
-                var originLat = double.Parse((string)ofp.Element("origin").Element("pos_lat"));
-                var originLon = double.Parse((string)ofp.Element("origin").Element("pos_long"));
-                this.navlogFixes.Clear();
-                var fixNumber = 0;
-                this.navlogFixes.Add(
-                    new FlightNavlogFix
-                    {
-                        FlightID = this.ID,
-                        FixNumber = fixNumber++,
-                        Type = "apt",
-                        Ident = this.OriginICAO,
-                        Latitude = originLat,
-                        Longitude = originLon
-                    });
-
-                this.DownloadSimBriefCommand.ReportProgress(
-                    () =>
-                    {
-                        this.SimbriefRouteLocations.Clear();
-                        this.SimbriefWaypointMarkers.Clear();
-
-                        this.SimbriefRouteLocations.Add(new Location(originLat, originLon));
-                    });
-                var fixes = ofp.Element("navlog").Elements("fix");
-                foreach (var fix in fixes)
-                {
-                    var ident = (string)fix.Element("ident");
-                    var latitude = double.Parse((string)fix.Element("pos_lat"));
-                    var longitude = double.Parse((string)fix.Element("pos_long"));
-                    var type = (string)fix.Element("type");
-
-                    this.navlogFixes.Add(
-                        new FlightNavlogFix
-                        {
-                            FlightID = this.ID,
-                            FixNumber = fixNumber++,
-                            Type = type,
-                            Ident = ident,
-                            Latitude = latitude,
-                            Longitude = longitude
-                        });
-
-                    if (this.SimbriefRouteLocations != null && this.SimbriefWaypointMarkers != null)
-                    {
-                        this.DownloadSimBriefCommand.ReportProgress(
-                            () =>
-                            {
-                                this.SimbriefRouteLocations.Add(new Location(latitude, longitude));
-                                if (type != "apt")
-                                {
-                                    var newMarker = new SimbriefWaypointMarker(latitude, longitude, ident, type);
-                                    this.SimbriefWaypointMarkers.Add(newMarker);
-                                }
-                            });
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                Debug.WriteLine("Web error received from simbrief api: " + ex);
-                var responseStream = ex.Response.GetResponseStream();
-                if (responseStream != null)
-                {
-                    var responseString = string.Empty;
-                    var reader = new StreamReader(responseStream, Encoding.UTF8);
-                    var buffer = new char[1024];
-                    var count = reader.Read(buffer, 0, buffer.Length);
-                    while (count > 0)
-                    {
-                        responseString += new string(buffer, 0, count);
-                        count = reader.Read(buffer, 0, buffer.Length);
-                    }
-
-                    Debug.WriteLine(responseString);
-                    if (responseString.Contains("<OFP>"))
-                    {
-                        var ofp = XElement.Parse(responseString);
-                        var status = ofp.Element("fetch")?.Element("status")?.Value;
-                        if (!string.IsNullOrWhiteSpace(status))
-                        {
-                            Debug.WriteLine("Error fetching flight plan from Simbrief: " + status);
-
-                            if (status.ToLowerInvariant().Contains("no flight plan on file for the specified static id"))
-                            {
-                                this.DownloadSimBrief(true);
-                                return;
-                            }
-
-                            this.DownloadSimBriefCommand.ReportProgress(() =>
-                            {
-                                var notification = new OpenSkyNotification("simBrief OFP", status, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
-                                notification.SetErrorColorStyle();
-                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                            });
-                            return;
-                        }
-                    }
-                }
-
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                this.DownloadSimBriefCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "simBrief OFP", "Error downloading simBrief OFP!", ExtendedMessageBoxImage.Error, 30);
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1887,66 +837,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Refreshes the list of available aircraft.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 31/10/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void RefreshAircraft()
-        {
-            this.LoadingText = "Refreshing aircraft...";
-            try
-            {
-                var currentSelection = this.SelectedAircraft;
-                var currentFuel = this.FuelGallons;
-                var result = OpenSkyService.Instance.GetMyAircraftAsync().Result;
-                if (!result.IsError)
-                {
-                    this.RefreshAircraftCommand.ReportProgress(
-                        () =>
-                        {
-                            this.Aircraft.Clear();
-                            this.Aircraft.AddRange(result.Data.OrderBy(a => a.Registry));
-                            this.UpdateAircraftDistances();
-
-                            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
-                            {
-                                this.SelectedAircraft = currentSelection;
-                                this.FuelGallons = currentFuel;
-                                this.IsDirty = false;
-                            }
-                        });
-                }
-                else
-                {
-                    this.RefreshAircraftCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error refreshing aircraft: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            var notification = new OpenSkyNotification("Error refreshing aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.ViewReference, this.RefreshAircraftCommand, "Error refreshing aircraft");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Refreshes the user's airline.
         /// </summary>
         /// <remarks>
@@ -1980,7 +870,6 @@ namespace OpenSky.Client.Pages.Models
                             var notification = new OpenSkyNotification("Error refreshing airline info", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                             notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
                         });
                 }
             }
@@ -1996,52 +885,42 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Refreshes the list of plannable payloads.
+        /// Refresh account balances.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 19/12/2021.
+        /// sushi.at, 26/01/2022.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void RefreshPayloads()
+        private void RefreshBalances()
         {
-            this.LoadingText = "Refreshing payloads...";
+            this.LoadingText = "Refreshing account balances...";
             try
             {
-                var result = OpenSkyService.Instance.GetPlannablePayloadsAsync().Result;
+                var result = OpenSkyService.Instance.GetAccountBalancesAsync().Result;
                 if (!result.IsError)
                 {
-                    this.RefreshPayloadsCommand.ReportProgress(
-                        () =>
-                        {
-                            this.PayloadsOnBoard.Clear();
-                            this.PayloadsAtOrigin.Clear();
-                            this.PayloadsTowardsOrigin.Clear();
-                            this.OtherPayloads.Clear();
-                            this.OtherPayloads.AddRange(result.Data);
-                            this.UpdatePlannablePayloads();
-                        });
+                    this.AccountBalances = result.Data;
                 }
                 else
                 {
-                    this.RefreshPayloadsCommand.ReportProgress(
+                    this.RefreshBalancesCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error refreshing payloads: " + result.Message);
+                            Debug.WriteLine("Error refreshing account balances: " + result.Message);
                             if (!string.IsNullOrEmpty(result.ErrorDetails))
                             {
                                 Debug.WriteLine(result.ErrorDetails);
                             }
 
-                            var notification = new OpenSkyNotification("Error refreshing payloads", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            var notification = new OpenSkyNotification("Error refreshing account balances", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                             notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
                         });
                 }
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.ViewReference, this.RefreshPayloadsCommand, "Error refreshing payloads");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshBalancesCommand, "Error refreshing account balances");
             }
             finally
             {
@@ -2114,7 +993,6 @@ namespace OpenSky.Client.Pages.Models
                             var notification = new OpenSkyNotification("Error saving flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                             notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
                         });
                 }
             }
@@ -2149,10 +1027,7 @@ namespace OpenSky.Client.Pages.Models
                             "You first have to save your changes, do you want to save the flight plan now?",
                             MessageBoxButton.YesNo,
                             ExtendedMessageBoxImage.Question);
-                        messageBox.Closed += (_, _) =>
-                        {
-                            answer = messageBox.Result;
-                        };
+                        messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                         Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                     });
                 while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -2254,10 +1129,7 @@ namespace OpenSky.Client.Pages.Models
                                     "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                                 Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                             });
                         while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -2311,617 +1183,6 @@ namespace OpenSky.Client.Pages.Models
             finally
             {
                 this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Update aircraft distances when origin airport changes.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 18/12/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void UpdateAircraftDistances()
-        {
-            var currentSelection = this.SelectedAircraft;
-            var currentAircraft = new List<Aircraft>(this.Aircraft.Where(a => a.Registry != "----"));
-            this.Aircraft.Clear();
-            if (string.IsNullOrEmpty(this.OriginICAO))
-            {
-                foreach (var aircraft in currentAircraft.OrderBy(a => a.Registry))
-                {
-                    aircraft.Distance = 0;
-                    this.Aircraft.Add(aircraft);
-                }
-            }
-            else
-            {
-                // Origin is already set, put the aircraft at that airport first
-                var airportPackage = AirportPackageClientHandler.GetPackage();
-                var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == this.OriginICAO);
-                if (origin != null)
-                {
-                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = $" Aircraft at {this.OriginICAO} ----" } });
-                }
-
-                foreach (var aircraft in currentAircraft.Where(a => a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)).OrderBy(a => a.Registry))
-                {
-                    aircraft.Distance = 0;
-                    this.Aircraft.Add(aircraft);
-                }
-
-                if (origin != null)
-                {
-                    this.Aircraft.Add(new Aircraft { Registry = "----", Type = new AircraftType { Name = " Aircraft at other airports ----" } });
-                }
-
-                var atOtherAirports = new List<Aircraft>();
-                foreach (var aircraft in currentAircraft.Where(a => !a.AirportICAO.Equals(this.OriginICAO, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    aircraft.Distance = 0;
-                    if (origin != null)
-                    {
-                        var aircraftAirport = airportPackage.Airports.SingleOrDefault(a => a.ICAO == aircraft.AirportICAO);
-                        if (aircraftAirport != null)
-                        {
-                            aircraft.Distance = (int)(new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(aircraftAirport.Latitude, aircraftAirport.Longitude)) / 1852.0);
-                        }
-                    }
-
-                    atOtherAirports.Add(aircraft);
-                }
-
-                this.Aircraft.AddRange(atOtherAirports.OrderBy(a => a.Distance).ThenBy(a => a.Registry));
-            }
-
-            if (currentSelection != null && this.Aircraft.Contains(currentSelection))
-            {
-                this.SelectedAircraft = currentSelection;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The alternate airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Airport alternateAirport;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the alternate airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Airport AlternateAirport
-        {
-            get => this.alternateAirport;
-
-            set
-            {
-                if (Equals(this.alternateAirport, value))
-                {
-                    return;
-                }
-
-                this.alternateAirport = value;
-                this.NotifyPropertyChanged();
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportFuelWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayErrorVisibility));
-                this.NotifyPropertyChanged(nameof(this.AlternateAirportClosedErrorVisibility));
-
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the alternate airport fuel warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility AlternateAirportFuelWarningVisibility
-        {
-            get
-            {
-                if (this.AlternateAirport != null && this.SelectedAircraft != null)
-                {
-                    if (this.SelectedAircraft.Type.FuelType == FuelType.AvGas && !this.AlternateAirport.HasAvGas)
-                    {
-                        return Visibility.Visible;
-                    }
-
-                    if (this.SelectedAircraft.Type.FuelType == FuelType.JetFuel && !this.AlternateAirport.HasJetFuel)
-                    {
-                        return Visibility.Visible;
-                    }
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets destination airport short runway warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DestinationAirportShortRunwayWarningVisibility
-        {
-            get
-            {
-                if (this.DestinationAirport != null && this.SelectedAircraft != null)
-                {
-                    var runways = this.DestinationAirport.Runways;
-                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
-                    {
-                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
-                    }
-
-                    if (runways.Count == 0)
-                    {
-                        return Visibility.Collapsed;
-                    }
-
-                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
-                    return longestRunwayDelta is >= -1000 and < 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the alternate airport closed error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility AlternateAirportClosedErrorVisibility => this.AlternateAirport?.IsClosed == true ? Visibility.Visible : Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets destination airport closed error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DestinationAirportClosedErrorVisibility => this.DestinationAirport?.IsClosed == true ? Visibility.Visible : Visibility.Collapsed;
-
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the alternate airport short runway warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility AlternateAirportShortRunwayWarningVisibility
-        {
-            get
-            {
-                if (this.AlternateAirport != null && this.SelectedAircraft != null)
-                {
-                    var runways = this.AlternateAirport.Runways;
-                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
-                    {
-                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
-                    }
-
-                    if (runways.Count == 0)
-                    {
-                        return Visibility.Collapsed;
-                    }
-
-                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
-                    return longestRunwayDelta is >= -1000 and < 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets destination airport short runway error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DestinationAirportShortRunwayErrorVisibility
-        {
-            get
-            {
-                if (this.DestinationAirport != null && this.SelectedAircraft != null)
-                {
-                    var runways = this.DestinationAirport.Runways;
-                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
-                    {
-                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
-                    }
-
-                    if (runways.Count == 0)
-                    {
-                        return Visibility.Visible;
-                    }
-
-
-                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
-                    return longestRunwayDelta < -1000 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the alternate airport short runway error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility AlternateAirportShortRunwayErrorVisibility
-        {
-            get
-            {
-                if (this.AlternateAirport != null && this.SelectedAircraft != null)
-                {
-                    var runways = this.AlternateAirport.Runways;
-                    if (this.SelectedAircraft.Type.RequiresHardSurfaceRunway)
-                    {
-                        runways = runways.Where(r => r.Surface.ParseRunwaySurface().IsHardSurface()).ToList();
-                    }
-
-                    if (runways.Count == 0)
-                    {
-                        return Visibility.Visible;
-                    }
-
-
-                    var longestRunwayDelta = runways.Max(r => r.Length) - this.SelectedAircraft.Type.MinimumRunwayLength;
-                    return longestRunwayDelta < -1000 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets destination airport fuel warning visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DestinationAirportFuelWarningVisibility
-        {
-            get
-            {
-                if (this.DestinationAirport != null && this.SelectedAircraft != null)
-                {
-                    if (this.SelectedAircraft.Type.FuelType == FuelType.AvGas && !this.DestinationAirport.HasAvGas)
-                    {
-                        return Visibility.Visible;
-                    }
-
-                    if (this.SelectedAircraft.Type.FuelType == FuelType.JetFuel && !this.DestinationAirport.HasJetFuel)
-                    {
-                        return Visibility.Visible;
-                    }
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Destination airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Airport destinationAirport;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets destination airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Airport DestinationAirport
-        {
-            get => this.destinationAirport;
-
-            set
-            {
-                if (Equals(this.destinationAirport, value))
-                {
-                    return;
-                }
-
-                this.destinationAirport = value;
-                this.NotifyPropertyChanged();
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportFuelWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
-                this.NotifyPropertyChanged(nameof(this.DestinationAirportClosedErrorVisibility));
-
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The origin airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Airport originAirport;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the origin airport.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Airport OriginAirport
-        {
-            get => this.originAirport;
-
-            set
-            {
-                if (Equals(this.originAirport, value))
-                {
-                    return;
-                }
-
-                this.originAirport = value;
-                this.NotifyPropertyChanged();
-                this.NotifyPropertyChanged(nameof(this.FuelPricePerGallon));
-                this.NotifyPropertyChanged(nameof(this.FuelPrice));
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the fuel price per gallon.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double FuelPricePerGallon
-        {
-            get
-            {
-                if (this.SelectedAircraft != null && this.OriginAirport != null)
-                {
-                    return this.SelectedAircraft.Type.FuelType switch
-                    {
-                        FuelType.AvGas => this.OriginAirport.AvGasPrice,
-                        FuelType.JetFuel => this.OriginAirport.JetFuelPrice,
-                        _ => 0
-                    };
-                }
-
-                return 0;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the update airports command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand UpdateAirportsCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Update airports and their map markers.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 26/01/2022.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void UpdateAirports()
-        {
-            Debug.WriteLine("Updating airports...");
-            try
-            {
-                if (this.TrackingEventMarkers.Count > 0)
-                {
-                    this.UpdateAirportsCommand.ReportProgress(
-                        () =>
-                        {
-                            this.TrackingEventMarkers.Clear();
-                            this.RouteTrailLocations.Clear();
-                        }, true);
-                }
-
-                // Alternate
-                if (!string.IsNullOrEmpty(this.AlternateICAO))
-                {
-                    try
-                    {
-                        this.AlternateAirport = null;
-                        var result = OpenSkyService.Instance.GetAirportAsync(this.AlternateICAO).Result;
-                        if (!result.IsError)
-                        {
-                            this.AlternateAirport = result.Data;
-                            if (this.AlternateAirport != null)
-                            {
-                                this.UpdateAirportsCommand.ReportProgress(
-                                    () =>
-                                    {
-                                        var alternateMarker = new TrackingEventMarker(new GeoCoordinate(this.AlternateAirport.Latitude, this.AlternateAirport.Longitude), this.AlternateICAO, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
-                                        this.TrackingEventMarkers.Add(alternateMarker);
-
-                                        var alternateDetailMarker = new TrackingEventMarker(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black);
-                                        this.TrackingEventMarkers.Add(alternateDetailMarker);
-
-                                        foreach (var runway in this.AlternateAirport.Runways)
-                                        {
-                                            var runwayMarker = new TrackingEventMarker(runway);
-                                            this.TrackingEventMarkers.Add(runwayMarker);
-                                        }
-                                    });
-                            }
-                        }
-                        else
-                        {
-                            var message = result.Message;
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                message += $"\r\n\r\n{result.ErrorDetails}";
-                            }
-                            throw new Exception(message);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving alternate airport information.");
-                    }
-                }
-
-                // Origin
-                if (!string.IsNullOrEmpty(this.OriginICAO))
-                {
-                    try
-                    {
-                        this.OriginAirport = null;
-                        var result = OpenSkyService.Instance.GetAirportAsync(this.OriginICAO).Result;
-                        if (!result.IsError)
-                        {
-                            this.OriginAirport = result.Data;
-                            if (this.OriginAirport != null)
-                            {
-                                this.UpdateAirportsCommand.ReportProgress(
-                                    () =>
-                                    {
-                                        this.RouteTrailLocations.Add(new Location(this.OriginAirport.Latitude, this.OriginAirport.Longitude));
-                                        var originMarker = new TrackingEventMarker(new GeoCoordinate(this.OriginAirport.Latitude, this.OriginAirport.Longitude), this.OriginICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(originMarker);
-
-                                        var originDetailMarker = new TrackingEventMarker(this.OriginAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(originDetailMarker);
-
-                                        foreach (var runway in this.OriginAirport.Runways)
-                                        {
-                                            var runwayMarker = new TrackingEventMarker(runway);
-                                            this.TrackingEventMarkers.Add(runwayMarker);
-                                        }
-                                    });
-                            }
-                        }
-                        else
-                        {
-                            var message = result.Message;
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                message += $"\r\n\r\n{result.ErrorDetails}";
-                            }
-                            throw new Exception(message);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving origin airport information.");
-                    }
-                }
-
-                // Destination
-                if (!string.IsNullOrEmpty(this.DestinationICAO))
-                {
-                    try
-                    {
-                        this.DestinationAirport = null;
-                        var result = OpenSkyService.Instance.GetAirportAsync(this.DestinationICAO).Result;
-                        if (!result.IsError)
-                        {
-                            this.DestinationAirport = result.Data;
-                            if (this.DestinationAirport != null)
-                            {
-                                this.UpdateAirportsCommand.ReportProgress(
-                                    () =>
-                                    {
-                                        this.RouteTrailLocations.Add(new Location(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude));
-                                        var destinationMarker = new TrackingEventMarker(new GeoCoordinate(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude), this.DestinationICAO, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(destinationMarker);
-
-                                        var destinationDetailMarker = new TrackingEventMarker(this.DestinationAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                        this.TrackingEventMarkers.Add(destinationDetailMarker);
-
-                                        foreach (var runway in this.DestinationAirport.Runways)
-                                        {
-                                            var runwayMarker = new TrackingEventMarker(runway);
-                                            this.TrackingEventMarkers.Add(runwayMarker);
-                                        }
-                                    });
-                            }
-                        }
-                        else
-                        {
-                            var message = result.Message;
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                message += $"\r\n\r\n{result.ErrorDetails}";
-                            }
-                            throw new Exception(message);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving destination airport information.");
-                    }
-                }
-
-                this.UpdateAirportsCommand.ReportProgress(
-                    () =>
-                    {
-                        this.MapUpdated?.Invoke(this, EventArgs.Empty);
-                    });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                this.UpdateAirportsCommand.ReportProgress(
-                    () =>
-                    {
-                        var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = ex.Message, Exception = ex }, "Update airports", ex.Message, ExtendedMessageBoxImage.Error, 30);
-                        notification.SetErrorColorStyle();
-                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                    });
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Update plannable payloads distribution depending on selected Origin.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 19/12/2021.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void UpdatePlannablePayloads()
-        {
-            var payloads = new List<PlannablePayload>(this.PayloadsOnBoard);
-            payloads.AddRange(this.PayloadsAtOrigin);
-            payloads.AddRange(this.PayloadsTowardsOrigin);
-            payloads.AddRange(this.OtherPayloads);
-            this.PayloadsOnBoard.Clear();
-            this.PayloadsAtOrigin.Clear();
-            this.PayloadsTowardsOrigin.Clear();
-            this.OtherPayloads.Clear();
-
-            if (string.IsNullOrEmpty(this.OriginICAO) && this.SelectedAircraft == null)
-            {
-                // No origin, no aircraft
-                this.OtherPayloads.AddRange(payloads);
-            }
-            else
-            {
-                if (this.SelectedAircraft == null)
-                {
-                    // Origin selected, but no aircraft
-                    this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
-                    this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
-                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && !p.Destinations.Contains(this.OriginICAO)));
-                }
-                else if (string.IsNullOrEmpty(this.OriginICAO))
-                {
-                    // Aircraft selected, but no origin
-                    this.PayloadsOnBoard.AddRange(payloads.Where(p => p.CurrentLocation == this.SelectedAircraft.Registry));
-                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.SelectedAircraft.Registry));
-                }
-                else
-                {
-                    // Both origin and aircraft selected
-                    this.PayloadsOnBoard.AddRange(payloads.Where(p => p.CurrentLocation == this.SelectedAircraft.Registry));
-                    this.PayloadsAtOrigin.AddRange(payloads.Where(p => p.CurrentLocation == this.OriginICAO));
-                    this.PayloadsTowardsOrigin.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.Destinations.Contains(this.OriginICAO)));
-                    this.OtherPayloads.AddRange(payloads.Where(p => p.CurrentLocation != this.OriginICAO && p.CurrentLocation != this.SelectedAircraft.Registry && !p.Destinations.Contains(this.OriginICAO)));
-                }
             }
         }
     }
