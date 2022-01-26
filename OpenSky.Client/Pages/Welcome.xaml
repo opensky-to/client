@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="Welcome.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   Welcome page
@@ -26,7 +26,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" FontSize="18">Welcome to the Alpha3 version of the OpenSky client!</TextBlock>
+        <TextBlock Grid.Row="0" FontSize="18">Welcome to the Alpha4 version of the OpenSky client!</TextBlock>
         <TextBox Grid.Row="1" Margin="0,15,0,0" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" IsReadOnly="True" Text="{Binding ChangeLog, Mode=OneWay}" VerticalScrollBarVisibility="Visible" />
     </Grid>
 </controls:OpenSkyPage>
