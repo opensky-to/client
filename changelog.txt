@@ -8,6 +8,7 @@ Version 0.4.0 (ALPHA4)
 - Added account balances to certain pages
 - Added fuel purchase information to ground handling and flight planning
 - Added airport warning/error system to flight planning
+- Added financial overview page
 
 --------------------------------------------------------------------------------------
 Version 0.3.5 (ALPHA3)
