@@ -173,10 +173,14 @@
     <Compile Include="Pages\AircraftTypes.xaml.cs">
       <DependentUpon>AircraftTypes.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\FinancialOverview.xaml.cs">
+      <DependentUpon>FinancialOverview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\JobMarket.xaml.cs">
       <DependentUpon>JobMarket.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Models\AircraftTypesViewModel.cs" />
+    <Compile Include="Pages\Models\FinancialOverviewViewModel.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.Aircraft.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.Airports.cs" />
     <Compile Include="Pages\Models\FlightPlanViewModel.Fuel.cs" />
@@ -349,6 +353,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FinancialOverview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
