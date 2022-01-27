@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="AircraftMarket.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   Aircraft market page
@@ -155,7 +155,25 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
+                    <ui:CommandBar.Content>
+                        <Grid Height="35" Margin="5,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="1" Grid.Column="0">Personal account balance:</TextBlock>
+                            <controls:SkybucksCurrency Grid.Row="1" Grid.Column="1" Currency="{Binding AccountBalances.AccountBalance}" Margin="5,0,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}">Airline account balance:</TextBlock>
+                            <controls:SkybucksCurrency Grid.Row="2" Grid.Column="1" Currency="{Binding AccountBalances.AirlineAccountBalance, FallbackValue=0}" Margin="5,0,0,0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}" />
+                        </Grid>
+                    </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the search results [F5]" Command="{Binding SearchCommand}" />
                         <ui:AppBarButton Label="Purchase" ToolTip="Purchase the selected aircraft" Command="{Binding PurchaseCommand}">
@@ -277,7 +295,7 @@
                 <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap"><Bold>2. Purchase Price.</Bold> Buyer will pay to Seller for the Goods and for all obligations specified in this Agreement, if any, as the full and complete purchase price, the sum of:</TextBlock>
 
                 <TextBlock Grid.Row="12" Grid.Column="0" Margin="0,5,0,0">Sale price</TextBlock>
-                <controls:SkybucksCurrency Grid.Row="12" Grid.Column="1" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding AircraftToPurchase.PurchasePrice}" Margin="0,5,0,0" />
+                <controls:SkybucksCurrency Grid.Row="12" Grid.Column="1" FontSize="15" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding AircraftToPurchase.PurchasePrice}" Margin="0,5,0,0" />
 
                 <TextBlock Grid.Row="13" Grid.Column="0" Margin="0,15, 0, 25" Grid.ColumnSpan="2" MaxWidth="350" TextWrapping="Wrap">Buyer shall be responsible for all taxes in connection with the purchase of Goods in this Agreement.</TextBlock>
 

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BooleanVisibilityConverter.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ namespace OpenSky.Client.Converters
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Boolean to visibility converter (True: Visible, False: Collapsed).
+    /// Boolean to visibility converter (True: Visible, False: Collapsed), but can be swapped by setting converter parameter to "invert".
     /// </summary>
     /// <remarks>
     /// sushi.at, 03/04/2021.
@@ -49,6 +49,14 @@ namespace OpenSky.Client.Converters
         /// -------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (parameter is "invert")
+            {
+                if (value is bool invBoolValue)
+                {
+                    return invBoolValue ? Visibility.Collapsed : Visibility.Visible;
+                }
+            }
+
             if (value is bool boolValue)
             {
                 return boolValue ? Visibility.Visible : Visibility.Collapsed;

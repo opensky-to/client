@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="FlightPlan.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   Flight plan page
@@ -40,7 +40,25 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+        <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
+            <ui:CommandBar.Content>
+                <Grid Height="35" Margin="5,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="1" Grid.Column="0">Personal account balance:</TextBlock>
+                    <controls:SkybucksCurrency Grid.Row="1" Grid.Column="1" Currency="{Binding AccountBalances.AccountBalance}" Margin="5,0,0,0" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}">Airline account balance:</TextBlock>
+                    <controls:SkybucksCurrency Grid.Row="2" Grid.Column="1" Currency="{Binding AccountBalances.AirlineAccountBalance, FallbackValue=0}" Margin="5,0,0,0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}" />
+                </Grid>
+            </ui:CommandBar.Content>
             <ui:CommandBar.PrimaryCommands>
                 <ui:AppBarButton Icon="Refresh" Label="Refresh aircraft" ToolTip="Refresh available aircraft" Command="{Binding RefreshAircraftCommand}" />
                 <ui:AppBarButton Icon="Refresh" Label="Refresh payloads" ToolTip="Refresh available payloads [F5]" Command="{Binding RefreshPayloadsCommand}" />
@@ -85,6 +103,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}">Airline?</TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="1" Margin="5" HorizontalAlignment="Center">Flight#</TextBlock>
@@ -104,6 +123,81 @@
                         <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
                         <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
                         <ComboBox Grid.Row="1" Grid.Column="8" ItemsSource="{Binding UtcOffsets}" SelectedValue="{Binding UtcOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding OriginInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="3">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationAirportFuelWarningVisibility}" ToolTip="The alternate airport doesn't sell the required fuel type for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">No fuel</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationAirportShortRunwayWarningVisibility}" ToolTip="Longest runway at destination airport is too short for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Runway</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationAirportShortRunwayErrorVisibility}" ToolTip="Longest runway at destination airport is far too short for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Runway</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationAirportClosedErrorVisibility}" ToolTip="The destination airport is closed.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Closed</TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Vertical">
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateAirportFuelWarningVisibility}" ToolTip="The alternate airport doesn't sell the required fuel type for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">No fuel</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateAirportShortRunwayWarningVisibility}" ToolTip="Longest runway at alternate airport is too short for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                    <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Runway</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateAirportShortRunwayErrorVisibility}" ToolTip="Longest runway at alternate airport is far too short for the selected aircraft.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Runway</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateAirportClosedErrorVisibility}" ToolTip="The alternate airport is closed.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Closed</TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </Grid>
                 </GroupBox>
                 <Grid>
@@ -186,14 +280,53 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
+                                    <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
                                         <TextBlock VerticalAlignment="Center">Load</TextBlock>
                                         <TextBox Margin="5,0" Text="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|false}" />
                                         <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
                                         <TextBlock VerticalAlignment="Center" Text="{Binding SelectedAircraft.Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />
-                                    </StackPanel>
-                                    <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="5,5,5,0">
+                                        <TextBlock VerticalAlignment="Center">Fuel weight</TextBlock>
+                                        <TextBlock Margin="5,0,0,0" Text="{Binding FuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                        <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding MaxFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                                    </WrapPanel>
+                                    <Slider Grid.Row="2" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding FuelGallons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding SelectedAircraft.Type.FuelTotalCapacity, Mode=OneWay}" />
+                                    <WrapPanel Grid.Row="3" Orientation="Horizontal" Margin="5,15,5,0">
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">Current fuel price per US gallon of</TextBlock>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding SelectedAircraft.Type.FuelType}" Margin="5,0" />
+                                        <TextBlock VerticalAlignment="Center">at</TextBlock>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding OriginICAO}" Margin="5,0" />
+                                        <TextBlock VerticalAlignment="Center">is</TextBlock>
+                                        <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding FuelPricePerGallon}" CurrencyFractions="True" />
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Row="4" Orientation="Horizontal" Margin="5,3,5,0">
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">Estimated total cost for this fuelling operation:</TextBlock>
+                                        <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding FuelPrice}" />
+                                        <TextBlock VerticalAlignment="Center">*</TextBlock>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Row="5" Margin="5,10,5,0">
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" FontSize="11">*Fuel cost accurate as of this moment, but fuel will be purchased when the flight is started - at which point fuel prices can have changed.</TextBlock>
+                                    </WrapPanel>
+                                    <Border Grid.Row="6" Margin="5,10,5,5" Background="DarkOrange" CornerRadius="5" Visibility="{Binding FuelDumpWarningVisibility}">
+                                        <Grid Margin="5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="1*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Image Grid.Column="0" Width="16" Height="16" Source="{StaticResource Warning}" />
+                                            <WrapPanel Grid.Column="1" Orientation="Horizontal" >
+                                                <TextBlock Foreground="Black" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" Margin="5,0,0,0">WARNING: You will not be refunded for any fuel removed from the aircraft!</TextBlock>
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Border>
                                 </Grid>
                             </GroupBox>
                         </Grid>

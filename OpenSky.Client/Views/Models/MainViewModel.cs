@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -33,6 +33,13 @@ namespace OpenSky.Client.Views.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The navigation item last activated lock.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly object navigationItemLastActivatedLock = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The active document.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -44,13 +51,6 @@ namespace OpenSky.Client.Views.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DateTime navigationItemLastActivated = DateTime.MinValue;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The navigation item last activated lock.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private readonly object navigationItemLastActivatedLock = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -75,6 +75,9 @@ namespace OpenSky.Client.Views.Models
 
             var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
             this.NavigationItems.Add(worldMap);
+
+            var financialOverview = new NavMenuItem { Name = "Finance", Icon = "/Resources/skybucks16.png", PageType = typeof(FinancialOverview) };
+            this.NavigationItems.Add(financialOverview);
 
             var myJobs = new NavMenuItem { Name = "My jobs", Icon = "/Resources/job16.png", PageType = typeof(MyJobs) };
             this.NavigationItems.Add(myJobs);
@@ -123,21 +126,6 @@ namespace OpenSky.Client.Views.Models
             this.OpenInNewTabCommand = new Command(this.OpenInNewTab);
             this.OpenInNewWindowCommand = new Command(this.OpenInNewWindow);
         }
-
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the open in new tab command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command OpenInNewTabCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the open in new window command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Command OpenInNewWindowCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -193,6 +181,20 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the open in new tab command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command OpenInNewTabCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the open in new window command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command OpenInNewWindowCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the selected navigation menu item.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -214,39 +216,25 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Open menu item in new tab.
+        /// Gets the user information string (user name and airline).
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/06/2021.
-        /// </remarks>
-        /// <param name="parameter">
-        /// The command parameter.
-        /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void OpenInNewTab(object parameter)
+        public string UserInfo
         {
-            if (parameter is NavMenuItem item)
+            get
             {
-                this.NavigationItemInvoked(item, true, false);
-            }
-        }
+                if (UserSessionService.Instance.AccountOverview != null)
+                {
+                    var userInfo = UserSessionService.Instance.AccountOverview.Name;
+                    if (!string.IsNullOrEmpty(UserSessionService.Instance.AccountOverview.AirlineName))
+                    {
+                        userInfo += $" / {UserSessionService.Instance.AccountOverview.AirlineName}";
+                    }
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Open menu item in new window.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 25/06/2021.
-        /// </remarks>
-        /// <param name="parameter">
-        /// The command parameter.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void OpenInNewWindow(object parameter)
-        {
-            if (parameter is NavMenuItem item)
-            {
-                this.NavigationItemInvoked(item, false, true);
+                    return userInfo;
+                }
+
+                return UserSessionService.Instance.Username;
             }
         }
 
@@ -466,6 +454,44 @@ namespace OpenSky.Client.Views.Models
             };
 
             this.DockItems.Add(dockItem);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Open menu item in new tab.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/06/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The command parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void OpenInNewTab(object parameter)
+        {
+            if (parameter is NavMenuItem item)
+            {
+                this.NavigationItemInvoked(item, true, false);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Open menu item in new window.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/06/2021.
+        /// </remarks>
+        /// <param name="parameter">
+        /// The command parameter.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void OpenInNewWindow(object parameter)
+        {
+            if (parameter is NavMenuItem item)
+            {
+                this.NavigationItemInvoked(item, false, true);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------

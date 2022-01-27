@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MyFleetViewModel.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +36,13 @@ namespace OpenSky.Client.Pages.Models
     /// -------------------------------------------------------------------------------------------------
     public class MyFleetViewModel : ViewModel
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The account balances.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AccountBalances accountBalances;
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The edit aircraft variants visibility.
@@ -108,10 +115,31 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The ground operations aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Aircraft groundOperationsAircraft;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The ground operations airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Airport groundOperationsAirport;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The ground operations maximum fuel.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private double groundOperationsMaxFuel;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The ground operations maximum fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private double groundOperationsMaxFuelWeight;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -161,17 +189,39 @@ namespace OpenSky.Client.Pages.Models
 
             // Create commands
             this.RefreshFleetCommand = new AsynchronousCommand(this.RefreshFleet);
+            this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);
             this.StartEditAircraftCommand = new Command(this.StartEditAircraft, false);
             this.CancelEditAircraftCommand = new Command(this.CancelEditAircraft, false);
             this.SaveEditedAircraftCommand = new AsynchronousCommand(this.SaveEditedAircraft, false);
             this.PlanFlightCommand = new Command(this.PlanFlight, false);
             this.GetEditAircraftVariantsCommand = new AsynchronousCommand(this.GetEditAircraftVariants);
-            this.StartGroundOperationsCommand = new Command(this.StartGroundOperations, false);
+            this.StartGroundOperationsCommand = new AsynchronousCommand(this.StartGroundOperations, false);
             this.CancelGroundOperationsCommand = new Command(this.CancelGroundOperations, false);
             this.GetPlannablePayloadsCommand = new AsynchronousCommand(this.GetPlannablePayloads);
             this.SubmitGroundOperationsCommand = new AsynchronousCommand(this.SubmitGroundOperations, false);
             this.FindJobCommand = new Command(this.FindJob, false);
             this.SellAircraftNowCommand = new AsynchronousCommand(this.SellAircraftNow, false);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the account balances.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AccountBalances AccountBalances
+        {
+            get => this.accountBalances;
+
+            set
+            {
+                if (Equals(this.accountBalances, value))
+                {
+                    return;
+                }
+
+                this.accountBalances = value;
+                this.NotifyPropertyChanged();
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -441,6 +491,48 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the ground operations aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Aircraft GroundOperationsAircraft
+        {
+            get => this.groundOperationsAircraft;
+
+            set
+            {
+                if (Equals(this.groundOperationsAircraft, value))
+                {
+                    return;
+                }
+
+                this.groundOperationsAircraft = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ground operations airport.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Airport GroundOperationsAirport
+        {
+            get => this.groundOperationsAirport;
+
+            set
+            {
+                if (Equals(this.groundOperationsAirport, value))
+                {
+                    return;
+                }
+
+                this.groundOperationsAirport = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the ground operations maximum fuel.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -456,6 +548,27 @@ namespace OpenSky.Client.Pages.Models
                 }
 
                 this.groundOperationsMaxFuel = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ground operations maximum fuel weight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double GroundOperationsMaxFuelWeight
+        {
+            get => this.groundOperationsMaxFuelWeight;
+
+            set
+            {
+                if (Equals(this.groundOperationsMaxFuelWeight, value))
+                {
+                    return;
+                }
+
+                this.groundOperationsMaxFuelWeight = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -515,6 +628,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command PlanFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the refresh balances command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshBalancesCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -596,7 +716,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the start ground operations command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public Command StartGroundOperationsCommand { get; }
+        public AsynchronousCommand StartGroundOperationsCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -636,6 +756,10 @@ namespace OpenSky.Client.Pages.Models
         private void CancelGroundOperations()
         {
             this.GroundOperations = null;
+            this.GroundOperationsMaxFuel = 0;
+            this.GroundOperationsMaxFuelWeight = 0;
+            this.GroundOperationsAircraft = null;
+            this.GroundOperationsAirport = null;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -800,6 +924,51 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Refresh account balances.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 26/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshBalances()
+        {
+            this.LoadingText = "Refreshing account balances...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAccountBalancesAsync().Result;
+                if (!result.IsError)
+                {
+                    this.AccountBalances = result.Data;
+                }
+                else
+                {
+                    this.RefreshBalancesCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error refreshing account balances: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error refreshing account balances", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.RefreshBalancesCommand, "Error refreshing account balances");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Refreshes the fleet list.
         /// </summary>
         /// <remarks>
@@ -858,6 +1027,8 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+
+            this.RefreshFleetCommand.ReportProgress(() => this.RefreshBalancesCommand.DoExecute(null));
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -959,10 +1130,7 @@ namespace OpenSky.Client.Pages.Models
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);
                     messageBox.SetWarningColorStyle();
-                    messageBox.Closed += (_, _) =>
-                    {
-                        answer = messageBox.Result;
-                    };
+                    messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                     Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                 });
             while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -1056,23 +1224,76 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraft == null)
             {
-                var notification = new OpenSkyNotification("Error", "Please select the aircraft to perform ground operations for!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
-                notification.SetErrorColorStyle();
-                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                this.StartGroundOperationsCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select the aircraft to perform ground operations for!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
-            this.GroundOperations = new GroundOperations
+            this.LoadingText = "Retrieving airport information...";
+            try
             {
-                Registry = this.SelectedAircraft.Registry,
-                Fuel = this.SelectedAircraft.Fuel
-            };
-            this.GroundOperationsMaxFuel = this.SelectedAircraft.Type.FuelTotalCapacity;
-            this.Payloads.Clear();
-            this.Payloads.AddRange(this.SelectedAircraft.Payloads.Select(p => p.Id));
-            this.AircraftPayloads.Clear();
-            this.AircraftPayloads.AddRange(this.SelectedAircraft.Payloads);
-            this.GetPlannablePayloadsCommand.DoExecute(null);
+                var result = OpenSkyService.Instance.GetAirportAsync(this.SelectedAircraft.AirportICAO).Result;
+                if (!result.IsError)
+                {
+                    this.GroundOperationsAirport = result.Data;
+                }
+                else
+                {
+                    this.StartGroundOperationsCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error retrieving airport information: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error retrieving airport information", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.StartGroundOperationsCommand, "Error retrieving airport information");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+
+            this.StartGroundOperationsCommand.ReportProgress(
+                () =>
+                {
+                    this.GroundOperations = new GroundOperations
+                    {
+                        Registry = this.SelectedAircraft.Registry,
+                        SelectedFuel = this.SelectedAircraft.Fuel,
+                        Fuel = this.SelectedAircraft.Fuel,
+                        FuelWeightPerGallon = this.SelectedAircraft.Type.FuelWeightPerGallon,
+                        FuelPricePerGallon = this.SelectedAircraft.Type.FuelType switch
+                        {
+                            FuelType.AvGas => this.GroundOperationsAirport?.AvGasPrice ?? 0,
+                            FuelType.JetFuel => this.GroundOperationsAirport?.JetFuelPrice ?? 0,
+                            _ => 0
+                        }
+                    };
+
+                    this.GroundOperationsMaxFuel = this.SelectedAircraft.Type.FuelTotalCapacity;
+                    this.GroundOperationsMaxFuelWeight = this.SelectedAircraft.Type.FuelWeightPerGallon * this.SelectedAircraft.Type.FuelTotalCapacity;
+                    this.GroundOperationsAircraft = this.SelectedAircraft;
+                    this.Payloads.Clear();
+                    this.Payloads.AddRange(this.SelectedAircraft.Payloads.Select(p => p.Id));
+                    this.AircraftPayloads.Clear();
+                    this.AircraftPayloads.AddRange(this.SelectedAircraft.Payloads);
+                    this.GetPlannablePayloadsCommand.DoExecute(null);
+                });
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1091,6 +1312,7 @@ namespace OpenSky.Client.Pages.Models
             }
 
             this.GroundOperations.Payloads = this.Payloads.ToList();
+            this.GroundOperations.Fuel = this.GroundOperations.SelectedFuel;
 
             this.LoadingText = "Starting ground operations...";
             try

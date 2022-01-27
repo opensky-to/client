@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="MyFleet.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   My fleet page
@@ -35,6 +35,7 @@
     </UserControl.InputBindings>
     <UserControl.Resources>
         <converters:VisibilityInverterConverter x:Key="VisibilityInverterConverter" />
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
         <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
@@ -60,7 +61,25 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
+                    <ui:CommandBar.Content>
+                        <Grid Height="35" Margin="5,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="1" Grid.Column="0">Personal account balance:</TextBlock>
+                            <controls:SkybucksCurrency Grid.Row="1" Grid.Column="1" Currency="{Binding AccountBalances.AccountBalance}" Margin="5,0,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}">Airline account balance:</TextBlock>
+                            <controls:SkybucksCurrency Grid.Row="2" Grid.Column="1" Currency="{Binding AccountBalances.AirlineAccountBalance, FallbackValue=0}" Margin="5,0,0,0" Visibility="{Binding AccountBalances.AirlineAccountBalance, Converter={StaticResource NullItemToVisibilityConverter}}" />
+                        </Grid>
+                    </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my fleet [F5]" Command="{Binding RefreshFleetCommand}" />
                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected aircraft" Command="{Binding StartEditAircraftCommand}" />
@@ -214,14 +233,42 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
                             <TextBlock VerticalAlignment="Center">Load</TextBlock>
-                            <TextBox Margin="5,0" Text="{Binding GroundOperations.Fuel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|false}" />
+                            <TextBox Margin="5,0" Text="{Binding GroundOperations.SelectedFuel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|false}" />
                             <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
                             <TextBlock VerticalAlignment="Center" Text="{Binding GroundOperationsMaxFuel, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />
                         </StackPanel>
-                        <Slider Grid.Row="1" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding GroundOperations.Fuel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding GroundOperationsMaxFuel, Mode=OneWay}" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,3,5,0">
+                            <TextBlock VerticalAlignment="Center">Fuel weight</TextBlock>
+                            <TextBlock Margin="5,0,0,0" Text="{Binding GroundOperations.FuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                            <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">, maximum is</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{Binding GroundOperationsMaxFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|N1|true}" />
+                        </StackPanel>
+                        <Slider Grid.Row="2" TickFrequency="0.5" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" Margin="5,0" Value="{Binding GroundOperations.SelectedFuel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding GroundOperationsMaxFuel, Mode=OneWay}" />
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="5,15,5,0">
+                            <TextBlock VerticalAlignment="Center">Fuel price per US gallon of</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{Binding GroundOperationsAircraft.Type.FuelType}" Margin="5,0" />
+                            <TextBlock VerticalAlignment="Center">at</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{Binding GroundOperationsAircraft.AirportICAO}" Margin="5,0" />
+                            <TextBlock VerticalAlignment="Center">is</TextBlock>
+                            <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding GroundOperations.FuelPricePerGallon}" CurrencyFractions="True" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="5,3,5,0">
+                            <TextBlock VerticalAlignment="Center">Total cost for this fuelling operation:</TextBlock>
+                            <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding GroundOperations.FuelPrice}" />
+                        </StackPanel>
+                        <Border Grid.Row="5" Margin="5,10,5,5" Background="DarkOrange" CornerRadius="5" Visibility="{Binding GroundOperations.FuelDumpWarningVisibility}">
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Image Width="16" Height="16" Source="{StaticResource Warning}" />
+                                <TextBlock Foreground="Black" FontWeight="SemiBold" VerticalAlignment="Center" Margin="5,0,0,0">WARNING: You will not be refunded for any fuel<LineBreak />removed from the aircraft!</TextBlock>
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </GroupBox>
                 <GroupBox Grid.Row="1">

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AircraftType.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -92,6 +92,31 @@ namespace OpenSkyApi
 
         // ReSharper disable once InconsistentNaming
         public string NameWithVariant => $"{this.Name}{(this.HasVariants ? "*" : string.Empty)}";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether the type requires a hard surface runway.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool RequiresHardSurfaceRunway
+        {
+            get
+            {
+                return this.Category switch
+                {
+                    AircraftTypeCategory.SEP => false,
+                    AircraftTypeCategory.MEP => false,
+                    AircraftTypeCategory.SET => false,
+                    AircraftTypeCategory.MET => false,
+                    AircraftTypeCategory.HEL => false,
+                    AircraftTypeCategory.JET => true,
+                    AircraftTypeCategory.REG => true,
+                    AircraftTypeCategory.NBA => true,
+                    AircraftTypeCategory.WBA => true,
+                    _ => false
+                };
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

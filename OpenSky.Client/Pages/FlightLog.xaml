@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="FlightLogs.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   Flight log page
@@ -20,7 +20,7 @@
                           xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:controlModels="clr-namespace:OpenSky.Client.Controls.Models"
-                          xmlns:sf="http://schemas.syncfusion.com/wpf"
+                          xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
                           mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="1500"
                           HorizontalScrollBar="False" VerticalScrollBar="False">
     <UserControl.DataContext>
@@ -337,32 +337,32 @@
                             </Border>
                         </CheckBox>
                     </StackPanel>
-                    <sf:SfChart Grid.Row="1" Padding="0" Height="200">
-                        <sf:SfChart.PrimaryAxis>
-                            <sf:DateTimeAxis Visibility="Collapsed" ShowGridLines="False" />
-                        </sf:SfChart.PrimaryAxis>
-                        <sf:SfChart.SecondaryAxis>
-                            <sf:NumericalAxis Name="Altitude" Header="Altitude [Feet]" ShowGridLines="False" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" />
-                        </sf:SfChart.SecondaryAxis>
-                        <sf:SfChart.Series>
-                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Altitude" EnableAnimation="True" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" StrokeThickness="3" Interior="#05826c" Label="Altitude" />
-                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Groundspeed" EnableAnimation="True" Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkMagenta" Label="Groundspeed">
-                                <sf:FastLineSeries.YAxis>
-                                    <sf:NumericalAxis Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" ShowGridLines="False" Header="Speed [Knots]" />
-                                </sf:FastLineSeries.YAxis>
-                            </sf:FastLineSeries>
-                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.FuelOnBoard" EnableAnimation="True" Visibility="{Binding FuelAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkOrange" Label="Fuel">
-                                <sf:FastLineSeries.YAxis>
-                                    <sf:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="Fuel [Gallons]" Visibility="{Binding FuelAxisAndSeriesVisibility}" Minimum="0" />
-                                </sf:FastLineSeries.YAxis>
-                            </sf:FastLineSeries>
-                            <sf:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.SimulationRate" EnableAnimation="True" Visibility="{Binding SimRateAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkRed" Label="SimRate">
-                                <sf:FastLineSeries.YAxis>
-                                    <sf:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="SimRate" Interval="1" Visibility="{Binding SimRateAxisAndSeriesVisibility}" />
-                                </sf:FastLineSeries.YAxis>
-                            </sf:FastLineSeries>
-                        </sf:SfChart.Series>
-                    </sf:SfChart>
+                    <syncfusion:SfChart Grid.Row="1" Padding="0" Height="200">
+                        <syncfusion:SfChart.PrimaryAxis>
+                            <syncfusion:DateTimeAxis Visibility="Collapsed" ShowGridLines="False" />
+                        </syncfusion:SfChart.PrimaryAxis>
+                        <syncfusion:SfChart.SecondaryAxis>
+                            <syncfusion:NumericalAxis Name="Altitude" Header="Altitude [Feet]" ShowGridLines="False" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" />
+                        </syncfusion:SfChart.SecondaryAxis>
+                        <syncfusion:SfChart.Series>
+                            <syncfusion:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Altitude" EnableAnimation="True" Visibility="{Binding AltitudeAxisAndSeriesVisibility}" StrokeThickness="3" Interior="#05826c" Label="Altitude" />
+                            <syncfusion:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.Groundspeed" EnableAnimation="True" Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkMagenta" Label="Groundspeed">
+                                <syncfusion:FastLineSeries.YAxis>
+                                    <syncfusion:NumericalAxis Visibility="{Binding GroundSpeedAxisAndSeriesVisibility}" ShowGridLines="False" Header="Speed [Knots]" />
+                                </syncfusion:FastLineSeries.YAxis>
+                            </syncfusion:FastLineSeries>
+                            <syncfusion:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.FuelOnBoard" EnableAnimation="True" Visibility="{Binding FuelAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkOrange" Label="Fuel">
+                                <syncfusion:FastLineSeries.YAxis>
+                                    <syncfusion:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="Fuel [Gallons]" Visibility="{Binding FuelAxisAndSeriesVisibility}" Minimum="0" />
+                                </syncfusion:FastLineSeries.YAxis>
+                            </syncfusion:FastLineSeries>
+                            <syncfusion:FastLineSeries ItemsSource="{Binding AircraftTrailLocations}" XBindingPath="Position.Timestamp" YBindingPath="Position.SimulationRate" EnableAnimation="True" Visibility="{Binding SimRateAxisAndSeriesVisibility}" StrokeThickness="3" Interior="DarkRed" Label="SimRate">
+                                <syncfusion:FastLineSeries.YAxis>
+                                    <syncfusion:NumericalAxis OpposedPosition="True" ShowGridLines="False" Header="SimRate" Interval="1" Visibility="{Binding SimRateAxisAndSeriesVisibility}" />
+                                </syncfusion:FastLineSeries.YAxis>
+                            </syncfusion:FastLineSeries>
+                        </syncfusion:SfChart.Series>
+                    </syncfusion:SfChart>
                 </Grid>
             </GroupBox>
         </Grid>

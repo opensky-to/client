@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SkybucksCurrency.xaml.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ namespace OpenSky.Client.Controls
         /// The currency property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty CurrencyProperty = DependencyProperty.Register("Currency", typeof(int?), typeof(SkybucksCurrency));
+        public static readonly DependencyProperty CurrencyProperty = DependencyProperty.Register("Currency", typeof(double?), typeof(SkybucksCurrency));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -40,10 +40,17 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [Bindable(true)]
-        public int? Currency
+        public double? Currency
         {
-            get => (int?)this.GetValue(CurrencyProperty);
+            get => (double?)this.GetValue(CurrencyProperty);
             set => this.SetValue(CurrencyProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the currency should be shown with fractions.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool CurrencyFractions { get; set; }
     }
 }

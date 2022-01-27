@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DateTimeTimeoutConverter.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace OpenSky.Client.Converters
                 }
 
                 var minus = timeout.TotalHours < 0.0 ? "-" : string.Empty;
-                return timeout.TotalDays > 1.0 ? $"{minus}{timeout.Days}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
+                return Math.Abs(timeout.TotalDays) > 1.0 ? $"{minus}{Math.Abs(timeout.Days)}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
             }
 
             if (value is DateTimeOffset offset)
@@ -92,7 +92,7 @@ namespace OpenSky.Client.Converters
                 }
 
                 var minus = timeout.TotalHours < 0.0 ? "-" : string.Empty;
-                return timeout.TotalDays > 1.0 ? $"{minus}{timeout.Days}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
+                return Math.Abs(timeout.TotalDays) > 1.0 ? $"{minus}{Math.Abs(timeout.Days)}d {timeout:hh\\:mm}" : $"{minus}{timeout:hh\\:mm}";
             }
 
             return null;
