@@ -663,9 +663,7 @@
   <ItemGroup>
     <Resource Include="Resources\map16.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pages\Models\FlightLog\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\profile200.png" />
   </ItemGroup>

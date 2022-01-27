@@ -11,7 +11,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Data.SQLite;
     using System.Diagnostics;
     using System.IO;
-    using System.Threading;
     using System.Windows;
 
     using JetBrains.Annotations;
@@ -87,7 +86,7 @@ namespace OpenSky.Client.Pages.Models
         /// The log text for the Little Navmap MSFS import.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private string littleNavmapMSFSLogText;
+        private string littleNavmapLogText;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -135,6 +134,7 @@ namespace OpenSky.Client.Pages.Models
             this.ClearDataImportSelectionCommand = new Command(this.ClearDataImportSelection);
             this.BrowseLittleNavmapMSFSCommand = new AsynchronousCommand(this.BrowseLittleNavmapMSFS);
             this.GenerateClientAirportPackageCommand = new AsynchronousCommand(this.GenerateClientAirportPackage);
+            this.RefreshDataImportStatusCommand = new AsynchronousCommand(this.RefreshDataImportStatus);
 
             this.RefreshDataImportsCommand.DoExecute(null);
         }
@@ -198,32 +198,24 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the log text for the Little Navmap MSFS import.
+        /// Gets or sets the log text for the Little Navmap import.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string LittleNavmapMSFSLogText
+        public string LittleNavmapLogText
         {
-            get => this.littleNavmapMSFSLogText;
+            get => this.littleNavmapLogText;
 
             set
             {
-                if (Equals(this.littleNavmapMSFSLogText, value))
+                if (Equals(this.littleNavmapLogText, value))
                 {
                     return;
                 }
 
-                this.littleNavmapMSFSLogText = value;
+                this.littleNavmapLogText = value;
                 this.NotifyPropertyChanged();
-                this.NotifyPropertyChanged(nameof(this.LittleNavmapMSFSLogTextVisibility));
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the Little Navmap MSFS log text visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility LittleNavmapMSFSLogTextVisibility => string.IsNullOrEmpty(this.LittleNavmapMSFSLogText) ? Visibility.Collapsed : Visibility.Visible;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -297,6 +289,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the refresh data import status command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshDataImportStatusCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the selected import.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -322,42 +321,6 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.ImportStatusDetails = string.Empty;
                 }
-
-                if (value is { Finished: null })
-                {
-                    new Thread(
-                            () =>
-                            {
-                                try
-                                {
-                                    var id = value.Id;
-                                    var updateResult = OpenSkyService.Instance.GetImportStatusAsync(id).Result;
-                                    while (this.SelectedImport?.Id == id && !updateResult.IsError && updateResult.Status != "COMPLETE")
-                                    {
-                                        if (updateResult.IsError)
-                                        {
-                                            Debug.WriteLine($"Error monitoring data import process: {updateResult.Message}");
-                                            if (!string.IsNullOrEmpty(updateResult.ErrorDetails))
-                                            {
-                                                Debug.WriteLine(updateResult.ErrorDetails);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            this.FormatImportStatus(updateResult.Data);
-                                        }
-
-                                        Thread.Sleep(2500);
-                                        updateResult = OpenSkyService.Instance.GetImportStatusAsync(id).Result;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine($"Error monitoring data import process: {ex}");
-                                }
-                            })
-                        { Name = "DataImportViewModel.AutoRefreshStatus" }.Start();
-                }
             }
         }
 
@@ -378,7 +341,7 @@ namespace OpenSky.Client.Pages.Models
         private void AnalyzeLittleNavmapMSFS(string fileName)
         {
             Debug.WriteLine($"Analyzing SQLite database {fileName}...");
-            this.LittleNavmapMSFSLogText += $"Analyzing SQLite database {fileName}...\r\n";
+            this.LittleNavmapLogText += $"Analyzing SQLite database {fileName}...\r\n";
             var connection = new SQLiteConnection($"URI=file:{fileName};Read Only=true");
             connection.Open();
 
@@ -389,7 +352,7 @@ namespace OpenSky.Client.Pages.Models
                 throw new Exception("Selected sqlite database contains 0 airports or count failed");
             }
 
-            this.LittleNavmapMSFSLogText += $"Selected sqlite database contains {airportCount} airports\r\n";
+            this.LittleNavmapLogText += $"Selected sqlite database contains {airportCount} airports\r\n";
 
             // Runways
             var runwayCountCommand = new SQLiteCommand("SELECT COUNT(runway_id) FROM runway", connection);
@@ -398,7 +361,7 @@ namespace OpenSky.Client.Pages.Models
                 throw new Exception("Selected sqlite database contains 0 runways or count failed");
             }
 
-            this.LittleNavmapMSFSLogText += $"Selected sqlite database contains {runwayCount} runways\r\n";
+            this.LittleNavmapLogText += $"Selected sqlite database contains {runwayCount} runways\r\n";
 
             // Runway ends
             var runwayEndCountCommand = new SQLiteCommand("SELECT COUNT(runway_end_id) FROM runway_end", connection);
@@ -407,7 +370,7 @@ namespace OpenSky.Client.Pages.Models
                 throw new Exception("Selected sqlite database contains 0 runway ends or count failed");
             }
 
-            this.LittleNavmapMSFSLogText += $"Selected sqlite database contains {runwayEndCount} runway ends\r\n";
+            this.LittleNavmapLogText += $"Selected sqlite database contains {runwayEndCount} runway ends\r\n";
 
             // Approaches
             var approachCountCommand = new SQLiteCommand("SELECT COUNT(approach_id) FROM approach", connection);
@@ -416,7 +379,7 @@ namespace OpenSky.Client.Pages.Models
                 throw new Exception("Selected sqlite database contains 0 approaches or count failed");
             }
 
-            this.LittleNavmapMSFSLogText += $"Selected sqlite database contains {approachCount} approaches\r\n";
+            this.LittleNavmapLogText += $"Selected sqlite database contains {approachCount} approaches\r\n";
 
             airportCountCommand.Dispose();
             runwayCountCommand.Dispose();
@@ -465,19 +428,19 @@ namespace OpenSky.Client.Pages.Models
             {
                 try
                 {
-                    this.LittleNavmapMSFSLogText = string.Empty;
+                    this.LittleNavmapLogText = string.Empty;
                     this.AnalyzeLittleNavmapMSFS(fileName);
                     var openSkyFileName = fileName.Replace(".sqlite", "_opensky.sqlite");
-                    this.LittleNavmapMSFSLogText += $"Copying database to {openSkyFileName}...\r\n";
+                    this.LittleNavmapLogText += $"Copying database to {openSkyFileName}...\r\n";
                     File.Copy(fileName, openSkyFileName, true);
                     this.ShrinkLittleNavmapMSFS(openSkyFileName);
                     this.UploadLittleNavmapMSFS(openSkyFileName);
 
-                    this.LittleNavmapMSFSLogText += "\r\n\r\n";
+                    this.LittleNavmapLogText += "\r\n\r\n";
                 }
                 catch (Exception ex)
                 {
-                    this.LittleNavmapMSFSLogText += $"Error processing LittleNavmap SQLite database.\r\n{ex}\r\n";
+                    this.LittleNavmapLogText += $"Error processing LittleNavmap SQLite database.\r\n{ex}\r\n";
                 }
             }
         }
@@ -629,6 +592,38 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Refresh data import status of currently selected import.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 27/01/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshDataImportStatus()
+        {
+            if (this.SelectedImport is { Finished: null })
+            {
+                var updateResult = OpenSkyService.Instance.GetImportStatusAsync(this.SelectedImport.Id).Result;
+                if (updateResult.IsError)
+                {
+                    Debug.WriteLine($"Error monitoring data import process: {updateResult.Message}");
+                    if (!string.IsNullOrEmpty(updateResult.ErrorDetails))
+                    {
+                        Debug.WriteLine(updateResult.ErrorDetails);
+                    }
+                }
+                else
+                {
+                    this.FormatImportStatus(updateResult.Data);
+                    if (updateResult.Status?.Equals("COMPLETE") == true || (updateResult.Data != null && updateResult.Data.Processed == updateResult.Data.Total))
+                    {
+                        this.RefreshDataImportStatusCommand.ReportProgress(() => this.RefreshDataImportsCommand.DoExecute(null));
+                    }
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Shrink Little Navmap MSFS SQLite database.
         /// </summary>
         /// <remarks>
@@ -641,19 +636,19 @@ namespace OpenSky.Client.Pages.Models
         private void ShrinkLittleNavmapMSFS(string fileName)
         {
             Debug.WriteLine($"Shrinking SQLite database {fileName}...");
-            this.LittleNavmapMSFSLogText += $"Shrinking SQLite database {fileName}...\r\n";
+            this.LittleNavmapLogText += $"Shrinking SQLite database {fileName}...\r\n";
             var connection = new SQLiteConnection($"URI=file:{fileName};Read Only=false");
             connection.Open();
 
             foreach (var table in this.littleNavmapMSFSTablesToDelete)
             {
-                this.LittleNavmapMSFSLogText += $"Deleting table {table}...\r\n";
+                this.LittleNavmapLogText += $"Deleting table {table}...\r\n";
                 var command = new SQLiteCommand($"DROP TABLE IF EXISTS {table}", connection);
                 command.ExecuteNonQuery();
                 command.Dispose();
             }
 
-            this.LittleNavmapMSFSLogText += "Cleaning up database to reduce file size...\r\n";
+            this.LittleNavmapLogText += "Cleaning up database to reduce file size...\r\n";
             var vacuumCommand = new SQLiteCommand("vacuum", connection);
             vacuumCommand.ExecuteNonQuery();
             vacuumCommand.Dispose();
@@ -681,7 +676,7 @@ namespace OpenSky.Client.Pages.Models
             try
             {
                 Debug.WriteLine("Uploading Little Navmap MSFS sqlite database...");
-                this.LittleNavmapMSFSLogText += "Uploading Little Navmap MSFS sqlite database...\r\n";
+                this.LittleNavmapLogText += "Uploading Little Navmap MSFS sqlite database...\r\n";
                 var fileParamter = new FileParameter(File.OpenRead(fileName), fileName, "application/x-sqlite3");
                 var result = OpenSkyService.Instance.LittleNavmapMSFSAsync(fileParamter).Result;
                 if (!result.IsError)
@@ -706,11 +701,11 @@ namespace OpenSky.Client.Pages.Models
                 else
                 {
                     Debug.WriteLine($"Error uploading Little Navmap MSFS sqlite database: {result.Message}");
-                    this.LittleNavmapMSFSLogText += $"Error uploading Little Navmap MSFS sqlite database:\r\n{result.Message}\r\n";
+                    this.LittleNavmapLogText += $"Error uploading Little Navmap MSFS sqlite database:\r\n{result.Message}\r\n";
                     if (!string.IsNullOrEmpty(result.ErrorDetails))
                     {
                         Debug.WriteLine(result.ErrorDetails);
-                        this.LittleNavmapMSFSLogText += $"{result.ErrorDetails}\r\n";
+                        this.LittleNavmapLogText += $"{result.ErrorDetails}\r\n";
                     }
                 }
             }
