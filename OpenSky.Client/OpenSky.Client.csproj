@@ -164,6 +164,7 @@
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
+    <Compile Include="Converters\ZeroToNullConverter.cs" />
     <Compile Include="Models\Enums\DistanceUnit.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Airport.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\GroundOperations.cs" />

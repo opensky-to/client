@@ -284,6 +284,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0">
                                         <TextBlock VerticalAlignment="Center">Load</TextBlock>
@@ -307,10 +308,14 @@
                                         <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding FuelPricePerGallon}" CurrencyFractions="True" />
                                     </WrapPanel>
                                     <WrapPanel Grid.Row="4" Orientation="Horizontal" Margin="5,3,5,0">
-                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">Total cost for this fuelling operation:</TextBlock>
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">Estimated total cost for this fuelling operation:</TextBlock>
                                         <controls:SkybucksCurrency Margin="5,0,0,0" Currency="{Binding FuelPrice}" />
+                                        <TextBlock VerticalAlignment="Center">*</TextBlock>
                                     </WrapPanel>
-                                    <Border Grid.Row="5" Margin="5,10,5,5" Background="DarkOrange" CornerRadius="5" Visibility="{Binding FuelDumpWarningVisibility}">
+                                    <WrapPanel Grid.Row="5" Margin="5,10,5,0">
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" FontSize="11">*Fuel cost accurate as of this moment, but fuel will be purchased when the flight is started - at which point fuel prices can have changed.</TextBlock>
+                                    </WrapPanel>
+                                    <Border Grid.Row="6" Margin="5,10,5,5" Background="DarkOrange" CornerRadius="5" Visibility="{Binding FuelDumpWarningVisibility}">
                                         <Grid Margin="5">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />

@@ -3574,6 +3574,16 @@
             "format": "double",
             "readOnly": true
           },
+          "lifeTimeExpense": {
+            "type": "integer",
+            "description": "Gets or sets the life time expense (for the current owner only).",
+            "format": "int64"
+          },
+          "lifeTimeIncome": {
+            "type": "integer",
+            "description": "Gets or sets the life time income (for the current owner only).",
+            "format": "int64"
+          },
           "loadingUntil": {
             "type": "string",
             "description": "Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).",
@@ -5567,6 +5577,62 @@
         "additionalProperties": false,
         "description": "Flight final report model."
       },
+      "FinancialCategory": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "type": "integer",
+        "description": "Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines",
+        "format": "int32",
+        "x-enumNames": [
+          "None",
+          "Aircraft",
+          "Fuel",
+          "Maintenance",
+          "AirportFees",
+          "Salaries",
+          "Loan",
+          "Interest",
+          "Shares",
+          "Dividend",
+          "FBO",
+          "Cargo",
+          "Passengers",
+          "SpecialtyJobs",
+          "Fines"
+        ],
+        "x-enum-varnames": [
+          "None",
+          "Aircraft",
+          "Fuel",
+          "Maintenance",
+          "AirportFees",
+          "Salaries",
+          "Loan",
+          "Interest",
+          "Shares",
+          "Dividend",
+          "FBO",
+          "Cargo",
+          "Passengers",
+          "SpecialtyJobs",
+          "Fines"
+        ]
+      },
       "FinancialOverview": {
         "type": "object",
         "properties": {
@@ -5632,6 +5698,7 @@
       },
       "FinancialRecord": {
         "required": [
+          "category",
           "description",
           "id"
         ],
@@ -5643,6 +5710,9 @@
             "type": "string",
             "description": "Gets or sets the aircraft registry (optional, if record relates to an aircraft).",
             "nullable": true
+          },
+          "category": {
+            "$ref": "#/components/schemas/FinancialCategory"
           },
           "childRecords": {
             "type": "array",
@@ -6967,7 +7037,7 @@
           "value": {
             "type": "integer",
             "description": "Gets or sets the value.",
-            "format": "int32"
+            "format": "int64"
           }
         },
         "additionalProperties": false,

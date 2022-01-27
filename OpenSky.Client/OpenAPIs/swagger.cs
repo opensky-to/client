@@ -6561,6 +6561,14 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("latitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Latitude { get; set; }
     
+        /// <summary>Gets or sets the life time expense (for the current owner only).</summary>
+        [Newtonsoft.Json.JsonProperty("lifeTimeExpense", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long LifeTimeExpense { get; set; }
+    
+        /// <summary>Gets or sets the life time income (for the current owner only).</summary>
+        [Newtonsoft.Json.JsonProperty("lifeTimeIncome", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long LifeTimeIncome { get; set; }
+    
         /// <summary>Gets or sets the Date/Time until the aircraft is loading payload (cargo or pax).</summary>
         [Newtonsoft.Json.JsonProperty("loadingUntil", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? LoadingUntil { get; set; }
@@ -8051,6 +8059,42 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public enum FinancialCategory
+    {
+        None = 0,
+    
+        Aircraft = 1,
+    
+        Fuel = 2,
+    
+        Maintenance = 3,
+    
+        AirportFees = 4,
+    
+        Salaries = 5,
+    
+        Loan = 6,
+    
+        Interest = 7,
+    
+        Shares = 8,
+    
+        Dividend = 9,
+    
+        FBO = 10,
+    
+        Cargo = 11,
+    
+        Passengers = 12,
+    
+        SpecialtyJobs = 13,
+    
+        Fines = 14,
+    
+    }
+    
     /// <summary>Financial overview model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class FinancialOverview 
@@ -8108,6 +8152,9 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(10, MinimumLength = 5)]
         public string AircraftRegistry { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.Always)]
+        public FinancialCategory Category { get; set; }
     
         /// <summary>Gets or sets the child records.</summary>
         [Newtonsoft.Json.JsonProperty("childRecords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -9139,7 +9186,7 @@ namespace OpenSkyApi
     
         /// <summary>Gets or sets the value.</summary>
         [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Value { get; set; }
+        public long Value { get; set; }
     
     
     }

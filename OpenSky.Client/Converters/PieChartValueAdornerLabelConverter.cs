@@ -60,7 +60,7 @@ namespace OpenSky.Client.Converters
             {
                 if (parameter is "others" && list.Count > 2)
                 {
-                    var totalValue = 0;
+                    var totalValue = 0L;
                     foreach (var obj in list)
                     {
                         if (obj is PieChartValue chartValueFromList)
