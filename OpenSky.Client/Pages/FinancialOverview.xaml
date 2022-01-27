@@ -1,0 +1,222 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="FinancialOverview.xaml" company="OpenSky">
+  OpenSky project 2021-2022
+</copyright>
+<summary>
+  Financial overview page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.FinancialOverview"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                      xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                      xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+                      xmlns:ui="http://schemas.modernwpf.com/2019"
+                      xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                      xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                      xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                      xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                      mc:Ignorable="d" Loaded="FinancialOverviewOnLoaded" LoadingText="{Binding LoadingText}"
+                      d:DesignHeight="450" d:DesignWidth="800" HorizontalScrollBar="False">
+    <UserControl.DataContext>
+        <models:FinancialOverviewViewModel />
+    </UserControl.DataContext>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+    </UserControl.InputBindings>
+    <UserControl.Resources>
+        <CollectionViewSource Source="{Binding Overview.RecentFinancialRecords}" x:Key="RecentRecordsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Timestamp" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
+        <converters:ZeroToNullConverter x:Key="ZeroToNullConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:CommandBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Left">
+            <ui:CommandBar.PrimaryCommands>
+                <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh financial overview [F5]" Command="{Binding RefreshCommand}" />
+                <ui:AppBarButton Label="Bob's your uncle" ToolTip="You aren't going to cheat, are you?" Command="{Binding BobsYourUncleCommand}">
+                    <ui:AppBarButton.Icon>
+                        <ui:BitmapIcon UriSource="/Resources/skybucks16.png" ShowAsMonochrome="False" />
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+            </ui:CommandBar.PrimaryCommands>
+        </ui:CommandBar>
+        <GroupBox Grid.Row="1" Grid.Column="0">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Balances</TextBlock>
+            </GroupBox.Header>
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontSize="16">Current account:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontSize="16">Airline shares:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontSize="16">Loans:</TextBlock>
+
+                <controls:SkybucksCurrency Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" FontSize="16" Currency="{Binding Overview.AccountBalance}" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">--todo--</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="5,0,0,0">--todo--</TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="1">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Cashflow for the last 30 days</TextBlock>
+            </GroupBox.Header>
+            <syncfusion:SfChart SideBySideSeriesPlacement="False" Margin="10">
+                <syncfusion:SfChart.Resources>
+                    <DataTemplate x:Key="TooltipTemplate">
+                        <StackPanel Orientation="Horizontal">
+                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                            <TextBlock Text="{Binding Item.Key, StringFormat=dd/MM/yyyy}" />
+                            <TextBlock>:</TextBlock>
+                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                            <controls:SkybucksCurrency Currency="{Binding Item.Value}" Margin="5,0,0,0" />
+                        </StackPanel>
+                    </DataTemplate>
+                    <Style TargetType="Path" x:Key="TooltipLabelStyle">
+                        <Setter Property="Stroke" Value="{StaticResource OpenSkyDarkGrayHeaderBrush}"/>
+                        <Setter Property="Fill" Value="{StaticResource OpenSkyDarkGrayHeaderBrush}"/>
+                    </Style>
+                </syncfusion:SfChart.Resources>
+                <syncfusion:SfChart.Behaviors>
+                    <syncfusion:ChartTooltipBehavior EnableAnimation="True" Position="Auto" ShowDuration="10000" Style="{StaticResource TooltipLabelStyle}" />
+                </syncfusion:SfChart.Behaviors>
+                <syncfusion:SfChart.PrimaryAxis>
+                    <syncfusion:DateTimeAxis x:Name="CashFlowAxis" ShowGridLines="False" IntervalType="Days" Interval="1" LabelFormat="dd" />
+                </syncfusion:SfChart.PrimaryAxis>
+                <syncfusion:SfChart.SecondaryAxis>
+                    <syncfusion:NumericalAxis ShowGridLines="True" />
+                </syncfusion:SfChart.SecondaryAxis>
+                <syncfusion:SfChart.Series>
+                    <syncfusion:ColumnSeries ItemsSource="{Binding CashFlowIncome}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" Interior="{StaticResource OpenSkyTealLightBrush}" ShowTooltip="True" TooltipTemplate="{StaticResource TooltipTemplate}" />
+                    <syncfusion:ColumnSeries ItemsSource="{Binding CashFlowExpense}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" Interior="DarkRed" ShowTooltip="True" TooltipTemplate="{StaticResource TooltipTemplate}" />
+                    <syncfusion:LineSeries ItemsSource="{Binding CashFlow}" XBindingPath="Key" YBindingPath="Value" Interior="#666" EnableAnimation="True" />
+                </syncfusion:SfChart.Series>
+            </syncfusion:SfChart>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="2">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Income and Expense distribution</TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="350" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <syncfusion:SfChart Grid.Column="0" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <syncfusion:SfChart.Series>
+                        <syncfusion:DoughnutSeries ItemsSource="{Binding IncomeDistribution}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="Outside" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                            <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                            </syncfusion:DoughnutSeries.AdornmentsInfo>
+                            <syncfusion:DoughnutSeries.CenterView>
+                                <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock FontSize="20">Income</TextBlock>
+                                </ContentControl>
+                            </syncfusion:DoughnutSeries.CenterView>
+                        </syncfusion:DoughnutSeries>
+                    </syncfusion:SfChart.Series>
+                </syncfusion:SfChart>
+                <syncfusion:SfChart Grid.Column="1" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <syncfusion:SfChart.Series>
+                        <syncfusion:DoughnutSeries ItemsSource="{Binding ExpenseDistribution}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="Outside" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                            <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                            </syncfusion:DoughnutSeries.AdornmentsInfo>
+                            <syncfusion:DoughnutSeries.CenterView>
+                                <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock FontSize="20">Expense</TextBlock>
+                                </ContentControl>
+                            </syncfusion:DoughnutSeries.CenterView>
+                        </syncfusion:DoughnutSeries>
+                    </syncfusion:SfChart.Series>
+                </syncfusion:SfChart>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+            <GroupBox.Header>
+                <TextBlock FontSize="15" FontWeight="DemiBold">Recent transactions</TextBlock>
+            </GroupBox.Header>
+            <DataGrid HorizontalAlignment="Stretch"
+                ItemsSource="{Binding Source={StaticResource RecentRecordsViewSource}}"
+                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column" CanUserResizeColumns="True"
+                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                dgx:DataGridFilter.IsAutoFilterEnabled="True"
+                >
+                <!--  -->
+                <DataGrid.Resources>
+                    <DataTemplate x:Key="IncomeCellTemplate" DataType="openSkyApi:FinancialRecord">
+                        <controls:SkybucksCurrency Currency="{Binding Income, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
+                    </DataTemplate>
+                    <DataTemplate x:Key="ExpenseCellTemplate" DataType="openSkyApi:FinancialRecord">
+                        <controls:SkybucksCurrency Currency="{Binding Expense, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
+                    </DataTemplate>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" FontFamily="Consolas" FontSize="15" SortDirection="Descending" />
+                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" FontFamily="Consolas" FontSize="15" />
+                    <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
+                    <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
+                </DataGrid.Columns>
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate DataType="openSkyApi:FinancialRecord">
+                        <DataGrid ItemsSource="{Binding ChildRecords}" Visibility="{Binding ChildRecords, Converter={StaticResource CollectionEmptyVisibilityConverter}}"
+                                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
+                                  CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" FontFamily="Consolas" FontSize="15" SortDirection="Descending" />
+                                <DataGridTextColumn Header="Category" Binding="{Binding Category}" FontFamily="Consolas" FontSize="15" />
+                                <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
+                                <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+            </DataGrid>
+        </GroupBox>
+    </Grid>
+</controls:OpenSkyPage>

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AircraftMarket.xaml.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -91,6 +91,7 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is AircraftMarketViewModel viewModel)
             {
                 viewModel.ViewReference = this;
+                viewModel.RefreshBalancesCommand.DoExecute(null);
             }
         }
 

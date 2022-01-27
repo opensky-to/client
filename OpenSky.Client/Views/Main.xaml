@@ -1,7 +1,7 @@
 ﻿<!-- 
 ====================================================================================================================
 <copyright file="Main.xaml" company="OpenSky">
-  OpenSky project 2021
+  OpenSky project 2021-2022
 </copyright>
 <summary>
   Main OpenSky application window
@@ -77,7 +77,7 @@
     </Window.Resources>
     <Grid>
         <ui:NavigationView Grid.Column="0" x:Name="NavigationView" 
-                           IsBackButtonVisible="Collapsed" IsSettingsVisible="False" IsPaneOpen="True" CompactModeThresholdWidth="0" PaneTitle="Your airline name here"
+                           IsBackButtonVisible="Collapsed" IsSettingsVisible="False" IsPaneOpen="True" CompactModeThresholdWidth="0" PaneTitle="{Binding UserInfo, Mode=OneWay}"
                            ItemInvoked="NavigationView_OnItemInvoked"
                            MenuItemsSource="{Binding NavigationItems, Mode=OneWay}" 
                            FooterMenuItemsSource="{Binding NavigationFooterItems, Mode=OneWay}"

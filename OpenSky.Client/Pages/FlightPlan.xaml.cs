@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FlightPlan.xaml.cs" company="OpenSky">
-// OpenSky project 2021
+// OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -117,6 +117,7 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is FlightPlanViewModel viewModel)
             {
                 viewModel.ViewReference = this;
+                viewModel.RefreshBalancesCommand.DoExecute(null);
                 viewModel.PropertyChanged += this.ViewModelPropertyChanged;
                 this.ViewModelPropertyChanged(this, new PropertyChangedEventArgs("IsDirty"));
             }
