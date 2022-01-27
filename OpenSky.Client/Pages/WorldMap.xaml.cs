@@ -11,8 +11,11 @@ namespace OpenSky.Client.Pages
     using System.Threading;
     using System.Windows;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Pages.Models;
     using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using Syncfusion.Windows.Tools.Controls;
 
@@ -23,6 +26,20 @@ namespace OpenSky.Client.Pages
     /// -------------------------------------------------------------------------------------------------
     public partial class WorldMap
     {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The update thread mutex.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly Mutex updateThreadMutex = new(false);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True to keep updating the map in the background thread.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool updateMap;
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Initializes a new instance of the <see cref="WorldMap"/> class.
@@ -76,20 +93,6 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True to keep updating the map in the background thread.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool updateMap;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The update thread mutex.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private readonly Mutex updateThreadMutex = new(false);
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// World map on loaded.
         /// </summary>
         /// <remarks>
@@ -109,40 +112,51 @@ namespace OpenSky.Client.Pages
             {
                 viewModel.ViewReference = this;
                 new Thread(
-                    () =>
-                    {
-                        try
-                        {
-                            if (this.updateThreadMutex.WaitOne(500))
-                            {
-                                while (this.updateMap && !SleepScheduler.IsShutdownInProgress)
-                                {
-                                    UpdateGUIDelegate refresh = () => viewModel.RefreshCommand.DoExecute(null);
-                                    this.Dispatcher.BeginInvoke(refresh);
-                                    SleepScheduler.SleepFor(TimeSpan.FromSeconds(30));
-                                }
-
-                                Debug.WriteLine("World map updater thread finished...");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine("Error updating world map: " + ex);
-                        }
-                        finally
+                        () =>
                         {
                             try
                             {
-                                this.updateThreadMutex.ReleaseMutex();
+                                if (this.updateThreadMutex.WaitOne(500))
+                                {
+                                    while (this.updateMap && !SleepScheduler.IsShutdownInProgress)
+                                    {
+                                        UpdateGUIDelegate refresh = () => viewModel.RefreshCommand.DoExecute(null);
+                                        this.Dispatcher.BeginInvoke(refresh);
+                                        SleepScheduler.SleepFor(TimeSpan.FromSeconds(30));
+                                    }
+
+                                    Debug.WriteLine("World map updater thread finished...");
+                                }
                             }
-                            catch
+                            catch (AbandonedMutexException)
                             {
                                 // Ignore
                             }
-                        }
-                    })
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error updating world map: {ex}");
+                                UpdateGUIDelegate showNotification = () =>
+                                {
+                                    var notification = new OpenSkyNotification("Error updating world map", ex.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                    notification.SetErrorColorStyle();
+                                    Main.ShowNotificationInSameViewAs(this, notification);
+                                };
+                                this.Dispatcher.BeginInvoke(showNotification);
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    this.updateThreadMutex.ReleaseMutex();
+                                }
+                                catch
+                                {
+                                    // Ignore
+                                }
+                            }
+                        })
 
-                { Name = "OpenSky.WorldMap.Update" }.Start();
+                    { Name = "OpenSky.WorldMap.Update" }.Start();
             }
         }
 

@@ -20,7 +20,7 @@
                  xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                  xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                  xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-                 mc:Ignorable="d" Loaded="DataImportOnLoaded"
+                 mc:Ignorable="d" Loaded="DataImportOnLoaded" Unloaded="DataImportOnUnloaded"
                  LoadingText="{Binding LoadingText}" HorizontalScrollBar="False" VerticalScrollBar="False"
                  d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
@@ -68,54 +68,58 @@
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
-                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
+                    >
+                    <!-- dgx:DataGridFilter.IsAutoFilterEnabled="True" -->
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" FontFamily="Consolas" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" />
                         <DataGridTextColumn Header="User" Binding="{Binding UserName}" />
-                        <DataGridTextColumn Header="Started" Binding="{Binding Started, Converter={StaticResource UtcTimeStampConverter}}" SortDirection="Descending" />
-                        <DataGridTextColumn Header="Finished" Binding="{Binding Finished, Converter={StaticResource UtcTimeStampConverter}}" />
-                        <DataGridTextColumn Header="Total Processed" Binding="{Binding TotalRecordsProcessed}" />
+                        <DataGridTextColumn Header="Started" Binding="{Binding Started, Converter={StaticResource UtcTimeStampConverter}}" SortDirection="Descending" FontFamily="Consolas" />
+                        <DataGridTextColumn Header="Finished" Binding="{Binding Finished, Converter={StaticResource UtcTimeStampConverter}}" FontFamily="Consolas" />
+                        <DataGridTextColumn Header="Total Processed" Binding="{Binding TotalRecordsProcessed}" FontFamily="Consolas" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <TextBox Grid.Row="2" MinLines="1" FontFamily="Consolas" FontSize="13" IsReadOnly="True" Text="{Binding ImportStatusDetails, Mode=OneWay}" Visibility="{Binding ImportStatusDetailsVisibility}" />
                 <ProgressBar Grid.Row="3" Grid.Column="0" MinHeight="15" Maximum="{Binding ProgressMax}" Value="{Binding ProgressValue}" Visibility="{Binding ImportStatusDetailsVisibility}" />
             </Grid>
         </GroupBox>
-        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-            <StackPanel Orientation="Vertical">
-                <GroupBox MinWidth="350" MaxWidth="350">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="DemiBold">Little Navmap</TextBlock>
-                    </GroupBox.Header>
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Upload MSFS airport data</TextBlock>
-                        <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,0,0,0" Command="{Binding BrowseLittleNavmapMSFSCommand}">Browse...</Button>
-                        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" MinLines="35" MaxLines="35" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11" Margin="0,10,0,0" Text="{Binding LittleNavmapMSFSLogText}" Visibility="{Binding LittleNavmapMSFSLogTextVisibility}" TextChanged="TextBoxBaseOnTextChanged" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox MinWidth="350" MaxWidth="350">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="DemiBold">Client Airport Package</TextBlock>
-                    </GroupBox.Header>
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap">Remember to generate a new client airport package after completing any imports modifying airport data!</TextBlock>
-                        <Button Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,0,0,0" Command="{Binding GenerateClientAirportPackageCommand}">Generate</Button>
-                    </Grid>
-                </GroupBox>
-            </StackPanel>
-        </ScrollViewer>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0" MinWidth="350" MaxWidth="350">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="DemiBold">Little Navmap</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Upload MSFS airport data</TextBlock>
+                    <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,0,0,0" Command="{Binding BrowseLittleNavmapMSFSCommand}">Browse...</Button>
+                    <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" MinLines="35" VerticalAlignment="Stretch" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11" Margin="0,10,0,0" Text="{Binding LittleNavmapLogText}" TextChanged="TextBoxBaseOnTextChanged" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" MinWidth="350" MaxWidth="350">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="DemiBold">Client Airport Package</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap">Remember to generate a new client airport package after completing any imports modifying airport data!</TextBlock>
+                    <Button Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,0,0,0" Command="{Binding GenerateClientAirportPackageCommand}">Generate</Button>
+                </Grid>
+            </GroupBox>
+
+        </Grid>
     </Grid>
 </controls:OpenSkyPage>

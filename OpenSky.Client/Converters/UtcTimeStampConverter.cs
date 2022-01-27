@@ -51,13 +51,13 @@ namespace OpenSky.Client.Converters
             if (value is DateTime dateTime)
             {
                 var utc = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-                return utc.ToString("dd.MM.yyyy HH:mm:ss");
+                return utc.ToString("dd/MM/yyyy HH:mm:ssZ");
             }
 
             if (value is DateTimeOffset offset)
             {
                 var utc = offset.UtcDateTime;
-                return utc.ToString("dd.MM.yyyy HH:mm:ss");
+                return utc.ToString("dd/MM/yyyy HH:mm:ssZ");
             }
 
             return null;

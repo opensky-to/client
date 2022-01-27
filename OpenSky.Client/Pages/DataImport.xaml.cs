@@ -6,13 +6,20 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System;
+    using System.Diagnostics;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Controls.Primitives;
 
     using DataGridExtensions;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.Pages.Models;
+    using OpenSky.Client.Tools;
+    using OpenSky.Client.Views;
 
     using Syncfusion.Windows.Tools.Controls;
 
@@ -109,11 +116,88 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void DataImportOnLoaded(object sender, RoutedEventArgs e)
         {
+            this.updateImportStatus = true;
             if (this.DataContext is DataImportViewModel viewModel)
             {
                 viewModel.ViewReference = this;
+                new Thread(
+                        () =>
+                        {
+                            try
+                            {
+                                if (this.updateThreadMutex.WaitOne(500))
+                                {
+                                    while (this.updateImportStatus && !SleepScheduler.IsShutdownInProgress)
+                                    {
+                                        UpdateGUIDelegate refresh = () => viewModel.RefreshDataImportStatusCommand.DoExecute(null);
+                                        this.Dispatcher.BeginInvoke(refresh);
+                                        SleepScheduler.SleepFor(TimeSpan.FromSeconds(5));
+                                    }
+                                }
+                            }
+                            catch (AbandonedMutexException)
+                            {
+                                // Ignore
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error updating data import status: {ex}");
+                                UpdateGUIDelegate showNotification = () =>
+                                {
+                                    var notification = new OpenSkyNotification("Error updating data import status", ex.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                    notification.SetErrorColorStyle();
+                                    Main.ShowNotificationInSameViewAs(this, notification);
+                                };
+                                this.Dispatcher.BeginInvoke(showNotification);
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    this.updateThreadMutex.ReleaseMutex();
+                                }
+                                catch
+                                {
+                                    // Ignore
+                                }
+                            }
+                        })
+                    { Name = "OpenSky.DataImport.Update" }.Start();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Data import on unloaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 27/01/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void DataImportOnUnloaded(object sender, RoutedEventArgs e)
+        {
+            this.updateImportStatus = false;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The update thread mutex.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly Mutex updateThreadMutex = new(false);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True to keep updating the import status of the selected entry in the background thread.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool updateImportStatus;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -136,5 +220,7 @@ namespace OpenSky.Client.Pages
                 textBox.ScrollToEnd();
             }
         }
+
+        
     }
 }
