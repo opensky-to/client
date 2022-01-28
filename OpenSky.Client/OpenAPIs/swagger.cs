@@ -9995,9 +9995,29 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("approachTypes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<PieChartValue> ApproachTypes { get; set; }
     
+        /// <summary>Gets or sets the completed flights.</summary>
+        [Newtonsoft.Json.JsonProperty("completedFlights", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int CompletedFlights { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for flight aircraft categories.</summary>
+        [Newtonsoft.Json.JsonProperty("flightAircraftCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> FlightAircraftCategories { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for flight operators.</summary>
+        [Newtonsoft.Json.JsonProperty("flightOperators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> FlightOperators { get; set; }
+    
         /// <summary>Gets or sets a pie chart series for fuel availability at airports.</summary>
         [Newtonsoft.Json.JsonProperty("fuelAvailability", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<PieChartValue> FuelAvailability { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for job categories.</summary>
+        [Newtonsoft.Json.JsonProperty("jobCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> JobCategories { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for job types.</summary>
+        [Newtonsoft.Json.JsonProperty("jobTypes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> JobTypes { get; set; }
     
         /// <summary>Gets or sets a pie chart series for runway lights.</summary>
         [Newtonsoft.Json.JsonProperty("runwayLights", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -10018,6 +10038,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the total number of approaches.</summary>
         [Newtonsoft.Json.JsonProperty("totalApproaches", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalApproaches { get; set; }
+    
+        /// <summary>Gets or sets the total number of jobs.</summary>
+        [Newtonsoft.Json.JsonProperty("totalJobs", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalJobs { get; set; }
     
         /// <summary>Gets or sets the total number of runways.</summary>
         [Newtonsoft.Json.JsonProperty("totalRunways", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

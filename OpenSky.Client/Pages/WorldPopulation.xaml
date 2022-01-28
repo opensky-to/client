@@ -8,6 +8,7 @@
              xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:tools="clr-namespace:OpenSky.Client.Tools"
              mc:Ignorable="d" Loaded="WorldPopulationOnLoaded"
              d:DesignHeight="1500" d:DesignWidth="1500" HorizontalScrollBar="True" LoadingText="{Binding LoadingText}">
     <UserControl.DataContext>
@@ -31,8 +32,8 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1050" />
-            <ColumnDefinition Width="*" MinWidth="400" />
+            <ColumnDefinition Width="1*" MinWidth="1050" />
+            <ColumnDefinition Width="1*" MinWidth="1050" />
         </Grid.ColumnDefinitions>
         <ui:CommandBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Left">
             <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh the view [F5]" Command="{Binding RefreshViewCommand}" />
@@ -256,7 +257,125 @@
                 </Grid>
             </GroupBox>
         </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5,0,20,0">
+            <GroupBox Height="300" Margin="5">
+                <GroupBox.Header>
+                    <TextBlock>Jobs</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="10,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Totals" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Diagram1" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Diagram2" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="60" Margin="30,0,30,0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Text="{Binding Overview.TotalJobs}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="30,-10,30,10" VerticalAlignment="Top">Total Jobs</TextBlock>
+                    <syncfusion:SfChart Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Height="220" Padding="0" Width="320">
+                        <syncfusion:SfChart.Series>
+                            <syncfusion:DoughnutSeries ItemsSource="{Binding Overview.JobTypes}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="OutsideExtended" StartAngle="-45" EndAngle="315" GroupMode="Angle" GroupTo="5" SegmentSpacing="0.03" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                                <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                    <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                                </syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:DoughnutSeries.CenterView>
+                                    <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock FontSize="30">Type</TextBlock>
+                                    </ContentControl>
+                                </syncfusion:DoughnutSeries.CenterView>
+                            </syncfusion:DoughnutSeries>
+                        </syncfusion:SfChart.Series>
+                    </syncfusion:SfChart>
+                    <syncfusion:SfChart Margin="30,0,0,0" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Height="220" Padding="0" Width="320">
+                        <syncfusion:SfChart.Series>
+                            <syncfusion:DoughnutSeries ItemsSource="{Binding Overview.JobCategories}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="OutsideExtended" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                                <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                    <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                                </syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:DoughnutSeries.CenterView>
+                                    <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock FontSize="25">Category</TextBlock>
+                                    </ContentControl>
+                                </syncfusion:DoughnutSeries.CenterView>
+                            </syncfusion:DoughnutSeries>
+                        </syncfusion:SfChart.Series>
+                    </syncfusion:SfChart>
+                </Grid>
+            </GroupBox>
+            <GroupBox Height="300" Margin="5">
+                <GroupBox.Header>
+                    <TextBlock>Flights</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="10,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Totals" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Diagram1" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Diagram2" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="60" Margin="30,0,30,0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Text="{Binding Overview.CompletedFlights}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="30,-10,30,10" VerticalAlignment="Top">Completed Flights</TextBlock>
+                    <syncfusion:SfChart Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Height="220" Padding="0" Width="320">
+                        <syncfusion:SfChart.Series>
+                            <syncfusion:DoughnutSeries ItemsSource="{Binding Overview.FlightOperators}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="OutsideExtended" StartAngle="-45" EndAngle="315" GroupMode="Angle" GroupTo="5" SegmentSpacing="0.03" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                                <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                    <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                                </syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:DoughnutSeries.CenterView>
+                                    <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock FontSize="25">Operator</TextBlock>
+                                    </ContentControl>
+                                </syncfusion:DoughnutSeries.CenterView>
+                            </syncfusion:DoughnutSeries>
+                        </syncfusion:SfChart.Series>
+                    </syncfusion:SfChart>
+                    <syncfusion:SfChart Margin="30,0,0,0" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Height="220" Padding="0" Width="320">
+                        <syncfusion:SfChart.Series>
+                            <syncfusion:DoughnutSeries ItemsSource="{Binding Overview.FlightAircraftCategories}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="OutsideExtended" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
+                                <syncfusion:DoughnutSeries.AdornmentsInfo>
+                                    <syncfusion:ChartAdornmentInfo 
+                                    ShowLabel="True"
+                                    ShowConnectorLine="True"
+                                    ConnectorHeight="15"
+                                    UseSeriesPalette="True"
+                                    LabelTemplate="{StaticResource PieChartValueLabelTemplate}"
+                                    SegmentLabelContent="LabelContentPath" />
+                                </syncfusion:DoughnutSeries.AdornmentsInfo>
+                                <syncfusion:DoughnutSeries.CenterView>
+                                    <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock FontSize="25">Category</TextBlock>
+                                    </ContentControl>
+                                </syncfusion:DoughnutSeries.CenterView>
+                            </syncfusion:DoughnutSeries>
+                        </syncfusion:SfChart.Series>
+                    </syncfusion:SfChart>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Visibility="Collapsed" tools:VisibilityAnimation.AnimationType="SlideFromRight">
             <GroupBox Height="455">
                 <GroupBox.Header>
                     <TextBlock>World populator: Failed airports [Max 50]</TextBlock>

@@ -8049,12 +8049,49 @@
             "description": "Gets or sets a pie chart series for approach types.",
             "nullable": true
           },
+          "completedFlights": {
+            "type": "integer",
+            "description": "Gets or sets the completed flights.",
+            "format": "int32"
+          },
+          "flightAircraftCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for flight aircraft categories.",
+            "nullable": true
+          },
+          "flightOperators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for flight operators.",
+            "nullable": true
+          },
           "fuelAvailability": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PieChartValue"
             },
             "description": "Gets or sets a pie chart series for fuel availability at airports.",
+            "nullable": true
+          },
+          "jobCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for job categories.",
+            "nullable": true
+          },
+          "jobTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for job types.",
             "nullable": true
           },
           "runwayLights": {
@@ -8086,6 +8123,11 @@
           "totalApproaches": {
             "type": "integer",
             "description": "Gets or sets the total number of approaches.",
+            "format": "int32"
+          },
+          "totalJobs": {
+            "type": "integer",
+            "description": "Gets or sets the total number of jobs.",
             "format": "int32"
           },
           "totalRunways": {
