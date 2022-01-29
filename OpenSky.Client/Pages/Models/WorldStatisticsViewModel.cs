@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="WorldPopulationViewModel.cs" company="OpenSky">
+// <copyright file="WorldStatisticsViewModel.cs" company="OpenSky">
 // OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace OpenSky.Client.Pages.Models
     /// sushi.at, 02/07/2021.
     /// </remarks>
     /// -------------------------------------------------------------------------------------------------
-    public class WorldPopulationViewModel : ViewModel
+    public class WorldStatisticsViewModel : ViewModel
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -41,7 +41,7 @@ namespace OpenSky.Client.Pages.Models
         /// The world population overview.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private WorldPopulationOverview overview;
+        private WorldStatisticsOverview overview;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -52,10 +52,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The populate result.
+        /// The populate airport result.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private string populateResult;
+        private string populateAirportResult;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -66,13 +66,56 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorldPopulationViewModel"/> class.
+        /// The populate airport visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility populateAirportAirportVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the toggle populate airport command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command TogglePopulateAirportCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the populate airport visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility PopulateAirportVisibility
+        {
+            get => this.populateAirportAirportVisibility;
+        
+            set
+            {
+                if(Equals(this.populateAirportAirportVisibility, value))
+                {
+                   return;
+                }
+        
+                this.populateAirportAirportVisibility = value;
+                this.NotifyPropertyChanged();
+                this.NotifyPropertyChanged(nameof(this.PopulateAirportCommandText));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the populate airport command text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string PopulateAirportCommandText => this.PopulateAirportVisibility == Visibility.Collapsed ? "Show populate aircraft" : "Hide populate aircraft";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WorldStatisticsViewModel"/> class.
         /// </summary>
         /// <remarks>
         /// sushi.at, 02/07/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public WorldPopulationViewModel()
+        public WorldStatisticsViewModel()
         {
             // Initialize data structures
             this.UnprocessedAirports = new ObservableCollection<Airport>();
@@ -80,10 +123,16 @@ namespace OpenSky.Client.Pages.Models
 
             // Create commands
             this.RefreshViewCommand = new AsynchronousCommand(this.RefreshView);
+            this.TogglePopulateAirportCommand = new Command(this.TogglePopulateAirport);
             this.PopulateSelectedFailedCommand = new Command(this.PopulateSelectedFailed, false);
             this.PopulateAirportCommand = new AsynchronousCommand(this.PopulateAirport, false);
 
             this.RefreshViewCommand.DoExecute(null);
+        }
+
+        private void TogglePopulateAirport()
+        {
+            this.PopulateAirportVisibility = this.PopulateAirportVisibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -116,10 +165,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the world population overview.
+        /// Gets or sets the world statistics overview.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public WorldPopulationOverview Overview
+        public WorldStatisticsOverview Overview
         {
             get => this.overview;
 
@@ -166,21 +215,21 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the populate result.
+        /// Gets or sets the populate airport result.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string PopulateResult
+        public string PopulateAirportResult
         {
-            get => this.populateResult;
+            get => this.populateAirportResult;
 
             set
             {
-                if (Equals(this.populateResult, value))
+                if (Equals(this.populateAirportResult, value))
                 {
                     return;
                 }
 
-                this.populateResult = value;
+                this.populateAirportResult = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -241,11 +290,11 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = $"Populating airport {this.PopulateICAO}...";
             try
             {
-                this.PopulateResult = string.Empty;
+                this.PopulateAirportResult = string.Empty;
                 var result = OpenSkyService.Instance.PopulateAirportWithAircraftAsync(this.PopulateICAO).Result;
                 if (!result.IsError)
                 {
-                    this.PopulateResult = result.Data;
+                    this.PopulateAirportResult = result.Data;
                 }
                 else
                 {
@@ -290,7 +339,7 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Refreshes the world population view.
+        /// Refreshes the world statistics view.
         /// </summary>
         /// <remarks>
         /// sushi.at, 02/07/2021.
@@ -298,10 +347,10 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RefreshView()
         {
-            this.LoadingText = "Refreshing world population";
+            this.LoadingText = "Refreshing world statistics";
             try
             {
-                var overviewResult = OpenSkyService.Instance.GetWorldPopulationOverviewAsync().Result;
+                var overviewResult = OpenSkyService.Instance.GetWorldStatisticsOverviewAsync().Result;
                 if (!overviewResult.IsError)
                 {
                     this.Overview = overviewResult.Data;
@@ -311,13 +360,13 @@ namespace OpenSky.Client.Pages.Models
                     this.RefreshViewCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error refreshing world population overview: " + overviewResult.Message);
+                            Debug.WriteLine("Error refreshing world statistics overview: " + overviewResult.Message);
                             if (!string.IsNullOrEmpty(overviewResult.ErrorDetails))
                             {
                                 Debug.WriteLine(overviewResult.ErrorDetails);
                             }
 
-                            var notification = new OpenSkyNotification("Error refreshing world population overview", overviewResult.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            var notification = new OpenSkyNotification("Error refreshing world statistics overview", overviewResult.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                             notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
@@ -385,7 +434,7 @@ namespace OpenSky.Client.Pages.Models
             }
             catch (Exception ex)
             {
-                ex.HandleApiCallException(this.ViewReference, this.RefreshViewCommand, "Error refreshing world population");
+                ex.HandleApiCallException(this.ViewReference, this.RefreshViewCommand, "Error refreshing world statistics");
             }
             finally
             {
