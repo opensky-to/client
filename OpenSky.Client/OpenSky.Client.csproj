@@ -265,7 +265,7 @@
     <Compile Include="Pages\Models\DataImportViewModel.cs" />
     <Compile Include="Pages\Models\MyFleetViewModel.cs" />
     <Compile Include="Pages\Models\SettingsViewModel.cs" />
-    <Compile Include="Pages\Models\WorldPopulationViewModel.cs" />
+    <Compile Include="Pages\Models\WorldStatisticsViewModel.cs" />
     <Compile Include="Pages\MyFleet.xaml.cs">
       <DependentUpon>MyFleet.xaml</DependentUpon>
     </Compile>
@@ -275,8 +275,8 @@
     <Compile Include="Pages\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\WorldPopulation.xaml.cs">
-      <DependentUpon>WorldPopulation.xaml</DependentUpon>
+    <Compile Include="Pages\WorldStatistics.xaml.cs">
+      <DependentUpon>WorldStatistics.xaml</DependentUpon>
     </Compile>
     <Compile Include="Themes\FontOverrides.cs" />
     <Compile Include="Tools\CompressionExtensions.cs" />
@@ -401,7 +401,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\WorldPopulation.xaml">
+    <Page Include="Pages\WorldStatistics.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

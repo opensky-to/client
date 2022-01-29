@@ -110,7 +110,7 @@ namespace OpenSky.Client.Views.Models
                 var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
                 tools.Children.Add(dataImport);
 
-                var worldPopulation = new NavMenuItem { Name = "World population", Icon = "/Resources/world16.png", PageType = typeof(WorldPopulation) };
+                var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics) };
                 tools.Children.Add(worldPopulation);
             }
 

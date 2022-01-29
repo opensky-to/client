@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="WorldPopulation.xaml.cs" company="OpenSky">
+// <copyright file="WorldStatistics.xaml.cs" company="OpenSky">
 // OpenSky project 2021-2022
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -14,20 +14,20 @@ namespace OpenSky.Client.Pages
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// World population page.
+    /// World statistics page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class WorldPopulation
+    public partial class WorldStatistics
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorldPopulation"/> class.
+        /// Initializes a new instance of the <see cref="WorldStatistics"/> class.
         /// </summary>
         /// <remarks>
         /// sushi.at, 02/07/2021.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public WorldPopulation()
+        public WorldStatistics()
         {
             this.InitializeComponent();
         }
@@ -84,9 +84,9 @@ namespace OpenSky.Client.Pages
         /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void WorldPopulationOnLoaded(object sender, RoutedEventArgs e)
+        private void WorldStatisticsOnLoaded(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is WorldPopulationViewModel viewModel)
+            if (this.DataContext is WorldStatisticsViewModel viewModel)
             {
                 viewModel.ViewReference = this;
             }

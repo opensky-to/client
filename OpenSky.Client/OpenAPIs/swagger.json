@@ -3339,31 +3339,31 @@
         }
       }
     },
-    "/WorldPopulation": {
+    "/WorldStatistics": {
       "get": {
         "tags": [
-          "WorldPopulation"
+          "WorldStatistics"
         ],
-        "summary": "Get world population overview.",
+        "summary": "Get world statistics overview.",
         "description": "sushi.at, 02/07/2021.",
-        "operationId": "GetWorldPopulationOverview",
+        "operationId": "GetWorldStatisticsOverview",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                  "$ref": "#/components/schemas/WorldStatisticsOverviewApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                  "$ref": "#/components/schemas/WorldStatisticsOverviewApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorldPopulationOverviewApiResponse"
+                  "$ref": "#/components/schemas/WorldStatisticsOverviewApiResponse"
                 }
               }
             }
@@ -3371,10 +3371,10 @@
         }
       }
     },
-    "/WorldPopulation/populateAircraft/{icao}": {
+    "/WorldStatistics/populateAircraft/{icao}": {
       "post": {
         "tags": [
-          "WorldPopulation"
+          "WorldStatistics"
         ],
         "summary": "Manually request to populate an airport and return info text results.",
         "description": "sushi.at, 05/07/2021.",
@@ -8014,7 +8014,7 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
-      "WorldPopulationOverview": {
+      "WorldStatisticsOverview": {
         "type": "object",
         "properties": {
           "aircraftCategories": {
@@ -8078,13 +8078,26 @@
             "description": "Gets or sets a pie chart series for fuel availability at airports.",
             "nullable": true
           },
-          "jobCategories": {
+          "jobAircraftCategories": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PieChartValue"
             },
             "description": "Gets or sets a pie chart series for job categories.",
             "nullable": true
+          },
+          "jobOperators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PieChartValue"
+            },
+            "description": "Gets or sets a pie chart series for job operators.",
+            "nullable": true
+          },
+          "jobsGenerated": {
+            "type": "integer",
+            "description": "Gets or sets the jobs generated.",
+            "format": "int32"
           },
           "jobTypes": {
             "type": "array",
@@ -8137,13 +8150,13 @@
           }
         },
         "additionalProperties": false,
-        "description": "World population overview model."
+        "description": "World statistics overview model."
       },
-      "WorldPopulationOverviewApiResponse": {
+      "WorldStatisticsOverviewApiResponse": {
         "type": "object",
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/WorldPopulationOverview"
+            "$ref": "#/components/schemas/WorldStatisticsOverview"
           },
           "errorDetails": {
             "type": "string",

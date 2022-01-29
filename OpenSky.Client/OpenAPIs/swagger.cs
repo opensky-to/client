@@ -6174,22 +6174,22 @@ namespace OpenSkyApi
             }
         }
     
-        /// <summary>Get world population overview.</summary>
+        /// <summary>Get world statistics overview.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<WorldPopulationOverviewApiResponse> GetWorldPopulationOverviewAsync()
+        public System.Threading.Tasks.Task<WorldStatisticsOverviewApiResponse> GetWorldStatisticsOverviewAsync()
         {
-            return GetWorldPopulationOverviewAsync(System.Threading.CancellationToken.None);
+            return GetWorldStatisticsOverviewAsync(System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>Get world population overview.</summary>
+        /// <summary>Get world statistics overview.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<WorldPopulationOverviewApiResponse> GetWorldPopulationOverviewAsync(System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<WorldStatisticsOverviewApiResponse> GetWorldStatisticsOverviewAsync(System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WorldPopulation");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WorldStatistics");
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6221,7 +6221,7 @@ namespace OpenSkyApi
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<WorldPopulationOverviewApiResponse>(response_, headers_).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<WorldStatisticsOverviewApiResponse>(response_, headers_).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -6268,7 +6268,7 @@ namespace OpenSkyApi
                 throw new System.ArgumentNullException("icao");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WorldPopulation/populateAircraft/{icao}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WorldStatistics/populateAircraft/{icao}");
             urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = _httpClient;
@@ -9975,9 +9975,9 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>World population overview model.</summary>
+    /// <summary>World statistics overview model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class WorldPopulationOverview 
+    public partial class WorldStatisticsOverview 
     {
         /// <summary>Gets or sets a pie chart series for aircraft categories.</summary>
         [Newtonsoft.Json.JsonProperty("aircraftCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -10012,8 +10012,16 @@ namespace OpenSkyApi
         public System.Collections.Generic.ICollection<PieChartValue> FuelAvailability { get; set; }
     
         /// <summary>Gets or sets a pie chart series for job categories.</summary>
-        [Newtonsoft.Json.JsonProperty("jobCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<PieChartValue> JobCategories { get; set; }
+        [Newtonsoft.Json.JsonProperty("jobAircraftCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> JobAircraftCategories { get; set; }
+    
+        /// <summary>Gets or sets a pie chart series for job operators.</summary>
+        [Newtonsoft.Json.JsonProperty("jobOperators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PieChartValue> JobOperators { get; set; }
+    
+        /// <summary>Gets or sets the jobs generated.</summary>
+        [Newtonsoft.Json.JsonProperty("jobsGenerated", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int JobsGenerated { get; set; }
     
         /// <summary>Gets or sets a pie chart series for job types.</summary>
         [Newtonsoft.Json.JsonProperty("jobTypes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -10052,10 +10060,10 @@ namespace OpenSkyApi
     
     /// <summary>API standard response model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class WorldPopulationOverviewApiResponse 
+    public partial class WorldStatisticsOverviewApiResponse 
     {
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public WorldPopulationOverview Data { get; set; }
+        public WorldStatisticsOverview Data { get; set; }
     
         /// <summary>Gets or sets the error details (NULL if no error).</summary>
         [Newtonsoft.Json.JsonProperty("errorDetails", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

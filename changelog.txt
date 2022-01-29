@@ -9,6 +9,7 @@ Version 0.4.0 (ALPHA4)
 - Added fuel purchase information to ground handling and flight planning
 - Added airport warning/error system to flight planning
 - Added financial overview page
+- Overhauled both data import and world statistics pages
 
 --------------------------------------------------------------------------------------
 Version 0.3.5 (ALPHA3)
