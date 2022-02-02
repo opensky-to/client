@@ -589,6 +589,20 @@ namespace OpenSky.Client.Controls
                                 }
                             };
                             this.Dispatcher.BeginInvoke(removeNotification);
+
+                            // Double check if there is a new message box waiting now
+                            if (this.messageBoxQueue.TryDequeue(out var nextMessageBox))
+                            {
+                                UpdateGUIDelegate addNextNotification = () =>
+                                {
+                                    lock (this.messageBoxContainer)
+                                    {
+                                        this.messageBoxContainer.Children.Add(nextMessageBox);
+                                        nextMessageBox.Closed += this.MessageBoxClosed;
+                                    }
+                                };
+                                this.Dispatcher.BeginInvoke(addNextNotification);
+                            }
                         }
                         catch
                         {

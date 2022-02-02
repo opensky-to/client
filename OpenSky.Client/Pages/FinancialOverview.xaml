@@ -125,13 +125,13 @@
             </GroupBox.Header>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="350" />
-                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="370" />
+                    <ColumnDefinition Width="370" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <syncfusion:SfChart Grid.Column="0" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <syncfusion:SfChart Grid.Column="0" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,35,0">
                     <syncfusion:SfChart.Series>
                         <syncfusion:DoughnutSeries ItemsSource="{Binding IncomeDistribution}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="Outside" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
                             <syncfusion:DoughnutSeries.AdornmentsInfo>
@@ -151,7 +151,7 @@
                         </syncfusion:DoughnutSeries>
                     </syncfusion:SfChart.Series>
                 </syncfusion:SfChart>
-                <syncfusion:SfChart Grid.Column="1" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <syncfusion:SfChart Grid.Column="1" Width="250" Height="170" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,50,0">
                     <syncfusion:SfChart.Series>
                         <syncfusion:DoughnutSeries ItemsSource="{Binding ExpenseDistribution}" XBindingPath="Key" YBindingPath="Value" EnableAnimation="True" EnableSmartLabels="True" DoughnutCoefficient="0.5" LabelPosition="Outside" GroupMode="Angle" GroupTo="0" SegmentSpacing="0.05" Palette="Custom" ColorModel="{StaticResource OpenSkyTealChartColors}">
                             <syncfusion:DoughnutSeries.AdornmentsInfo>
@@ -186,6 +186,12 @@
                 >
                 <!--  -->
                 <DataGrid.Resources>
+                    <DataTemplate x:Key="IncomeCombinedCellTemplate" DataType="openSkyApi:FinancialRecord">
+                        <controls:SkybucksCurrency Currency="{Binding IncomeCombined, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
+                    </DataTemplate>
+                    <DataTemplate x:Key="ExpenseCombinedCellTemplate" DataType="openSkyApi:FinancialRecord">
+                        <controls:SkybucksCurrency Currency="{Binding ExpenseCombined, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
+                    </DataTemplate>
                     <DataTemplate x:Key="IncomeCellTemplate" DataType="openSkyApi:FinancialRecord">
                         <controls:SkybucksCurrency Currency="{Binding Income, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
                     </DataTemplate>
@@ -196,22 +202,24 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" FontFamily="Consolas" FontSize="15" SortDirection="Descending" />
                     <DataGridTextColumn Header="Category" Binding="{Binding Category}" FontFamily="Consolas" FontSize="15" />
-                    <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
-                    <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
+                    <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCombinedCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
+                    <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCombinedCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
                     <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
+                    <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="13" />
                 </DataGrid.Columns>
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate DataType="openSkyApi:FinancialRecord">
                         <DataGrid ItemsSource="{Binding ChildRecords}" Visibility="{Binding ChildRecords, Converter={StaticResource CollectionEmptyVisibilityConverter}}"
                                   AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
-                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="None"
-                                  CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="Column" Margin="30,20,0,40"
+                                  ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" FontFamily="Consolas" FontSize="15" SortDirection="Descending" />
                                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" FontFamily="Consolas" FontSize="15" />
                                 <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
                                 <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
                                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
+                                <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="13" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </DataTemplate>

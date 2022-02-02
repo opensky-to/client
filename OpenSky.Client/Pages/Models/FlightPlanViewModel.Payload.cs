@@ -94,6 +94,12 @@ namespace OpenSky.Client.Pages.Models
                     {
                         totalPayload += otherPayload.Weight;
                     }
+
+                    var payloadOnBoard = this.PayloadsOnBoard.SingleOrDefault(p => p.Id == payloadID);
+                    if (payloadOnBoard != null)
+                    {
+                        totalPayload += payloadOnBoard.Weight;
+                    }
                 }
 
                 return totalPayload;

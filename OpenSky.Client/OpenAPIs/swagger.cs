@@ -8059,7 +8059,7 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines</summary>
+    /// <summary>Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, -1 = Flight</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum FinancialCategory
     {
@@ -8092,6 +8092,8 @@ namespace OpenSkyApi
         SpecialtyJobs = 13,
     
         Fines = 14,
+    
+        Flight = -1,
     
     }
     

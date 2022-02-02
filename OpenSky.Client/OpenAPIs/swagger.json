@@ -5593,10 +5593,11 @@
           11,
           12,
           13,
-          14
+          14,
+          -1
         ],
         "type": "integer",
-        "description": "Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines",
+        "description": "Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, -1 = Flight",
         "format": "int32",
         "x-enumNames": [
           "None",
@@ -5613,7 +5614,8 @@
           "Cargo",
           "Passengers",
           "SpecialtyJobs",
-          "Fines"
+          "Fines",
+          "Flight"
         ],
         "x-enum-varnames": [
           "None",
@@ -5630,7 +5632,8 @@
           "Cargo",
           "Passengers",
           "SpecialtyJobs",
-          "Fines"
+          "Fines",
+          "Flight"
         ]
       },
       "FinancialOverview": {
