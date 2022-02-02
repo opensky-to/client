@@ -6,31 +6,32 @@
 
 // ReSharper disable once CheckNamespace
 
-namespace OpenSkyApi;
-
-using System.Linq;
-
-/// -------------------------------------------------------------------------------------------------
-/// <summary>
-/// Financial record extensions.
-/// </summary>
-/// <remarks>
-/// sushi.at, 01/02/2022.
-/// </remarks>
-/// -------------------------------------------------------------------------------------------------
-public partial class FinancialRecord
+namespace OpenSkyApi
 {
-    /// -------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Gets the expense combined.
-    /// </summary>
-    /// -------------------------------------------------------------------------------------------------
-    public long ExpenseCombined => this.ChildRecords.Count == 0 ? this.Expense : this.ChildRecords.Sum(cr => cr.Expense);
+    using System.Linq;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Gets the income combined.
+    /// Financial record extensions.
     /// </summary>
+    /// <remarks>
+    /// sushi.at, 01/02/2022.
+    /// </remarks>
     /// -------------------------------------------------------------------------------------------------
-    public long IncomeCombined => this.ChildRecords.Count == 0 ? this.Income : this.ChildRecords.Sum(cr => cr.Income);
+    public partial class FinancialRecord
+    {
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the expense combined.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public long ExpenseCombined => this.ChildRecords.Count == 0 ? this.Expense : this.ChildRecords.Sum(cr => cr.Expense);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the income combined.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public long IncomeCombined => this.ChildRecords.Count == 0 ? this.Income : this.ChildRecords.Sum(cr => cr.Income);
+    }
 }
