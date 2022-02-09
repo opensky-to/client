@@ -20,16 +20,19 @@ namespace OpenSky.Client.Controls.Models
 
     using Microsoft.Maps.MapControl.WPF;
 
-    using OpenSky.AirportsJSON;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.S2Geometry.Extensions;
 
+    using OpenSkyApi;
+
     using TomsToolbox.Essentials;
+
+    using Airport = AirportsJSON.Airport;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Mapview view model.
+    /// MapView view model.
     /// </summary>
     /// <remarks>
     /// sushi.at, 04/11/2021.
@@ -89,6 +92,13 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Simulator? simulator;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MapViewViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -98,8 +108,20 @@ namespace OpenSky.Client.Controls.Models
         public MapViewViewModel()
         {
             this.Airports = new ObservableCollection<TrackingEventMarker>();
+            this.Simulators = new ObservableCollection<Simulator>();
+
+            foreach (Simulator sim in Enum.GetValues(typeof(Simulator)))
+            {
+                this.Simulators.Add(sim);
+            }
+
+            if (Properties.Settings.Default.DefaultSimulator != -1)
+            {
+                this.Simulator = (Simulator)Properties.Settings.Default.DefaultSimulator;
+            }
 
             this.EnableAirportsCommand = new AsynchronousCommand(this.EnableAirports);
+            this.ClearSimulatorCommand = new Command(this.ClearSimulator);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -108,6 +130,13 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<TrackingEventMarker> Airports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear simulator command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearSimulatorCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -214,6 +243,34 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Simulator? Simulator
+        {
+            get => this.simulator;
+
+            set
+            {
+                if (Equals(this.simulator, value))
+                {
+                    return;
+                }
+
+                this.simulator = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Simulator> Simulators { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Update the airports collection depending on the current zoom level and map location.
         /// </summary>
         /// <remarks>
@@ -243,7 +300,13 @@ namespace OpenSky.Client.Controls.Models
                                         // Add detailed airport "bounded" markers with runways
                                         var rectCoverage = OpenSkyS2.RectangleCoverage(boundingRectangle.Northwest.Latitude, boundingRectangle.Northwest.Longitude, boundingRectangle.Southeast.Latitude, boundingRectangle.Southeast.Longitude);
                                         var cells = rectCoverage.Cells.Select(c => c.Id).ToList();
-                                        var airports = airportPackage.Airports.AsQueryable().Where($"Size > -1 and !IsClosed and !IsMilitary and @0.Contains(S2Cell{rectCoverage.Level})", cells).ToList();
+                                        var simClause = this.Simulator switch
+                                        {
+                                            OpenSkyApi.Simulator.MSFS => " and MSFS ",
+                                            OpenSkyApi.Simulator.XPlane11 => " and XP11 ",
+                                            _ => string.Empty
+                                        };
+                                        var airports = airportPackage.Airports.AsQueryable().Where($"Size > -1 and !IsClosed and !IsMilitary{simClause} and @0.Contains(S2Cell{rectCoverage.Level})", cells).ToList();
 
                                         // First remove the airports we don't need anymore
                                         var toRemove = new List<string>();
@@ -319,7 +382,13 @@ namespace OpenSky.Client.Controls.Models
 
                                         var rectCoverage = OpenSkyS2.RectangleCoverage(boundingRectangle.Northwest.Latitude, boundingRectangle.Northwest.Longitude, boundingRectangle.Southeast.Latitude, boundingRectangle.Southeast.Longitude);
                                         var cells = rectCoverage.Cells.Select(c => c.Id).ToList();
-                                        var airports = airportPackage.Airports.AsQueryable().Where($"{sizeQuery} and !IsClosed and !IsMilitary and @0.Contains(S2Cell{rectCoverage.Level})", cells).ToList();
+                                        var simClause = this.Simulator switch
+                                        {
+                                            OpenSkyApi.Simulator.MSFS => " and MSFS ",
+                                            OpenSkyApi.Simulator.XPlane11 => " and XP11 ",
+                                            _ => string.Empty
+                                        };
+                                        var airports = airportPackage.Airports.AsQueryable().Where($"{sizeQuery} and !IsClosed and !IsMilitary{simClause} and @0.Contains(S2Cell{rectCoverage.Level})", cells).ToList();
 
                                         // First remove the airports we don't need anymore
                                         var toRemove = new List<string>();
@@ -420,6 +489,19 @@ namespace OpenSky.Client.Controls.Models
                         })
                     { Name = "MapViewViewModel.UpdateAirports" }.Start();
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Clears the simulator.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 25/07/2021.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearSimulator()
+        {
+            this.Simulator = null;
         }
 
         /// -------------------------------------------------------------------------------------------------

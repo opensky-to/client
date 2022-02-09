@@ -16,6 +16,8 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                  xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 xmlns:ui="http://schemas.modernwpf.com/2019"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                  mc:Ignorable="d" HorizontalScrollBar="False"
                  LoadingText="{Binding LoadingText}"
                  Loaded="SettingsOnLoaded"
@@ -23,6 +25,9 @@
     <UserControl.DataContext>
         <models:SettingsViewModel />
     </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+    </UserControl.Resources>
     <StackPanel Orientation="Vertical" Margin="15" Grid.IsSharedSizeScope="True">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -155,9 +160,15 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">Default UTC offset:</TextBlock>
                     <ComboBox Grid.Column="1" Grid.Row="0" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding UtcOffsets}" SelectedItem="{Binding UtcOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">Default simulator:</TextBlock>
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="10,0,0,5">
+                        <ComboBox x:Name="SimCombo"  VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#666" />
+                        <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
+                    </Grid>
                 </Grid>
             </GroupBox>
         </Grid>

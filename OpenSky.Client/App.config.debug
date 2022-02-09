@@ -31,9 +31,21 @@
 			<setting name="OpenSkyRefreshTokenExpiration" serializeAs="String">
 				<value />
 			</setting>
+			<setting name="WeightUnit" serializeAs="String">
+				<value>0</value>
+			</setting>
+			<setting name="FuelUnit" serializeAs="String">
+				<value>0</value>
+			</setting>
 			<setting name="DefaultUTCOffset" serializeAs="String">
 				<value>0</value>
 			</setting>
+			<setting name="DistanceUnit" serializeAs="String">
+				<value>0</value>
+			</setting>
+			<setting name="DefaultSimulator" serializeAs="String">
+				<value>-1</value>
+			</setting>		
 		</OpenSky.Client.Properties.Settings>
 	</userSettings>
 	<applicationSettings>

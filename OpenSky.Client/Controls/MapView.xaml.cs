@@ -218,7 +218,14 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the simbrief route locations.
+        /// Gets or sets a value indicating whether the simulator filter is shown.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ShowSimulatorFilter { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the simBrief route locations.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [Bindable(true)]
@@ -230,7 +237,7 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the simbrief waypoint markers.
+        /// Gets or sets the simBrief waypoint markers.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         [Bindable(true)]
@@ -944,6 +951,28 @@ namespace OpenSky.Client.Controls
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
                 }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Simulator combo selection was changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 09/02/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Selection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void SimulatorChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.DataContext is MapViewViewModel viewModel)
+            {
+                viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
             }
         }
     }
