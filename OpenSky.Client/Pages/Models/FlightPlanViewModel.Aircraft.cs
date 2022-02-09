@@ -99,6 +99,10 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportFuelWarningVisibility));
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.OriginWrongSimErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationWrongSimErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateWrongSimErrorVisibility));
+
 
                 UpdateGUIDelegate updateAircraftRelated = this.UpdatePlannablePayloads;
                 Application.Current.Dispatcher.BeginInvoke(updateAircraftRelated);

@@ -13,6 +13,7 @@ namespace OpenSkyApi
     using System.Windows.Controls;
 
     using OpenSky.Client.Converters;
+    using OpenSky.Client.Tools;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -97,7 +98,7 @@ namespace OpenSkyApi
                 return string.Empty;
             }
 
-            var displayString = $"{this.Registry}";
+            var displayString = $"{this.Registry.RemoveSimPrefix()}";
             if (!string.IsNullOrEmpty(this.Name))
             {
                 displayString += $" ({this.Name})";
@@ -152,7 +153,7 @@ namespace OpenSkyApi
                         info += $", {converter.Convert(this.Distance, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture)}";
                     }
 
-                    return $"{info}]";
+                    return $"{info}] [{this.Type.Simulator}]";
                 }
 
                 return string.Empty;

@@ -13,6 +13,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Linq;
     using System.Windows;
     using System.Windows.Media;
+    using System.Xml.XPath;
 
     using Microsoft.Maps.MapControl.WPF;
 
@@ -133,6 +134,85 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayWarningVisibility));
                 this.NotifyPropertyChanged(nameof(this.AlternateAirportShortRunwayErrorVisibility));
                 this.NotifyPropertyChanged(nameof(this.AlternateAirportClosedErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.AlternateWrongSimErrorVisibility));
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.AlternateAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.AlternateAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.AlternateAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the origin wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility OriginWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.OriginAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.OriginAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.OriginAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the destination wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.DestinationAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.DestinationAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.DestinationAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
             }
         }
 
@@ -296,6 +376,7 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayWarningVisibility));
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportShortRunwayErrorVisibility));
                 this.NotifyPropertyChanged(nameof(this.DestinationAirportClosedErrorVisibility));
+                this.NotifyPropertyChanged(nameof(this.DestinationWrongSimErrorVisibility));
             }
         }
 
@@ -457,6 +538,7 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.NotifyPropertyChanged(nameof(this.FuelPricePerGallon));
                 this.NotifyPropertyChanged(nameof(this.FuelPrice));
+                this.NotifyPropertyChanged(nameof(this.OriginWrongSimErrorVisibility));
             }
         }
 

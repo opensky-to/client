@@ -30,6 +30,7 @@
         <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}" />
@@ -131,6 +132,12 @@
                                     <TextBlock Foreground="Black" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Invalid</TextBlock>
                                 </StackPanel>
                             </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding OriginWrongSimErrorVisibility}" ToolTip="This airport isn't available for the simulator your selected aircraft uses.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Simulator</TextBlock>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
                         <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="3">
@@ -164,6 +171,12 @@
                                     <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Closed</TextBlock>
                                 </StackPanel>
                             </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding DestinationWrongSimErrorVisibility}" ToolTip="This airport isn't available for the simulator your selected aircraft uses.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Simulator</TextBlock>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Vertical">
@@ -195,6 +208,12 @@
                                 <StackPanel Orientation="Horizontal" Margin="5">
                                     <Image Width="16" Height="16" Source="{StaticResource Error}" />
                                     <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Closed</TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="DarkRed" CornerRadius="5" Margin="5,0" Visibility="{Binding AlternateWrongSimErrorVisibility}" ToolTip="This airport isn't available for the simulator your selected aircraft uses.">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Image Width="16" Height="16" Source="{StaticResource Error}" />
+                                    <TextBlock Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" Margin="5,0,0,0">Simulator</TextBlock>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -348,7 +367,7 @@
                                 <GroupBox.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontSize="12" FontWeight="DemiBold">Payloads on board</TextBlock>
-                                        <TextBlock FontSize="12" FontWeight="DemiBold" Margin="3,0,0,0" Text="{Binding SelectedAircraft.Registry, FallbackValue=??}" />
+                                        <TextBlock FontSize="12" FontWeight="DemiBold" Margin="3,0,0,0" Text="{Binding SelectedAircraft.Registry, FallbackValue=??, Converter={StaticResource AircraftRegistryConverter}}" />
                                     </StackPanel>
                                 </GroupBox.Header>
                                 <ListBox Margin="5,0" ItemsSource="{Binding PayloadsOnBoard}" MinHeight="160" MaxHeight="160">

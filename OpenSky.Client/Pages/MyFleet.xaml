@@ -38,6 +38,7 @@
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
+        <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
         <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
             <CollectionViewSource.SortDescriptions>
                 <componentModel:SortDescription PropertyName="Registry" Direction="Ascending" />
@@ -122,10 +123,11 @@
                         </DataTemplate>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry}" FontFamily="Consolas" FontSize="16" SortDirection="Ascending" />
+                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" SortDirection="Ascending" />
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTextColumn Header="Simulator" Binding="{Binding Type.Simulator}" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />
                         <DataGridTextColumn Header="Payload loaded" Binding="{Binding TotalPayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
@@ -163,7 +165,7 @@
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="15" FontWeight="DemiBold">Edit Aircraft:</TextBlock>
-                    <TextBlock FontSize="15" FontWeight="DemiBold" Text="{Binding EditedAircraftRegistry}" Margin="5,0,0,0" />
+                    <TextBlock FontSize="15" FontWeight="DemiBold" Text="{Binding EditedAircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" Margin="5,0,0,0" />
                     <Button Padding="0" MinHeight="20" MaxHeight="20" Margin="5,0,0,0" Command="{Binding CancelEditAircraftCommand}">✖</Button>
                 </StackPanel>
             </GroupBox.Header>
@@ -212,7 +214,7 @@
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="15" FontWeight="DemiBold">Ground operations:</TextBlock>
-                    <TextBlock FontSize="15" FontWeight="DemiBold" Text="{Binding GroundOperations.Registry}" Margin="5,0,0,0" />
+                    <TextBlock FontSize="15" FontWeight="DemiBold" Text="{Binding GroundOperations.Registry, Converter={StaticResource AircraftRegistryConverter}}" Margin="5,0,0,0" />
                     <Button Padding="0" MinHeight="20" MaxHeight="20" Margin="5,0,0,0" Command="{Binding CancelGroundOperationsCommand}">✖</Button>
                 </StackPanel>
             </GroupBox.Header>
@@ -296,7 +298,7 @@
                                             <TextBlock FontSize="11">Destination:</TextBlock>
                                             <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                             <TextBlock FontSize="11">Current location:</TextBlock>
-                                            <TextBlock Text="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                            <TextBlock Text="{Binding AircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>

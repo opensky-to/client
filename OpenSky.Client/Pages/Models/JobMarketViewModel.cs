@@ -41,6 +41,41 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Simulator? simulator;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Simulator? Simulator
+        {
+            get => this.simulator;
+
+            set
+            {
+                if (Equals(this.simulator, value))
+                {
+                    return;
+                }
+
+                this.simulator = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Simulator> Simulators { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The selected aircraft type category, or NULL for all.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -89,6 +124,7 @@ namespace OpenSky.Client.Pages.Models
             this.Jobs = new ObservableCollection<Job>();
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
             this.JobTrails = new ObservableCollection<MapPolyline>();
+            this.Simulators = new ObservableCollection<Simulator>();
 
             // Initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -96,12 +132,38 @@ namespace OpenSky.Client.Pages.Models
                 this.TypeCategories.Add(categoryItem);
             }
 
+            foreach (Simulator sim in Enum.GetValues(typeof(Simulator)))
+            {
+                this.Simulators.Add(sim);
+            }
+
             // Create commands
             this.SearchJobsCommand = new AsynchronousCommand(this.SearchJobs, false);
             this.ClearSelectionCommand = new Command(this.ClearSelection);
             this.AcceptJobCommand = new AsynchronousCommand(this.AcceptJob, false);
             this.ClearCategoryCommand = new Command(this.ClearCategory);
+            this.ClearSimulatorCommand = new Command(this.ClearSimulator);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Clears the simulator.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 09/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearSimulator()
+        {
+            this.Simulator = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear simulator command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearSimulatorCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -490,7 +552,32 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Searching for jobs...";
             try
             {
-                var result = this.AircraftTypeCategory == null ? OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result : OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
+                JobIEnumerableApiResponse result = null;
+                if (this.AircraftTypeCategory == null)
+                {
+                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+                    if (this.Simulator == null)
+                    {
+                        result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result;
+                    }
+                    else
+                    {
+                        result = OpenSkyService.Instance.GetJobsAtAirportForSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.Simulator.Value).Result;
+                    }
+                }
+                else
+                {
+                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+                    if (this.Simulator == null)
+                    {
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
+                    }
+                    else
+                    {
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAndSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory, this.Simulator.Value).Result;
+                    }
+                }
+                
                 if (!result.IsError)
                 {
                     this.SearchJobsCommand.ReportProgress(

@@ -38,11 +38,11 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The Little Navmap MSFS database tables to delete in order to reduce the file size (700mb-
+        /// The Little Navmap database tables to delete in order to reduce the file size (700mb-
         /// >50mb)
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private readonly string[] littleNavmapMSFSTablesToDelete =
+        private readonly string[] littleNavmapTablesToDelete =
         {
             "taxi_path",
             "nav_search",
@@ -133,6 +133,7 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshDataImportsCommand = new AsynchronousCommand(this.RefreshDataImports);
             this.ClearDataImportSelectionCommand = new Command(this.ClearDataImportSelection);
             this.BrowseLittleNavmapMSFSCommand = new AsynchronousCommand(this.BrowseLittleNavmapMSFS);
+            this.BrowseLittleNavmapXP11Command = new AsynchronousCommand(this.BrowseLittleNavmapXP11);
             this.GenerateClientAirportPackageCommand = new AsynchronousCommand(this.GenerateClientAirportPackage);
             this.RefreshDataImportStatusCommand = new AsynchronousCommand(this.RefreshDataImportStatus);
 
@@ -145,6 +146,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand BrowseLittleNavmapMSFSCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the browse little navmap xplane11 command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand BrowseLittleNavmapXP11Command { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -433,8 +441,65 @@ namespace OpenSky.Client.Pages.Models
                     var openSkyFileName = fileName.Replace(".sqlite", "_opensky.sqlite");
                     this.LittleNavmapLogText += $"Copying database to {openSkyFileName}...\r\n";
                     File.Copy(fileName, openSkyFileName, true);
-                    this.ShrinkLittleNavmapMSFS(openSkyFileName);
+                    this.ShrinkLittleNavmap(openSkyFileName);
                     this.UploadLittleNavmapMSFS(openSkyFileName);
+
+                    this.LittleNavmapLogText += "\r\n\r\n";
+                }
+                catch (Exception ex)
+                {
+                    this.LittleNavmapLogText += $"Error processing LittleNavmap SQLite database.\r\n{ex}\r\n";
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Browse for Little Navmap XPlane11 SQLite database file.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void BrowseLittleNavmapXP11()
+        {
+            bool? openFileResult = null;
+            string fileName = null;
+            this.BrowseLittleNavmapXP11Command.ReportProgress(
+                () =>
+                {
+                    var littleNavmapDbDirectory = "%appdata%\\ABarthel\\little_navmap_db\\";
+                    littleNavmapDbDirectory = Environment.ExpandEnvironmentVariables(littleNavmapDbDirectory);
+
+                    var openFileDialog = new OpenFileDialog
+                    {
+                        DefaultExt = ".sqlite",
+                        Filter = "SQLite databases (.sqlite)|*.sqlite",
+                        FileName = "little_navmap_xp11.sqlite",
+                        Multiselect = false
+                    };
+
+                    if (Directory.Exists(littleNavmapDbDirectory))
+                    {
+                        openFileDialog.InitialDirectory = littleNavmapDbDirectory;
+                    }
+
+                    openFileResult = openFileDialog.ShowDialog();
+                    fileName = openFileDialog.FileName;
+                },
+                true);
+
+            if (openFileResult == true)
+            {
+                try
+                {
+                    this.LittleNavmapLogText = string.Empty;
+                    this.AnalyzeLittleNavmapMSFS(fileName);
+                    var openSkyFileName = fileName.Replace(".sqlite", "_opensky.sqlite");
+                    this.LittleNavmapLogText += $"Copying database to {openSkyFileName}...\r\n";
+                    File.Copy(fileName, openSkyFileName, true);
+                    this.ShrinkLittleNavmap(openSkyFileName);
+                    this.UploadLittleNavmapXP11(openSkyFileName);
 
                     this.LittleNavmapLogText += "\r\n\r\n";
                 }
@@ -602,29 +667,36 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedImport is { Finished: null })
             {
-                var updateResult = OpenSkyService.Instance.GetImportStatusAsync(this.SelectedImport.Id).Result;
-                if (updateResult.IsError)
+                try
                 {
-                    Debug.WriteLine($"Error monitoring data import process: {updateResult.Message}");
-                    if (!string.IsNullOrEmpty(updateResult.ErrorDetails))
+                    var updateResult = OpenSkyService.Instance.GetImportStatusAsync(this.SelectedImport.Id).Result;
+                    if (updateResult.IsError)
                     {
-                        Debug.WriteLine(updateResult.ErrorDetails);
+                        Debug.WriteLine($"Error monitoring data import process: {updateResult.Message}");
+                        if (!string.IsNullOrEmpty(updateResult.ErrorDetails))
+                        {
+                            Debug.WriteLine(updateResult.ErrorDetails);
+                        }
+                    }
+                    else
+                    {
+                        this.FormatImportStatus(updateResult.Data);
+                        if (updateResult.Status?.Equals("COMPLETE") == true || (updateResult.Data != null && updateResult.Data.Processed == updateResult.Data.Total))
+                        {
+                            this.RefreshDataImportStatusCommand.ReportProgress(() => this.RefreshDataImportsCommand.DoExecute(null));
+                        }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    this.FormatImportStatus(updateResult.Data);
-                    if (updateResult.Status?.Equals("COMPLETE") == true || (updateResult.Data != null && updateResult.Data.Processed == updateResult.Data.Total))
-                    {
-                        this.RefreshDataImportStatusCommand.ReportProgress(() => this.RefreshDataImportsCommand.DoExecute(null));
-                    }
+                    Debug.WriteLine($"Error monitoring data import process: {ex}");
                 }
             }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Shrink Little Navmap MSFS SQLite database.
+        /// Shrink Little Navmap SQLite database.
         /// </summary>
         /// <remarks>
         /// sushi.at, 02/07/2021.
@@ -633,14 +705,14 @@ namespace OpenSky.Client.Pages.Models
         /// Filename of the file.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void ShrinkLittleNavmapMSFS(string fileName)
+        private void ShrinkLittleNavmap(string fileName)
         {
             Debug.WriteLine($"Shrinking SQLite database {fileName}...");
             this.LittleNavmapLogText += $"Shrinking SQLite database {fileName}...\r\n";
             var connection = new SQLiteConnection($"URI=file:{fileName};Read Only=false");
             connection.Open();
 
-            foreach (var table in this.littleNavmapMSFSTablesToDelete)
+            foreach (var table in this.littleNavmapTablesToDelete)
             {
                 this.LittleNavmapLogText += $"Deleting table {table}...\r\n";
                 var command = new SQLiteCommand($"DROP TABLE IF EXISTS {table}", connection);
@@ -712,6 +784,63 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.ViewReference, this.BrowseLittleNavmapMSFSCommand, "Error uploading or monitoring database import.");
+                throw;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Upload Little Navmap MSFS SQLite database (shrunk version) to OpenSky API server for
+        /// processing.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/02/2022.
+        /// </remarks>
+        /// <param name="fileName">
+        /// Filename of the file.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void UploadLittleNavmapXP11(string fileName)
+        {
+            try
+            {
+                Debug.WriteLine("Uploading Little Navmap XPlane11 sqlite database...");
+                this.LittleNavmapLogText += "Uploading Little Navmap XPlane11 sqlite database...\r\n";
+                var fileParamter = new FileParameter(File.OpenRead(fileName), fileName, "application/x-sqlite3");
+                var result = OpenSkyService.Instance.LittleNavmapXP11Async(fileParamter).Result;
+                if (!result.IsError)
+                {
+                    var importID = result.Data;
+                    if (importID.HasValue)
+                    {
+                        this.BrowseLittleNavmapXP11Command.ReportProgress(
+                            () => { this.RefreshDataImportsCommand.DoExecute(null); },
+                            true);
+
+                        foreach (var dataImport in this.DataImports)
+                        {
+                            if (dataImport.Id == importID.Value)
+                            {
+                                this.SelectedImport = dataImport;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"Error uploading Little Navmap XPlane11 sqlite database: {result.Message}");
+                    this.LittleNavmapLogText += $"Error uploading Little Navmap XPlane11 sqlite database:\r\n{result.Message}\r\n";
+                    if (!string.IsNullOrEmpty(result.ErrorDetails))
+                    {
+                        Debug.WriteLine(result.ErrorDetails);
+                        this.LittleNavmapLogText += $"{result.ErrorDetails}\r\n";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.BrowseLittleNavmapXP11Command, "Error uploading or monitoring database import.");
                 throw;
             }
         }

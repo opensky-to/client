@@ -146,6 +146,7 @@
     <Compile Include="Controls\SkybucksCurrency.xaml.cs">
       <DependentUpon>SkybucksCurrency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\AircraftRegistryConverter.cs" />
     <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
     <Compile Include="Converters\CollectionEmptyVisibilityConverter.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="Pages\WorldMap.xaml.cs">
       <DependentUpon>WorldMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\AircraftRegistryExtensions.cs" />
     <Compile Include="Tools\AssemblyVersionExtension.cs" />
     <Compile Include="Tools\ColorExtensions.cs" />
     <Compile Include="Tools\DateTimeExtensions.cs" />
