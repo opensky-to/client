@@ -69,58 +69,16 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         public MainViewModel()
         {
-            // Build main menu
-            var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
-            this.NavigationItems.Add(welcome);
-
-            var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
-            this.NavigationItems.Add(worldMap);
-
-            var financialOverview = new NavMenuItem { Name = "Finance", Icon = "/Resources/skybucks16.png", PageType = typeof(FinancialOverview) };
-            this.NavigationItems.Add(financialOverview);
-
-            var myJobs = new NavMenuItem { Name = "My jobs", Icon = "/Resources/job16.png", PageType = typeof(MyJobs) };
-            this.NavigationItems.Add(myJobs);
-
-            var jobMarket = new NavMenuItem { Name = "Job market", Icon = "/Resources/market16.png", PageType = typeof(JobMarket) };
-            this.NavigationItems.Add(jobMarket);
-
-            var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights) };
-            this.NavigationItems.Add(flights);
-
-            var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
-            this.NavigationItems.Add(plans);
-
-            var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs) };
-            this.NavigationItems.Add(logs);
-
-            var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
-            this.NavigationItems.Add(myFleet);
-
-            var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
-            this.NavigationItems.Add(aircraftMarket);
-
-            var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
-            this.NavigationItems.Add(tools);
-            var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
-            tools.Children.Add(aircraftTypes);
-
-            if (UserSessionService.Instance.IsAdmin)
+            // Build main menu and subscribe to user logged in/out events
+            this.UpdateMainMenu();
+            UserSessionService.Instance.PropertyChanged += (_, e) =>
             {
-                var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
-                tools.Children.Add(dataImport);
-
-                var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics) };
-                tools.Children.Add(worldPopulation);
-            }
-
-            if (UserSessionService.Instance.IsModerator)
-            {
-                // todo add moderator only navigation items, once we have some :)
-            }
-
-            var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };
-            this.NavigationFooterItems.Add(settings);
+                if (e.PropertyName == nameof(UserSessionService.Instance.IsUserLoggedIn))
+                {
+                    UpdateGUIDelegate updateMenu = this.UpdateMainMenu;
+                    Application.Current.Dispatcher.BeginInvoke(updateMenu);
+                }
+            };
 
             // Create commands
             this.OpenInNewTabCommand = new Command(this.OpenInNewTab);
@@ -525,6 +483,75 @@ namespace OpenSky.Client.Views.Models
                     this.SelectMatchingNavigationItem(navigationItem.Children, name);
                 }
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Updates the main menu (typically after a user login/logout and view model construction).
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 11/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UpdateMainMenu()
+        {
+            this.NavigationItems.Clear();
+            this.NavigationFooterItems.Clear();
+
+            var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
+            this.NavigationItems.Add(welcome);
+
+            if (UserSessionService.Instance.IsUserLoggedIn)
+            {
+                var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
+                this.NavigationItems.Add(worldMap);
+
+                var financialOverview = new NavMenuItem { Name = "Finance", Icon = "/Resources/skybucks16.png", PageType = typeof(FinancialOverview) };
+                this.NavigationItems.Add(financialOverview);
+
+                var myJobs = new NavMenuItem { Name = "My jobs", Icon = "/Resources/job16.png", PageType = typeof(MyJobs) };
+                this.NavigationItems.Add(myJobs);
+
+                var jobMarket = new NavMenuItem { Name = "Job market", Icon = "/Resources/market16.png", PageType = typeof(JobMarket) };
+                this.NavigationItems.Add(jobMarket);
+
+                var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights) };
+                this.NavigationItems.Add(flights);
+
+                var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
+                this.NavigationItems.Add(plans);
+
+                var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs) };
+                this.NavigationItems.Add(logs);
+
+                var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
+                this.NavigationItems.Add(myFleet);
+
+                var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
+                this.NavigationItems.Add(aircraftMarket);
+
+                var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
+                this.NavigationItems.Add(tools);
+                var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
+                tools.Children.Add(aircraftTypes);
+
+                if (UserSessionService.Instance.IsAdmin)
+                {
+                    var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
+                    tools.Children.Add(dataImport);
+
+                    var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics) };
+                    tools.Children.Add(worldPopulation);
+                }
+
+                if (UserSessionService.Instance.IsModerator)
+                {
+                    // todo add moderator only navigation items, once we have some :)
+                }
+            }
+
+            var settings = new NavMenuItem { Name = "Settings", Icon = "/Resources/settings16.png", PageType = typeof(Settings) };
+            this.NavigationFooterItems.Add(settings);
         }
     }
 }
