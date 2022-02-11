@@ -997,7 +997,7 @@ namespace OpenSky.Client.Pages.Models
                                         Heading = aircraft.Heading,
                                         Location = new Location(aircraft.Latitude, aircraft.Longitude),
                                         Registry = aircraft.Registry,
-                                        ToolTip = aircraft.Registry
+                                        ToolTip = aircraft.Registry.RemoveSimPrefix()
                                     });
                             }
                         });
