@@ -3956,6 +3956,80 @@ namespace OpenSkyApi
             }
         }
     
+        /// <summary>Get data imports.</summary>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<DataImportIEnumerableApiResponse> GetDataImportsAsync()
+        {
+            return GetDataImportsAsync(System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Get data imports.</summary>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<DataImportIEnumerableApiResponse> GetDataImportsAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/DataImport");
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<DataImportIEnumerableApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
         /// <summary>Get data import status.</summary>
         /// <param name="importID">Identifier for the import.</param>
         /// <returns>Success</returns>
@@ -4036,22 +4110,22 @@ namespace OpenSkyApi
             }
         }
     
-        /// <summary>Get data imports.</summary>
+        /// <summary>Post LittleNavmap MSFS sqlite database for import.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<DataImportIEnumerableApiResponse> GetDataImportsAsync()
+        public System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapMSFSAsync(FileParameter fileUpload)
         {
-            return GetDataImportsAsync(System.Threading.CancellationToken.None);
+            return LittleNavmapMSFSAsync(fileUpload, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>Get data imports.</summary>
+        /// <summary>Post LittleNavmap MSFS sqlite database for import.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<DataImportIEnumerableApiResponse> GetDataImportsAsync(System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapMSFSAsync(FileParameter fileUpload, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/DataImport");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/DataImport/littleNavmapMSFS");
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -4059,7 +4133,21 @@ namespace OpenSkyApi
             {
                 using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    var boundary_ = System.Guid.NewGuid().ToString();
+                    var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
+                    content_.Headers.Remove("Content-Type");
+                    content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+                    if (fileUpload == null)
+                        throw new System.ArgumentNullException("fileUpload");
+                    else
+                    {
+                        var content_fileUpload_ = new System.Net.Http.StreamContent(fileUpload.Data);
+                        if (!string.IsNullOrEmpty(fileUpload.ContentType))
+                            content_fileUpload_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(fileUpload.ContentType);
+                        content_.Add(content_fileUpload_, "fileUpload", fileUpload.FileName ?? "fileUpload");
+                    }
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
     
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -4083,7 +4171,7 @@ namespace OpenSkyApi
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<DataImportIEnumerableApiResponse>(response_, headers_).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<GuidNullableApiResponse>(response_, headers_).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -4110,22 +4198,22 @@ namespace OpenSkyApi
             }
         }
     
-        /// <summary>Post LittleNavmap MSFS sqlite database for import.</summary>
+        /// <summary>Post LittleNavmap XPlane11 sqlite database for import.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapMSFSAsync(FileParameter fileUpload)
+        public System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapXP11Async(FileParameter fileUpload)
         {
-            return LittleNavmapMSFSAsync(fileUpload, System.Threading.CancellationToken.None);
+            return LittleNavmapXP11Async(fileUpload, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>Post LittleNavmap MSFS sqlite database for import.</summary>
+        /// <summary>Post LittleNavmap XPlane11 sqlite database for import.</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapMSFSAsync(FileParameter fileUpload, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<GuidNullableApiResponse> LittleNavmapXP11Async(FileParameter fileUpload, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/DataImport/littleNavmapMSFS");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/DataImport/littleNavmapXP11");
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5848,6 +5936,98 @@ namespace OpenSkyApi
             }
         }
     
+        /// <summary>Gets the available jobs at the specified airport and simulator.</summary>
+        /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
+        /// <param name="simulator">The simulator (or NULL for all simulators). 0 = MSFS, 1 = XPlane11</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportForSimulatorAsync(string icao, JobDirection direction, Simulator simulator)
+        {
+            return GetJobsAtAirportForSimulatorAsync(icao, direction, simulator, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Gets the available jobs at the specified airport and simulator.</summary>
+        /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
+        /// <param name="simulator">The simulator (or NULL for all simulators). 0 = MSFS, 1 = XPlane11</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportForSimulatorAsync(string icao, JobDirection direction, Simulator simulator, System.Threading.CancellationToken cancellationToken)
+        {
+            if (icao == null)
+                throw new System.ArgumentNullException("icao");
+    
+            if (direction == null)
+                throw new System.ArgumentNullException("direction");
+    
+            if (simulator == null)
+                throw new System.ArgumentNullException("simulator");
+    
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirportForSim/{icao}/{direction}/{simulator}");
+            urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{direction}", System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{simulator}", System.Uri.EscapeDataString(ConvertToString(simulator, System.Globalization.CultureInfo.InvariantCulture)));
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<JobIEnumerableApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
         /// <summary>Gets the available jobs at the specified airport.</summary>
         /// <param name="icao">The ICAO code of the airport.</param>
         /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
@@ -5876,6 +6056,104 @@ namespace OpenSkyApi
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirport/{icao}/{direction}");
             urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{direction}", System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture)));
+    
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<JobIEnumerableApiResponse>(response_, headers_).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <summary>Gets the available jobs at the specified airport for the specified aircraft type category and simulator.</summary>
+        /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
+        /// <param name="category">The aircraft type category to return jobs for (recommended category). 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = JET, 5 = REG, 6 = NBA, 7 = WBA, 8 = HEL</param>
+        /// <param name="simulator">The simulator (or NULL for all simulators). 0 = MSFS, 1 = XPlane11</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportForCategoryAndSimulatorAsync(string icao, JobDirection direction, AircraftTypeCategory category, Simulator simulator)
+        {
+            return GetJobsAtAirportForCategoryAndSimulatorAsync(icao, direction, category, simulator, System.Threading.CancellationToken.None);
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>Gets the available jobs at the specified airport for the specified aircraft type category and simulator.</summary>
+        /// <param name="icao">The ICAO code of the airport.</param>
+        /// <param name="direction">The direction of the jobs to return. 0 = From, 1 = To, 2 = RoundTrip</param>
+        /// <param name="category">The aircraft type category to return jobs for (recommended category). 0 = SEP, 1 = MEP, 2 = SET, 3 = MET, 4 = JET, 5 = REG, 6 = NBA, 7 = WBA, 8 = HEL</param>
+        /// <param name="simulator">The simulator (or NULL for all simulators). 0 = MSFS, 1 = XPlane11</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<JobIEnumerableApiResponse> GetJobsAtAirportForCategoryAndSimulatorAsync(string icao, JobDirection direction, AircraftTypeCategory category, Simulator simulator, System.Threading.CancellationToken cancellationToken)
+        {
+            if (icao == null)
+                throw new System.ArgumentNullException("icao");
+    
+            if (direction == null)
+                throw new System.ArgumentNullException("direction");
+    
+            if (category == null)
+                throw new System.ArgumentNullException("category");
+    
+            if (simulator == null)
+                throw new System.ArgumentNullException("simulator");
+    
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirportForCategoryAndSim/{icao}/{direction}/{category}/{simulator}");
+            urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{direction}", System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{category}", System.Uri.EscapeDataString(ConvertToString(category, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{simulator}", System.Uri.EscapeDataString(ConvertToString(simulator, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5964,7 +6242,7 @@ namespace OpenSkyApi
                 throw new System.ArgumentNullException("category");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirport/{icao}/{direction}/{category}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Job/atAirportForCategory/{icao}/{direction}/{category}");
             urlBuilder_.Replace("{icao}", System.Uri.EscapeDataString(ConvertToString(icao, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{direction}", System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{category}", System.Uri.EscapeDataString(ConvertToString(category, System.Globalization.CultureInfo.InvariantCulture)));
@@ -6602,7 +6880,7 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the aircraft registration.</summary>
         [Newtonsoft.Json.JsonProperty("registry", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(10, MinimumLength = 5)]
+        [System.ComponentModel.DataAnnotations.StringLength(12, MinimumLength = 7)]
         public string Registry { get; set; }
     
         /// <summary>Gets or sets the rent price per flight hour for the aircraft. Null if not available for rent.</summary>
@@ -7121,8 +7399,11 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("hasAvGas", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool HasAvGas { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("hasBeenPopulated", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ProcessingStatus HasBeenPopulated { get; set; }
+        [Newtonsoft.Json.JsonProperty("hasBeenPopulatedMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ProcessingStatus HasBeenPopulatedMSFS { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("hasBeenPopulatedXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ProcessingStatus HasBeenPopulatedXP11 { get; set; }
     
         /// <summary>Gets or sets a value indicating whether the airport has jet fuel for refueling.</summary>
         [Newtonsoft.Json.JsonProperty("hasJetFuel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -7164,7 +7445,7 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("longitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Longitude { get; set; }
     
-        /// <summary>Gets or sets a value indicating whether the airport if available in MSFS 2020.</summary>
+        /// <summary>Gets or sets a value indicating whether the airport is available in MSFS 2020.</summary>
         [Newtonsoft.Json.JsonProperty("msfs", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Msfs { get; set; }
     
@@ -7230,6 +7511,10 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the unicom frequency (if available).</summary>
         [Newtonsoft.Json.JsonProperty("unicomFrequency", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? UnicomFrequency { get; set; }
+    
+        /// <summary>Gets or sets a value indicating whether the airport is available in XPlane 11.</summary>
+        [Newtonsoft.Json.JsonProperty("xP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool XP11 { get; set; }
     
     
     }
@@ -8545,6 +8830,9 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the route.</summary>
         [Newtonsoft.Json.JsonProperty("route", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Route { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("simulator", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Simulator Simulator { get; set; }
     
         /// <summary>Gets or sets the Date/Time of when the flight was started.</summary>
         [Newtonsoft.Json.JsonProperty("started", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

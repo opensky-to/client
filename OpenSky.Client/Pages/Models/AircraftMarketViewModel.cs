@@ -282,6 +282,11 @@ namespace OpenSky.Client.Pages.Models
                 this.Simulators.Add(sim);
             }
 
+            if (Properties.Settings.Default.DefaultSimulator != -1)
+            {
+                this.Simulator = (Simulator)Properties.Settings.Default.DefaultSimulator;
+            }
+
             // Create commands
             this.RefreshTypesCommand = new AsynchronousCommand(this.RefreshTypes);
             this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);

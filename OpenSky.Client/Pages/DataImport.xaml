@@ -99,11 +99,14 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Upload MSFS airport data</TextBlock>
                     <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,0,0,0" Command="{Binding BrowseLittleNavmapMSFSCommand}">Browse...</Button>
-                    <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" MinLines="35" VerticalAlignment="Stretch" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11" Margin="0,10,0,0" Text="{Binding LittleNavmapLogText}" TextChanged="TextBoxBaseOnTextChanged" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Upload XPlane11 airport data</TextBlock>
+                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource OpenSkyButtonStyle}" Margin="10,5,0,0" Command="{Binding BrowseLittleNavmapXP11Command}">Browse...</Button>
+                    <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" MinLines="35" VerticalAlignment="Stretch" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11" Margin="0,10,0,0" Text="{Binding LittleNavmapLogText}" TextChanged="TextBoxBaseOnTextChanged" />
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Row="1" MinWidth="350" MaxWidth="350">

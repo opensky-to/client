@@ -38,6 +38,7 @@
         </CollectionViewSource>
         <converters:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
         <converters:ZeroToNullConverter x:Key="ZeroToNullConverter" />
+        <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -205,7 +206,7 @@
                     <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCombinedCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
                     <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCombinedCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
                     <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
-                    <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="13" />
+                    <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="13" />
                 </DataGrid.Columns>
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate DataType="openSkyApi:FinancialRecord">
@@ -219,7 +220,7 @@
                                 <DataGridTemplateColumn Header="Income" CellTemplate="{StaticResource IncomeCellTemplate}" SortMemberPath="Income" CanUserSort="True" />
                                 <DataGridTemplateColumn Header="Expense" CellTemplate="{StaticResource ExpenseCellTemplate}" SortMemberPath="Expense" CanUserSort="True" />
                                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" FontFamily="Consolas" FontSize="13" />
-                                <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="13" />
+                                <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="13" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </DataTemplate>

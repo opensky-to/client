@@ -235,7 +235,7 @@ namespace OpenSky.Client.Pages.Models
             {
                 url += $"altn={this.AlternateICAO}&";
 
-                // todo revisit alternate simbrief upload, seems to ignore all the advanced stuff and only accepts the primary
+                // todo revisit alternate simBrief upload, seems to ignore all the advanced stuff and only accepts the primary
                 url += "altn_count=1&";
                 url += $"altn_1_id={this.AlternateICAO}&";
 
@@ -251,7 +251,7 @@ namespace OpenSky.Client.Pages.Models
 
             if (this.SelectedAircraft != null)
             {
-                url += $"reg={this.SelectedAircraft.Registry}&";
+                url += $"reg={this.SelectedAircraft.Registry.RemoveSimPrefix()}&";
             }
 
             url += $"cpt={WebUtility.UrlEncode(UserSessionService.Instance.Username)}&"; // todo add assigned airline pilot once we add that

@@ -997,7 +997,7 @@ namespace OpenSky.Client.Pages.Models
                                         Heading = aircraft.Heading,
                                         Location = new Location(aircraft.Latitude, aircraft.Longitude),
                                         Registry = aircraft.Registry,
-                                        ToolTip = aircraft.Registry
+                                        ToolTip = aircraft.Registry.RemoveSimPrefix()
                                     });
                             }
                         });
@@ -1126,7 +1126,7 @@ namespace OpenSky.Client.Pages.Models
                 {
                     var messageBox = new OpenSkyMessageBox(
                         "Sell aircraft?",
-                        $"Are you sure you want to sell the aircraft {this.SelectedAircraft.Registry}?\r\n\r\nYou will only receive 70 % of the market value of the aircraft.",
+                        $"Are you sure you want to sell the aircraft {this.SelectedAircraft.Registry.RemoveSimPrefix()}?\r\n\r\nYou will only receive 70 % of the market value of the aircraft.",
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);
                     messageBox.SetWarningColorStyle();

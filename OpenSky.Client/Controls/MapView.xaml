@@ -17,11 +17,18 @@
                  mc:Ignorable="d"
                  xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
                  xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
+                 xmlns:ui="http://schemas.modernwpf.com/2019"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                  Loaded="MapViewOnLoaded" Unloaded="MapViewOnUnloaded"
                  d:DesignHeight="450" d:DesignWidth="800" MouseWheel="MapViewOnMouseWheel">
     <UserControl.DataContext>
         <models:MapViewViewModel />
     </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+        <converters:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
         <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
@@ -45,6 +52,10 @@
                 </Border.Style>
                 <CheckBox IsChecked="{Binding DarkenRoadMap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Darken road map</CheckBox>
             </Border>
+            <Grid Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=ShowSimulatorFilter, Converter={StaticResource BooleanVisibilityConverter}}">
+                <ComboBox SelectionChanged="SimulatorChanged" Margin="0,2,1,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#CCC" />
+                <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
+            </Grid>
         </StackPanel>
         <Grid Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
             <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />

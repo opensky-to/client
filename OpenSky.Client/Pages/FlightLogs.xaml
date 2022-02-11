@@ -35,6 +35,7 @@
                 <componentModel:SortDescription PropertyName="PlannedDepartureTime.UtcDateTime" Direction="Descending" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
     </UserControl.Resources>
     <GroupBox>
         <GroupBox.Header>
@@ -74,7 +75,8 @@
                     <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />
                     <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Destination" Binding="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="16" />
-                    <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry}" FontFamily="Consolas" FontSize="16" />
+                    <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" />
+                    <DataGridTextColumn Header="Simulator" Binding="{Binding Simulator}" />
                     <DataGridTextColumn Header="Landed at" Binding="{Binding LandedAtICAOCrash}" />
                     <DataGridTextColumn Header="Off block" Binding="{Binding OffBlock}" />
                     <DataGridTextColumn Header="On block" Binding="{Binding OnBlock}" />

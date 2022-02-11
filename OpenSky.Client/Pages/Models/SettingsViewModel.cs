@@ -97,6 +97,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Simulator? simulator;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The UTC offset.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -124,6 +131,7 @@ namespace OpenSky.Client.Pages.Models
             this.FuelUnits = new ObservableCollection<FuelUnit>();
             this.DistanceUnits = new ObservableCollection<DistanceUnit>();
             this.UtcOffsets = new SortedSet<double>();
+            this.Simulators = new ObservableCollection<Simulator>();
 
             // Populate UTC offsets from time zones
             foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
@@ -147,6 +155,11 @@ namespace OpenSky.Client.Pages.Models
                 this.DistanceUnits.Add(unit);
             }
 
+            foreach (Simulator sim in Enum.GetValues(typeof(Simulator)))
+            {
+                this.Simulators.Add(sim);
+            }
+
             // Create command first so that IsDirty can set the CanExecute property
             this.SaveSettingsCommand = new AsynchronousCommand(this.SaveSettings, false);
             this.RestoreDefaultsCommand = new Command(this.RestoreDefaults);
@@ -156,6 +169,7 @@ namespace OpenSky.Client.Pages.Models
             this.DownloadAirportPackageCommand = new AsynchronousCommand(this.DownloadAirportPackage);
             this.ChangePasswordCommand = new Command(this.ChangePassword, this.UserSession.IsUserLoggedIn);
             this.UpdateProfileImageCommand = new AsynchronousCommand(this.UpdateProfileImage, this.UserSession.IsUserLoggedIn);
+            this.ClearSimulatorCommand = new Command(this.ClearSimulator);
 
             // Load settings
             Properties.Settings.Default.Reload();
@@ -165,6 +179,10 @@ namespace OpenSky.Client.Pages.Models
             this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
+            if (Properties.Settings.Default.DefaultSimulator != -1)
+            {
+                this.Simulator = (Simulator)Properties.Settings.Default.DefaultSimulator;
+            }
 
             // Load profile image
             if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
@@ -247,6 +265,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command ChangePasswordCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the clear simulator command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ClearSimulatorCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -438,6 +463,35 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the currently selected simulator, or NULL for all simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Simulator? Simulator
+        {
+            get => this.simulator;
+
+            set
+            {
+                if (Equals(this.simulator, value))
+                {
+                    return;
+                }
+
+                this.simulator = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the simulators.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Simulator> Simulators { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the update profile image command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -523,6 +577,19 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Clears the simulator.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 09/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ClearSimulator()
+        {
+            this.Simulator = null;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Download airport package.
         /// </summary>
         /// <remarks>
@@ -535,33 +602,40 @@ namespace OpenSky.Client.Pages.Models
             {
                 if (AirportPackageClientHandler.IsPackageUpToDate())
                 {
-                    this.DownloadAirportPackageCommand.ReportProgress(() =>
-                    {
-                        var notification = new OpenSkyNotification("Airport package", "The package file is up-to-date, no download is required.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
-                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                    });
+                    this.DownloadAirportPackageCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Airport package", "The package file is up-to-date, no download is required.", MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                 }
                 else
                 {
                     AirportPackageClientHandler.DownloadPackage();
-                    this.DownloadAirportPackageCommand.ReportProgress(() =>
-                    {
-                        var notification = new OpenSkyNotification("Airport package", "Successfully downloaded new package file.", MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
-                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
-                    });
+                    this.DownloadAirportPackageCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Airport package", "Successfully downloaded new package file.", MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                     this.RefreshAirportPackageInfoCommand.DoExecute(null);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                this.DownloadAirportPackageCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification(new ErrorDetails { DetailedMessage = "Error downloading airport package file.", Exception = ex }, "Airport package", "Error downloading airport package file.", ExtendedMessageBoxImage.Error, 30);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.DownloadAirportPackageCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification(
+                            new ErrorDetails { DetailedMessage = "Error downloading airport package file.", Exception = ex },
+                            "Airport package",
+                            "Error downloading airport package file.",
+                            ExtendedMessageBoxImage.Error,
+                            30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
             }
         }
 
@@ -718,6 +792,7 @@ namespace OpenSky.Client.Pages.Models
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
                 Properties.Settings.Default.DistanceUnit = (int)this.DistanceUnit;
                 Properties.Settings.Default.DefaultUTCOffset = this.UtcOffset;
+                Properties.Settings.Default.DefaultSimulator = this.Simulator.HasValue ? (int)this.Simulator.Value : -1;
 
                 Properties.Settings.Default.Save();
 
