@@ -10291,6 +10291,14 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("completedFlights", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int CompletedFlights { get; set; }
     
+        /// <summary>Gets or sets the completed flights for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("completedFlightsMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int CompletedFlightsMSFS { get; set; }
+    
+        /// <summary>Gets or sets the completed flights for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("completedFlightsXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int CompletedFlightsXP11 { get; set; }
+    
         /// <summary>Gets or sets a pie chart series for flight aircraft categories.</summary>
         [Newtonsoft.Json.JsonProperty("flightAircraftCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<PieChartValue> FlightAircraftCategories { get; set; }
@@ -10331,21 +10339,61 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("totalAircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalAircraft { get; set; }
     
+        /// <summary>Gets or sets the total number of aircraft for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("totalAircraftMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalAircraftMSFS { get; set; }
+    
+        /// <summary>Gets or sets the total number of aircraft for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("totalAircraftXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalAircraftXP11 { get; set; }
+    
         /// <summary>Gets or sets the total number of airports.</summary>
         [Newtonsoft.Json.JsonProperty("totalAirports", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalAirports { get; set; }
+    
+        /// <summary>Gets or sets the total number of airports for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("totalAirportsMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalAirportsMSFS { get; set; }
+    
+        /// <summary>Gets or sets the total number of airports for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("totalAirportsXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalAirportsXP11 { get; set; }
     
         /// <summary>Gets or sets the total number of approaches.</summary>
         [Newtonsoft.Json.JsonProperty("totalApproaches", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalApproaches { get; set; }
     
+        /// <summary>Gets or sets the total number of approaches for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("totalApproachesMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalApproachesMSFS { get; set; }
+    
+        /// <summary>Gets or sets the total number of approaches for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("totalApproachesXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalApproachesXP11 { get; set; }
+    
         /// <summary>Gets or sets the total number of jobs.</summary>
         [Newtonsoft.Json.JsonProperty("totalJobs", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalJobs { get; set; }
     
+        /// <summary>Gets or sets the total number of jobs for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("totalJobsMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalJobsMSFS { get; set; }
+    
+        /// <summary>Gets or sets the total number of jobs for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("totalJobsXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalJobsXP11 { get; set; }
+    
         /// <summary>Gets or sets the total number of runways.</summary>
         [Newtonsoft.Json.JsonProperty("totalRunways", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalRunways { get; set; }
+    
+        /// <summary>Gets or sets the total number of runways for MSFS.</summary>
+        [Newtonsoft.Json.JsonProperty("totalRunwaysMSFS", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalRunwaysMSFS { get; set; }
+    
+        /// <summary>Gets or sets the total number of runways for XPlane11.</summary>
+        [Newtonsoft.Json.JsonProperty("totalRunwaysXP11", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int TotalRunwaysXP11 { get; set; }
     
     
     }

@@ -8252,6 +8252,16 @@
             "description": "Gets or sets the completed flights.",
             "format": "int32"
           },
+          "completedFlightsMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the completed flights for MSFS.",
+            "format": "int32"
+          },
+          "completedFlightsXP11": {
+            "type": "integer",
+            "description": "Gets or sets the completed flights for XPlane11.",
+            "format": "int32"
+          },
           "flightAircraftCategories": {
             "type": "array",
             "items": {
@@ -8326,9 +8336,29 @@
             "description": "Gets or sets the total number of aircraft.",
             "format": "int32"
           },
+          "totalAircraftMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the total number of aircraft for MSFS.",
+            "format": "int32"
+          },
+          "totalAircraftXP11": {
+            "type": "integer",
+            "description": "Gets or sets the total number of aircraft for XPlane11.",
+            "format": "int32"
+          },
           "totalAirports": {
             "type": "integer",
             "description": "Gets or sets the total number of airports.",
+            "format": "int32"
+          },
+          "totalAirportsMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the total number of airports for MSFS.",
+            "format": "int32"
+          },
+          "totalAirportsXP11": {
+            "type": "integer",
+            "description": "Gets or sets the total number of airports for XPlane11.",
             "format": "int32"
           },
           "totalApproaches": {
@@ -8336,14 +8366,44 @@
             "description": "Gets or sets the total number of approaches.",
             "format": "int32"
           },
+          "totalApproachesMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the total number of approaches for MSFS.",
+            "format": "int32"
+          },
+          "totalApproachesXP11": {
+            "type": "integer",
+            "description": "Gets or sets the total number of approaches for XPlane11.",
+            "format": "int32"
+          },
           "totalJobs": {
             "type": "integer",
             "description": "Gets or sets the total number of jobs.",
             "format": "int32"
           },
+          "totalJobsMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the total number of jobs for MSFS.",
+            "format": "int32"
+          },
+          "totalJobsXP11": {
+            "type": "integer",
+            "description": "Gets or sets the total number of jobs for XPlane11.",
+            "format": "int32"
+          },
           "totalRunways": {
             "type": "integer",
             "description": "Gets or sets the total number of runways.",
+            "format": "int32"
+          },
+          "totalRunwaysMSFS": {
+            "type": "integer",
+            "description": "Gets or sets the total number of runways for MSFS.",
+            "format": "int32"
+          },
+          "totalRunwaysXP11": {
+            "type": "integer",
+            "description": "Gets or sets the total number of runways for XPlane11.",
             "format": "int32"
           }
         },
