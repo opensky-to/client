@@ -9297,11 +9297,13 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Job types. 0 = Cargo</summary>
+    /// <summary>Job types. 0 = Cargo_L, 1 = Cargo_S</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum JobType
     {
-        Cargo = 0,
+        Cargo_L = 0,
+    
+        Cargo_S = 1,
     
     }
     

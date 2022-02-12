@@ -34,6 +34,7 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:JobTypeConverter x:Key="JobCategoryConverter" />
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshJobsCommand}" />
@@ -83,7 +84,7 @@
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Origin" Binding="{Binding OriginICAO}" FontFamily="Consolas" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type, Converter={StaticResource JobCategoryConverter}}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
                         <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControl}" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />

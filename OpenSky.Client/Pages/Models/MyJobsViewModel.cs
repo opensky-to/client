@@ -11,6 +11,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.ObjectModel;
     using System.Device.Location;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Windows;
@@ -20,6 +21,7 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
+    using OpenSky.Client.Converters;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
@@ -297,13 +299,14 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
+            var jobTypeConverter = new JobTypeConverter();
             ExtendedMessageBoxResult? answer = null;
             this.AbortJobCommand.ReportProgress(
                 () =>
                 {
                     var messageBox = new OpenSkyMessageBox(
                         "Abort job?",
-                        $"Are you sure you want to abort the {this.SelectedJob.Type} job from {this.SelectedJob.OriginICAO}?\r\n\r\nYou will be charged a 30 % penalty for doing so.",
+                        $"Are you sure you want to abort the {jobTypeConverter.Convert(this.SelectedJob.Type, typeof(string), null, CultureInfo.CurrentCulture)} job from {this.SelectedJob.OriginICAO}?\r\n\r\nYou will be charged a 30 % penalty for doing so.",
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);
                     messageBox.SetWarningColorStyle();

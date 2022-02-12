@@ -45,6 +45,7 @@
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:PayloadDistanceConverter x:Key="PayloadDistanceConverter" />
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+        <converters:JobTypeConverter x:Key="JobCategoryConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -104,7 +105,7 @@
                         </DataTemplate>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type, Converter={StaticResource JobCategoryConverter}}" dgx:DataGridFilterColumn.Template="{StaticResource MultipleChoiceFilter}" />
                         <DataGridTextColumn Header="Destination(s)" Binding="{Binding Destinations}" FontFamily="Consolas" />
                         <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=distance|F0|true}" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControlDistance}" />
                         <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControl}" />

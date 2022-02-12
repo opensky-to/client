@@ -7020,16 +7020,19 @@
       },
       "JobType": {
         "enum": [
-          0
+          0,
+          1
         ],
         "type": "integer",
-        "description": "Job types. 0 = Cargo",
+        "description": "Job types. 0 = Cargo_L, 1 = Cargo_S",
         "format": "int32",
         "x-enumNames": [
-          "Cargo"
+          "Cargo_L",
+          "Cargo_S"
         ],
         "x-enum-varnames": [
-          "Cargo"
+          "Cargo_L",
+          "Cargo_S"
         ]
       },
       "LinkedAccounts": {
