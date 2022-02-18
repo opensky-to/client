@@ -459,7 +459,10 @@ namespace OpenSky.Client.Pages.Models
                     this.AircraftTypes.Clear();
                     foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Category == value.AircraftTypeCategory).OrderBy(t => t.Name))
                     {
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
 
                     // Check if the current manufacturer is still in the filtered list
@@ -486,7 +489,10 @@ namespace OpenSky.Client.Pages.Models
                     this.AircraftTypes.Clear();
                     foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
                     {
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
                 }
             }
@@ -775,7 +781,10 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
 
                     // Check if the current name is still in the filtered list
@@ -802,7 +811,10 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
                 }
             }
@@ -852,7 +864,10 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
                 }
                 else
@@ -871,7 +886,10 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        this.AircraftTypes.Add(aircraftType);
+                        if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                        {
+                            this.AircraftTypes.Add(aircraftType);
+                        }
                     }
                 }
             }
@@ -1483,7 +1501,10 @@ namespace OpenSky.Client.Pages.Models
                             this.AircraftTypes.Clear();
                             foreach (var aircraftType in result.Data.OrderBy(t => t.Name))
                             {
-                                this.AircraftTypes.Add(aircraftType);
+                                if (!this.Simulator.HasValue || aircraftType.Simulator == this.Simulator.Value)
+                                {
+                                    this.AircraftTypes.Add(aircraftType);
+                                }
                             }
                         });
                 }

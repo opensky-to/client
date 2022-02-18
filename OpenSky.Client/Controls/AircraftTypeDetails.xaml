@@ -1,0 +1,109 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="AircraftTypeDetails.xaml" company="OpenSky">
+  OpenSky project 2021-2022
+</copyright>
+<summary>
+  Aircraft type details user control
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.AircraftTypeDetails"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 mc:Ignorable="d" 
+                 d:DesignHeight="800" d:DesignWidth="700">
+    <UserControl.DataContext>
+        <models:AircraftTypeDetailsViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <GroupBox>
+            <GroupBox.Header>
+                <TextBlock FontWeight="DemiBold" Text="{Binding Type.Name}" />
+            </GroupBox.Header>
+            <Grid Margin="5" IsEnabled="{Binding Type, Converter={StaticResource NullItemToEnabledConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Width="640" Height="360" Source="/Resources/aircraftTypePlaceholder.png" HorizontalAlignment="Left" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0">Name:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Manufacturer:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Simulator:</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Category:</TextBlock>
+
+                <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="0,15,0,0">Requires co-pilot?:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Requires flight engineer?:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Minimum runway length:</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="0" VerticalAlignment="Center">Engines:</TextBlock>
+                <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center">Retractable gear?:</TextBlock>
+                <TextBlock Grid.Row="10" Grid.Column="0" VerticalAlignment="Center">Flaps?:</TextBlock>
+
+                <TextBlock Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" Margin="0,15,0,0">Fuel type:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center">Fuel total capacity:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="2" VerticalAlignment="Center">Maximum fuel weight:</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="2" VerticalAlignment="Center">Requires manual fuelling?:</TextBlock>
+
+                <TextBlock Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,0,0">Empty weight:</TextBlock>
+                <TextBlock Grid.Row="11" Grid.Column="2" VerticalAlignment="Center">Max gross weight::</TextBlock>
+                <TextBlock Grid.Row="12" Grid.Column="2" VerticalAlignment="Center">Requires manual loading?:</TextBlock>
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" VerticalAlignment="Center" Margin="10,15,0,0" Text="{Binding Type.Name}" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.Manufacturer}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.Simulator}" />
+                <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.Category}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="10,10,0,0" Text="{Binding Type.NeedsCoPilot}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.NeedsFlightEngineer}" />
+                <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.MinimumRunwayLength}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">feet</TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.EngineCount}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,5,0">x</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.EngineType}" />
+                </StackPanel>
+                <TextBlock Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.IsGearRetractable}" />
+                <TextBlock Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.FlapsAvailable}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="3" VerticalAlignment="Center" Margin="10,15,0,0" Text="{Binding Type.FuelType}" />
+                <TextBlock Grid.Row="6" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Consolas" FontSize="14" Text="{Binding Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F1|true}" />
+                <TextBlock Grid.Row="7" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Consolas" FontSize="14" Text="{Binding Type.TotalFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <TextBlock Grid.Row="8" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.RequiresManualFuelling}" />
+
+                <TextBlock Grid.Row="10" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Consolas" FontSize="14" Text="{Binding Type.EmptyWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <TextBlock Grid.Row="11" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" FontFamily="Consolas" FontSize="14" Text="{Binding Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <TextBlock Grid.Row="12" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Type.RequiresManualLoading}" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

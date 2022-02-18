@@ -32,6 +32,7 @@
                     FontFamily="/Fonts/#Montserrat" 
                     Icon="{Binding Icon, Converter={StaticResource NavigationViewBitmapIconConverter}}"
                     MenuItemsSource="{Binding Children}"
+                    IsExpanded="{Binding IsExpanded}"
                     SelectsOnInvoked="True">
                 <ui:NavigationViewItem.Content>
                     <Grid x:Name="RootGrid">

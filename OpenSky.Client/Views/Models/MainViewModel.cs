@@ -527,8 +527,12 @@ namespace OpenSky.Client.Views.Models
                 var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
                 this.NavigationItems.Add(myFleet);
 
-                var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
+                var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", Children = new ObservableCollection<NavMenuItem>() };
                 this.NavigationItems.Add(aircraftMarket);
+                var usedMarket = new NavMenuItem { Name = "Used aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
+                aircraftMarket.Children.Add(usedMarket);
+                var newAircraft = new NavMenuItem { Name = "New aircraft", Icon = "/Resources/newaircraft16.png", PageType = typeof(NewAircraft) };
+                aircraftMarket.Children.Add(newAircraft);
 
                 var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
                 this.NavigationItems.Add(tools);

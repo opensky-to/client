@@ -1,0 +1,238 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="NewAircraft.xaml" company="OpenSky">
+  OpenSky project 2021-2022
+</copyright>
+<summary>
+  New aircraft page
+</summary>
+====================================================================================================================
+-->
+
+<controls:OpenSkyPage x:Class="OpenSky.Client.Pages.NewAircraft"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+             xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:pages="clr-namespace:OpenSky.Client.Pages"
+             xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             LoadingText="{Binding LoadingText}" Loaded="NewAircraftOnLoaded" HorizontalScrollBar="False"
+             >
+    <UserControl.DataContext>
+        <models:NewAircraftViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <DrawingBrush x:Key="GreyDottedBrush" Viewport="0,0,3,3" ViewportUnits="Absolute" TileMode="Tile">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="Gray">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="0,0,50,50" />
+                                <RectangleGeometry Rect="50,50,50,50" />
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="27">Sales Agreement</TextBlock>
+        <GroupBox Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Aircraft type</TextBlock>
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <ui:AutoSuggestBox HorizontalAlignment="Stretch" ItemsSource="{Binding AircraftTypes}" Text="{Binding AircraftTypeSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SuggestionChosen="AircraftTypeAutoSuggestBoxOnSuggestionChosen" QueryIcon="Find" PlaceholderText="Type to search..." Grid.IsSharedSizeScope="True">
+                    <ui:AutoSuggestBox.ItemTemplate>
+                        <DataTemplate DataType="openSkyApi:AircraftType">
+                            <Grid Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type ui:AutoSuggestBox}}, Path=ActualWidth}" Margin="-10,0,-10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Manufacturer" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Simulator" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Stretch" Margin="10,0,0,0" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <TextBlock FontFamily="Consolas" FontSize="12">[</TextBlock>
+                                    <TextBlock FontFamily="Consolas" FontSize="12" Text="{Binding Manufacturer}" />
+                                    <TextBlock FontFamily="Consolas" FontSize="12">]</TextBlock>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                    <TextBlock FontFamily="Consolas" FontSize="12" Margin="5,0,0,0">[</TextBlock>
+                                    <TextBlock FontFamily="Consolas" FontSize="12" Text="{Binding Simulator}" />
+                                    <TextBlock FontFamily="Consolas" FontSize="12" Margin="0,0,20,0">]</TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ui:AutoSuggestBox.ItemTemplate>
+                </ui:AutoSuggestBox>
+                <controls:AircraftTypeDetails AircraftType="{Binding RelativeSource={RelativeSource AncestorType={x:Type pages:NewAircraft}}, Path=DataContext.SelectedAircraftType}" />
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Volume discount</TextBlock>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,0,0,10">Available volume discounts:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="0">Order of minimum</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0">Order of minimum</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0">Order of minimum</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="1" Margin="5,0" HorizontalAlignment="Right">3</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="5,0" HorizontalAlignment="Right">10</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="1" Margin="5,0" HorizontalAlignment="Right">50</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="2">aircraft:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="2">aircraft:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="2">aircraft:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="3" Margin="5,0,0,0" HorizontalAlignment="Right">5 %</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="5,0,0,0" HorizontalAlignment="Right">10 %</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="3" Margin="5,0,0,0" HorizontalAlignment="Right">25 %</TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Delivery location</TextBlock>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <RadioButton Grid.Row="0" GroupName="DeliveryLocation" IsChecked="{Binding ManufacturerHomeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>Take delivery at the aircraft manufacturer's home airport:</TextBlock>
+                        <TextBlock Text="{Binding SelectedAircraftType.HomeAirport, FallbackValue=??}" FontFamily="Consolas" Margin="5,0,0,0" />
+                    </StackPanel>
+                </RadioButton>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <RadioButton GroupName="DeliveryLocation" IsChecked="{Binding ManufacturerFerryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center">Use the manufacturer's ferry service (</TextBlock>
+                            <Image Width="16" Height="16" Source="/Resources/skybucks16.png" />
+                            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0" Text="{Binding ManufacturerFerryCostPerNm}" />
+                            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">/ nautical mile) to deliver the aircraft to:</TextBlock>
+                        </StackPanel>
+                    </RadioButton>
+                    <TextBox FontFamily="Consolas" FontSize="13" CharacterCasing="Upper" Margin="10,0,0,0" Text="{Binding FactoryFerryAirportICAO}" />
+                </StackPanel>
+
+                <RadioButton Grid.Row="2" IsEnabled="False" IsChecked="{Binding OutsourceFerryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">TODO: Outsource the ferry flight to another OpenSky pilot at a rate of ?? / nautical mile</RadioButton>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Fine print</TextBlock>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="3" TextWrapping="Wrap" Text="{Binding SalesAgreementInfoText}" />
+                <TextBlock Grid.Row="2" Grid.Column="0">Seller</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0">Buyer</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" FontFamily="Consolas" Text="{Binding SelectedAircraftType.Manufacturer}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" FontFamily="Consolas" Text="{Binding BuyerName}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="3" TextWrapping="Wrap"><Bold>1. Sale of Goods.</Bold> Seller agrees to sell, and Buyer agrees to purchase the following item(s) (Aircraft) in the following condition (the "Goods"):</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="0">Aircraft type</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Number of aircraft</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0">Condition</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="0">Fuel</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="1" FontFamily="Consolas" Text="{Binding SelectedAircraftType.Name}" />
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding NumberOfAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="Consolas" Text="New" />
+                <TextBlock Grid.Row="8" Grid.Column="1" FontFamily="Consolas" Text="25 % of rated maximum" />
+
+                <TextBlock Grid.Row="9" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="3" TextWrapping="Wrap"><Bold>2. Purchase Price.</Bold> Buyer will pay to Seller for the Goods and for all obligations specified in this Agreement, if any, as the full and complete purchase price, the sum of:</TextBlock>
+
+                <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,5,0,0">Sale price per aircraft</TextBlock>
+                <controls:SkybucksCurrency Grid.Row="10" Grid.Column="1" FontSize="15" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding SelectedAircraftType.MaxPrice}" Margin="0,5,0,0" />
+                <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,5,0,0">Delivery cost per aircraft</TextBlock>
+                <controls:SkybucksCurrency Grid.Row="11" Grid.Column="1" FontSize="15" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding DeliveryCostPerAircraft}" Margin="0,5,0,0" />
+                <TextBlock Grid.Row="12" Grid.Column="0" Margin="0,5,20,0">Volume discount per aircraft</TextBlock>
+                <controls:SkybucksCurrency Grid.Row="12" Grid.Column="1" FontSize="15" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding VolumeDiscount}" Margin="0,5,0,0" />
+                <Rectangle Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Stroke="Gray" VerticalAlignment="Bottom" Height="1" Margin="0,0,0,-2" />
+                <TextBlock Grid.Row="13" Grid.Column="0" Margin="0,5,0,0">GRAND TOTAL</TextBlock>
+                <controls:SkybucksCurrency Grid.Row="13" Grid.Column="1" FontSize="15" FontFamily="Consolas" HorizontalAlignment="Left" VerticalAlignment="Center" Currency="{Binding GrandTotal}" Margin="0,5,0,0" />
+
+                <TextBlock Grid.Row="14" Grid.Column="0" Margin="0,15, 0, 25" Grid.ColumnSpan="3" TextWrapping="Wrap">Buyer shall be responsible for all taxes in connection with the purchase of Goods in this Agreement.</TextBlock>
+
+                <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Bottom" MinHeight="20">Signature</TextBlock>
+                <TextBlock Grid.Row="15" Grid.Column="1" FontFamily="Kunstler Script" FontSize="50" VerticalAlignment="Top" Text="{Binding Signature}" />
+                <Border Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
+
+                <Image Grid.Row="15" Grid.Column="1" Height="50" HorizontalAlignment="Right" Source="{StaticResource PaperArrow}" />
+
+                <Border BorderThickness="0" Cursor="Pen" Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" Background="Transparent" IsHitTestVisible="True">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding SignPurchaseCommand}"></MouseBinding>
+                    </Border.InputBindings>
+                </Border>
+
+                <Image Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding SoldStampVisibility}" Width="200" Margin="0,-30,10,0" HorizontalAlignment="Right" Source="{StaticResource Sold}" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</controls:OpenSkyPage>

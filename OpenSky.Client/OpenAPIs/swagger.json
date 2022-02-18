@@ -436,6 +436,58 @@
         }
       }
     },
+    "/Aircraft/purchaseNew": {
+      "post": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Purchase new aircraft.",
+        "description": "sushi.at, 14/02/2022.",
+        "operationId": "PurchaseNewAircraft",
+        "requestBody": {
+          "description": "The purchase new aircraft model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/searchInCountry": {
       "post": {
         "tags": [
@@ -7498,6 +7550,30 @@
         },
         "additionalProperties": false,
         "description": "Purchase aircraft model."
+      },
+      "PurchaseNewAircraft": {
+        "type": "object",
+        "properties": {
+          "airportICAO": {
+            "type": "string",
+            "description": "Gets or sets the airport ICAO.",
+            "nullable": true
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "forAirline": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to purchase the aircraft for the airline or the user."
+          },
+          "typeID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the type.",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Purchase new aircraft model."
       },
       "RefreshToken": {
         "type": "object",
