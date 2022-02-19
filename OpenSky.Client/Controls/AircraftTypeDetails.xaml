@@ -16,6 +16,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
                  xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 xmlns:ui="http://schemas.modernwpf.com/2019"
                  mc:Ignorable="d" 
                  d:DesignHeight="800" d:DesignWidth="700">
     <UserControl.DataContext>
@@ -54,6 +55,12 @@
                 </Grid.RowDefinitions>
 
                 <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Width="640" Height="360" Source="/Resources/aircraftTypePlaceholder.png" HorizontalAlignment="Left" />
+                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Background="#B0000000" Visibility="{Binding LoadingVisibility}">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <ui:ProgressRing IsActive="True" Width="100" Height="100"></ui:ProgressRing>
+                        <TextBlock HorizontalAlignment="Center" FontSize="25" Margin="0,10,0,0" Text="Loading aircraft image" />
+                    </StackPanel>
+                </Border>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0">Name:</TextBlock>
                 <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Manufacturer:</TextBlock>

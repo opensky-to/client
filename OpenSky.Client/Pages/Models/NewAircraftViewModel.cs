@@ -34,6 +34,118 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The account balances.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AccountBalances accountBalances;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The aircraft type search string.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string aircraftTypeSearch;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// List of all aircraft types received from the API, with no filters applied.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private ICollection<AircraftType> allAircraftTypes;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The delivery cost per aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int deliveryCostPerAircraft;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The factory ferry airport icao.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string factoryFerryAirportICAO;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The grand total.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int grandTotal;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if manufacturer ferry is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool manufacturerFerryChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The manufacturer ferry cost per nautical mile.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int manufacturerFerryCostPerNm;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if manufacturer home delivery is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool manufacturerHomeChecked = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The number of aircraft to purchase.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int numberOfAircraft = 1;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if outsource ferry is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool outsourceFerryChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The selected aircraft type.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftType selectedAircraftType;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The signature.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string signature;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The sold stamp visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility soldStampVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The volume discount (per aircraft).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private int volumeDiscount;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="NewAircraftViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -58,44 +170,197 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Sign the purchase agreement.
+        /// Gets or sets the account balances.
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 18/02/2022.
-        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        private void SignPurchase()
+        public AccountBalances AccountBalances
         {
-            // TODO
+            get => this.accountBalances;
+
+            set
+            {
+                if (Equals(this.accountBalances, value))
+                {
+                    return;
+                }
+
+                this.accountBalances = value;
+                this.NotifyPropertyChanged();
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the sign purchase command.
+        /// Gets a list of types of aircraft.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand SignPurchaseCommand { get; }
+        public ObservableCollection<AircraftType> AircraftTypes { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True if manufacturer home delivery is checked.
+        /// Gets or sets the aircraft type search string.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool manufacturerHomeChecked = true;
+        public string AircraftTypeSearch
+        {
+            get => this.aircraftTypeSearch;
+
+            set
+            {
+                if (Equals(this.aircraftTypeSearch, value))
+                {
+                    return;
+                }
+
+                this.aircraftTypeSearch = value;
+                this.NotifyPropertyChanged();
+
+                this.AircraftTypes.Clear();
+                foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
+                {
+                    if (string.IsNullOrEmpty(this.AircraftTypeSearch) || aircraftType.Name.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()) ||
+                        aircraftType.Manufacturer.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()))
+                    {
+                        this.AircraftTypes.Add(aircraftType);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    this.SelectedAircraftType = null;
+                }
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True if manufacturer ferry is checked.
+        /// Gets the name of the buyer.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool manufacturerFerryChecked;
+        public string BuyerName => UserSessionService.Instance.Username;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True if outsource ferry is checked.
+        /// Gets or sets the delivery cost per aircraft.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private bool outsourceFerryChecked;
+        public int DeliveryCostPerAircraft
+        {
+            get => this.deliveryCostPerAircraft;
+            set
+            {
+                if (value == this.deliveryCostPerAircraft)
+                {
+                    return;
+                }
+
+                this.deliveryCostPerAircraft = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the factory ferry airport icao.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string FactoryFerryAirportICAO
+        {
+            get => this.factoryFerryAirportICAO;
+            set
+            {
+                if (Equals(this.factoryFerryAirportICAO, value))
+                {
+                    return;
+                }
+
+                this.factoryFerryAirportICAO = value;
+                this.NotifyPropertyChanged();
+                this.CalculateGrandTotal();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the grand total.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int GrandTotal
+        {
+            get => this.grandTotal;
+            set
+            {
+                if (value == this.grandTotal)
+                {
+                    return;
+                }
+
+                this.grandTotal = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the loading text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string LoadingText
+        {
+            get => this.loadingText;
+
+            set
+            {
+                if (Equals(this.loadingText, value))
+                {
+                    return;
+                }
+
+                this.loadingText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the manufacturer ferry option is checked.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ManufacturerFerryChecked
+        {
+            get => this.manufacturerFerryChecked;
+            set
+            {
+                if (value == this.manufacturerFerryChecked)
+                {
+                    return;
+                }
+
+                this.manufacturerFerryChecked = value;
+                this.NotifyPropertyChanged();
+                this.CalculateGrandTotal();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the manufacturer ferry cost per nautical mile.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public int ManufacturerFerryCostPerNm
+        {
+            get => this.manufacturerFerryCostPerNm;
+            set
+            {
+                if (value == this.manufacturerFerryCostPerNm)
+                {
+                    return;
+                }
+
+                this.manufacturerFerryCostPerNm = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -120,17 +385,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether the manufacturer ferry option is checked.
+        /// Gets or sets the number of aircraft to purchase.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public bool ManufacturerFerryChecked
+        public int NumberOfAircraft
         {
-            get => this.manufacturerFerryChecked;
+            get => this.numberOfAircraft;
             set
             {
-                if (value == this.manufacturerFerryChecked)
+                if (value == this.numberOfAircraft)
+                {
                     return;
-                this.manufacturerFerryChecked = value;
+                }
+
+                this.numberOfAircraft = value;
                 this.NotifyPropertyChanged();
                 this.CalculateGrandTotal();
             }
@@ -156,31 +424,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The factory ferry airport icao.
+        /// Gets the refresh balances command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private string factoryFerryAirportICAO;
+        public AsynchronousCommand RefreshBalancesCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the factory ferry airport icao.
+        /// Gets the refresh types command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string FactoryFerryAirportICAO
-        {
-            get => this.factoryFerryAirportICAO;
-            set
-            {
-                if (Equals(this.factoryFerryAirportICAO, value))
-                {
-                    return;
-                }
-
-                this.factoryFerryAirportICAO = value;
-                this.NotifyPropertyChanged();
-                this.CalculateGrandTotal();
-            }
-        }
+        public AsynchronousCommand RefreshTypesCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -191,43 +445,26 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the name of the buyer.
+        /// Gets or sets the selected aircraft type.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string BuyerName => UserSessionService.Instance.Username;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The signature.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string signature;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The sold stamp visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility soldStampVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the sold stamp visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility SoldStampVisibility
+        public AircraftType SelectedAircraftType
         {
-            get => this.soldStampVisibility;
+            get => this.selectedAircraftType;
 
             set
             {
-                if (Equals(this.soldStampVisibility, value))
+                if (Equals(this.selectedAircraftType, value))
                 {
                     return;
                 }
 
-                this.soldStampVisibility = value;
+                this.selectedAircraftType = value;
                 this.NotifyPropertyChanged();
+                if (value != null)
+                {
+                    this.CalculateGrandTotal();
+                }
             }
         }
 
@@ -254,160 +491,28 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The number of aircraft to purchase.
+        /// Gets the sign purchase command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private int numberOfAircraft = 1;
+        public AsynchronousCommand SignPurchaseCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the number of aircraft to purchase.
+        /// Gets or sets the sold stamp visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public int NumberOfAircraft
+        public Visibility SoldStampVisibility
         {
-            get => this.numberOfAircraft;
+            get => this.soldStampVisibility;
+
             set
             {
-                if (value == this.numberOfAircraft)
+                if (Equals(this.soldStampVisibility, value))
                 {
                     return;
                 }
 
-                this.numberOfAircraft = value;
-                this.NotifyPropertyChanged();
-                this.CalculateGrandTotal();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The selected aircraft type.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private AircraftType selectedAircraftType;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the selected aircraft type.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AircraftType SelectedAircraftType
-        {
-            get => this.selectedAircraftType;
-        
-            set
-            {
-                if(Equals(this.selectedAircraftType, value))
-                {
-                   return;
-                }
-        
-                this.selectedAircraftType = value;
-                this.NotifyPropertyChanged();
-                if (value != null)
-                {
-                    this.CalculateGrandTotal();
-                }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The manufacturer ferry cost per nautical mile.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private int manufacturerFerryCostPerNm;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the manufacturer ferry cost per nautical mile.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public int ManufacturerFerryCostPerNm
-        {
-            get => this.manufacturerFerryCostPerNm;
-            set
-            {
-                if (value == this.manufacturerFerryCostPerNm)
-                    return;
-                this.manufacturerFerryCostPerNm = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Calculates the grand total (and necessary steps in between).
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 18/02/2022.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void CalculateGrandTotal()
-        {
-            if (this.ManufacturerHomeChecked)
-            {
-                this.DeliveryCostPerAircraft = 0;
-            }
-
-            if (this.ManufacturerFerryChecked)
-            {
-                this.ManufacturerFerryCostPerNm = this.SelectedAircraftType?.Category switch
-                {
-                    AircraftTypeCategory.SEP => 15,
-                    AircraftTypeCategory.MEP => 25,
-                    AircraftTypeCategory.SET => 30,
-                    AircraftTypeCategory.MET => 50,
-                    AircraftTypeCategory.JET => 100,
-                    AircraftTypeCategory.HEL => 100,
-                    AircraftTypeCategory.REG => 150,
-                    AircraftTypeCategory.NBA => 250,
-                    AircraftTypeCategory.WBA => 400,
-                    _ => 0
-                };
-
-                this.DeliveryCostPerAircraft = this.ManufacturerFerryCostPerNm; // todo work out distance and multiply
-            }
-
-            if (this.OutsourceFerryChecked)
-            {
-                // todo implement once ferry job type exists
-            }
-
-            if (this.SelectedAircraftType != null && this.NumberOfAircraft >= 1)
-            {
-                var discount = this.NumberOfAircraft switch
-                {
-                    >=50 => 0.25,
-                    >=10 => 0.1,
-                    >=3 => 0.05,
-                    _ => 0
-                };
-
-                this.VolumeDiscount = (int)(this.SelectedAircraftType.MaxPrice * discount);
-                this.GrandTotal = (this.SelectedAircraftType.MaxPrice - this.VolumeDiscount + this.DeliveryCostPerAircraft) * this.NumberOfAircraft;
-            }
-            else
-            {
-                this.VolumeDiscount = 0;
-                this.GrandTotal = 0;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the delivery cost per aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public int DeliveryCostPerAircraft
-        {
-            get => this.deliveryCostPerAircraft;
-            set
-            {
-                if (value == this.deliveryCostPerAircraft)
-                    return;
-                this.deliveryCostPerAircraft = value;
+                this.soldStampVisibility = value;
                 this.NotifyPropertyChanged();
             }
         }
@@ -431,102 +536,60 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the grand total.
+        /// Calculates the grand total (and necessary steps in between).
         /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/02/2022.
+        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public int GrandTotal
+        private void CalculateGrandTotal()
         {
-            get => this.grandTotal;
-            set
+            this.ManufacturerFerryCostPerNm = this.SelectedAircraftType?.Category switch
             {
-                if (value == this.grandTotal)
-                    return;
-                this.grandTotal = value;
-                this.NotifyPropertyChanged();
+                AircraftTypeCategory.SEP => 15,
+                AircraftTypeCategory.MEP => 25,
+                AircraftTypeCategory.SET => 30,
+                AircraftTypeCategory.MET => 50,
+                AircraftTypeCategory.JET => 100,
+                AircraftTypeCategory.HEL => 100,
+                AircraftTypeCategory.REG => 150,
+                AircraftTypeCategory.NBA => 250,
+                AircraftTypeCategory.WBA => 400,
+                _ => 0
+            };
+
+            if (this.ManufacturerHomeChecked)
+            {
+                this.DeliveryCostPerAircraft = 0;
             }
-        }
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The delivery cost per aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private int deliveryCostPerAircraft;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The volume discount (per aircraft).
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private int volumeDiscount;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The grand total.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private int grandTotal;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The loading text.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string loadingText;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the loading text.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string LoadingText
-        {
-            get => this.loadingText;
-
-            set
+            if (this.ManufacturerFerryChecked)
             {
-                if (Equals(this.loadingText, value))
-                {
-                    return;
-                }
-
-                this.loadingText = value;
-                this.NotifyPropertyChanged();
+                this.DeliveryCostPerAircraft = this.ManufacturerFerryCostPerNm; // todo work out distance and multiply
             }
-        }
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the refresh balances command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshBalancesCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The account balances.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private AccountBalances accountBalances;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the account balances.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AccountBalances AccountBalances
-        {
-            get => this.accountBalances;
-
-            set
+            if (this.OutsourceFerryChecked)
             {
-                if (Equals(this.accountBalances, value))
-                {
-                    return;
-                }
+                // todo implement once ferry job type exists
+            }
 
-                this.accountBalances = value;
-                this.NotifyPropertyChanged();
+            if (this.SelectedAircraftType != null && this.NumberOfAircraft >= 1)
+            {
+                var discount = this.NumberOfAircraft switch
+                {
+                    >= 50 => 0.25,
+                    >= 10 => 0.1,
+                    >= 3 => 0.05,
+                    _ => 0
+                };
+
+                this.VolumeDiscount = (int)(this.SelectedAircraftType.MaxPrice * discount);
+                this.GrandTotal = (this.SelectedAircraftType.MaxPrice - this.VolumeDiscount + this.DeliveryCostPerAircraft) * this.NumberOfAircraft;
+            }
+            else
+            {
+                this.VolumeDiscount = 0;
+                this.GrandTotal = 0;
             }
         }
 
@@ -577,69 +640,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets a list of types of aircraft.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<AircraftType> AircraftTypes { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// List of all aircraft types received from the API, with no filters applied.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private ICollection<AircraftType> allAircraftTypes;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the refresh types command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshTypesCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The aircraft type search string.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private string aircraftTypeSearch;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the aircraft type search string.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string AircraftTypeSearch
-        {
-            get => this.aircraftTypeSearch;
-        
-            set
-            {
-                if(Equals(this.aircraftTypeSearch, value))
-                {
-                   return;
-                }
-        
-                this.aircraftTypeSearch = value;
-                this.NotifyPropertyChanged();
-
-                this.AircraftTypes.Clear();
-                foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
-                {
-                    if (string.IsNullOrEmpty(this.AircraftTypeSearch) || aircraftType.Name.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()) || aircraftType.Manufacturer.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()))
-                    {
-                        this.AircraftTypes.Add(aircraftType);
-                    }
-                }
-
-                if (string.IsNullOrEmpty(value))
-                {
-                    this.SelectedAircraftType = null;
-                }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Refresh aircraft types.
         /// </summary>
         /// <remarks>
@@ -658,7 +658,7 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             this.allAircraftTypes = result.Data;
-                            
+
                             this.AircraftTypes.Clear();
                             foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
                             {
@@ -694,6 +694,19 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Sign the purchase agreement.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void SignPurchase()
+        {
+            // TODO
         }
     }
 }

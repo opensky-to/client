@@ -987,6 +987,50 @@
         }
       }
     },
+    "/AircraftType/image/{typeID}": {
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Get image for the specified aircraft type.",
+        "description": "sushi.at, 19/02/2022.",
+        "operationId": "GetAircraftTypeImage",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/AircraftType/upgrades": {
       "get": {
         "tags": [
@@ -1131,6 +1175,57 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AircraftTypeIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/image": {
+      "post": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Update the image of the specified aircraft type.",
+        "description": "sushi.at, 19/02/2022.",
+        "requestBody": {
+          "description": "The type image update model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftTypeImage"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftTypeImage"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftTypeImage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
                 }
               }
             }
@@ -4050,6 +4145,13 @@
             "description": "Gets or sets the number of engines.",
             "format": "int32"
           },
+          "engineModel": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the engine model.",
+            "nullable": true
+          },
           "engineType": {
             "$ref": "#/components/schemas/EngineType"
           },
@@ -4117,6 +4219,13 @@
             "type": "string",
             "description": "Gets or sets the manufacturer."
           },
+          "manufacturerHomeAirportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the manufacturer home airport icao.",
+            "nullable": true
+          },
           "maxGrossWeight": {
             "type": "number",
             "description": "Gets or sets the maximum gross weight in pounds.",
@@ -4161,6 +4270,9 @@
             "description": "Gets or sets the next version of this aircraft type - to migrate existing aircraft to this\r\nnew type.",
             "format": "uuid",
             "nullable": true
+          },
+          "overrideFuelType": {
+            "$ref": "#/components/schemas/FuelType"
           },
           "requiresManualFuelling": {
             "type": "boolean",
@@ -4273,6 +4385,24 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "AircraftTypeImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier.",
+            "format": "uuid"
+          },
+          "image": {
+            "type": "string",
+            "description": "Gets or sets the image file upload.",
+            "format": "binary",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft type image model."
       },
       "AircraftTypeUpgrade": {
         "type": "object",
@@ -4800,6 +4930,38 @@
         },
         "additionalProperties": false,
         "description": "Application token model."
+      },
+      "ByteArrayApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Gets or sets the embedded data of type T.",
+            "format": "byte",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "ChangePassword": {
         "required": [
@@ -6862,20 +7024,29 @@
         "enum": [
           0,
           1,
-          2
+          2,
+          3,
+          4,
+          99
         ],
         "type": "integer",
-        "description": "Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None",
+        "description": "Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None, 3 = Hydrogen, 4 = Electricity, 99 = NotUsed",
         "format": "int32",
         "x-enumNames": [
           "AvGas",
           "JetFuel",
-          "None"
+          "None",
+          "Hydrogen",
+          "Electricity",
+          "NotUsed"
         ],
         "x-enum-varnames": [
           "AvGas",
           "JetFuel",
-          "None"
+          "None",
+          "Hydrogen",
+          "Electricity",
+          "NotUsed"
         ]
       },
       "GroundOperations": {

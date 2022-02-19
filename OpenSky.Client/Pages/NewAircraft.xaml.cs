@@ -76,29 +76,6 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Creates a new aircraft on loaded.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 14/02/2022.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Routed event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void NewAircraftOnLoaded(object sender, RoutedEventArgs e)
-        {
-            if (this.DataContext is NewAircraftViewModel viewModel)
-            {
-                viewModel.ViewReference = this;
-                viewModel.RefreshBalancesCommand.DoExecute(null);
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Automatic suggest box on suggestion chosen.
         /// </summary>
         /// <remarks>
@@ -119,6 +96,29 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is NewAircraftViewModel viewModel && args.SelectedItem is AircraftType type)
             {
                 viewModel.SelectedAircraftType = type;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Creates a new aircraft on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/02/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void NewAircraftOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is NewAircraftViewModel viewModel)
+            {
+                viewModel.ViewReference = this;
+                viewModel.RefreshBalancesCommand.DoExecute(null);
             }
         }
     }
