@@ -219,7 +219,7 @@ namespace OpenSky.Client.Pages.Models
                 foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
                 {
                     if (string.IsNullOrEmpty(this.AircraftTypeSearch) || aircraftType.Name.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()) ||
-                        aircraftType.Manufacturer.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()))
+                        aircraftType.Manufacturer.Name.ToLowerInvariant().Contains(this.AircraftTypeSearch.ToLowerInvariant()))
                     {
                         this.AircraftTypes.Add(aircraftType);
                     }
@@ -662,7 +662,7 @@ namespace OpenSky.Client.Pages.Models
                             this.AircraftTypes.Clear();
                             foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
                             {
-                                if (string.IsNullOrEmpty(this.AircraftTypeSearch) || aircraftType.Name.Contains(this.AircraftTypeSearch) || aircraftType.Manufacturer.Contains(this.AircraftTypeSearch))
+                                if (string.IsNullOrEmpty(this.AircraftTypeSearch) || aircraftType.Name.Contains(this.AircraftTypeSearch) || aircraftType.Manufacturer.Name.Contains(this.AircraftTypeSearch))
                                 {
                                     this.AircraftTypes.Add(aircraftType);
                                 }

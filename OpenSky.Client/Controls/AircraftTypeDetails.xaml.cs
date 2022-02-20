@@ -78,5 +78,27 @@ namespace OpenSky.Client.Controls
                 viewModel.Type = e.NewValue as AircraftType;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Aircraft type details on loaded.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/02/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AircraftTypeDetailsOnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AircraftTypeDetailsViewModel viewModel)
+            {
+                viewModel.ViewReference = this;
+            }
+        }
     }
 }

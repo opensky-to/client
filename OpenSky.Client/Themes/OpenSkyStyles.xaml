@@ -1066,4 +1066,48 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="DefaultToolTipStyle" TargetType="ToolTip">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource ToolTipForeground}" />
+        <Setter Property="Background" Value="{DynamicResource ToolTipBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ToolTipBorderBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource ToolTipBorderThemeThickness}" />
+        <Setter Property="FontFamily" Value="{DynamicResource {x:Static SystemFonts.StatusFontFamilyKey}}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontSize" Value="{DynamicResource ToolTipContentThemeFontSize}" />
+        <Setter Property="Padding" Value="{DynamicResource ToolTipBorderThemePadding}" />
+        <Setter Property="ui:ControlHelper.CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+        <Setter Property="HasDropShadow" Value="{DynamicResource {x:Static SystemParameters.DropShadowKey}}" />
+        <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled" />
+        <Setter Property="SnapsToDevicePixels" Value="true" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <ui:ThemeShadowChrome
+                        Depth="16"
+                        IsShadowEnabled="{TemplateBinding HasDropShadow}"
+                        MaxWidth="670"
+                        CornerRadius="{TemplateBinding ui:ControlHelper.CornerRadius}"
+                        SnapsToDevicePixels="True">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding ui:ControlHelper.CornerRadius}">
+                            <Border
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="{TemplateBinding ui:ControlHelper.CornerRadius}">
+                                <ui:ContentPresenterEx
+                                    TextWrapping="Wrap"
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Border>
+                        </Border>
+                    </ui:ThemeShadowChrome>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}" />
 </ResourceDictionary>

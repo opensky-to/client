@@ -122,6 +122,30 @@
                             <controls:SkybucksCurrency Currency="{Binding RentPrice}" Margin="15,0" />
                         </DataTemplate>
                     </DataGrid.Resources>
+                    <DataGrid.RowStyle>
+                        <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
+                            <Style.Setters>
+                                <Setter Property="ToolTipService.InitialShowDelay">
+                                    <Setter.Value>
+                                        1500
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="ToolTipService.ShowDuration">
+                                    <Setter.Value>
+                                        15000
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="ToolTip">
+                                    <Setter.Value>
+                                        <Grid Tag="{Binding Path=Type}">
+                                            <controls:AircraftTypeDetails AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                        </Grid>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style.Setters>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Registry" Binding="{Binding Registry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" SortDirection="Ascending" />
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />

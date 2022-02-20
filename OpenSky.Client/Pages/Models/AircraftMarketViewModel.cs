@@ -451,7 +451,7 @@ namespace OpenSky.Client.Pages.Models
 
                     // Filter manufacturers and types to the new category
                     this.Manufacturers.Clear();
-                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => t.Category == value.AircraftTypeCategory).Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => t.Category == value.AircraftTypeCategory).Select(t => t.Manufacturer.Name).Distinct().OrderBy(m => m))
                     {
                         this.Manufacturers.Add(typeManufacturer);
                     }
@@ -481,7 +481,7 @@ namespace OpenSky.Client.Pages.Models
                 {
                     // Restore the full list of manufacturers and aircraft types
                     this.Manufacturers.Clear();
-                    foreach (var typeManufacturer in this.allAircraftTypes.Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                    foreach (var typeManufacturer in this.allAircraftTypes.Select(t => t.Manufacturer.Name).Distinct().OrderBy(m => m))
                     {
                         this.Manufacturers.Add(typeManufacturer);
                     }
@@ -766,7 +766,7 @@ namespace OpenSky.Client.Pages.Models
 
                     // Filter list of manufacturers to match current matching text
                     this.Manufacturers.Clear();
-                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer).Distinct()
+                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer.Name).Distinct()
                                                          .Where(m => m.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(m => m))
                     {
                         this.Manufacturers.Add(typeManufacturer);
@@ -774,7 +774,7 @@ namespace OpenSky.Client.Pages.Models
 
                     // Filter aircraft types to this manufacturer
                     this.AircraftTypes.Clear();
-                    foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Manufacturer.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
+                    foreach (var aircraftType in this.allAircraftTypes.Where(t => t.Manufacturer.Name.ToLowerInvariant().Contains(value.ToLowerInvariant())).OrderBy(t => t.Name))
                     {
                         if (this.AircraftTypeCategory != null && this.AircraftTypeCategory.AircraftTypeCategory != aircraftType.Category)
                         {
@@ -797,7 +797,7 @@ namespace OpenSky.Client.Pages.Models
                 {
                     // Restore full list of manufacturers (except where other filters already removed them)
                     this.Manufacturers.Clear();
-                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                    foreach (var typeManufacturer in this.allAircraftTypes.Where(t => this.AircraftTypeCategory == null || t.Category == this.AircraftTypeCategory.AircraftTypeCategory).Select(t => t.Manufacturer.Name).Distinct().OrderBy(m => m))
                     {
                         this.Manufacturers.Add(typeManufacturer);
                     }
@@ -859,7 +859,7 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.Name.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
                         {
                             continue;
                         }
@@ -881,7 +881,7 @@ namespace OpenSky.Client.Pages.Models
                             continue;
                         }
 
-                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                        if (!string.IsNullOrEmpty(this.Manufacturer) && !aircraftType.Manufacturer.Name.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
                         {
                             continue;
                         }
@@ -1367,7 +1367,7 @@ namespace OpenSky.Client.Pages.Models
                     continue;
                 }
 
-                if (this.AircraftManufacturerChecked && !ac.Type.Manufacturer.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
+                if (this.AircraftManufacturerChecked && !ac.Type.Manufacturer.Name.ToLowerInvariant().Contains(this.Manufacturer.ToLowerInvariant()))
                 {
                     continue;
                 }
@@ -1493,7 +1493,7 @@ namespace OpenSky.Client.Pages.Models
                             this.allAircraftTypes = result.Data;
 
                             this.Manufacturers.Clear();
-                            foreach (var typeManufacturer in result.Data.Select(t => t.Manufacturer).Distinct().OrderBy(m => m))
+                            foreach (var typeManufacturer in result.Data.Select(t => t.Manufacturer.Name).Distinct().OrderBy(m => m))
                             {
                                 this.Manufacturers.Add(typeManufacturer);
                             }
