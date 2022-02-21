@@ -139,7 +139,7 @@
                                 <Setter Property="ToolTip">
                                     <Setter.Value>
                                         <Grid Tag="{Binding Path=Type}">
-                                            <controls:AircraftTypeDetails AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            <controls:AircraftTypeDetails Width="650" AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
                                         </Grid>
                                     </Setter.Value>
                                 </Setter>

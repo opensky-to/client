@@ -76,6 +76,10 @@ namespace OpenSky.Client.Controls
             if (e.Property == AircraftTypeProperty && this.DataContext is AircraftTypeDetailsViewModel viewModel)
             {
                 viewModel.Type = e.NewValue as AircraftType;
+                this.GroupBoxHeader.InvalidateMeasure();
+                this.EngineInfo.InvalidateMeasure();
+                this.RunwayInfo.InvalidateMeasure();
+                this.ImageTags.InvalidateMeasure();
             }
         }
 

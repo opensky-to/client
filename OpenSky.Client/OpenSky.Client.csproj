@@ -153,6 +153,7 @@
     <Compile Include="Converters\AircraftRegistryConverter.cs" />
     <Compile Include="Converters\AircraftTypeEngineInfoConverter.cs" />
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
+    <Compile Include="Converters\BooleanToImageConverter.cs" />
     <Compile Include="Converters\CollectionEmptyVisibilityConverter.cs" />
     <Compile Include="Converters\JobTypeConverter.cs" />
     <Compile Include="Converters\PayloadDistanceConverter.cs" />
