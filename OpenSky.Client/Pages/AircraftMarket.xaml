@@ -22,6 +22,7 @@
                       xmlns:tools="clr-namespace:OpenSky.Client.Tools"
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
+                      xmlns:pages="clr-namespace:OpenSky.Client.Pages"
                       mc:Ignorable="d"
                       LoadingText="{Binding LoadingText}" Loaded="AircraftMarketOnLoaded"
                       VerticalScrollBar="False" HorizontalScrollBar="False"
@@ -63,7 +64,11 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <GroupBox Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Grid.Column="0">
             <GroupBox.Header>
                 <TextBlock FontWeight="DemiBold">Search for Aircraft</TextBlock>
             </GroupBox.Header>
@@ -124,7 +129,20 @@
                 <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftManufacturerChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Manufacturer</RadioButton>
                 <ui:AutoSuggestBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Manufacturers}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <RadioButton GroupName="AircraftType" IsChecked="{Binding AircraftNameChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Name</RadioButton>
-                <ui:AutoSuggestBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding AircraftTypes}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ui:AutoSuggestBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding AircraftTypes}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" PlaceholderText="Type to search..." Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ui:AutoSuggestBox.ItemTemplate>
+                        <DataTemplate DataType="openSkyApi:AircraftType">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding Name}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Consolas" FontSize="10">[</TextBlock>
+                                    <TextBlock FontFamily="Consolas" FontSize="10" Text="{Binding Simulator}" />
+                                    <TextBlock FontFamily="Consolas" FontSize="10">]</TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ui:AutoSuggestBox.ItemTemplate>
+                </ui:AutoSuggestBox>
 
                 <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold" Margin="0,20,0,0">Availability</TextBlock>
                 <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left">
@@ -146,7 +164,8 @@
                 </StackPanel>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="1">
+        <controls:AircraftTypeDetails Grid.Row="1" Grid.Column="0" AircraftType="{Binding RelativeSource={RelativeSource AncestorType={x:Type pages:AircraftMarket}}, Path=DataContext.SelectedAircraft.Type}" />
+        <GroupBox Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
             <GroupBox.Header>
                 <TextBlock FontWeight="DemiBold" Text="{Binding AvailableAircraftHeader}" />
             </GroupBox.Header>
@@ -237,7 +256,7 @@
                 </DataGrid>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="2" Visibility="{Binding PurchaseAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
+        <GroupBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Visibility="{Binding PurchaseAircraftVisibility}" tools:VisibilityAnimation.AnimationType="SlideFromRight">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="15" FontWeight="DemiBold">Purchase aircraft:</TextBlock>

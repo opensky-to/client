@@ -436,6 +436,58 @@
         }
       }
     },
+    "/Aircraft/purchaseNew": {
+      "post": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Purchase new aircraft.",
+        "description": "sushi.at, 14/02/2022.",
+        "operationId": "PurchaseNewAircraft",
+        "requestBody": {
+          "description": "The purchase new aircraft model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseNewAircraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/searchInCountry": {
       "post": {
         "tags": [
@@ -911,6 +963,144 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/manufacturers": {
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Get the list aircraft manufacturers.",
+        "description": "sushi.at, 20/02/2022.",
+        "operationId": "GetAircraftManufacturers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftManufacturerIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftManufacturerIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftManufacturerIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AircraftType/image/{typeID}": {
+      "get": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Get image for the specified aircraft type.",
+        "description": "sushi.at, 19/02/2022.",
+        "operationId": "GetAircraftTypeImage",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AircraftType"
+        ],
+        "summary": "Update the image of the specified aircraft type.",
+        "description": "sushi.at, 19/02/2022.",
+        "operationId": "UpdateAircraftTypeImage",
+        "parameters": [
+          {
+            "name": "typeID",
+            "in": "path",
+            "description": "Identifier for the aircraft type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileUpload": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "fileUpload": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -3911,6 +4101,98 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "AircraftManufacturer": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Short identifier string for the manufacturer."
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Full name of manufacturer."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft manufacturer model."
+      },
+      "AircraftManufacturerDeliveryLocation": {
+        "required": [
+          "aircraftTypeID",
+          "airportICAO",
+          "manufacturerID"
+        ],
+        "type": "object",
+        "properties": {
+          "aircraftTypeID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the aircraft type.",
+            "format": "uuid"
+          },
+          "airportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airport icao."
+          },
+          "airportName": {
+            "type": "string",
+            "description": "Gets the name of the airport.",
+            "nullable": true,
+            "readOnly": true
+          },
+          "manufacturerID": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the identifier of the manufacturer."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft manufacturer delivery location model."
+      },
+      "AircraftManufacturerIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftManufacturer"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "AircraftSearchInCountry": {
         "type": "object",
         "properties": {
@@ -3953,7 +4235,6 @@
           "atcType",
           "category",
           "engineType",
-          "manufacturer",
           "name",
           "simulator",
           "uploaderID"
@@ -3980,6 +4261,14 @@
             "description": "Gets or sets the comments (moderation status, retired, needs fixing, etc.).",
             "nullable": true
           },
+          "deliveryLocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AircraftManufacturerDeliveryLocation"
+            },
+            "description": "Gets or sets the delivery locations.",
+            "nullable": true
+          },
           "detailedChecksDisabled": {
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the detailed checks are TEMPORARILY disabled - only\r\nuse this on patch days until a new version of the plane can be added."
@@ -3997,6 +4286,13 @@
             "type": "integer",
             "description": "Gets or sets the number of engines.",
             "format": "int32"
+          },
+          "engineModel": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the engine model.",
+            "nullable": true
           },
           "engineType": {
             "$ref": "#/components/schemas/EngineType"
@@ -4018,6 +4314,11 @@
             "description": "Gets or sets the fuel weight per gallon (default values are 6 lbs/gallon avgas and 6.66 lbs/gallon jetfuel).",
             "format": "double"
           },
+          "hasAircraftImage": {
+            "type": "boolean",
+            "description": "Gets a value indicating whether this aircraft type has an image uploaded.",
+            "readOnly": true
+          },
           "hasVariants": {
             "type": "boolean",
             "description": "Gets a value indicating whether this aircraft type has variants.",
@@ -4035,6 +4336,10 @@
           "isGearRetractable": {
             "type": "boolean",
             "description": "Gets or sets a value indicating whether this aircraft has retractable landing gear."
+          },
+          "isHistoric": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft is historic (can't be purchased new)."
           },
           "isVanilla": {
             "type": "boolean",
@@ -4060,10 +4365,14 @@
             "readOnly": true
           },
           "manufacturer": {
-            "maxLength": 50,
-            "minLength": 0,
+            "$ref": "#/components/schemas/AircraftManufacturer"
+          },
+          "manufacturerID": {
+            "maxLength": 5,
+            "minLength": 3,
             "type": "string",
-            "description": "Gets or sets the manufacturer."
+            "description": "Gets or sets the identifier of the manufacturer.",
+            "nullable": true
           },
           "maxGrossWeight": {
             "type": "number",
@@ -4109,6 +4418,9 @@
             "description": "Gets or sets the next version of this aircraft type - to migrate existing aircraft to this\r\nnew type.",
             "format": "uuid",
             "nullable": true
+          },
+          "overrideFuelType": {
+            "$ref": "#/components/schemas/FuelType"
           },
           "requiresManualFuelling": {
             "type": "boolean",
@@ -4748,6 +5060,38 @@
         },
         "additionalProperties": false,
         "description": "Application token model."
+      },
+      "ByteArrayApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Gets or sets the embedded data of type T.",
+            "format": "byte",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "ChangePassword": {
         "required": [
@@ -5783,10 +6127,11 @@
           12,
           13,
           14,
+          15,
           -1
         ],
         "type": "integer",
-        "description": "Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, -1 = Flight",
+        "description": "Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, 15 = Ferry, -1 = Flight",
         "format": "int32",
         "x-enumNames": [
           "None",
@@ -5804,6 +6149,7 @@
           "Passengers",
           "SpecialtyJobs",
           "Fines",
+          "Ferry",
           "Flight"
         ],
         "x-enum-varnames": [
@@ -5822,6 +6168,7 @@
           "Passengers",
           "SpecialtyJobs",
           "Fines",
+          "Ferry",
           "Flight"
         ]
       },
@@ -6810,20 +7157,29 @@
         "enum": [
           0,
           1,
-          2
+          2,
+          3,
+          4,
+          99
         ],
         "type": "integer",
-        "description": "Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None",
+        "description": "Fuel types (derived from engine type, SimConnect doesn't report this). 0 = AvGas, 1 = JetFuel, 2 = None, 3 = Hydrogen, 4 = Electricity, 99 = NotUsed",
         "format": "int32",
         "x-enumNames": [
           "AvGas",
           "JetFuel",
-          "None"
+          "None",
+          "Hydrogen",
+          "Electricity",
+          "NotUsed"
         ],
         "x-enum-varnames": [
           "AvGas",
           "JetFuel",
-          "None"
+          "None",
+          "Hydrogen",
+          "Electricity",
+          "NotUsed"
         ]
       },
       "GroundOperations": {
@@ -7170,6 +7526,26 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "NewAircraftDeliveryOption": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "New aircraft delivery options. 0 = ManufacturerDeliveryAirport, 1 = ManufacturerFerry, 2 = OutsourceFerry",
+        "format": "int32",
+        "x-enumNames": [
+          "ManufacturerDeliveryAirport",
+          "ManufacturerFerry",
+          "OutsourceFerry"
+        ],
+        "x-enum-varnames": [
+          "ManufacturerDeliveryAirport",
+          "ManufacturerFerry",
+          "OutsourceFerry"
+        ]
+      },
       "Payload": {
         "required": [
           "description",
@@ -7498,6 +7874,48 @@
         },
         "additionalProperties": false,
         "description": "Purchase aircraft model."
+      },
+      "PurchaseNewAircraft": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "deliveryAirportICAO": {
+            "type": "string",
+            "description": "Gets or sets the delivery airport ICAO.",
+            "nullable": true
+          },
+          "deliveryOption": {
+            "$ref": "#/components/schemas/NewAircraftDeliveryOption"
+          },
+          "ferryAirportICAO": {
+            "type": "string",
+            "description": "Gets or sets the ferry airport ICAO.",
+            "nullable": true
+          },
+          "forAirline": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to purchase the aircraft for the airline or the user."
+          },
+          "numberOfAircraft": {
+            "type": "integer",
+            "description": "Gets or sets the number of aircraft to purchase.",
+            "format": "int32"
+          },
+          "outsourceFerryRate": {
+            "type": "integer",
+            "description": "Gets or sets the outsource ferry rate (SkyBucks / NM).",
+            "format": "int32"
+          },
+          "typeID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the type.",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Purchase new aircraft model."
       },
       "RefreshToken": {
         "type": "object",

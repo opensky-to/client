@@ -1,0 +1,122 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="AircraftTypeDetails.xaml" company="OpenSky">
+  OpenSky project 2021-2022
+</copyright>
+<summary>
+  Aircraft type details user control
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.AircraftTypeDetails"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 xmlns:ui="http://schemas.modernwpf.com/2019"
+                 mc:Ignorable="d" Loaded="AircraftTypeDetailsOnLoaded"
+                 d:DesignHeight="800" d:DesignWidth="700">
+    <UserControl.DataContext>
+        <models:AircraftTypeDetailsViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+        <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <GroupBox>
+            <GroupBox.Header>
+                <StackPanel Name="GroupBoxHeader" Orientation="Horizontal" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
+                    <TextBlock FontWeight="DemiBold" Text="{Binding Type.Name}" />
+                    <TextBlock Margin="5,0">by</TextBlock>
+                    <TextBlock Text="{Binding Type.Manufacturer}" />
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid Margin="5" IsEnabled="{Binding Type, Converter={StaticResource NullItemToEnabledConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Width="640" Height="360" Source="{Binding AircraftImage, Mode=OneWay}" HorizontalAlignment="Left" />
+                <StackPanel Name="ImageTags" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                    <Border Background="{StaticResource OpenSkyTealBrush}" CornerRadius="5" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
+                        <TextBlock Text="{Binding Type.Category}" FontSize="15" FontWeight="SemiBold" Margin="8" HorizontalAlignment="Center" />
+                    </Border>
+                    <Border Background="{StaticResource OpenSkyTealBrush}" CornerRadius="5" Margin="0,3,0,0" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
+                        <TextBlock Text="{Binding Type.Simulator}" FontSize="15" FontWeight="SemiBold" Margin="8" HorizontalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Foreground="{StaticResource OpenSkyTealLightBrush}" Text="{Binding AircraftImagePlaceholderText, Mode=OneWay}" TextWrapping="Wrap" />
+                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Background="#B0000000" Visibility="{Binding LoadingVisibility}">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <ui:ProgressRing IsActive="True" Width="100" Height="100"></ui:ProgressRing>
+                        <TextBlock HorizontalAlignment="Center" FontSize="25" Margin="0,10,0,0" Text="Loading aircraft image" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,15,0,0">Engines:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Fuel type:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Empty weight:</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Fuel total capacity:</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center">Maximum fuel weight:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Max gross weight:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,15,0">Minimum runway length:</TextBlock>
+
+                <StackPanel Name="EngineInfo" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.EngineCount}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,5,0">x</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.EngineModel}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">[</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.EngineType}" />
+                    <TextBlock VerticalAlignment="Center">]</TextBlock>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Type.FuelType}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.EmptyWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F1|true}" />
+                <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.TotalFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
+                <StackPanel Name="RunwayInfo" Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.MinimumRunwayLength}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">feet</TextBlock>
+                </StackPanel>
+
+                <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" >Co-pilot?:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Center">Flight engineer?:</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,15,0">Retractable gear?:</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="2" VerticalAlignment="Center">Flaps?:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center">Manual fuelling?:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="2" VerticalAlignment="Center">Manual loading?:</TextBlock>
+
+                <Image Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.NeedsCoPilot, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.NeedsFlightEngineer, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="4" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.IsGearRetractable, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="5" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.FlapsAvailable, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="6" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.RequiresManualFuelling, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="7" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Type.RequiresManualLoading, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

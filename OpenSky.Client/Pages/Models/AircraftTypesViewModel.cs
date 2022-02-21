@@ -7,11 +7,15 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Windows;
+
+    using Microsoft.Win32;
 
     using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
@@ -77,6 +81,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The manufacturer delivery airport ICAO(s) (comma separated).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string manufacturerDeliveryAirportICAOs;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The selected aircraft type.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -102,6 +113,7 @@ namespace OpenSky.Client.Pages.Models
             this.ExistingAircraftTypes = new ObservableCollection<AircraftType>();
             this.SelectedAircraftTypes = new ObservableCollection<AircraftType>();
             this.AircraftUpgrades = new ObservableCollection<AircraftTypeUpgrade>();
+            this.Manufacturers = new ObservableCollection<AircraftManufacturer>();
 
             this.GetUserRolesCommand = new AsynchronousCommand(this.GetUserRoles);
             this.RefreshAircraftTypesCommand = new AsynchronousCommand(this.RefreshAircraftTypes);
@@ -119,8 +131,11 @@ namespace OpenSky.Client.Pages.Models
             this.GetAircraftUpgradesCommand = new AsynchronousCommand(this.GetAircraftUpgrades, false);
             this.CloseUpgradeAircraftCommand = new Command(this.CloseUpgradeAircraft);
             this.UpdateAircraftTypeCommand = new AsynchronousCommand(this.UpdateAircraftType);
+            this.UploadImageCommand = new AsynchronousCommand(this.UploadImage);
+            this.GetAircraftManufacturersCommand = new AsynchronousCommand(this.GetAircraftManufacturers);
 
             this.GetUserRolesCommand.DoExecute(null);
+            this.GetAircraftManufacturersCommand.DoExecute(null);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -318,6 +333,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the get aircraft manufacturers command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand GetAircraftManufacturersCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the get aircraft upgrades command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -350,6 +372,34 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the manufacturer delivery airport ICAO(s) (comma separated).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string ManufacturerDeliveryAirportICAOs
+        {
+            get => this.manufacturerDeliveryAirportICAOs;
+
+            set
+            {
+                if (Equals(this.manufacturerDeliveryAirportICAOs, value))
+                {
+                    return;
+                }
+
+                this.manufacturerDeliveryAirportICAOs = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the manufacturers.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<AircraftManufacturer> Manufacturers { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -445,6 +495,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the upload image command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand UploadImageCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Closes the upgrade aircraft view and clears the upgrades collection.
         /// </summary>
         /// <remarks>
@@ -522,12 +579,13 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DeleteTypeCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.DeleteTypeCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
@@ -541,10 +599,7 @@ namespace OpenSky.Client.Pages.Models
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);
                     messageBox.SetWarningColorStyle();
-                    messageBox.Closed += (_, _) =>
-                    {
-                        answer = messageBox.Result;
-                    };
+                    messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                     Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                 });
             while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -605,12 +660,13 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DisableDetailedChecksCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.DisableDetailedChecksCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
@@ -637,7 +693,6 @@ namespace OpenSky.Client.Pages.Models
                             var notification = new OpenSkyNotification("Error disabling aircraft type detailed checks", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                             notification.SetErrorColorStyle();
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
                         });
                 }
             }
@@ -663,12 +718,13 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.DisableTypeCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.DisableTypeCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
@@ -720,12 +776,13 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.EnableDetailedChecksCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.EnableDetailedChecksCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
@@ -777,12 +834,13 @@ namespace OpenSky.Client.Pages.Models
         {
             if (this.SelectedAircraftTypes.Count != 1)
             {
-                this.EnableTypeCommand.ReportProgress(() =>
-                {
-                    var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
-                    notification.SetErrorColorStyle();
-                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                });
+                this.EnableTypeCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
                 return;
             }
 
@@ -815,6 +873,56 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.ViewReference, this.EnableTypeCommand, "Error enabling aircraft type");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the list of aircraft manufacturers.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetAircraftManufacturers()
+        {
+            this.LoadingText = "Fetching aircraft manufacturers";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAircraftManufacturersAsync().Result;
+                if (!result.IsError)
+                {
+                    this.GetAircraftManufacturersCommand.ReportProgress(
+                        () =>
+                        {
+                            this.Manufacturers.Clear();
+                            this.Manufacturers.AddRange(result.Data);
+                        });
+                }
+                else
+                {
+                    this.GetAircraftManufacturersCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error fetching aircraft manufacturers: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error fetching aircraft manufacturers", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.GetAircraftManufacturersCommand, "Error fetching aircraft manufacturers");
             }
             finally
             {
@@ -993,6 +1101,26 @@ namespace OpenSky.Client.Pages.Models
 
             this.EditedAircraftType.IsVariantOf = this.EditedIsVariantOf?.Id;
             this.EditedAircraftType.NextVersion = this.EditedNextVersion?.Id;
+            this.EditedAircraftType.ManufacturerID = this.EditedAircraftType.Manufacturer?.Id;
+
+            this.EditedAircraftType.DeliveryLocations = new List<AircraftManufacturerDeliveryLocation>();
+            if (!string.IsNullOrEmpty(this.ManufacturerDeliveryAirportICAOs))
+            {
+                var icaos = this.ManufacturerDeliveryAirportICAOs.Split(',');
+                foreach (var icao in icaos)
+                {
+                    if (!string.IsNullOrEmpty(icao.Trim()))
+                    {
+                        this.EditedAircraftType.DeliveryLocations.Add(
+                            new AircraftManufacturerDeliveryLocation
+                            {
+                                AircraftTypeID = Guid.Empty,
+                                ManufacturerID = "empty",
+                                AirportICAO = icao.Trim()
+                            });
+                    }
+                }
+            }
 
             this.LoadingText = "Saving changed aircraft type";
             try
@@ -1065,6 +1193,17 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.EditedNextVersion = this.ExistingAircraftTypes.SingleOrDefault(t => t.Id == this.SelectedAircraftType.NextVersion);
             }
+
+            this.ManufacturerDeliveryAirportICAOs = string.Empty;
+            if (this.SelectedAircraftType.DeliveryLocations != null)
+            {
+                foreach (var deliveryLocation in this.SelectedAircraftType.DeliveryLocations)
+                {
+                    this.ManufacturerDeliveryAirportICAOs += $"{deliveryLocation.AirportICAO},";
+                }
+            }
+
+            this.ManufacturerDeliveryAirportICAOs = this.ManufacturerDeliveryAirportICAOs.TrimEnd(',');
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1104,7 +1243,6 @@ namespace OpenSky.Client.Pages.Models
                                 var notification = new OpenSkyNotification("Error performing aircraft type upgrade", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
                                 notification.SetErrorColorStyle();
                                 Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-
                             });
                     }
                 }
@@ -1116,6 +1254,89 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.LoadingText = null;
                 }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Upload aircraft type image.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/02/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void UploadImage()
+        {
+            if (this.SelectedAircraftTypes.Count != 1)
+            {
+                this.UploadImageCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error", "Please select exactly one aircraft type!", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
+                return;
+            }
+
+            bool? answer = null;
+            string fileName = null;
+            this.UploadImageCommand.ReportProgress(
+                () =>
+                {
+                    var openDialog = new OpenFileDialog
+                    {
+                        Title = "Select new aircraft image",
+                        CheckFileExists = true,
+                        Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg"
+                    };
+
+                    answer = openDialog.ShowDialog();
+                    if (answer == true)
+                    {
+                        fileName = openDialog.FileName;
+                    }
+                },
+                true);
+
+            if (answer != true || string.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            try
+            {
+                var result = OpenSkyService.Instance.UpdateAircraftTypeImageAsync(this.SelectedAircraftType.Id, new FileParameter(File.OpenRead(fileName), fileName, fileName.ToLowerInvariant().EndsWith(".png") ? "image/png" : "image/jpeg"))
+                                           .Result;
+                if (result.IsError)
+                {
+                    this.UploadImageCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error uploading aircraft image: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error uploading aircraft image", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+                else
+                {
+                    this.UploadImageCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Aircraft image upload", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.UploadImageCommand, "Error uploading aircraft image.");
             }
         }
     }

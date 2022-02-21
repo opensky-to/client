@@ -258,7 +258,7 @@ namespace OpenSkyApi
         {
             try
             {
-                if (!this.refreshTokenMutex.WaitOne(30 * 1000))
+                if (!this.refreshTokenMutex.WaitOne(5 * 1000))
                 {
                     // Timeout refreshing token
                     Debug.WriteLine("Timeout waiting for refresh token mutex.");
