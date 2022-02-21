@@ -7320,6 +7320,10 @@ namespace OpenSkyApi
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string AirportICAO { get; set; }
     
+        /// <summary>Gets the name of the airport.</summary>
+        [Newtonsoft.Json.JsonProperty("airportName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AirportName { get; set; }
+    
         /// <summary>Gets or sets the identifier of the manufacturer.</summary>
         [Newtonsoft.Json.JsonProperty("manufacturerID", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -8790,7 +8794,7 @@ namespace OpenSkyApi
     
     }
     
-    /// <summary>Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, -1 = Flight</summary>
+    /// <summary>Financial categories. 0 = None, 1 = Aircraft, 2 = Fuel, 3 = Maintenance, 4 = AirportFees, 5 = Salaries, 6 = Loan, 7 = Interest, 8 = Shares, 9 = Dividend, 10 = FBO, 11 = Cargo, 12 = Passengers, 13 = SpecialtyJobs, 14 = Fines, 15 = Ferry, -1 = Flight</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public enum FinancialCategory
     {
@@ -8823,6 +8827,8 @@ namespace OpenSkyApi
         SpecialtyJobs = 13,
     
         Fines = 14,
+    
+        Ferry = 15,
     
         Flight = -1,
     
@@ -9878,6 +9884,18 @@ namespace OpenSkyApi
     
     }
     
+    /// <summary>New aircraft delivery options. 0 = ManufacturerDeliveryAirport, 1 = ManufacturerFerry, 2 = OutsourceFerry</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public enum NewAircraftDeliveryOption
+    {
+        ManufacturerDeliveryAirport = 0,
+    
+        ManufacturerFerry = 1,
+    
+        OutsourceFerry = 2,
+    
+    }
+    
     /// <summary>Payload model.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class Payload 
@@ -10141,16 +10159,31 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class PurchaseNewAircraft 
     {
-        /// <summary>Gets or sets the airport ICAO.</summary>
-        [Newtonsoft.Json.JsonProperty("airportICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string AirportICAO { get; set; }
-    
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Country Country { get; set; }
+    
+        /// <summary>Gets or sets the delivery airport ICAO.</summary>
+        [Newtonsoft.Json.JsonProperty("deliveryAirportICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string DeliveryAirportICAO { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("deliveryOption", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public NewAircraftDeliveryOption DeliveryOption { get; set; }
+    
+        /// <summary>Gets or sets the ferry airport ICAO.</summary>
+        [Newtonsoft.Json.JsonProperty("ferryAirportICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FerryAirportICAO { get; set; }
     
         /// <summary>Gets or sets a value indicating whether to purchase the aircraft for the airline or the user.</summary>
         [Newtonsoft.Json.JsonProperty("forAirline", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool ForAirline { get; set; }
+    
+        /// <summary>Gets or sets the number of aircraft to purchase.</summary>
+        [Newtonsoft.Json.JsonProperty("numberOfAircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int NumberOfAircraft { get; set; }
+    
+        /// <summary>Gets or sets the outsource ferry rate (SkyBucks / NM).</summary>
+        [Newtonsoft.Json.JsonProperty("outsourceFerryRate", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int OutsourceFerryRate { get; set; }
     
         /// <summary>Gets or sets the identifier of the type.</summary>
         [Newtonsoft.Json.JsonProperty("typeID", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

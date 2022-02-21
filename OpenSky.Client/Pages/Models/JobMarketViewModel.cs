@@ -557,7 +557,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Searching for jobs...";
             try
             {
-                JobIEnumerableApiResponse result = null;
+                JobIEnumerableApiResponse result;
                 if (this.AircraftTypeCategory == null)
                 {
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression

@@ -13,7 +13,6 @@ namespace OpenSky.Client.Pages.Models
     using System.Linq;
     using System.Windows;
     using System.Windows.Media;
-    using System.Xml.XPath;
 
     using Microsoft.Maps.MapControl.WPF;
 

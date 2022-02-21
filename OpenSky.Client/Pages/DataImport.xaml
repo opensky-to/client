@@ -68,8 +68,8 @@
                     AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
-                    >
-                    <!-- dgx:DataGridFilter.IsAutoFilterEnabled="True" -->
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
+                    <!--  -->
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" FontFamily="Consolas" />
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" />

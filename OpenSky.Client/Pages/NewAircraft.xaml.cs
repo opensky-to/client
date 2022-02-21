@@ -10,6 +10,7 @@ namespace OpenSky.Client.Pages
 
     using ModernWpf.Controls;
 
+    using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Pages.Models;
 
     using OpenSkyApi;
@@ -96,6 +97,31 @@ namespace OpenSky.Client.Pages
             if (this.DataContext is NewAircraftViewModel viewModel && args.SelectedItem is AircraftType type)
             {
                 viewModel.SelectedAircraftType = type;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Country automatic suggest box on suggestion chosen.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 20/02/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="args">
+        /// Automatic suggest box suggestion chosen event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void CountryAutoSuggestBoxOnSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            sender.Text = args.SelectedItem.ToString();
+            sender.IsSuggestionListOpen = false;
+
+            if (this.DataContext is NewAircraftViewModel viewModel && args.SelectedItem is CountryComboItem country)
+            {
+                viewModel.RegistrationCountry = country.Country;
             }
         }
 

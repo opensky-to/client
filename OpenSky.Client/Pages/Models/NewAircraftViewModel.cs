@@ -9,13 +9,16 @@ namespace OpenSky.Client.Pages.Models
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Device.Location;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
 
     using OpenSky.Client.Controls;
     using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
+    using OpenSky.Client.OpenAPIs.ModelExtensions;
     using OpenSky.Client.Tools;
     using OpenSky.Client.Views;
 
@@ -125,6 +128,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected delivery location.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftManufacturerDeliveryLocation selectedDeliveryLocation;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The signature.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -156,8 +166,13 @@ namespace OpenSky.Client.Pages.Models
         {
             // Initialize data structures
             this.AircraftTypes = new ObservableCollection<AircraftType>();
+            this.Countries = new ObservableCollection<CountryComboItem>();
 
             // Add initial values
+            foreach (var countryItem in CountryComboItem.GetCountryComboItems())
+            {
+                this.Countries.Add(countryItem);
+            }
 
             // Create commands
             this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);
@@ -167,6 +182,13 @@ namespace OpenSky.Client.Pages.Models
             // Fire off initial commands
             this.RefreshTypesCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the countries.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<CountryComboItem> Countries { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -228,6 +250,43 @@ namespace OpenSky.Client.Pages.Models
                 if (string.IsNullOrEmpty(value))
                 {
                     this.SelectedAircraftType = null;
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The country search string.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string countrySearch;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the country search string.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string CountrySearch
+        {
+            get => this.countrySearch;
+
+            set
+            {
+                if (Equals(this.countrySearch, value))
+                {
+                    return;
+                }
+
+                this.countrySearch = value;
+                this.NotifyPropertyChanged();
+
+                this.Countries.Clear();
+                foreach (var country in CountryComboItem.GetCountryComboItems())
+                {
+                    if (string.IsNullOrEmpty(this.CountrySearch) || country.ToString().ToLowerInvariant().Contains(this.CountrySearch))
+                    {
+                        this.Countries.Add(country);
+                    }
                 }
             }
         }
@@ -464,7 +523,29 @@ namespace OpenSky.Client.Pages.Models
                 if (value != null)
                 {
                     this.CalculateGrandTotal();
+                    this.SelectedDeliveryLocation = value.DeliveryLocations.FirstOrDefault();
                 }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected delivery location.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftManufacturerDeliveryLocation SelectedDeliveryLocation
+        {
+            get => this.selectedDeliveryLocation;
+
+            set
+            {
+                if (Equals(this.selectedDeliveryLocation, value))
+                {
+                    return;
+                }
+
+                this.selectedDeliveryLocation = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -536,6 +617,34 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The registration country.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Country? registrationCountry;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the registration country.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Country? RegistrationCountry
+        {
+            get => this.registrationCountry;
+
+            set
+            {
+                if (Equals(this.registrationCountry, value))
+                {
+                    return;
+                }
+
+                this.registrationCountry = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Calculates the grand total (and necessary steps in between).
         /// </summary>
         /// <remarks>
@@ -565,7 +674,23 @@ namespace OpenSky.Client.Pages.Models
 
             if (this.ManufacturerFerryChecked)
             {
-                this.DeliveryCostPerAircraft = this.ManufacturerFerryCostPerNm; // todo work out distance and multiply
+                this.DeliveryCostPerAircraft = 0;
+                if (this.SelectedDeliveryLocation != null && !string.IsNullOrEmpty(this.FactoryFerryAirportICAO))
+                {
+                    var airportCache = AirportPackageClientHandler.GetPackage();
+                    if (airportCache != null)
+                    {
+                        var sourceAirport = airportCache.Airports.SingleOrDefault(a => a.ICAO == this.SelectedDeliveryLocation.AirportICAO);
+                        var destinationAirport = airportCache.Airports.SingleOrDefault(a => a.ICAO == this.FactoryFerryAirportICAO);
+
+                        if (sourceAirport != null && destinationAirport != null)
+                        {
+                            var distance = new GeoCoordinate(sourceAirport.Latitude, sourceAirport.Longitude).GetDistanceTo(new GeoCoordinate(destinationAirport.Latitude, destinationAirport.Longitude)) / 1852.0;
+
+                            this.DeliveryCostPerAircraft = (int)(this.ManufacturerFerryCostPerNm * distance);
+                        }
+                    }
+                }
             }
 
             if (this.OutsourceFerryChecked)
@@ -657,7 +782,7 @@ namespace OpenSky.Client.Pages.Models
                     this.RefreshTypesCommand.ReportProgress(
                         () =>
                         {
-                            this.allAircraftTypes = result.Data;
+                            this.allAircraftTypes = result.Data.Where(t => !t.IsHistoric).ToList();
 
                             this.AircraftTypes.Clear();
                             foreach (var aircraftType in this.allAircraftTypes.OrderBy(t => t.Name))
@@ -706,7 +831,117 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void SignPurchase()
         {
-            // TODO
+            var errorMessages = string.Empty;
+            if (this.SelectedAircraftType == null)
+            {
+                errorMessages += "No aircraft type selected!\r\n";
+            }
+
+            if (this.SelectedDeliveryLocation == null)
+            {
+                errorMessages += "No delivery location selected/available!\r\n";
+            }
+
+            if (this.NumberOfAircraft < 1)
+            {
+                errorMessages += "Invalid number of aircraft!\r\n";
+            }
+
+            if (this.RegistrationCountry == null)
+            {
+                errorMessages += "Country of registration not selected!\r\n";
+            }
+
+            if (this.ManufacturerFerryChecked && string.IsNullOrEmpty(this.FactoryFerryAirportICAO))
+            {
+                errorMessages += "Ferry flight destination airport not selected!\r\n";
+            }
+
+            if (!string.IsNullOrEmpty(errorMessages))
+            {
+                this.SignPurchaseCommand.ReportProgress(
+                    () =>
+                    {
+                        var notification = new OpenSkyNotification("Error purchasing aircraft", errorMessages.TrimEnd('\r', '\n'), MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
+                return;
+            }
+
+            this.SignPurchaseCommand.CanExecute = false;
+
+            foreach (var car in UserSessionService.Instance.Username.ToCharArray())
+            {
+                this.Signature += car;
+                Thread.Sleep(300);
+            }
+
+            try
+            {
+                var purchase = new PurchaseNewAircraft
+                {
+                    TypeID = this.SelectedAircraftType?.Id ?? Guid.Empty,
+                    NumberOfAircraft = this.NumberOfAircraft,
+                    DeliveryAirportICAO = this.SelectedDeliveryLocation?.AirportICAO,
+                    Country = this.RegistrationCountry ?? Country.AT,
+                    ForAirline = false // todo enable once we add airlines for real
+                };
+                if (this.ManufacturerHomeChecked)
+                {
+                    purchase.DeliveryOption = NewAircraftDeliveryOption.ManufacturerDeliveryAirport;
+                }
+                else if (this.ManufacturerFerryChecked)
+                {
+                    purchase.DeliveryOption = NewAircraftDeliveryOption.ManufacturerFerry;
+                    purchase.FerryAirportICAO = this.FactoryFerryAirportICAO;
+                }
+                else if (this.OutsourceFerryChecked)
+                {
+                    purchase.DeliveryOption = NewAircraftDeliveryOption.OutsourceFerry;
+                }
+                else
+                {
+                    purchase.DeliveryOption = NewAircraftDeliveryOption.ManufacturerDeliveryAirport;
+                }
+
+                var result = OpenSkyService.Instance.PurchaseNewAircraftAsync(purchase).Result;
+                if (!result.IsError)
+                {
+                    this.SoldStampVisibility = Visibility.Visible;
+
+                    Thread.Sleep(1500);
+                    this.SignPurchaseCommand.ReportProgress(
+                        () =>
+                        {
+                            var messageBox = new OpenSkyMessageBox("Purchase aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 30);
+                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                        });
+
+                    return;
+                }
+
+                this.SignPurchaseCommand.ReportProgress(
+                    () =>
+                    {
+                        Debug.WriteLine("Error purchasing aircraft: " + result.Message);
+                        if (!string.IsNullOrEmpty(result.ErrorDetails))
+                        {
+                            Debug.WriteLine(result.ErrorDetails);
+                        }
+
+                        var notification = new OpenSkyNotification("Error purchasing aircraft", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                        notification.SetErrorColorStyle();
+                        Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                    });
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.SignPurchaseCommand, "Error purchasing aircraft");
+            }
+
+            this.Signature = string.Empty;
+            this.SignPurchaseCommand.CanExecute = true;
         }
     }
 }
