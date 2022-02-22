@@ -3,6 +3,15 @@ OpenSky Client Changelog
 ======================================================================================
 
 --------------------------------------------------------------------------------------
+Version 0.4.2 (ALPHA4)
+--------------------------------------------------------------------------------------
+- Added purchase new aircraft page
+- Extended aicraft types page with new manufacturer and aircraft properties
+- Added support for new start flight checks with optional overrides
+- Fixed airport update issues on flight planning page
+- Fixed aircraft payload issues on flight planning page
+
+--------------------------------------------------------------------------------------
 Version 0.4.1 (ALPHA4)
 --------------------------------------------------------------------------------------
 - Added support for short cargo jobs

@@ -11,6 +11,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Device.Location;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
 
@@ -139,84 +140,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the alternate wrong simulator error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility AlternateWrongSimErrorVisibility
-        {
-            get
-            {
-                if (this.AlternateAirport != null && this.SelectedAircraft != null)
-                {
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.AlternateAirport.Msfs)
-                    {
-                        return Visibility.Visible;
-                    }
-
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.AlternateAirport.XP11)
-                    {
-                        return Visibility.Visible;
-                    }
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the origin wrong simulator error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility OriginWrongSimErrorVisibility
-        {
-            get
-            {
-                if (this.OriginAirport != null && this.SelectedAircraft != null)
-                {
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.OriginAirport.Msfs)
-                    {
-                        return Visibility.Visible;
-                    }
-
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.OriginAirport.XP11)
-                    {
-                        return Visibility.Visible;
-                    }
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the destination wrong simulator error visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DestinationWrongSimErrorVisibility
-        {
-            get
-            {
-                if (this.DestinationAirport != null && this.SelectedAircraft != null)
-                {
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.DestinationAirport.Msfs)
-                    {
-                        return Visibility.Visible;
-                    }
-
-                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.DestinationAirport.XP11)
-                    {
-                        return Visibility.Visible;
-                    }
-                }
-
-                return Visibility.Collapsed;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the alternate airport closed error visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -319,6 +242,11 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
                 if (Equals(this.alternateICAO, value))
                 {
                     return;
@@ -327,7 +255,29 @@ namespace OpenSky.Client.Pages.Models
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
-                UpdateGUIDelegate updateAirports = () => this.UpdateAirportsCommand.DoExecute(null);
+                UpdateGUIDelegate updateAirports = () =>
+                {
+                    if (!this.UpdateAirportsCommand.IsExecuting)
+                    {
+                        this.UpdateAirportsCommand.DoExecute(null);
+                    }
+                    else
+                    {
+                        new Thread(
+                            () =>
+                            {
+                                var waited = 0;
+                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                {
+                                    Thread.Sleep(100);
+                                    waited += 100;
+                                }
+
+                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                            }).Start();
+                    }
+                };
                 Application.Current.Dispatcher.BeginInvoke(updateAirports);
             }
         }
@@ -350,6 +300,32 @@ namespace OpenSky.Client.Pages.Models
 
                 this.alternateInvalidWarningVisibility = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the alternate wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AlternateWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.AlternateAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.AlternateAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.AlternateAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
             }
         }
 
@@ -483,6 +459,11 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
                 if (Equals(this.destinationICAO, value))
                 {
                     return;
@@ -491,7 +472,29 @@ namespace OpenSky.Client.Pages.Models
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
-                UpdateGUIDelegate updateAirports = () => this.UpdateAirportsCommand.DoExecute(null);
+                UpdateGUIDelegate updateAirports = () =>
+                {
+                    if (!this.UpdateAirportsCommand.IsExecuting)
+                    {
+                        this.UpdateAirportsCommand.DoExecute(null);
+                    }
+                    else
+                    {
+                        new Thread(
+                            () =>
+                            {
+                                var waited = 0;
+                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                {
+                                    Thread.Sleep(100);
+                                    waited += 100;
+                                }
+
+                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                            }).Start();
+                    }
+                };
                 Application.Current.Dispatcher.BeginInvoke(updateAirports);
             }
         }
@@ -514,6 +517,32 @@ namespace OpenSky.Client.Pages.Models
 
                 this.destinationInvalidWarningVisibility = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the destination wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DestinationWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.DestinationAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.DestinationAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.DestinationAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
             }
         }
 
@@ -552,6 +581,11 @@ namespace OpenSky.Client.Pages.Models
 
             set
             {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
                 if (Equals(this.originICAO, value))
                 {
                     return;
@@ -563,7 +597,27 @@ namespace OpenSky.Client.Pages.Models
 
                 UpdateGUIDelegate updateOriginRelated = () =>
                 {
-                    this.UpdateAirportsCommand.DoExecute(null);
+                    if (!this.UpdateAirportsCommand.IsExecuting)
+                    {
+                        this.UpdateAirportsCommand.DoExecute(null);
+                    }
+                    else
+                    {
+                        new Thread(
+                            () =>
+                            {
+                                var waited = 0;
+                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                {
+                                    Thread.Sleep(100);
+                                    waited += 100;
+                                }
+
+                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                            }).Start();
+                    }
+
                     this.UpdateAircraftDistances();
                     this.UpdatePlannablePayloads();
                 };
@@ -591,6 +645,39 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the origin wrong simulator error visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility OriginWrongSimErrorVisibility
+        {
+            get
+            {
+                if (this.OriginAirport != null && this.SelectedAircraft != null)
+                {
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.MSFS && !this.OriginAirport.Msfs)
+                    {
+                        return Visibility.Visible;
+                    }
+
+                    if (this.SelectedAircraft.Type.Simulator == Simulator.XPlane11 && !this.OriginAirport.XP11)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the route trail locations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public LocationCollection RouteTrailLocations { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -655,221 +742,242 @@ namespace OpenSky.Client.Pages.Models
             Debug.WriteLine("Updating airports...");
             try
             {
-                if (this.TrackingEventMarkers.Count > 0)
+                lock (this.airportCache)
                 {
-                    this.UpdateAirportsCommand.ReportProgress(
-                        () =>
-                        {
-                            this.TrackingEventMarkers.Clear();
-                            this.RouteTrailLocations.Clear();
-                        }, true);
-                }
-
-                // Alternate
-                if (!string.IsNullOrEmpty(this.AlternateICAO))
-                {
-                    try
+                    if (this.TrackingEventMarkers.Count > 0)
                     {
-                        this.AlternateAirport = null;
-                        if (!this.airportCache.ContainsKey(this.AlternateICAO))
+                        this.UpdateAirportsCommand.ReportProgress(
+                            () =>
+                            {
+                                this.TrackingEventMarkers.Clear();
+                                this.RouteTrailLocations.Clear();
+                            },
+                            true);
+                    }
+
+                    // Alternate
+                    var alternateICAOToProcess = this.AlternateICAO;
+                    if (!string.IsNullOrEmpty(alternateICAOToProcess))
+                    {
+                        try
                         {
-                            if (this.AlternateICAO.Length < 3)
+                            this.AlternateAirport = null;
+                            if (!this.airportCache.ContainsKey(alternateICAOToProcess))
                             {
-                                this.AlternateInvalidWarningVisibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                var result = OpenSkyService.Instance.GetAirportAsync(this.AlternateICAO).Result;
-                                if (!result.IsError)
+                                if (alternateICAOToProcess.Length < 3)
                                 {
-                                    if (result.Data.Icao != "XXXX")
-                                    {
-                                        this.airportCache.Add(this.AlternateICAO, result.Data);
-                                        this.AlternateAirport = result.Data;
-                                        this.AlternateInvalidWarningVisibility = Visibility.Collapsed;
-                                        this.UpdateAirportsCommand.ReportProgress(() => this.AddMarkersForAirport(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black));
-                                    }
-                                    else
-                                    {
-                                        this.AlternateInvalidWarningVisibility = Visibility.Visible;
-                                        this.airportCache.Add(this.AlternateICAO, null);
-                                    }
+                                    this.AlternateInvalidWarningVisibility = Visibility.Visible;
                                 }
                                 else
                                 {
-                                    var message = result.Message;
-                                    if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                    var result = OpenSkyService.Instance.GetAirportAsync(alternateICAOToProcess).Result;
+                                    if (!result.IsError)
                                     {
-                                        message += $"\r\n\r\n{result.ErrorDetails}";
+                                        if (result.Data.Icao != "XXXX")
+                                        {
+                                            this.airportCache.Add(alternateICAOToProcess, result.Data);
+                                            this.AlternateAirport = result.Data;
+                                            this.AlternateInvalidWarningVisibility = Visibility.Collapsed;
+                                            this.UpdateAirportsCommand.ReportProgress(() => this.AddMarkersForAirport(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black));
+                                        }
+                                        else
+                                        {
+                                            this.AlternateInvalidWarningVisibility = Visibility.Visible;
+                                            this.airportCache.Add(alternateICAOToProcess, null);
+                                        }
                                     }
+                                    else
+                                    {
+                                        var message = result.Message;
+                                        if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                        {
+                                            message += $"\r\n\r\n{result.ErrorDetails}";
+                                        }
 
-                                    throw new Exception(message);
+                                        throw new Exception(message);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (this.airportCache[alternateICAOToProcess] != null)
+                                {
+                                    this.AlternateAirport = this.airportCache[alternateICAOToProcess];
+                                    this.AlternateInvalidWarningVisibility = Visibility.Collapsed;
+                                    this.UpdateAirportsCommand.ReportProgress(() => this.AddMarkersForAirport(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black));
+                                }
+                                else
+                                {
+                                    this.AlternateInvalidWarningVisibility = Visibility.Visible;
                                 }
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            if (this.airportCache[this.AlternateICAO] != null)
-                            {
-                                this.AlternateAirport = this.airportCache[this.AlternateICAO];
-                                this.AlternateInvalidWarningVisibility = Visibility.Collapsed;
-                                this.UpdateAirportsCommand.ReportProgress(() => this.AddMarkersForAirport(this.AlternateAirport, OpenSkyColors.OpenSkyWarningOrange, Colors.Black));
-                            }
-                            else
-                            {
-                                this.AlternateInvalidWarningVisibility = Visibility.Visible;
-                            }
+                            ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving alternate airport information.");
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving alternate airport information.");
+                        this.AlternateInvalidWarningVisibility = Visibility.Collapsed;
                     }
-                }
 
-                // Origin
-                if (!string.IsNullOrEmpty(this.OriginICAO))
-                {
-                    try
+                    // Origin
+                    var originICAOToProcess = this.OriginICAO;
+                    if (!string.IsNullOrEmpty(originICAOToProcess))
                     {
-                        this.OriginAirport = null;
-                        if (!this.airportCache.ContainsKey(this.OriginICAO))
+                        try
                         {
-                            if (this.OriginICAO.Length < 3)
+                            this.OriginAirport = null;
+                            if (!this.airportCache.ContainsKey(originICAOToProcess))
                             {
-                                this.OriginInvalidWarningVisibility = Visibility.Visible;
+                                if (originICAOToProcess.Length < 3)
+                                {
+                                    this.OriginInvalidWarningVisibility = Visibility.Visible;
+                                }
+                                else
+                                {
+                                    var result = OpenSkyService.Instance.GetAirportAsync(originICAOToProcess).Result;
+                                    if (!result.IsError)
+                                    {
+                                        if (result.Data.Icao != "XXXX")
+                                        {
+                                            this.airportCache.Add(originICAOToProcess, result.Data);
+                                            this.OriginAirport = result.Data;
+                                            this.OriginInvalidWarningVisibility = Visibility.Collapsed;
+                                            this.UpdateAirportsCommand.ReportProgress(
+                                                () =>
+                                                {
+                                                    this.RouteTrailLocations.Add(new Location(this.OriginAirport.Latitude, this.OriginAirport.Longitude));
+                                                    this.AddMarkersForAirport(this.OriginAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                                });
+                                        }
+                                        else
+                                        {
+                                            this.OriginInvalidWarningVisibility = Visibility.Visible;
+                                            this.airportCache.Add(originICAOToProcess, null);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var message = result.Message;
+                                        if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                        {
+                                            message += $"\r\n\r\n{result.ErrorDetails}";
+                                        }
+
+                                        throw new Exception(message);
+                                    }
+                                }
                             }
                             else
                             {
-                                var result = OpenSkyService.Instance.GetAirportAsync(this.OriginICAO).Result;
-                                if (!result.IsError)
+                                if (this.airportCache[originICAOToProcess] != null)
                                 {
-                                    if (result.Data.Icao != "XXXX")
-                                    {
-                                        this.airportCache.Add(this.OriginICAO, result.Data);
-                                        this.OriginAirport = result.Data;
-                                        this.OriginInvalidWarningVisibility = Visibility.Collapsed;
-                                        this.UpdateAirportsCommand.ReportProgress(() =>
+                                    this.OriginAirport = this.airportCache[originICAOToProcess];
+                                    this.OriginInvalidWarningVisibility = Visibility.Collapsed;
+                                    this.UpdateAirportsCommand.ReportProgress(
+                                        () =>
                                         {
                                             this.RouteTrailLocations.Add(new Location(this.OriginAirport.Latitude, this.OriginAirport.Longitude));
                                             this.AddMarkersForAirport(this.OriginAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         });
-                                    }
-                                    else
-                                    {
-                                        this.OriginInvalidWarningVisibility = Visibility.Visible;
-                                        this.airportCache.Add(this.OriginICAO, null);
-                                    }
                                 }
                                 else
                                 {
-                                    var message = result.Message;
-                                    if (!string.IsNullOrEmpty(result.ErrorDetails))
-                                    {
-                                        message += $"\r\n\r\n{result.ErrorDetails}";
-                                    }
-
-                                    throw new Exception(message);
+                                    this.OriginInvalidWarningVisibility = Visibility.Visible;
                                 }
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            if (this.airportCache[this.OriginICAO] != null)
-                            {
-                                this.OriginAirport = this.airportCache[this.OriginICAO];
-                                this.OriginInvalidWarningVisibility = Visibility.Collapsed;
-                                this.UpdateAirportsCommand.ReportProgress(
-                                    () =>
-                                    {
-                                        this.RouteTrailLocations.Add(new Location(this.OriginAirport.Latitude, this.OriginAirport.Longitude));
-                                        this.AddMarkersForAirport(this.OriginAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                    });
-                            }
-                            else
-                            {
-                                this.OriginInvalidWarningVisibility = Visibility.Visible;
-                            }
+                            ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving origin airport information.");
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving origin airport information.");
+                        this.OriginInvalidWarningVisibility = Visibility.Collapsed;
                     }
-                }
 
-                // Destination
-                if (!string.IsNullOrEmpty(this.DestinationICAO))
-                {
-                    try
+                    // Destination
+                    var destinationICAOToProcess = this.DestinationICAO;
+                    if (!string.IsNullOrEmpty(destinationICAOToProcess))
                     {
-                        this.DestinationAirport = null;
-                        if (!this.airportCache.ContainsKey(this.DestinationICAO))
+                        try
                         {
-                            if (this.DestinationICAO.Length < 3)
+                            this.DestinationAirport = null;
+                            if (!this.airportCache.ContainsKey(destinationICAOToProcess))
                             {
-                                this.DestinationInvalidWarningVisibility = Visibility.Visible;
+                                if (destinationICAOToProcess.Length < 3)
+                                {
+                                    this.DestinationInvalidWarningVisibility = Visibility.Visible;
+                                }
+                                else
+                                {
+                                    var result = OpenSkyService.Instance.GetAirportAsync(destinationICAOToProcess).Result;
+                                    if (!result.IsError)
+                                    {
+                                        if (result.Data.Icao != "XXXX")
+                                        {
+                                            this.airportCache.Add(destinationICAOToProcess, result.Data);
+                                            this.DestinationAirport = result.Data;
+                                            this.DestinationInvalidWarningVisibility = Visibility.Collapsed;
+                                            this.UpdateAirportsCommand.ReportProgress(
+                                                () =>
+                                                {
+                                                    this.RouteTrailLocations.Add(new Location(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude));
+                                                    this.AddMarkersForAirport(this.DestinationAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
+                                                });
+                                        }
+                                        else
+                                        {
+                                            this.DestinationInvalidWarningVisibility = Visibility.Visible;
+                                            this.airportCache.Add(destinationICAOToProcess, null);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var message = result.Message;
+                                        if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                        {
+                                            message += $"\r\n\r\n{result.ErrorDetails}";
+                                        }
+
+                                        throw new Exception(message);
+                                    }
+                                }
                             }
                             else
                             {
-                                var result = OpenSkyService.Instance.GetAirportAsync(this.DestinationICAO).Result;
-                                if (!result.IsError)
+                                if (this.airportCache[destinationICAOToProcess] != null)
                                 {
-                                    if (result.Data.Icao != "XXXX")
-                                    {
-                                        this.airportCache.Add(this.DestinationICAO, result.Data);
-                                        this.DestinationAirport = result.Data;
-                                        this.DestinationInvalidWarningVisibility = Visibility.Collapsed;
-                                        this.UpdateAirportsCommand.ReportProgress(() =>
+                                    this.DestinationAirport = this.airportCache[destinationICAOToProcess];
+                                    this.DestinationInvalidWarningVisibility = Visibility.Collapsed;
+                                    this.UpdateAirportsCommand.ReportProgress(
+                                        () =>
                                         {
                                             this.RouteTrailLocations.Add(new Location(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude));
                                             this.AddMarkersForAirport(this.DestinationAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
                                         });
-                                    }
-                                    else
-                                    {
-                                        this.DestinationInvalidWarningVisibility = Visibility.Visible;
-                                        this.airportCache.Add(this.DestinationICAO, null);
-                                    }
                                 }
                                 else
                                 {
-                                    var message = result.Message;
-                                    if (!string.IsNullOrEmpty(result.ErrorDetails))
-                                    {
-                                        message += $"\r\n\r\n{result.ErrorDetails}";
-                                    }
-
-                                    throw new Exception(message);
+                                    this.DestinationInvalidWarningVisibility = Visibility.Visible;
                                 }
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            if (this.airportCache[this.DestinationICAO] != null)
-                            {
-                                this.DestinationAirport = this.airportCache[this.DestinationICAO];
-                                this.DestinationInvalidWarningVisibility = Visibility.Collapsed;
-                                this.UpdateAirportsCommand.ReportProgress(
-                                    () =>
-                                    {
-                                        this.RouteTrailLocations.Add(new Location(this.DestinationAirport.Latitude, this.DestinationAirport.Longitude));
-                                        this.AddMarkersForAirport(this.DestinationAirport, OpenSkyColors.OpenSkyTeal, Colors.White);
-                                    });
-                            }
-                            else
-                            {
-                                this.DestinationInvalidWarningVisibility = Visibility.Visible;
-                            }
+                            ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving destination airport information.");
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ex.HandleApiCallException(this.ViewReference, this.UpdateAirportsCommand, "Error retrieving destination airport information.");
+                        this.DestinationInvalidWarningVisibility = Visibility.Collapsed;
                     }
-                }
 
-                this.UpdateAirportsCommand.ReportProgress(() => { this.MapUpdated?.Invoke(this, EventArgs.Empty); });
+                    this.UpdateAirportsCommand.ReportProgress(() => { this.MapUpdated?.Invoke(this, EventArgs.Empty); });
+                }
             }
             catch (Exception ex)
             {
@@ -883,12 +991,5 @@ namespace OpenSky.Client.Pages.Models
                     });
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the route trail locations.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public LocationCollection RouteTrailLocations { get; }
     }
 }

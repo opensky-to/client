@@ -41,6 +41,13 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// List of start of flight states the user chose to override.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly List<StartFlightStatus> overriddenStates = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The account balances.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -1105,20 +1112,26 @@ namespace OpenSky.Client.Pages.Models
             try
             {
                 this.LoadingText = $"Starting flight {this.FlightNumber}...";
-                var result = OpenSkyService.Instance.StartFlightAsync(this.ID).Result;
+                var result = OpenSkyService.Instance.StartFlightAsync(
+                    new StartFlight
+                    {
+                        FlightID = this.ID,
+                        OverrideStates = this.overriddenStates
+                    }).Result;
                 if (!result.IsError)
                 {
-                    this.StartFlightCommand.ReportProgress(
-                        () =>
-                        {
-                            var messageBox = new OpenSkyMessageBox("Start flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
-                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                            this.ClosePage?.Invoke(this, null);
-                        });
-                }
-                else
-                {
-                    if (result.Data == "AircraftNotAtOrigin")
+                    if (result.Data == StartFlightStatus.Started)
+                    {
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox("Start flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                                this.ClosePage?.Invoke(this, null);
+                            });
+                    }
+
+                    if (result.Data == StartFlightStatus.AircraftNotAtOrigin)
                     {
                         ExtendedMessageBoxResult? answer = null;
                         this.StartFlightCommand.ReportProgress(
@@ -1158,7 +1171,107 @@ namespace OpenSky.Client.Pages.Models
                                 });
                         }
                     }
-                    else
+
+                    if (result.Data == StartFlightStatus.OriginDoesntSellAvGas)
+                    {
+                        ExtendedMessageBoxResult? answer = null;
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "No AV gas",
+                                    "The origin airport does not sell AV gas, do you want to start the flight with the fuel already on board the aircraft?"
+                                    + "\r\n\r\nWARNING: You may not enough fuel to reach your destination!",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
+                        {
+                            this.overriddenStates.Add(StartFlightStatus.OriginDoesntSellAvGas);
+                            new Thread(
+                                () =>
+                                {
+                                    Thread.Sleep(500);
+                                    UpdateGUIDelegate tryAgain = () => this.StartFlightCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+                    }
+
+                    if (result.Data == StartFlightStatus.OriginDoesntSellJetFuel)
+                    {
+                        ExtendedMessageBoxResult? answer = null;
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "No jet fuel",
+                                    "The origin airport does not sell jet fuel, do you want to start the flight with the fuel already on board the aircraft?"
+                                    + "\r\n\r\nWARNING: You may not enough fuel to reach your destination!",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
+                        {
+                            this.overriddenStates.Add(StartFlightStatus.OriginDoesntSellJetFuel);
+                            new Thread(
+                                () =>
+                                {
+                                    Thread.Sleep(500);
+                                    UpdateGUIDelegate tryAgain = () => this.StartFlightCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+                    }
+
+                    if (result.Data == StartFlightStatus.NonFlightPlanPayloadsFound)
+                    {
+                        ExtendedMessageBoxResult? answer = null;
+                        this.StartFlightCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "Non flight payload",
+                                    "At least one payload is currently on board the aircraft that is not part of the flight plan, do you want to start the flight anyway?"
+                                    + "\r\n\r\nWARNING: Your weight and balance values will not match your flight plan!",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
+                        {
+                            this.overriddenStates.Add(StartFlightStatus.OriginDoesntSellJetFuel);
+                            new Thread(
+                                () =>
+                                {
+                                    Thread.Sleep(500);
+                                    UpdateGUIDelegate tryAgain = () => this.StartFlightCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+                    }
+
+                    if (result.Data == StartFlightStatus.Error)
                     {
                         this.StartFlightCommand.ReportProgress(
                             () =>
@@ -1174,6 +1287,22 @@ namespace OpenSky.Client.Pages.Models
                                 Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             });
                     }
+                }
+                else
+                {
+                    this.StartFlightCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error starting flight: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error starting flight", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
                 }
             }
             catch (Exception ex)
