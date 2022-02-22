@@ -389,7 +389,7 @@
                                                         <TextBlock FontSize="11">Destination:</TextBlock>
                                                         <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                         <TextBlock FontSize="11">Current location:</TextBlock>
-                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock Text="{Binding CurrentLocation, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -423,7 +423,7 @@
                                                         <TextBlock FontSize="11">Destination:</TextBlock>
                                                         <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                         <TextBlock FontSize="11">Current location:</TextBlock>
-                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock Text="{Binding CurrentLocation, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -457,7 +457,7 @@
                                                         <TextBlock FontSize="11">Destination:</TextBlock>
                                                         <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                         <TextBlock FontSize="11">Current location:</TextBlock>
-                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock Text="{Binding CurrentLocation, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -490,7 +490,7 @@
                                                         <TextBlock FontSize="11">Destination:</TextBlock>
                                                         <TextBlock Text="{Binding DestinationICAO}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                         <TextBlock FontSize="11">Current location:</TextBlock>
-                                                        <TextBlock Text="{Binding CurrentLocation}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
+                                                        <TextBlock Text="{Binding CurrentLocation, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="12" Margin="5,0" />
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>

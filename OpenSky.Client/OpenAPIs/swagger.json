@@ -3262,7 +3262,7 @@
         }
       }
     },
-    "/Flight/start/{flightID}": {
+    "/Flight/start": {
       "post": {
         "tags": [
           "Flight"
@@ -3270,35 +3270,43 @@
         "summary": "Start flight.",
         "description": "sushi.at, 10/11/2021.",
         "operationId": "StartFlight",
-        "parameters": [
-          {
-            "name": "flightID",
-            "in": "path",
-            "description": "Identifier for the flight plan to start.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
+        "requestBody": {
+          "description": "The start flight model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartFlight"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartFlight"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartFlight"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/StartFlightStatusApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/StartFlightStatusApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/StartFlightStatusApiResponse"
                 }
               }
             }
@@ -8271,6 +8279,84 @@
           "MSFS",
           "XPlane11"
         ]
+      },
+      "StartFlight": {
+        "type": "object",
+        "properties": {
+          "flightID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the flight.",
+            "format": "uuid"
+          },
+          "overrideStates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StartFlightStatus"
+            },
+            "description": "Gets or sets a list of states to override the checks for.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Start flight model."
+      },
+      "StartFlightStatus": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          -1
+        ],
+        "type": "integer",
+        "description": "Start flight status. 0 = Started, 1 = AircraftNotAtOrigin, 2 = OriginDoesntSellAvGas, 3 = OriginDoesntSellJetFuel, 4 = NonFlightPlanPayloadsFound, -1 = Error",
+        "format": "int32",
+        "x-enumNames": [
+          "Started",
+          "AircraftNotAtOrigin",
+          "OriginDoesntSellAvGas",
+          "OriginDoesntSellJetFuel",
+          "NonFlightPlanPayloadsFound",
+          "Error"
+        ],
+        "x-enum-varnames": [
+          "Started",
+          "AircraftNotAtOrigin",
+          "OriginDoesntSellAvGas",
+          "OriginDoesntSellJetFuel",
+          "NonFlightPlanPayloadsFound",
+          "Error"
+        ]
+      },
+      "StartFlightStatusApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/StartFlightStatus"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "StringApiResponse": {
         "type": "object",

@@ -8,6 +8,8 @@
 
 namespace OpenSkyApi
 {
+    using OpenSky.Client.Tools;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// Payload extensions.
@@ -34,7 +36,7 @@ namespace OpenSkyApi
 
                 if (!string.IsNullOrEmpty(this.AircraftRegistry))
                 {
-                    return $"{this.AircraftRegistry} ▷ {this.DestinationICAO}";
+                    return $"{this.AircraftRegistry.RemoveSimPrefix()} ▷ {this.DestinationICAO}";
                 }
 
                 return $"??? ▷ {this.DestinationICAO}";

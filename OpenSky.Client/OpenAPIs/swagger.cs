@@ -6016,27 +6016,23 @@ namespace OpenSkyApi
         }
     
         /// <summary>Start flight.</summary>
-        /// <param name="flightID">Identifier for the flight plan to start.</param>
+        /// <param name="body">The start flight model.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<StringApiResponse> StartFlightAsync(System.Guid flightID)
+        public System.Threading.Tasks.Task<StartFlightStatusApiResponse> StartFlightAsync(StartFlight body)
         {
-            return StartFlightAsync(flightID, System.Threading.CancellationToken.None);
+            return StartFlightAsync(body, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Start flight.</summary>
-        /// <param name="flightID">Identifier for the flight plan to start.</param>
+        /// <param name="body">The start flight model.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<StringApiResponse> StartFlightAsync(System.Guid flightID, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<StartFlightStatusApiResponse> StartFlightAsync(StartFlight body, System.Threading.CancellationToken cancellationToken)
         {
-            if (flightID == null)
-                throw new System.ArgumentNullException("flightID");
-    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Flight/start/{flightID}");
-            urlBuilder_.Replace("{flightID}", System.Uri.EscapeDataString(ConvertToString(flightID, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Flight/start");
     
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6044,7 +6040,9 @@ namespace OpenSkyApi
             {
                 using (var request_ = await CreateHttpRequestMessageAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
     
@@ -6069,7 +6067,7 @@ namespace OpenSkyApi
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<StringApiResponse>(response_, headers_).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<StartFlightStatusApiResponse>(response_, headers_).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -10476,6 +10474,65 @@ namespace OpenSkyApi
         MSFS = 0,
     
         XPlane11 = 1,
+    
+    }
+    
+    /// <summary>Start flight model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class StartFlight 
+    {
+        /// <summary>Gets or sets the identifier of the flight.</summary>
+        [Newtonsoft.Json.JsonProperty("flightID", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid FlightID { get; set; }
+    
+        /// <summary>Gets or sets a list of states to override the checks for.</summary>
+        [Newtonsoft.Json.JsonProperty("overrideStates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<StartFlightStatus> OverrideStates { get; set; }
+    
+    
+    }
+    
+    /// <summary>Start flight status. 0 = Started, 1 = AircraftNotAtOrigin, 2 = OriginDoesntSellAvGas, 3 = OriginDoesntSellJetFuel, 4 = NonFlightPlanPayloadsFound, -1 = Error</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public enum StartFlightStatus
+    {
+        Started = 0,
+    
+        AircraftNotAtOrigin = 1,
+    
+        OriginDoesntSellAvGas = 2,
+    
+        OriginDoesntSellJetFuel = 3,
+    
+        NonFlightPlanPayloadsFound = 4,
+    
+        Error = -1,
+    
+    }
+    
+    /// <summary>API standard response model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class StartFlightStatusApiResponse 
+    {
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public StartFlightStatus Data { get; set; }
+    
+        /// <summary>Gets or sets the error details (NULL if no error).</summary>
+        [Newtonsoft.Json.JsonProperty("errorDetails", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ErrorDetails { get; set; }
+    
+        /// <summary>Gets or sets a value indicating whether this response is reporting an error.</summary>
+        [Newtonsoft.Json.JsonProperty("isError", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool IsError { get; set; }
+    
+        /// <summary>Gets or sets the message.</summary>
+        [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Message { get; set; }
+    
+        /// <summary>Gets or sets the status.</summary>
+        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Status { get; set; }
+    
     
     }
     
