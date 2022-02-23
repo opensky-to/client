@@ -26,8 +26,6 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
-    using TomsToolbox.Essentials;
-
     /// -------------------------------------------------------------------------------------------------
     /// <content>
     /// Flight plan view model - Airports.
@@ -41,13 +39,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private readonly Dictionary<string, Airport> airportCache = new();
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The airport markers cache.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private readonly Dictionary<string, List<TrackingEventMarker>> airportMarkersCache = new();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -705,27 +696,16 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void AddMarkersForAirport(Airport airport, Color markerColor, Color textColor)
         {
-            if (!this.airportMarkersCache.ContainsKey(airport.Icao))
-            {
-                this.airportMarkersCache.Add(airport.Icao, new List<TrackingEventMarker>());
-                var airportMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), airport.Icao, markerColor, textColor);
-                this.airportMarkersCache[airport.Icao].Add(airportMarker);
-                this.TrackingEventMarkers.Add(airportMarker);
+            var airportMarker = new TrackingEventMarker(new GeoCoordinate(airport.Latitude, airport.Longitude), airport.Icao, markerColor, textColor);
+            this.TrackingEventMarkers.Add(airportMarker);
 
-                var airportDetailMarker = new TrackingEventMarker(airport, markerColor, textColor);
-                this.airportMarkersCache[airport.Icao].Add(airportDetailMarker);
-                this.TrackingEventMarkers.Add(airportDetailMarker);
+            var airportDetailMarker = new TrackingEventMarker(airport, markerColor, textColor);
+            this.TrackingEventMarkers.Add(airportDetailMarker);
 
-                foreach (var runway in airport.Runways)
-                {
-                    var runwayMarker = new TrackingEventMarker(runway);
-                    this.airportMarkersCache[airport.Icao].Add(runwayMarker);
-                    this.TrackingEventMarkers.Add(runwayMarker);
-                }
-            }
-            else
+            foreach (var runway in airport.Runways)
             {
-                this.TrackingEventMarkers.AddRange(this.airportMarkersCache[airport.Icao]);
+                var runwayMarker = new TrackingEventMarker(runway);
+                this.TrackingEventMarkers.Add(runwayMarker);
             }
         }
 
