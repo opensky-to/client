@@ -1329,7 +1329,7 @@ namespace OpenSky.Client.Pages.Models
                     this.UploadImageCommand.ReportProgress(
                         () =>
                         {
-                            var notification = new OpenSkyNotification("Aircraft image upload", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                            var notification = new OpenSkyNotification("Aircraft image upload", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Check, 10);
                             Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                         });
                 }
