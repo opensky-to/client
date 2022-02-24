@@ -6,6 +6,7 @@ OpenSky Client Changelog
 Version 0.4.3 (ALPHA4)
 --------------------------------------------------------------------------------------
 - Fixed airport marker caching bug in flight planning page
+- Implemented radius around airport search for used aircraft market
 
 --------------------------------------------------------------------------------------
 Version 0.4.2 (ALPHA4)

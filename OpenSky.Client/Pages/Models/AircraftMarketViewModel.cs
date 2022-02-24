@@ -1598,6 +1598,74 @@ namespace OpenSky.Client.Pages.Models
                     result = OpenSkyService.Instance.GetAircraftAtAirportAsync(this.AirportIcao).Result;
                 }
 
+                if (this.WithinNmAirportChecked)
+                {
+                    if (string.IsNullOrEmpty(this.AirportIcao))
+                    {
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                var notification = new OpenSkyNotification("Error searching for aircraft", "No airport ICAO code specified.", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 10);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
+                        return;
+                    }
+
+                    if (this.AllAircraftTypesChecked)
+                    {
+                        ExtendedMessageBoxResult? answer = null;
+                        this.SearchCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "Aircraft search",
+                                    "Performing a radius aircraft search for all types would potentially return a large number of results, of which only the first 100 will be displayed here. You should use more specific search criteria this type of search.\r\n\r\nAre you sure you want to continue?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer != ExtendedMessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+                    }
+
+                    var searchCriteria = new AircraftSearchAroundAirport
+                    {
+                        AirportICAO = this.AirportIcao,
+                        Radius = this.NmRadius,
+                        MaxResults = 100,
+                        FilterByCategory = false,
+                        OnlyVanilla = this.OnlyVanillaChecked
+                    };
+
+                    if (this.AircraftCategoryChecked)
+                    {
+                        searchCriteria.Category = this.AircraftTypeCategory.AircraftTypeCategory;
+                        searchCriteria.FilterByCategory = true;
+                    }
+
+                    if (this.AircraftManufacturerChecked)
+                    {
+                        searchCriteria.Manufacturer = this.Manufacturer;
+                    }
+
+                    if (this.AircraftNameChecked)
+                    {
+                        searchCriteria.Name = this.Name;
+                    }
+
+                    this.LocationColumnVisibility = Visibility.Visible;
+                    result = OpenSkyService.Instance.SearchAircraftAroundAirportAsync(searchCriteria).Result;
+                }
+
                 if (this.CountryChecked)
                 {
                     // Country search needs a bit of preparation to build search criteria from selections

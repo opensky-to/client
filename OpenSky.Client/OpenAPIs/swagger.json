@@ -488,6 +488,57 @@
         }
       }
     },
+    "/Aircraft/searchAroundAirport": {
+      "post": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Searches for aircraft around a given airport.",
+        "description": "sushi.at, 24/02/2022.",
+        "operationId": "SearchAircraftAroundAirport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftSearchAroundAirport"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftSearchAroundAirport"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AircraftSearchAroundAirport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AircraftIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/searchInCountry": {
       "post": {
         "tags": [
@@ -4200,6 +4251,49 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "AircraftSearchAroundAirport": {
+        "type": "object",
+        "properties": {
+          "airportICAO": {
+            "type": "string",
+            "description": "Gets or sets the airport icao.",
+            "nullable": true
+          },
+          "category": {
+            "$ref": "#/components/schemas/AircraftTypeCategory"
+          },
+          "filterByCategory": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to filter by category (nullable enum for Category was ignored)."
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "Gets or sets the manufacturer.",
+            "nullable": true
+          },
+          "maxResults": {
+            "type": "integer",
+            "description": "Gets or sets the maximum results.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the type name.",
+            "nullable": true
+          },
+          "onlyVanilla": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to only include vanilla aircraft in the search results."
+          },
+          "radius": {
+            "type": "integer",
+            "description": "Gets or sets the radius in nautical miles.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Aircraft search around airport model."
       },
       "AircraftSearchInCountry": {
         "type": "object",
