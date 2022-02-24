@@ -110,7 +110,7 @@
                         </TextBox.InputBindings>
                     </TextBox>
                 </DockPanel>
-                <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3" IsEnabled="False">Within NM</RadioButton>
+                <RadioButton IsChecked="{Binding WithinNmAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">Within NM</RadioButton>
                 <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="20,3,0,3" Text="{Binding NmRadius, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Airport ICAO code" ui:ControlHelper.PlaceholderForeground="#666">
                     <TextBox.InputBindings>
                         <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
