@@ -32,7 +32,7 @@
     <Grid>
         <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
         <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=EnableUserInteraction, Converter={StaticResource BooleanVisibilityConverter}}">
             <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
                 <ComboBox.Items>
                     <ComboBoxItem IsSelected="True">Road</ComboBoxItem>

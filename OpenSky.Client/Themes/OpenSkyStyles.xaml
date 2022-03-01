@@ -1087,7 +1087,7 @@
                     <ui:ThemeShadowChrome
                         Depth="16"
                         IsShadowEnabled="{TemplateBinding HasDropShadow}"
-                        MaxWidth="670"
+                        MaxWidth="1200"
                         CornerRadius="{TemplateBinding ui:ControlHelper.CornerRadius}"
                         SnapsToDevicePixels="True">
                         <Border

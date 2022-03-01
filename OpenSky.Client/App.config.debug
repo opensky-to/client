@@ -45,7 +45,10 @@
 			</setting>
 			<setting name="DefaultSimulator" serializeAs="String">
 				<value>-1</value>
-			</setting>		
+			</setting>
+			<setting name="ShortDistanceUnit" serializeAs="String">
+				<value>0</value>
+			</setting>
 		</OpenSky.Client.Properties.Settings>
 	</userSettings>
 	<applicationSettings>

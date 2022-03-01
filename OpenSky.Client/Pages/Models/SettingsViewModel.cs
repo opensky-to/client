@@ -62,6 +62,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The short distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private ShortDistanceUnit shortDistanceUnit;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The fuel unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -130,6 +137,7 @@ namespace OpenSky.Client.Pages.Models
             this.WeightUnits = new ObservableCollection<WeightUnit>();
             this.FuelUnits = new ObservableCollection<FuelUnit>();
             this.DistanceUnits = new ObservableCollection<DistanceUnit>();
+            this.ShortDistanceUnits = new ObservableCollection<ShortDistanceUnit>();
             this.UtcOffsets = new SortedSet<double>();
             this.Simulators = new ObservableCollection<Simulator>();
 
@@ -155,6 +163,11 @@ namespace OpenSky.Client.Pages.Models
                 this.DistanceUnits.Add(unit);
             }
 
+            foreach (ShortDistanceUnit unit in Enum.GetValues(typeof(ShortDistanceUnit)))
+            {
+                this.ShortDistanceUnits.Add(unit);
+            }
+
             foreach (Simulator sim in Enum.GetValues(typeof(Simulator)))
             {
                 this.Simulators.Add(sim);
@@ -176,6 +189,7 @@ namespace OpenSky.Client.Pages.Models
             this.WeightUnit = (WeightUnit)Properties.Settings.Default.WeightUnit;
             this.FuelUnit = (FuelUnit)Properties.Settings.Default.FuelUnit;
             this.DistanceUnit = (DistanceUnit)Properties.Settings.Default.DistanceUnit;
+            this.ShortDistanceUnit = (ShortDistanceUnit)Properties.Settings.Default.ShortDistanceUnit;
             this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
@@ -297,10 +311,39 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the short distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ShortDistanceUnit ShortDistanceUnit
+        {
+            get => this.shortDistanceUnit;
+
+            set
+            {
+                if (Equals(this.distanceUnit, value))
+                {
+                    return;
+                }
+
+                this.shortDistanceUnit = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the distance units.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<DistanceUnit> DistanceUnits { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the short distance units.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<ShortDistanceUnit> ShortDistanceUnits { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -791,6 +834,7 @@ namespace OpenSky.Client.Pages.Models
                 Properties.Settings.Default.WeightUnit = (int)this.WeightUnit;
                 Properties.Settings.Default.FuelUnit = (int)this.FuelUnit;
                 Properties.Settings.Default.DistanceUnit = (int)this.DistanceUnit;
+                Properties.Settings.Default.ShortDistanceUnit = (int)this.ShortDistanceUnit;
                 Properties.Settings.Default.DefaultUTCOffset = this.UtcOffset;
                 Properties.Settings.Default.DefaultSimulator = this.Simulator.HasValue ? (int)this.Simulator.Value : -1;
 

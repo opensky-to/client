@@ -83,7 +83,7 @@
                     </ui:CommandBar.Content>
                     <ui:CommandBar.PrimaryCommands>
                         <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh my fleet [F5]" Command="{Binding RefreshFleetCommand}" />
-                        <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected aircraft" Command="{Binding StartEditAircraftCommand}" />
+                        <ui:AppBarButton Icon="Find" Label="Find job" ToolTip="Find a job for the selected aircraft" Command="{Binding FindJobCommand}" />
                         <ui:AppBarButton Label="Ground operations" ToolTip="Edit the selected aircraft" Command="{Binding StartGroundOperationsCommand}">
                             <ui:AppBarButton.Icon>
                                 <ui:FontIcon Glyph="&#xF158;" />
@@ -94,7 +94,7 @@
                                 <ui:BitmapIcon UriSource="/Resources/plan16.png" Width="16" Height="16" ShowAsMonochrome="True" />
                             </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
-                        <ui:AppBarButton Icon="Find" Label="Find job" ToolTip="Find a job for the selected aircraft" Command="{Binding FindJobCommand}" />
+                        <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected aircraft" Command="{Binding StartEditAircraftCommand}" />
                         <ui:AppBarButton Label="Sell now" ToolTip="Sells the selected aircraft back to the system" Command="{Binding SellAircraftNowCommand}">
                             <ui:AppBarButton.Icon>
                                 <ui:FontIcon Glyph="&#xE945;" />
@@ -126,20 +126,21 @@
                         <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
                         <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
                             <Style.Setters>
-                                <Setter Property="ToolTipService.InitialShowDelay">
-                                    <Setter.Value>
-                                        1500
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="ToolTipService.ShowDuration">
-                                    <Setter.Value>
-                                        15000
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter Property="ToolTipService.InitialShowDelay" Value="1500" />
+                                <Setter Property="ToolTipService.ShowDuration" Value="15000" />
                                 <Setter Property="ToolTip">
                                     <Setter.Value>
-                                        <Grid Tag="{Binding Path=Type}">
-                                            <controls:AircraftTypeDetails Width="650" AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0" Tag="{Binding Type}">
+                                                <controls:AircraftTypeDetails Width="650" AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                            <Grid Grid.Column="1" Tag="{Binding AirportICAO}">
+                                                <controls:AirportDetails Width="370" AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
                                         </Grid>
                                     </Setter.Value>
                                 </Setter>

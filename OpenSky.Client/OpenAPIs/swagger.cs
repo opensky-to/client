@@ -7529,6 +7529,11 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("comments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Comments { get; set; }
     
+        /// <summary>Gets or sets the custom agent module name, default is NULL for none.</summary>
+        [Newtonsoft.Json.JsonProperty("customAgentModule", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(20)]
+        public string CustomAgentModule { get; set; }
+    
         /// <summary>Gets or sets the delivery locations.</summary>
         [Newtonsoft.Json.JsonProperty("deliveryLocations", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<AircraftManufacturerDeliveryLocation> DeliveryLocations { get; set; }
@@ -7910,6 +7915,10 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("altitude", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Altitude { get; set; }
     
+        /// <summary>Gets the approaches.</summary>
+        [Newtonsoft.Json.JsonProperty("approaches", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Approach> Approaches { get; set; }
+    
         /// <summary>Gets or sets the ATIS frequency (if available).</summary>
         [Newtonsoft.Json.JsonProperty("atisFrequency", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? AtisFrequency { get; set; }
@@ -8164,6 +8173,39 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
+    
+    
+    }
+    
+    /// <summary>Approach model.</summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.2.1.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class Approach 
+    {
+        /// <summary>Gets or sets the airport ICAO.</summary>
+        [Newtonsoft.Json.JsonProperty("airportICAO", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
+        public string AirportICAO { get; set; }
+    
+        /// <summary>Gets or sets the approach ID.</summary>
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Id { get; set; }
+    
+        /// <summary>Gets or sets the name of the runway (can be NULL if approach doesn't specify a runway).</summary>
+        [Newtonsoft.Json.JsonProperty("runwayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(6)]
+        public string RunwayName { get; set; }
+    
+        /// <summary>Gets or sets the approach type suffix (Y, Z, etc.).</summary>
+        [Newtonsoft.Json.JsonProperty("suffix", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(1)]
+        public string Suffix { get; set; }
+    
+        /// <summary>Gets or sets the approach type (ILS, RNAV, etc.).</summary>
+        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(25)]
+        public string Type { get; set; }
     
     
     }

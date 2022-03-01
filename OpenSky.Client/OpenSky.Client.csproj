@@ -109,6 +109,9 @@
     <Compile Include="Controls\AircraftTypeDetails.xaml.cs">
       <DependentUpon>AircraftTypeDetails.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AirportDetails.xaml.cs">
+      <DependentUpon>AirportDetails.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Animations\MapPathAnimation.cs" />
     <Compile Include="Controls\MinMaxDoubleFilterWithPopupControl.xaml.cs">
       <DependentUpon>MinMaxDoubleFilterWithPopupControl.xaml</DependentUpon>
@@ -133,6 +136,7 @@
     <Compile Include="Controls\Models\AircraftPosition.cs" />
     <Compile Include="Controls\Models\AircraftTrailLocation.cs" />
     <Compile Include="Controls\Models\AircraftTypeDetailsViewModel.cs" />
+    <Compile Include="Controls\Models\AirportDetailsViewModel.cs" />
     <Compile Include="Controls\Models\ErrorDetails.cs" />
     <Compile Include="Controls\Models\ExtendedMessageBoxImage.cs" />
     <Compile Include="Controls\Models\ExtendedMessageBoxResult.cs" />
@@ -155,6 +159,7 @@
     <Compile Include="Converters\AircraftTypeForeignKeyConverter.cs" />
     <Compile Include="Converters\BooleanToImageConverter.cs" />
     <Compile Include="Converters\CollectionEmptyVisibilityConverter.cs" />
+    <Compile Include="Converters\FrequencyConverter.cs" />
     <Compile Include="Converters\JobTypeConverter.cs" />
     <Compile Include="Converters\PayloadDistanceConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
@@ -168,11 +173,13 @@
     <Compile Include="Converters\InvertThicknessConverter.cs" />
     <Compile Include="Converters\NavigationViewBitmapIconConverter.cs" />
     <Compile Include="Converters\PieChartColorConverter.cs" />
+    <Compile Include="Converters\RunwaySurfaceConverter.cs" />
     <Compile Include="Converters\UtcTimeStampConverter.cs" />
     <Compile Include="Converters\SettingsUnitConverter.cs" />
     <Compile Include="Converters\VisibilityInverterConverter.cs" />
     <Compile Include="Converters\ZeroToNullConverter.cs" />
     <Compile Include="Models\Enums\DistanceUnit.cs" />
+    <Compile Include="Models\Enums\ShortDistanceUnit.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\AircraftManufacturer.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\AircraftManufacturerDeliveryLocation.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Airport.cs" />
@@ -325,6 +332,10 @@
       <DependentUpon>Startup.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\AircraftTypeDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AirportDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

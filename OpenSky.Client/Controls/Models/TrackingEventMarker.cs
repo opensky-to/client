@@ -84,6 +84,8 @@ namespace OpenSky.Client.Controls.Models
 
             MapLayer.SetPosition(this, new Location(this.marker.Latitude, this.marker.Longitude, this.marker.Altitude));
             MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
+            this.FromCoordinate = new GeoCoordinate(this.marker.Latitude, this.marker.Longitude);
+            this.ToCoordinate = new GeoCoordinate(this.marker.Latitude, this.marker.Longitude);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -176,6 +178,8 @@ namespace OpenSky.Client.Controls.Models
             this.marker.Latitude = location.Latitude;
             this.marker.Longitude = location.Longitude;
             this.marker.IsAirportMarker = true;
+            this.FromCoordinate = location;
+            this.ToCoordinate = location;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -202,7 +206,7 @@ namespace OpenSky.Client.Controls.Models
                 this.SetValue(ZIndexProperty, 998);
 
                 var outerBorder = new Border
-                    { BorderBrush = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5), BorderThickness = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+                { BorderBrush = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5), BorderThickness = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
                 this.Children.Add(outerBorder);
                 var widthBinding = new Binding { Source = this, Path = new PropertyPath("ActualWidth"), Mode = BindingMode.OneWay };
                 BindingOperations.SetBinding(outerBorder, WidthProperty, widthBinding);
@@ -246,6 +250,8 @@ namespace OpenSky.Client.Controls.Models
                 from.Longitude -= 0.02;
                 to.Latitude += 0.007;
                 to.Longitude += 0.02;
+                this.FromCoordinate = new GeoCoordinate(from.Latitude, from.Longitude);
+                this.ToCoordinate = new GeoCoordinate(to.Latitude, to.Longitude);
 
                 MapLayer.SetPositionRectangle(this, new LocationRect(from, to));
             }
@@ -277,6 +283,8 @@ namespace OpenSky.Client.Controls.Models
 
                 MapLayer.SetPosition(this, new Location(airport.Latitude, airport.Longitude));
                 MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
+                this.FromCoordinate = new GeoCoordinate(airport.Latitude, airport.Longitude);
+                this.ToCoordinate = new GeoCoordinate(airport.Latitude, airport.Longitude);
             }
 
             this.marker.IsAirportMarker = true;
@@ -310,7 +318,7 @@ namespace OpenSky.Client.Controls.Models
                 this.SetValue(ZIndexProperty, 998);
 
                 var outerBorder = new Border
-                    { BorderBrush = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5), BorderThickness = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+                { BorderBrush = new SolidColorBrush(markerColor), CornerRadius = new CornerRadius(1.5), BorderThickness = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
                 this.Children.Add(outerBorder);
                 var widthBinding = new Binding { Source = this, Path = new PropertyPath("ActualWidth"), Mode = BindingMode.OneWay };
                 BindingOperations.SetBinding(outerBorder, WidthProperty, widthBinding);
@@ -354,6 +362,8 @@ namespace OpenSky.Client.Controls.Models
                 from.Longitude -= 0.02;
                 to.Latitude += 0.007;
                 to.Longitude += 0.02;
+                this.FromCoordinate = new GeoCoordinate(from.Latitude, from.Longitude);
+                this.ToCoordinate = new GeoCoordinate(to.Latitude, to.Longitude);
 
                 MapLayer.SetPositionRectangle(this, new LocationRect(from, to));
             }
@@ -385,6 +395,8 @@ namespace OpenSky.Client.Controls.Models
 
                 MapLayer.SetPosition(this, new Location(airport.Latitude, airport.Longitude));
                 MapLayer.SetPositionOrigin(this, PositionOrigin.Center);
+                this.FromCoordinate = new GeoCoordinate(airport.Latitude, airport.Longitude);
+                this.ToCoordinate = new GeoCoordinate(airport.Latitude, airport.Longitude);
             }
 
             this.marker.IsAirportMarker = true;
@@ -492,6 +504,13 @@ namespace OpenSky.Client.Controls.Models
                 this.marker.Latitude = leftEnd.Latitude;
                 this.marker.Longitude = leftEnd.Longitude;
                 this.IsAirportDetailMarker = true;
+                this.FromCoordinate = new GeoCoordinate(leftEnd.Latitude, leftEnd.Longitude);
+                this.ToCoordinate = new GeoCoordinate(rightEnd.Latitude, rightEnd.Longitude);
+            }
+            else
+            {
+                this.FromCoordinate = new GeoCoordinate(0, 0);
+                this.ToCoordinate = new GeoCoordinate(0, 0);
             }
         }
 
@@ -594,6 +613,13 @@ namespace OpenSky.Client.Controls.Models
                 this.marker.Latitude = leftEnd.Latitude;
                 this.marker.Longitude = leftEnd.Longitude;
                 this.IsAirportDetailMarker = true;
+                this.FromCoordinate = new GeoCoordinate(leftEnd.Latitude, leftEnd.Longitude);
+                this.ToCoordinate = new GeoCoordinate(rightEnd.Latitude, rightEnd.Longitude);
+            }
+            else
+            {
+                this.FromCoordinate = new GeoCoordinate(0, 0);
+                this.ToCoordinate = new GeoCoordinate(0, 0);
             }
         }
 
@@ -603,6 +629,14 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public int AirportSize { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets from coordinate (geo bounding box).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [NotNull]
+        public GeoCoordinate FromCoordinate { get; set; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -688,5 +722,13 @@ namespace OpenSky.Client.Controls.Models
             get => (Visibility)this.GetValue(TextLabelVisibleProperty);
             set => this.SetValue(TextLabelVisibleProperty, value);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets to coordinate (geo bounding box).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        [NotNull]
+        public GeoCoordinate ToCoordinate { get; set; }
     }
 }

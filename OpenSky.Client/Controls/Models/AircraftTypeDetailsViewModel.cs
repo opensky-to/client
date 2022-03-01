@@ -170,7 +170,7 @@ namespace OpenSky.Client.Controls.Models
 
                 this.type = value;
                 this.NotifyPropertyChanged();
-                if (this.GetAircraftImageCommand.IsExecuting)
+                if (!this.GetAircraftImageCommand.IsExecuting)
                 {
                     this.GetAircraftImageCommand.DoExecute(null);
                 }
