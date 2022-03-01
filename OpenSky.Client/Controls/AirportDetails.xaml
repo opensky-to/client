@@ -28,10 +28,12 @@
         <converters:FrequencyConverter x:Key="FrequencyConverter" />
         <converters:RunwaySurfaceConverter x:Key="RunwaySurfaceConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
     </UserControl.Resources>
     <GroupBox>
         <GroupBox.Header>
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
                 <TextBlock Text="{Binding Airport.Icao}" FontWeight="DemiBold" />
                 <TextBlock FontWeight="SemiBold" Margin="0,0,5,0">:</TextBlock>
                 <TextBlock Text="{Binding Airport.Name}" />
@@ -79,12 +81,12 @@
                 <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Atis:</TextBlock>
 
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Airport.City}" />
-                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
                     <TextBlock  VerticalAlignment="Center" Text="{Binding Airport.Altitude}" />
                     <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">ft</TextBlock>
                 </StackPanel>
                 <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Airport.RunwayCount}" />
-                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
                     <TextBlock VerticalAlignment="Center" Text="{Binding Airport.LongestRunwayLength, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=shortdistance|F0|true}" />
                     <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">,</TextBlock>
                     <TextBlock VerticalAlignment="Center" Text="{Binding Airport.LongestRunwaySurface, Converter={StaticResource RunwaySurfaceConverter}}" />
@@ -112,8 +114,13 @@
                 <Image Grid.Row="6" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasIFRApproach, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
                 <Image Grid.Row="7" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasILSApproach, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
 
-                <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" FontFamily="Consolas" FontSize="13" Margin="0,15,0,0" Text="{Binding Airport.RunwayInfo}" />
+                <TextBlock Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:AirportDetails}}, Path=ShowDetailedRunwayInformation, Converter={StaticResource BooleanVisibilityConverter}}" 
+                           Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" FontFamily="Consolas" FontSize="13" Margin="0,15,0,0" 
+                           Text="{Binding Airport.RunwayInfo}" />
             </Grid>
+            <Border Grid.Row="0" Grid.RowSpan="2" Background="#99000000" Visibility="{Binding LoadingVisibility}">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">Loading...</TextBlock>
+            </Border>
         </Grid>
     </GroupBox>
 </UserControl>

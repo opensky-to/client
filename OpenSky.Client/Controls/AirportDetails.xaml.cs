@@ -24,17 +24,17 @@ namespace OpenSky.Client.Controls
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// (Immutable) The airport property.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty AirportProperty = DependencyProperty.Register("Airport", typeof(Airport), typeof(AirportDetails));
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// (Immutable) The airport icao property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty AirportICAOProperty = DependencyProperty.Register("AirportICAO", typeof(string), typeof(AirportDetails));
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// (Immutable) The airport property.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public static readonly DependencyProperty AirportProperty = DependencyProperty.Register("Airport", typeof(Airport), typeof(AirportDetails));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -75,6 +75,13 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets a value indicating whether the detailed runway information is shown.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ShowDetailedRunwayInformation { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Invoked whenever the effective value of any dependency property on this
         /// <see cref="T:System.Windows.FrameworkElement" /> has been updated. The specific dependency
         /// property that changed is reported in the arguments parameter. Overrides
@@ -98,15 +105,16 @@ namespace OpenSky.Client.Controls
                 if (e.Property == AirportProperty)
                 {
                     viewModel.Airport = e.NewValue as Airport;
-
-                    //this.GroupBoxHeader.InvalidateMeasure();
-                    //this.EngineInfo.InvalidateMeasure();
-                    //this.RunwayInfo.InvalidateMeasure();
-                    //this.ImageTags.InvalidateMeasure();
                 }
 
                 if (e.Property == AirportICAOProperty)
                 {
+                    if (string.IsNullOrEmpty(e.NewValue as string))
+                    {
+                        viewModel.Airport = null;
+                        return;
+                    }
+
                     if (!viewModel.LoadAirportCommand.IsExecuting)
                     {
                         viewModel.LoadAirportCommand.DoExecute(e.NewValue as string);

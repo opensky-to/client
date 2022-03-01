@@ -37,20 +37,42 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The loading visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility loadingVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AirportDetailsViewModel"/> class.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 01/03/2022.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        public AirportDetailsViewModel()
+        {
+            this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
+
+            this.LoadAirportCommand = new AsynchronousCommand(this.LoadAirport);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the airport.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Airport Airport
         {
             get => this.airport;
-        
+
             set
             {
-                if(Equals(this.airport, value))
+                if (Equals(this.airport, value))
                 {
-                   return;
+                    return;
                 }
-        
+
                 this.airport = value;
                 this.NotifyPropertyChanged();
 
@@ -68,20 +90,6 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the load airport command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand LoadAirportCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The loading visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility loadingVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the airport markers.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -89,17 +97,30 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="AirportDetailsViewModel"/> class.
+        /// Gets the load airport command.
         /// </summary>
-        /// <remarks>
-        /// sushi.at, 01/03/2022.
-        /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public AirportDetailsViewModel()
-        {
-            this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
+        public AsynchronousCommand LoadAirportCommand { get; }
 
-            this.LoadAirportCommand = new AsynchronousCommand(this.LoadAirport);
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the loading visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility LoadingVisibility
+        {
+            get => this.loadingVisibility;
+
+            set
+            {
+                if (Equals(this.loadingVisibility, value))
+                {
+                    return;
+                }
+
+                this.loadingVisibility = value;
+                this.NotifyPropertyChanged();
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -151,27 +172,6 @@ namespace OpenSky.Client.Controls.Models
                 {
                     this.LoadingVisibility = Visibility.Collapsed;
                 }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the loading visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility LoadingVisibility
-        {
-            get => this.loadingVisibility;
-
-            set
-            {
-                if (Equals(this.loadingVisibility, value))
-                {
-                    return;
-                }
-
-                this.loadingVisibility = value;
-                this.NotifyPropertyChanged();
             }
         }
     }
