@@ -68,6 +68,11 @@ namespace OpenSkyApi
             get
             {
                 var info = string.Empty;
+                if (this.Runways == null)
+                {
+                    return string.Empty;
+                }
+
                 foreach (var runway in this.Runways.Where(r => r.RunwayEnds.Count == 2))
                 {
                     var end = runway.RunwayEnds.OrderBy(e => e.Name).ToArray();

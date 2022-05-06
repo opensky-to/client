@@ -1110,4 +1110,99 @@
     </Style>
 
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}" />
+
+    <Style TargetType="ui:AutoSuggestBox">
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+        <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
+        <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+        <Setter Property="TextBoxStyle" Value="{DynamicResource AutoSuggestBoxTextBoxStyle}" />
+        <Setter Property="UseSystemFocusVisuals" Value="{DynamicResource IsApplicationFocusVisualKindReveal}" />
+        <Setter Property="FocusVisualStyle" Value="{DynamicResource {x:Static SystemParameters.FocusVisualStyleKey}}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="ItemContainerStyle" Value="{DynamicResource {x:Type ListViewItem}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ui:AutoSuggestBox">
+                    <Grid x:Name="LayoutRoot">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBox
+                            x:Name="TextBox"
+                            Style="{TemplateBinding TextBoxStyle}"
+                            ui:ControlHelper.PlaceholderText="{TemplateBinding PlaceholderText}"
+                            ui:ControlHelper.Header="{TemplateBinding Header}"
+                            Width="{TemplateBinding Width}"
+                            ui:ControlHelper.Description="{TemplateBinding Description}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            FontSize="{TemplateBinding FontSize}"
+                            FontFamily="{TemplateBinding FontFamily}"
+                            FontWeight="{TemplateBinding FontWeight}"
+                            FontStretch="{TemplateBinding FontStretch}"
+                            MinHeight="{TemplateBinding MinHeight}"
+                            MaxHeight="{TemplateBinding MaxHeight}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            Canvas.ZIndex="0"
+                            Margin="0"
+                            FocusVisualStyle="{TemplateBinding FocusVisualStyle}"
+                            ui:FocusVisualHelper.UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}"
+                            ui:ControlHelper.CornerRadius="{TemplateBinding CornerRadius}" />
+
+                        <Popup
+                            x:Name="SuggestionsPopup"
+                            AllowsTransparency="True"
+                            Placement="Bottom"
+                            IsOpen="{Binding IsSuggestionListOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ui:ThemeShadowChrome
+                                IsShadowEnabled="{DynamicResource {x:Static SystemParameters.DropShadowKey}}"
+                                CornerRadius="{Binding ElementName=SuggestionsContainer, Path=CornerRadius}"
+                                Width="{TemplateBinding ActualWidth}"
+                                MaxHeight="{TemplateBinding MaxSuggestionListHeight}">
+                                <Border
+                                    x:Name="SuggestionsContainer"
+                                    Padding="{DynamicResource AutoSuggestListMargin}"
+                                    BorderThickness="{DynamicResource AutoSuggestListBorderThemeThickness}"
+                                    BorderBrush="{DynamicResource AutoSuggestBoxSuggestionsListBorderBrush}"
+                                    Background="{DynamicResource AutoSuggestBoxSuggestionsListBackground}"
+                                    CornerRadius="{DynamicResource OverlayCornerRadius}">
+                                    <ui:AutoSuggestBoxListView
+                                        x:Name="SuggestionsList"
+                                        Style="{DynamicResource {x:Type ListView}}"
+                                        DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                                        SelectedValuePath="{TemplateBinding TextMemberPath}"
+                                        IsItemClickEnabled="True"
+                                        ItemTemplate="{TemplateBinding ItemTemplate}"
+                                        ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                        ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                        ItemsSource="{TemplateBinding ItemsSource}"
+                                        MaxHeight="{DynamicResource AutoSuggestListMaxHeight}"
+                                        Margin="{DynamicResource AutoSuggestListPadding}"
+                                        ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+                                </Border>
+                            </ui:ThemeShadowChrome>
+                        </Popup>
+
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

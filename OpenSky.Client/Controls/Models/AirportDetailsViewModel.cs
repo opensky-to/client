@@ -77,7 +77,7 @@ namespace OpenSky.Client.Controls.Models
                 this.NotifyPropertyChanged();
 
                 this.AirportMarkers.Clear();
-                if (value != null)
+                if (value?.Runways != null)
                 {
                     foreach (var runway in value.Runways)
                     {
@@ -138,14 +138,22 @@ namespace OpenSky.Client.Controls.Models
         {
             if (parameter is string icao && !string.IsNullOrEmpty(icao))
             {
-                Debug.WriteLine($"Loading aircraft for detail view: {icao}");
+                Debug.WriteLine($"Loading airport for detail view: {icao}");
                 this.LoadingVisibility = Visibility.Visible;
                 try
                 {
+                    if (icao.Contains(":"))
+                    {
+                        icao = icao.Split(':')[0];
+                    }
+
                     var result = OpenSkyService.Instance.GetAirportAsync(icao).Result;
                     if (!result.IsError)
                     {
-                        this.LoadAirportCommand.ReportProgress(() => { this.Airport = result.Data; });
+                        if (result.Data.Icao != "XXXX")
+                        {
+                            this.LoadAirportCommand.ReportProgress(() => { this.Airport = result.Data; });
+                        }
                     }
                     else
                     {

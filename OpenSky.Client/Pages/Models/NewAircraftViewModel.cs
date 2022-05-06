@@ -24,6 +24,8 @@ namespace OpenSky.Client.Pages.Models
 
     using OpenSkyApi;
 
+    using TomsToolbox.Essentials;
+
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
     /// New aircraft view model.
@@ -167,6 +169,7 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.AircraftTypes = new ObservableCollection<AircraftType>();
             this.Countries = new ObservableCollection<CountryComboItem>();
+            this.FactoryFerryAirports = new ObservableCollection<string>();
 
             // Add initial values
             foreach (var countryItem in CountryComboItem.GetCountryComboItems())
@@ -182,6 +185,13 @@ namespace OpenSky.Client.Pages.Models
             // Fire off initial commands
             this.RefreshTypesCommand.DoExecute(null);
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the factory ferry airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> FactoryFerryAirports { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -335,6 +345,30 @@ namespace OpenSky.Client.Pages.Models
 
                 this.factoryFerryAirportICAO = value;
                 this.NotifyPropertyChanged();
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    this.ManufacturerFerryChecked = true;
+
+                    // Search for matching airports
+                    this.FactoryFerryAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.FactoryFerryAirports.AddRange(airportPackage.Airports.Where(a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) || (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.FactoryFerryAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.FactoryFerryAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+
                 this.CalculateGrandTotal();
             }
         }
@@ -681,7 +715,7 @@ namespace OpenSky.Client.Pages.Models
                     if (airportCache != null)
                     {
                         var sourceAirport = airportCache.Airports.SingleOrDefault(a => a.ICAO == this.SelectedDeliveryLocation.AirportICAO);
-                        var destinationAirport = airportCache.Airports.SingleOrDefault(a => a.ICAO == this.FactoryFerryAirportICAO);
+                        var destinationAirport = airportCache.Airports.SingleOrDefault(a => a.ICAO == this.FactoryFerryAirportICAO.Split(':')[0]);
 
                         if (sourceAirport != null && destinationAirport != null)
                         {
@@ -894,7 +928,7 @@ namespace OpenSky.Client.Pages.Models
                 else if (this.ManufacturerFerryChecked)
                 {
                     purchase.DeliveryOption = NewAircraftDeliveryOption.ManufacturerFerry;
-                    purchase.FerryAirportICAO = this.FactoryFerryAirportICAO;
+                    purchase.FerryAirportICAO = this.FactoryFerryAirportICAO.Split(':')[0];
                 }
                 else if (this.OutsourceFerryChecked)
                 {

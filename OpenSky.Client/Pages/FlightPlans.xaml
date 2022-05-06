@@ -79,7 +79,7 @@
                         <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
                         <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
                             <Style.Setters>
-                                <Setter Property="ToolTipService.InitialShowDelay" Value="1500" />
+                                <Setter Property="ToolTipService.InitialShowDelay" Value="500" />
                                 <Setter Property="ToolTipService.ShowDuration" Value="15000" />
                                 <Setter Property="ToolTip">
                                     <Setter.Value>

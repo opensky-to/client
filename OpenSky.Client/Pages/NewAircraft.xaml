@@ -175,7 +175,13 @@
                         </RadioButton>
                         <ComboBox Margin="10,0,10,0" ItemsSource="{Binding SelectedAircraftType.DeliveryLocations}" SelectedItem="{Binding SelectedDeliveryLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock VerticalAlignment="Center">to:</TextBlock>
-                        <TextBox FontFamily="Consolas" FontSize="13" CharacterCasing="Upper" Margin="10,0,0,0" Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ui:AutoSuggestBox FontSize="14" Margin="10,0,0,0" ItemsSource="{Binding FactoryFerryAirports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" VerticalAlignment="Center" ToolTipService.ShowDuration="15000">
+                            <ui:AutoSuggestBox.ToolTip>
+                                <Grid Tag="{Binding FactoryFerryAirportICAO}">
+                                    <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
+                                </Grid>
+                            </ui:AutoSuggestBox.ToolTip>
+                        </ui:AutoSuggestBox>
                     </StackPanel>
 
                     <RadioButton Grid.Row="4" IsEnabled="False" IsChecked="{Binding OutsourceFerryChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">TODO: Outsource the ferry flight to another OpenSky pilot at a rate of ?? / nautical mile</RadioButton>

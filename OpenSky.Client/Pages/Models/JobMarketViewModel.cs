@@ -83,6 +83,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> Airports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="JobMarketViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -97,6 +104,7 @@ namespace OpenSky.Client.Pages.Models
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
             this.JobTrails = new ObservableCollection<MapPolyline>();
             this.Simulators = new ObservableCollection<Simulator>();
+            this.Airports = new ObservableCollection<string>();
 
             // Initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -169,6 +177,27 @@ namespace OpenSky.Client.Pages.Models
                 this.airportICAO = value;
                 this.NotifyPropertyChanged();
                 this.SearchJobsCommand.CanExecute = !string.IsNullOrEmpty(value);
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Search for matching airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(airportPackage.Airports.Where(a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) || (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
             }
         }
 
@@ -563,11 +592,11 @@ namespace OpenSky.Client.Pages.Models
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (this.Simulator == null)
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection).Result;
                     }
                     else
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.Simulator.Value).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForSimulatorAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.Simulator.Value).Result;
                     }
                 }
                 else
@@ -575,11 +604,11 @@ namespace OpenSky.Client.Pages.Models
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (this.Simulator == null)
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
                     }
                     else
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAndSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory, this.Simulator.Value).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAndSimulatorAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory, this.Simulator.Value).Result;
                     }
                 }
 
