@@ -322,8 +322,12 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (string.IsNullOrEmpty(this.OriginICAO) && string.IsNullOrEmpty(this.DestinationICAO))
                     {
-                        this.OriginICAO = sbOriginICAO;
-                        this.DestinationICAO = sbDestinationICAO;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                this.OriginICAO = sbOriginICAO;
+                                this.DestinationICAO = sbDestinationICAO;
+                            });
                     }
                     else
                     {
@@ -346,8 +350,12 @@ namespace OpenSky.Client.Pages.Models
 
                         if (answer == ExtendedMessageBoxResult.Yes)
                         {
-                            this.OriginICAO = sbOriginICAO;
-                            this.DestinationICAO = sbDestinationICAO;
+                            this.DownloadSimBriefCommand.ReportProgress(
+                                () =>
+                                {
+                                    this.OriginICAO = sbOriginICAO;
+                                    this.DestinationICAO = sbDestinationICAO;
+                                });
                         }
                     }
                 }
@@ -358,7 +366,11 @@ namespace OpenSky.Client.Pages.Models
                 {
                     if (string.IsNullOrEmpty(this.AlternateICAO))
                     {
-                        this.AlternateICAO = sbAlternateICAO;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                this.AlternateICAO = sbAlternateICAO;
+                            });
                     }
                     else if (!sbAlternateICAO.Equals(this.AlternateICAO, StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -381,7 +393,11 @@ namespace OpenSky.Client.Pages.Models
 
                         if (answer == ExtendedMessageBoxResult.Yes)
                         {
-                            this.AlternateICAO = sbAlternateICAO;
+                            this.DownloadSimBriefCommand.ReportProgress(
+                                () =>
+                                {
+                                    this.AlternateICAO = sbAlternateICAO;
+                                });
                         }
                     }
                 }
