@@ -1131,7 +1131,6 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ui:AutoSuggestBox">
                     <Grid x:Name="LayoutRoot">
-
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
@@ -1165,6 +1164,8 @@
                             ui:FocusVisualHelper.UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}"
                             ui:ControlHelper.CornerRadius="{TemplateBinding CornerRadius}" />
 
+                        <!-- Width="{TemplateBinding ActualWidth}" -->
+
                         <Popup
                             x:Name="SuggestionsPopup"
                             AllowsTransparency="True"
@@ -1173,7 +1174,7 @@
                             <ui:ThemeShadowChrome
                                 IsShadowEnabled="{DynamicResource {x:Static SystemParameters.DropShadowKey}}"
                                 CornerRadius="{Binding ElementName=SuggestionsContainer, Path=CornerRadius}"
-                                Width="{TemplateBinding ActualWidth}"
+                                
                                 MaxHeight="{TemplateBinding MaxSuggestionListHeight}">
                                 <Border
                                     x:Name="SuggestionsContainer"
@@ -1198,9 +1199,7 @@
                                 </Border>
                             </ui:ThemeShadowChrome>
                         </Popup>
-
                     </Grid>
-
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -596,11 +596,11 @@ namespace OpenSky.Client.Pages.Models
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (this.Simulator == null)
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportAsync(this.AirportICAO, this.SelectedJobDirection).Result;
                     }
                     else
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForSimulatorAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.Simulator.Value).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.Simulator.Value).Result;
                     }
                 }
                 else
@@ -608,11 +608,11 @@ namespace OpenSky.Client.Pages.Models
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (this.Simulator == null)
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory).Result;
                     }
                     else
                     {
-                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAndSimulatorAsync(this.AirportICAO.Split(':')[0], this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory, this.Simulator.Value).Result;
+                        result = OpenSkyService.Instance.GetJobsAtAirportForCategoryAndSimulatorAsync(this.AirportICAO, this.SelectedJobDirection, this.AircraftTypeCategory.AircraftTypeCategory, this.Simulator.Value).Result;
                     }
                 }
 

@@ -173,6 +173,9 @@ namespace OpenSky.Client.Pages.Models
             this.OtherPayloads = new ObservableCollection<PlannablePayload>();
             this.RouteTrailLocations = new LocationCollection();
             this.Payloads = new ObservableCollection<Guid>();
+            this.OriginAirports = new ObservableCollection<string>();
+            this.DestinationAirports = new ObservableCollection<string>();
+            this.AlternateAirports = new ObservableCollection<string>();
             this.Payloads.CollectionChanged += (_, _) =>
             {
                 this.NotifyPropertyChanged(nameof(this.PayloadWeight));
@@ -780,9 +783,13 @@ namespace OpenSky.Client.Pages.Models
                 {
                     this.ID = flightPlan.Id;
                     this.FlightNumber = flightPlan.FlightNumber;
-                    this.OriginICAO = flightPlan.OriginICAO;
-                    this.DestinationICAO = flightPlan.DestinationICAO;
-                    this.AlternateICAO = flightPlan.AlternateICAO;
+                    this.LoadFlightPlanCommand.ReportProgress(
+                        () =>
+                        {
+                            this.OriginICAO = flightPlan.OriginICAO;
+                            this.DestinationICAO = flightPlan.DestinationICAO;
+                            this.AlternateICAO = flightPlan.AlternateICAO;
+                        }, true);
                     if (!string.IsNullOrEmpty(flightPlan.Aircraft?.Registry))
                     {
                         this.SelectedAircraft = flightPlan.Aircraft;

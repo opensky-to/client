@@ -118,7 +118,7 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AutoSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            sender.Text = args.SelectedItem.ToString();
+            sender.Text = args.SelectedItem.ToString().Split(':')[0];
             sender.IsSuggestionListOpen = false;
         }
 

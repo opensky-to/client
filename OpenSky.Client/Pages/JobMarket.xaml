@@ -66,12 +66,7 @@
                     <ui:CommandBar.Content>
                         <StackPanel Orientation="Horizontal">
                             <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <!--<TextBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" CharacterCasing="Upper" MinWidth="80" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Command="{Binding SearchJobsCommand}" />
-                                </TextBox.InputBindings>
-                            </TextBox>-->
-                            <ui:AutoSuggestBox FontFamily="Consolas" FontSize="13" MaxHeight="28" MinHeight="28" MinWidth="200" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ToolTipService.ShowDuration="15000">
+                            <ui:AutoSuggestBox FontFamily="Consolas" FontSize="13" MaxHeight="28" MinHeight="28" Width="90" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ToolTipService.ShowDuration="15000">
                                 <ui:AutoSuggestBox.ToolTip>
                                     <Grid Tag="{Binding AirportICAO}">
                                         <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
