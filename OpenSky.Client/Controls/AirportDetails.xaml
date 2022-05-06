@@ -53,6 +53,10 @@
                           LatitudeMargin="0.000625"
                           LongitudeMargin="0.025"
                           TrackingEventMarkers="{Binding AirportMarkers, ElementName=ViewModel}" />
+            <Border Grid.Row="0" Background="#B0000000" Visibility="{Binding PlaceHolderVisibility}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Foreground="{StaticResource OpenSkyTealLightBrush}" Text="{Binding AirportPlaceholderText, Mode=OneWay}" TextWrapping="Wrap" />
+            </Border>
+
             <Grid Grid.Row="1" Margin="0,15,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />

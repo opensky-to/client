@@ -44,6 +44,34 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The airport placeholder text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string airportPlaceholderText = "No airport selected";
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the airport placeholder text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AirportPlaceholderText
+        {
+            get => this.airportPlaceholderText;
+
+            set
+            {
+                if (Equals(this.airportPlaceholderText, value))
+                {
+                    return;
+                }
+
+                this.airportPlaceholderText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="AirportDetailsViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -55,6 +83,34 @@ namespace OpenSky.Client.Controls.Models
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
 
             this.LoadAirportCommand = new AsynchronousCommand(this.LoadAirport);
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The place holder visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility placeHolderVisibility = Visibility.Visible;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the place holder visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility PlaceHolderVisibility
+        {
+            get => this.placeHolderVisibility;
+        
+            set
+            {
+                if(Equals(this.placeHolderVisibility, value))
+                {
+                   return;
+                }
+        
+                this.placeHolderVisibility = value;
+                this.NotifyPropertyChanged();
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -76,6 +132,8 @@ namespace OpenSky.Client.Controls.Models
                 this.airport = value;
                 this.NotifyPropertyChanged();
 
+                this.AirportPlaceholderText = value != null ? string.Empty : "No airport selected";
+                this.PlaceHolderVisibility = value != null ? Visibility.Collapsed : Visibility.Visible;
                 this.AirportMarkers.Clear();
                 if (value?.Runways != null)
                 {
@@ -153,6 +211,11 @@ namespace OpenSky.Client.Controls.Models
                         if (result.Data.Icao != "XXXX")
                         {
                             this.LoadAirportCommand.ReportProgress(() => { this.Airport = result.Data; });
+                        }
+                        else
+                        {
+                            this.Airport = null;
+                            this.AirportPlaceholderText = $"Invalid airport {icao.ToUpperInvariant()}";
                         }
                     }
                     else
