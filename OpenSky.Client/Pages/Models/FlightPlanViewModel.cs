@@ -146,13 +146,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The UTC offset.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private double utcOffset;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="FlightPlanViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -163,7 +156,6 @@ namespace OpenSky.Client.Pages.Models
         {
             // Initialize data structures
             this.Aircraft = new ObservableCollection<Aircraft>();
-            this.UtcOffsets = new SortedSet<double>();
             this.TrackingEventMarkers = new ObservableCollection<TrackingEventMarker>();
             this.SimbriefRouteLocations = new LocationCollection();
             this.SimbriefWaypointMarkers = new ObservableCollection<SimbriefWaypointMarker>();
@@ -183,12 +175,6 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged(nameof(this.GrossWeight));
                 this.IsDirty = true;
             };
-
-            // Populate UTC offsets from time zones
-            foreach (var timeZone in TimeZoneInfo.GetSystemTimeZones())
-            {
-                this.UtcOffsets.Add(timeZone.BaseUtcOffset.TotalHours);
-            }
 
             // Default values
             // todo maybe can use this in the future if we find more performant html rendering control
@@ -633,35 +619,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the UTC offset.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double UtcOffset
-        {
-            get => this.utcOffset;
-
-            set
-            {
-                if (Equals(this.utcOffset, value))
-                {
-                    return;
-                }
-
-                this.utcOffset = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the UTC offsets.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public SortedSet<double> UtcOffsets { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the zero fuel weight.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -802,7 +759,6 @@ namespace OpenSky.Client.Pages.Models
                     this.PlannedDepartureTime = flightPlan.PlannedDepartureTime.UtcDateTime;
                     this.DepartureHour = flightPlan.PlannedDepartureTime.UtcDateTime.Hour;
                     this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
-                    this.UtcOffset = flightPlan.UtcOffset;
                     this.Route = flightPlan.Route;
                     this.AlternateRoute = flightPlan.AlternateRoute;
                     this.Payloads.Clear();
@@ -967,7 +923,6 @@ namespace OpenSky.Client.Pages.Models
                     FuelGallons = this.FuelGallons,
                     IsAirlineFlight = this.IsAirlineFlight,
                     PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
-                    UtcOffset = this.UtcOffset,
                     Route = this.Route,
                     AlternateRoute = this.AlternateRoute,
                     OfpHtml = this.OfpHtml,
@@ -1069,7 +1024,6 @@ namespace OpenSky.Client.Pages.Models
                         FuelGallons = this.FuelGallons,
                         IsAirlineFlight = this.IsAirlineFlight,
                         PlannedDepartureTime = this.PlannedDepartureTime.Date.AddHours(this.DepartureHour).AddMinutes(this.DepartureMinute),
-                        UtcOffset = this.UtcOffset,
                         Route = this.Route,
                         AlternateRoute = this.AlternateRoute,
                         OfpHtml = this.OfpHtml,
@@ -1170,8 +1124,7 @@ namespace OpenSky.Client.Pages.Models
                                         {
                                             Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
                                             OriginICAO = this.SelectedAircraft.AirportICAO, DestinationICAO = this.OriginICAO, Aircraft = this.SelectedAircraft, FuelGallons = this.SelectedAircraft.Fuel,
-                                            DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}",
-                                            UtcOffset = Properties.Settings.Default.DefaultUTCOffset
+                                            DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedAircraft.Registry} FLIGHT #{this.FlightNumber}"
                                         }
                                     };
                                     Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);

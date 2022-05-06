@@ -112,7 +112,6 @@
                         <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft}" FontFamily="Consolas" FontSize="14" />
                         <DataGridTextColumn Header="Simulator" Binding="{Binding Aircraft.Type.Simulator}" FontFamily="Consolas" FontSize="14" />
                         <DataGridTextColumn Header="Payload" Binding="{Binding TotalPayloadWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
-                        <DataGridTextColumn Header="Utc Offset" Binding="{Binding UtcOffset}" />
                         <DataGridTextColumn Header="Airline pilot" />
                         <DataGridTextColumn Header="Dispatcher" Binding="{Binding DispatcherName}" />
                         <DataGridTextColumn Header="Dispatcher remarks" Binding="{Binding DispatcherRemarks}" MinWidth="150" Width="1*" FontFamily="Consolas" FontSize="11" />

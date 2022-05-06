@@ -8,6 +8,7 @@ Version 0.4.4 (ALPHA4)
 - Expanded aircraft tooltips
 - Added detailed airport tooltips
 - Added airport search
+- Removed UTC offset from flights
 
 --------------------------------------------------------------------------------------
 Version 0.4.3 (ALPHA4)

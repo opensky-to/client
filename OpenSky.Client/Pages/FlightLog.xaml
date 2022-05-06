@@ -70,7 +70,6 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0">Origin</TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="0">Destination</TextBlock>
@@ -80,8 +79,7 @@
                     <TextBlock Grid.Row="6" Grid.Column="0">Simulator</TextBlock>
                     <TextBlock Grid.Row="7" Grid.Column="0">Off block</TextBlock>
                     <TextBlock Grid.Row="8" Grid.Column="0">On block</TextBlock>
-                    <TextBlock Grid.Row="9" Grid.Column="0">UTC offset</TextBlock>
-                    <TextBlock Grid.Row="10" Grid.Column="0">Time warp?</TextBlock>
+                    <TextBlock Grid.Row="9" Grid.Column="0">Time warp?</TextBlock>
 
                     <TextBlock Grid.Row="0" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OriginICAO}" Margin="10,0" />
                     <TextBlock Grid.Row="1" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.DestinationICAO}" Margin="10,0" />
@@ -92,15 +90,14 @@
                     <TextBlock Grid.Row="6" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.Simulator}" Grid.ColumnSpan="2" Margin="10,0" />
                     <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OffBlock}" Grid.ColumnSpan="2" Margin="10,0" />
                     <TextBlock Grid.Row="8" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.OnBlock}" Grid.ColumnSpan="2" Margin="10,0" />
-                    <TextBlock Grid.Row="9" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.UtcOffset}" Margin="10,0" />
-                    <TextBlock Grid.Row="10" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.TimeWarpInfo}" Margin="10,0" />
+                    <TextBlock Grid.Row="9" Grid.Column="1" FontFamily="Consolas" Text="{Binding FlightLog.TimeWarpInfo}" Margin="10,0" />
 
                     <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding FlightLog.Origin}" HorizontalAlignment="Right" />
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding FlightLog.Destination}" HorizontalAlignment="Right" />
                     <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding FlightLog.Alternate}" HorizontalAlignment="Right" />
                     <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding FlightLog.LandedAtCrash}" HorizontalAlignment="Right" />
 
-                    <DockPanel Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,10,0,0">
+                    <DockPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,10,0,0">
                         <Button DockPanel.Dock="Left" Command="{Binding ToggleLandingReportCommand}" Content="{Binding ShowHideLandingReportButtonText}" />
                         <Button DockPanel.Dock="Right" Command="{Binding ToggleOfpCommand}" Content="{Binding ShowHideOFPButtonText}" Margin="5,0,0,0" HorizontalAlignment="Right" />
                     </DockPanel>

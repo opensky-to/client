@@ -4705,7 +4705,8 @@
               "type": "array",
               "items": {
                 "$ref": "#/components/schemas/AirlinePermission"
-              }
+              },
+              "nullable": true
             },
             "description": "Gets or sets the embedded data of type T.",
             "nullable": true
@@ -6706,11 +6707,6 @@
             "description": "Gets or sets the time-warp time saved (in seconds).",
             "format": "int32"
           },
-          "utcOffset": {
-            "type": "number",
-            "description": "Gets or sets the UTC offset for the flight.",
-            "format": "double"
-          },
           "verticalSpeedSeconds": {
             "type": "number",
             "description": "The vertical speed in feet per second.",
@@ -6929,11 +6925,6 @@
             "type": "integer",
             "description": "Gets or sets the time-warp time saved (in seconds).",
             "format": "int32"
-          },
-          "utcOffset": {
-            "type": "number",
-            "description": "Gets or sets the UTC offset for the flight.",
-            "format": "double"
           }
         },
         "additionalProperties": false,
@@ -7248,11 +7239,6 @@
             "type": "string",
             "description": "Gets or sets the route.",
             "nullable": true
-          },
-          "utcOffset": {
-            "type": "number",
-            "description": "Gets or sets the UTC offset for the flight.",
-            "format": "double"
           }
         },
         "additionalProperties": false,
@@ -7797,7 +7783,8 @@
           "flights": {
             "type": "object",
             "additionalProperties": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
             "description": "Gets or sets the flights the payload is planned to fly on.",
             "nullable": true
