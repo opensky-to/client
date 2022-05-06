@@ -261,7 +261,7 @@ namespace OpenSky.Client.Pages.Models
             var navMenuItem = new NavMenuItem
             {
                 Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"New flight plan {flightNumber}",
-                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true, UtcOffset = Properties.Settings.Default.DefaultUTCOffset }
+                Parameter = new FlightPlan { Id = Guid.NewGuid(), FlightNumber = flightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true }
             };
             Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
         }
@@ -404,8 +404,7 @@ namespace OpenSky.Client.Pages.Models
                                         {
                                             Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
                                             OriginICAO = this.SelectedFlightPlan.Aircraft.AirportICAO, DestinationICAO = this.SelectedFlightPlan.OriginICAO, Aircraft = this.SelectedFlightPlan.Aircraft,
-                                            FuelGallons = this.SelectedFlightPlan.Aircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedFlightPlan.Aircraft.Registry} FLIGHT #{this.SelectedFlightPlan.FlightNumber}",
-                                            UtcOffset = Properties.Settings.Default.DefaultUTCOffset
+                                            FuelGallons = this.SelectedFlightPlan.Aircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedFlightPlan.Aircraft.Registry} FLIGHT #{this.SelectedFlightPlan.FlightNumber}"
                                         }
                                     };
                                     Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);

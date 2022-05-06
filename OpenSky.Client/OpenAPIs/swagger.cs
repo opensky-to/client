@@ -9263,10 +9263,6 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("timeWarpTimeSavedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TimeWarpTimeSavedSeconds { get; set; }
     
-        /// <summary>Gets or sets the UTC offset for the flight.</summary>
-        [Newtonsoft.Json.JsonProperty("utcOffset", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double UtcOffset { get; set; }
-    
         /// <summary>The vertical speed in feet per second.</summary>
         [Newtonsoft.Json.JsonProperty("verticalSpeedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double VerticalSpeedSeconds { get; set; }
@@ -9448,10 +9444,6 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the time-warp time saved (in seconds).</summary>
         [Newtonsoft.Json.JsonProperty("timeWarpTimeSavedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TimeWarpTimeSavedSeconds { get; set; }
-    
-        /// <summary>Gets or sets the UTC offset for the flight.</summary>
-        [Newtonsoft.Json.JsonProperty("utcOffset", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double UtcOffset { get; set; }
     
     
     }
@@ -9695,10 +9687,6 @@ namespace OpenSkyApi
         /// <summary>Gets or sets the route.</summary>
         [Newtonsoft.Json.JsonProperty("route", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Route { get; set; }
-    
-        /// <summary>Gets or sets the UTC offset for the flight.</summary>
-        [Newtonsoft.Json.JsonProperty("utcOffset", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double UtcOffset { get; set; }
     
     
     }
