@@ -83,13 +83,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the airports.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<string> Airports { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="JobMarketViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -185,7 +178,11 @@ namespace OpenSky.Client.Pages.Models
                     var airportPackage = AirportPackageClientHandler.GetPackage();
                     if (airportPackage != null)
                     {
-                        this.Airports.AddRange(airportPackage.Airports.Where(a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) || (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        this.Airports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
                     }
                 }
                 else
@@ -207,6 +204,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> Airports { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

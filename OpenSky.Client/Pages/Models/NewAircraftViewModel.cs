@@ -60,6 +60,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The country search string.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string countrySearch;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The delivery cost per aircraft.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -120,6 +127,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private bool outsourceFerryChecked;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The registration country.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Country? registrationCountry;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -188,20 +202,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the factory ferry airports.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<string> FactoryFerryAirports { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the countries.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<CountryComboItem> Countries { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets or sets the account balances.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -266,10 +266,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The country search string.
+        /// Gets the name of the buyer.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        private string countrySearch;
+        public string BuyerName => UserSessionService.Instance.Username;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the countries.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<CountryComboItem> Countries { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -300,13 +307,6 @@ namespace OpenSky.Client.Pages.Models
                 }
             }
         }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the name of the buyer.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public string BuyerName => UserSessionService.Instance.Username;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -355,7 +355,11 @@ namespace OpenSky.Client.Pages.Models
                     var airportPackage = AirportPackageClientHandler.GetPackage();
                     if (airportPackage != null)
                     {
-                        this.FactoryFerryAirports.AddRange(airportPackage.Airports.Where(a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) || (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        this.FactoryFerryAirports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
                     }
                 }
                 else
@@ -372,6 +376,13 @@ namespace OpenSky.Client.Pages.Models
                 this.CalculateGrandTotal();
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the factory ferry airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> FactoryFerryAirports { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -531,6 +542,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the registration country.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Country? RegistrationCountry
+        {
+            get => this.registrationCountry;
+
+            set
+            {
+                if (Equals(this.registrationCountry, value))
+                {
+                    return;
+                }
+
+                this.registrationCountry = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the sales agreement information text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -645,34 +677,6 @@ namespace OpenSky.Client.Pages.Models
                 if (value == this.volumeDiscount)
                     return;
                 this.volumeDiscount = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The registration country.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Country? registrationCountry;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the registration country.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Country? RegistrationCountry
-        {
-            get => this.registrationCountry;
-
-            set
-            {
-                if (Equals(this.registrationCountry, value))
-                {
-                    return;
-                }
-
-                this.registrationCountry = value;
                 this.NotifyPropertyChanged();
             }
         }

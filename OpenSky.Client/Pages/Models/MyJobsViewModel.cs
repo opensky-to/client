@@ -310,17 +310,14 @@ namespace OpenSky.Client.Pages.Models
                         MessageBoxButton.YesNo,
                         ExtendedMessageBoxImage.Hand);
                     messageBox.SetWarningColorStyle();
-                    messageBox.Closed += (_, _) =>
-                    {
-                        answer = messageBox.Result;
-                    };
+                    messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                     Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                 });
             while (answer == null && !SleepScheduler.IsShutdownInProgress)
             {
                 Thread.Sleep(500);
             }
-            
+
             if (answer != ExtendedMessageBoxResult.Yes)
             {
                 return;

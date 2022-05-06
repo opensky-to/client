@@ -37,13 +37,6 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The loading visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility loadingVisibility = Visibility.Collapsed;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The airport placeholder text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -51,24 +44,17 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the airport placeholder text.
+        /// The loading visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string AirportPlaceholderText
-        {
-            get => this.airportPlaceholderText;
+        private Visibility loadingVisibility = Visibility.Collapsed;
 
-            set
-            {
-                if (Equals(this.airportPlaceholderText, value))
-                {
-                    return;
-                }
-
-                this.airportPlaceholderText = value;
-                this.NotifyPropertyChanged();
-            }
-        }
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The place holder visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility placeHolderVisibility = Visibility.Visible;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -83,34 +69,6 @@ namespace OpenSky.Client.Controls.Models
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
 
             this.LoadAirportCommand = new AsynchronousCommand(this.LoadAirport);
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The place holder visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility placeHolderVisibility = Visibility.Visible;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the place holder visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility PlaceHolderVisibility
-        {
-            get => this.placeHolderVisibility;
-        
-            set
-            {
-                if(Equals(this.placeHolderVisibility, value))
-                {
-                   return;
-                }
-        
-                this.placeHolderVisibility = value;
-                this.NotifyPropertyChanged();
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -155,6 +113,27 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the airport placeholder text.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AirportPlaceholderText
+        {
+            get => this.airportPlaceholderText;
+
+            set
+            {
+                if (Equals(this.airportPlaceholderText, value))
+                {
+                    return;
+                }
+
+                this.airportPlaceholderText = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the load airport command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -177,6 +156,27 @@ namespace OpenSky.Client.Controls.Models
                 }
 
                 this.loadingVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the place holder visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility PlaceHolderVisibility
+        {
+            get => this.placeHolderVisibility;
+
+            set
+            {
+                if (Equals(this.placeHolderVisibility, value))
+                {
+                    return;
+                }
+
+                this.placeHolderVisibility = value;
                 this.NotifyPropertyChanged();
             }
         }
