@@ -8,6 +8,7 @@ namespace OpenSky.Client.Pages.Models
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Device.Location;
     using System.Diagnostics;
     using System.Linq;
@@ -25,6 +26,8 @@ namespace OpenSky.Client.Pages.Models
     using OpenSky.Client.Views;
 
     using OpenSkyApi;
+
+    using TomsToolbox.Essentials;
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
@@ -164,6 +167,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the alternate airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> AlternateAirports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the alternate airport short runway error visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -246,6 +256,32 @@ namespace OpenSky.Client.Pages.Models
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Search for matching airports
+                    this.AlternateAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.AlternateAirports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.AlternateAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.AlternateAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+
                 UpdateGUIDelegate updateAirports = () =>
                 {
                     if (!this.UpdateAirportsCommand.IsExecuting)
@@ -381,6 +417,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets destination airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> DestinationAirports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets destination airport short runway error visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -463,6 +506,32 @@ namespace OpenSky.Client.Pages.Models
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Search for matching airports
+                    this.DestinationAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.DestinationAirports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.DestinationAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.DestinationAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+
                 UpdateGUIDelegate updateAirports = () =>
                 {
                     if (!this.UpdateAirportsCommand.IsExecuting)
@@ -563,6 +632,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the origin airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> OriginAirports { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the origin icao.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -586,7 +662,32 @@ namespace OpenSky.Client.Pages.Models
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
 
-                UpdateGUIDelegate updateOriginRelated = () =>
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Search for matching airports
+                    this.OriginAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.OriginAirports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.OriginAirports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.OriginAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+
+                UpdateGUIDelegate updateAirports = () =>
                 {
                     if (!this.UpdateAirportsCommand.IsExecuting)
                     {
@@ -612,7 +713,7 @@ namespace OpenSky.Client.Pages.Models
                     this.UpdateAircraftDistances();
                     this.UpdatePlannablePayloads();
                 };
-                Application.Current.Dispatcher.BeginInvoke(updateOriginRelated);
+                Application.Current.Dispatcher.BeginInvoke(updateAirports);
             }
         }
 

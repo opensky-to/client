@@ -4363,6 +4363,13 @@
             "description": "Gets or sets the comments (moderation status, retired, needs fixing, etc.).",
             "nullable": true
           },
+          "customAgentModule": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the custom agent module name, default is NULL for none.",
+            "nullable": true
+          },
           "deliveryLocations": {
             "type": "array",
             "items": {
@@ -4856,6 +4863,14 @@
             "description": "Gets or sets the altitude of the airport in feet.",
             "format": "int32"
           },
+          "approaches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Approach"
+            },
+            "description": "Gets the approaches.",
+            "nullable": true
+          },
           "atisFrequency": {
             "type": "integer",
             "description": "Gets or sets the ATIS frequency (if available).",
@@ -5162,6 +5177,48 @@
         },
         "additionalProperties": false,
         "description": "Application token model."
+      },
+      "Approach": {
+        "required": [
+          "airportICAO",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "airportICAO": {
+            "maxLength": 5,
+            "minLength": 3,
+            "type": "string",
+            "description": "Gets or sets the airport ICAO."
+          },
+          "id": {
+            "type": "integer",
+            "description": "Gets or sets the approach ID.",
+            "format": "int32"
+          },
+          "runwayName": {
+            "maxLength": 6,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the name of the runway (can be NULL if approach doesn't specify a runway).",
+            "nullable": true
+          },
+          "suffix": {
+            "maxLength": 1,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the approach type suffix (Y, Z, etc.).",
+            "nullable": true
+          },
+          "type": {
+            "maxLength": 25,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the approach type (ILS, RNAV, etc.)."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Approach model."
       },
       "ByteArrayApiResponse": {
         "type": "object",

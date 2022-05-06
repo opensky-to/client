@@ -97,6 +97,7 @@ namespace OpenSky.Client.Pages.Models
             this.AirportMarkers = new ObservableCollection<TrackingEventMarker>();
             this.JobTrails = new ObservableCollection<MapPolyline>();
             this.Simulators = new ObservableCollection<Simulator>();
+            this.Airports = new ObservableCollection<string>();
 
             // Initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -169,6 +170,31 @@ namespace OpenSky.Client.Pages.Models
                 this.airportICAO = value;
                 this.NotifyPropertyChanged();
                 this.SearchJobsCommand.CanExecute = !string.IsNullOrEmpty(value);
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Search for matching airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
             }
         }
 
@@ -178,6 +204,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<TrackingEventMarker> AirportMarkers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> Airports { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

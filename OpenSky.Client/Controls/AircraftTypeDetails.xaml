@@ -49,11 +49,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -98,10 +93,7 @@
                 <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.FuelTotalCapacity, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|F1|true}" />
                 <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.TotalFuelWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
                 <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.MaxGrossWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" />
-                <StackPanel Name="RunwayInfo" Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Type, Converter={StaticResource NullItemToVisibilityConverter}}">
-                    <TextBlock VerticalAlignment="Center" Text="{Binding Type.MinimumRunwayLength}" />
-                    <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">feet</TextBlock>
-                </StackPanel>
+                <TextBlock Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Text="{Binding Type.MinimumRunwayLength, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=shortdistance|F0|true}" />
 
                 <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" >Co-pilot?:</TextBlock>
                 <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Center">Flight engineer?:</TextBlock>

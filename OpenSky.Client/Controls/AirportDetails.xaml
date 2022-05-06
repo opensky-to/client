@@ -1,0 +1,130 @@
+﻿<!-- 
+====================================================================================================================
+<copyright file="AirportDetails.xaml" company="OpenSky">
+  OpenSky project 2021-2022
+</copyright>
+<summary>
+  Airport details user control
+</summary>
+====================================================================================================================
+-->
+
+<UserControl x:Class="OpenSky.Client.Controls.AirportDetails"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:models="clr-namespace:OpenSky.Client.Controls.Models"
+                 xmlns:controls="clr-namespace:OpenSky.Client.Controls"
+                 xmlns:converters="clr-namespace:OpenSky.Client.Converters"
+                 mc:Ignorable="d" 
+                 d:DesignHeight="450" d:DesignWidth="800" Loaded="AirportDetailsOnLoaded">
+    <UserControl.DataContext>
+        <models:AirportDetailsViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
+        <converters:NullItemToEnabledConverter x:Key="NullItemToEnabledConverter" />
+        <converters:FrequencyConverter x:Key="FrequencyConverter" />
+        <converters:RunwaySurfaceConverter x:Key="RunwaySurfaceConverter" />
+        <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
+        <converters:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
+        <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
+    </UserControl.Resources>
+    <GroupBox>
+        <GroupBox.Header>
+            <StackPanel Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
+                <TextBlock Text="{Binding Airport.Icao}" FontWeight="DemiBold" />
+                <TextBlock FontWeight="SemiBold" Margin="0,0,5,0">:</TextBlock>
+                <TextBlock Text="{Binding Airport.Name}" />
+            </StackPanel>
+        </GroupBox.Header>
+        <Grid Margin="5" IsEnabled="{Binding Airport, Converter={StaticResource NullItemToEnabledConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <controls:MapView Grid.Row="0" 
+                          Width="360" 
+                          Height="360" 
+                          EnableUserInteraction="False" 
+                          AerialAsDefault="False"
+                          ZoomLevelVisibilityFiltersEnabled="False"
+                          LatitudeMargin="0.000625"
+                          LongitudeMargin="0.025"
+                          TrackingEventMarkers="{Binding AirportMarkers, ElementName=ViewModel}" />
+            <Border Grid.Row="0" Background="#B0000000" Visibility="{Binding PlaceHolderVisibility}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Foreground="{StaticResource OpenSkyTealLightBrush}" Text="{Binding AirportPlaceholderText, Mode=OneWay}" TextWrapping="Wrap" />
+            </Border>
+
+            <Grid Grid.Row="1" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">City:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Altitude:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Runways:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,5,0">Longest rwy:</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Sims:</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center">Tower:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Unicom:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Atis:</TextBlock>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Airport.City}" />
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
+                    <TextBlock  VerticalAlignment="Center" Text="{Binding Airport.Altitude}" />
+                    <TextBlock VerticalAlignment="Center" Margin="5,0,0,0">ft</TextBlock>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Airport.RunwayCount}" />
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Airport, Converter={StaticResource NullItemToVisibilityConverter}}">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Airport.LongestRunwayLength, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=shortdistance|F0|true}" />
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">,</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Airport.LongestRunwaySurface, Converter={StaticResource RunwaySurfaceConverter}}" />
+                </StackPanel>
+                <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Airport.Simulators}" />
+                <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" Text="{Binding Airport.TowerFrequency, Converter={StaticResource FrequencyConverter}}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" Text="{Binding Airport.UnicomFrequency, Converter={StaticResource FrequencyConverter}}" />
+                <TextBlock Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" Text="{Binding Airport.AtisFrequency, Converter={StaticResource FrequencyConverter}}" />
+
+                <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">Size:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Center">Closed?:</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center">Military?:</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Center">AvGas?:</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="2" VerticalAlignment="Center">JetFuel?:</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,5,0">Rwy lights?:</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center">IFR appr?:</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="2" VerticalAlignment="Center">ILS?:</TextBlock>
+
+                <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="{Binding Airport.Size}" />
+                <Image Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.IsClosed, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.IsMilitary, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasAvGas, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="4" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasJetFuel, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="5" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasRunwayLights, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="6" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasIFRApproach, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+                <Image Grid.Row="7" Grid.Column="3" VerticalAlignment="Center" Source="{Binding Airport.HasILSApproach, Converter={StaticResource BooleanToImageConverter}}" Width="12" Height="12" />
+
+                <TextBlock Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:AirportDetails}}, Path=ShowDetailedRunwayInformation, Converter={StaticResource BooleanVisibilityConverter}}" 
+                           Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" FontFamily="Consolas" FontSize="13" Margin="0,15,0,0" 
+                           Text="{Binding Airport.RunwayInfo}" />
+            </Grid>
+            <Border Grid.Row="0" Grid.RowSpan="2" Background="#99000000" Visibility="{Binding LoadingVisibility}">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">Loading...</TextBlock>
+            </Border>
+        </Grid>
+    </GroupBox>
+</UserControl>

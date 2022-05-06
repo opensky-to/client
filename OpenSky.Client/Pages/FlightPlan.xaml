@@ -117,9 +117,27 @@
 
                         <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}" />
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" />
-                        <TextBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Margin="5,0" Width="90" CharacterCasing="Upper" />
-                        <TextBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
-                        <TextBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" CharacterCasing="Upper" />
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding OriginAirports}">
+                            <ui:AutoSuggestBox.ToolTip>
+                                <Grid Tag="{Binding OriginAirport}">
+                                    <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
+                                </Grid>
+                            </ui:AutoSuggestBox.ToolTip>
+                        </ui:AutoSuggestBox>
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding DestinationAirports}">
+                            <ui:AutoSuggestBox.ToolTip>
+                                <Grid Tag="{Binding DestinationAirport}">
+                                    <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
+                                </Grid>
+                            </ui:AutoSuggestBox.ToolTip>
+                        </ui:AutoSuggestBox>
+                    <ui:AutoSuggestBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding AlternateAirports}">
+                            <ui:AutoSuggestBox.ToolTip>
+                                <Grid Tag="{Binding AlternateAirport}">
+                                    <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
+                                </Grid>
+                            </ui:AutoSuggestBox.ToolTip>
+                        </ui:AutoSuggestBox>
                         <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding PlannedDepartureTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" />
                         <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
                         <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
@@ -239,7 +257,7 @@
                             </Grid.RowDefinitions>
                             <StackPanel Orientation="Vertical">
                                 <Grid>
-                                    <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" Grid.IsSharedSizeScope="True" ItemContainerStyleSelector="{StaticResource AircraftSelectOrNotSelectComboItemStyleSelector}">
+                                    <ComboBox Name="AircraftCombo" ItemsSource="{Binding Aircraft}" SelectedItem="{Binding SelectedAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Margin="5,0" Grid.IsSharedSizeScope="True" ItemContainerStyleSelector="{StaticResource AircraftSelectOrNotSelectComboItemStyleSelector}" ToolTipService.ShowDuration="15000">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="openSkyApi:Aircraft">
                                                 <Grid IsHitTestVisible="False">
@@ -252,6 +270,11 @@
                                                 </Grid>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
+                                        <ComboBox.ToolTip>
+                                            <Grid Tag="{Binding SelectedAircraft.Type}">
+                                                <controls:AircraftTypeDetails Width="650" AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                        </ComboBox.ToolTip>
                                     </ComboBox>
                                     <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2,30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=AircraftCombo, Converter={StaticResource NullItemToVisibilityConverter}}" Command="{Binding ClearAircraftCommand}" />
                                 </Grid>

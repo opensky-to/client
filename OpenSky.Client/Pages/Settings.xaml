@@ -140,13 +140,16 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">Weight:</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">Fuel:</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">Distances:</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">Short distances:</TextBlock>
                     <ComboBox Grid.Column="1" Grid.Row="0" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding WeightUnits}" SelectedItem="{Binding WeightUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <ComboBox Grid.Column="1" Grid.Row="1" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding FuelUnits}" SelectedItem="{Binding FuelUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <ComboBox Grid.Column="1" Grid.Row="2" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding DistanceUnits}" SelectedItem="{Binding DistanceUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox Grid.Column="1" Grid.Row="3" MinWidth="150" Margin="10,5,0,5" ItemsSource="{Binding ShortDistanceUnits}" SelectedItem="{Binding ShortDistanceUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Column="1">

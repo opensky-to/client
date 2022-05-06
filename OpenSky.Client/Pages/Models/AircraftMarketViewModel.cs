@@ -265,6 +265,7 @@ namespace OpenSky.Client.Pages.Models
             this.Aircraft = new ObservableCollection<Aircraft>();
             this.Aircraft.CollectionChanged += (_, _) => { this.AvailableAircraftHeader = $"Available Aircraft ({this.Aircraft.Count})"; };
             this.PurchaseAircraftVariants = new ObservableCollection<AircraftType>();
+            this.Airports = new ObservableCollection<string>();
 
             // Add initial values
             foreach (var categoryItem in AircraftTypeCategoryComboItem.GetAircraftTypeCategoryComboItems())
@@ -527,9 +528,38 @@ namespace OpenSky.Client.Pages.Models
                 if (!string.IsNullOrEmpty(value))
                 {
                     this.AtAirportChecked = true;
+
+                    // Search for matching airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
+                }
+                else
+                {
+                    // Restore full list of airports
+                    this.Airports.Clear();
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    if (airportPackage != null)
+                    {
+                        this.Airports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                    }
                 }
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the airports.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<string> Airports { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1595,7 +1625,7 @@ namespace OpenSky.Client.Pages.Models
                     }
 
                     this.LocationColumnVisibility = Visibility.Collapsed;
-                    result = OpenSkyService.Instance.GetAircraftAtAirportAsync(this.AirportIcao).Result;
+                    result = OpenSkyService.Instance.GetAircraftAtAirportAsync(this.AirportIcao.Split(':')[0]).Result;
                 }
 
                 if (this.WithinNmAirportChecked)
@@ -1639,7 +1669,7 @@ namespace OpenSky.Client.Pages.Models
 
                     var searchCriteria = new AircraftSearchAroundAirport
                     {
-                        AirportICAO = this.AirportIcao,
+                        AirportICAO = this.AirportIcao.Split(':')[0],
                         Radius = this.NmRadius,
                         MaxResults = 100,
                         FilterByCategory = false,

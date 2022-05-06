@@ -55,17 +55,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the refresh command.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public AsynchronousCommand RefreshCommand { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the aircraft positions.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<AircraftPosition> AircraftPositions { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the refresh command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -82,13 +82,15 @@ namespace OpenSky.Client.Pages.Models
                 var result = OpenSkyService.Instance.GetWorldMapFlightsAsync().Result;
                 if (!result.IsError)
                 {
-                    this.RefreshCommand.ReportProgress(() =>
+                    this.RefreshCommand.ReportProgress(
+                        () =>
                         {
                             try
                             {
                                 foreach (var flight in result.Data)
                                 {
-                                    var tooltip = $"Flight {flight.FullFlightNumber} operated by {flight.Operator}\r\n-----------------------------------------------\r\nPilot: {flight.Pilot}\r\n{flight.AircraftType} [{flight.AircraftRegistry.RemoveSimPrefix()}]\r\n{flight.Origin} ▶ {flight.Destination}\r\nPhase: {flight.FlightPhase}\r\n";
+                                    var tooltip =
+                                        $"Flight {flight.FullFlightNumber} operated by {flight.Operator}\r\n-----------------------------------------------\r\nPilot: {flight.Pilot}\r\n{flight.AircraftType} [{flight.AircraftRegistry.RemoveSimPrefix()}]\r\n{flight.Origin} ▶ {flight.Destination}\r\nPhase: {flight.FlightPhase}\r\n";
                                     if (flight.OnGround)
                                     {
                                         tooltip += $"On the ground, {flight.GroundSpeed:F0} kts, heading: {flight.Heading:F0}";

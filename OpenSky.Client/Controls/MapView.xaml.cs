@@ -62,14 +62,14 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The simbrief route locations property.
+        /// The simBrief route locations property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty SimbriefRouteLocationsProperty = DependencyProperty.Register("SimbriefRouteLocations", typeof(LocationCollection), typeof(MapView), new UIPropertyMetadata(new LocationCollection()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The simbrief waypoint markers property.
+        /// The simBrief waypoint markers property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty SimbriefWaypointMarkersProperty = DependencyProperty.Register(
@@ -126,6 +126,13 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True to show the aerial view as default, instead of road.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool aerialAsDefault;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The aircraft trail animation.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -167,6 +174,27 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets a value indicating whether the aerial as default.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool AerialAsDefault
+        {
+            get => this.aerialAsDefault;
+
+            set
+            {
+                if (Equals(this.aerialAsDefault, value))
+                {
+                    return;
+                }
+
+                this.aerialAsDefault = value;
+                this.WpfMapView.Mode = value ? new AerialMode() : new RoadMode();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the aircraft positions.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -195,6 +223,13 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets a value indicating whether the user interaction is enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool EnableUserInteraction { get; set; } = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the job trails.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -208,6 +243,20 @@ namespace OpenSky.Client.Controls
                 value.CollectionChanged += this.JobTrailsCollectionChanged;
             }
         }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the latitude margin.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double LatitudeMargin { get; set; } = 0.5;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the longitude margin.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double LongitudeMargin { get; set; } = 2;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -396,20 +445,24 @@ namespace OpenSky.Client.Controls
 
                 if (this.TrackingEventMarkers.Count > 0)
                 {
-                    minLat = Math.Min(minLat, this.TrackingEventMarkers.Min(m => m.GeoCoordinate.Latitude));
-                    maxLat = Math.Max(maxLat, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Latitude));
-                    minLon = Math.Min(minLon, this.TrackingEventMarkers.Min(m => m.GeoCoordinate.Longitude));
-                    maxLon = Math.Max(maxLon, this.TrackingEventMarkers.Max(m => m.GeoCoordinate.Longitude));
+                    minLat = Math.Min(minLat, this.TrackingEventMarkers.Min(m => m.FromCoordinate.Latitude));
+                    maxLat = Math.Max(maxLat, this.TrackingEventMarkers.Max(m => m.FromCoordinate.Latitude));
+                    minLon = Math.Min(minLon, this.TrackingEventMarkers.Min(m => m.FromCoordinate.Longitude));
+                    maxLon = Math.Max(maxLon, this.TrackingEventMarkers.Max(m => m.FromCoordinate.Longitude));
+                    minLat = Math.Min(minLat, this.TrackingEventMarkers.Min(m => m.ToCoordinate.Latitude));
+                    maxLat = Math.Max(maxLat, this.TrackingEventMarkers.Max(m => m.ToCoordinate.Latitude));
+                    minLon = Math.Min(minLon, this.TrackingEventMarkers.Min(m => m.ToCoordinate.Longitude));
+                    maxLon = Math.Max(maxLon, this.TrackingEventMarkers.Max(m => m.ToCoordinate.Longitude));
                     anyMarkers = true;
                 }
 
                 if (anyMarkers)
                 {
                     // Add a bit of a margin around the view to zoom into
-                    minLat = Math.Max(-90.0, minLat - 0.5);
-                    maxLat = Math.Min(90.0, maxLat + 0.5);
-                    minLon = Math.Max(-180.0, minLon - 2);
-                    maxLon = Math.Min(180, maxLon + 2);
+                    minLat = Math.Max(-90.0, minLat - this.LatitudeMargin);
+                    maxLat = Math.Min(90.0, maxLat + this.LatitudeMargin);
+                    minLon = Math.Max(-180.0, minLon - this.LongitudeMargin);
+                    maxLon = Math.Min(180, maxLon + this.LongitudeMargin);
 
                     UpdateGUIDelegate moveMap = () =>
                     {
@@ -420,10 +473,7 @@ namespace OpenSky.Client.Controls
                 }
                 else
                 {
-                    UpdateGUIDelegate resetMap = () =>
-                    {
-                        this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
-                    };
+                    UpdateGUIDelegate resetMap = () => { this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60))); };
                     this.Dispatcher.BeginInvoke(resetMap);
                     this.userMapInteraction = false;
                 }
@@ -516,10 +566,7 @@ namespace OpenSky.Client.Controls
                         {
                             var animation = new MapPathAnimation(
                                 item.Locations,
-                                (location, _, _) =>
-                                {
-                                    MapLayer.SetPosition(boxImage, location);
-                                },
+                                (location, _, _) => { MapLayer.SetPosition(boxImage, location); },
                                 false,
                                 2000,
                                 true);
@@ -789,6 +836,35 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Simulator combo selection was changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 09/02/2022.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Selection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void SimulatorChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.DataContext is MapViewViewModel viewModel)
+            {
+                viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the zoom level visibility filters are enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ZoomLevelVisibilityFiltersEnabled { get; set; } = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Tracking event markers collection changed.
         /// </summary>
         /// <remarks>
@@ -822,32 +898,35 @@ namespace OpenSky.Client.Controls
                     this.WpfMapView.Children.Add(item);
                     if (item.IsAirportMarker)
                     {
-                        if (item.IsAirportDetailMarker)
+                        if (this.ZoomLevelVisibilityFiltersEnabled)
                         {
-                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = 12.0 };
-                            BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
-                        }
-                        else
-                        {
-                            var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = -12.0 };
-                            BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
-
-                            if (item.HasDynamicFontSize)
+                            if (item.IsAirportDetailMarker)
                             {
-                                var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter, ConverterParameter = item.AirportSize >= 5 ? 4 : 2 };
-                                BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelFontSizeProperty, fontSizeBinding);
+                                var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = 12.0 };
+                                BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
+                            }
+                            else
+                            {
+                                var zoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = -12.0 };
+                                BindingOperations.SetBinding(item, VisibilityProperty, zoomLevelBinding);
 
-                                var zoomLevelParameter = item.AirportSize switch
+                                if (item.HasDynamicFontSize)
                                 {
-                                    6 => 0.1,
-                                    5 => 4.0,
-                                    4 => 7.0,
-                                    3 => 8.0,
-                                    _ => 10.0
-                                };
+                                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter, ConverterParameter = item.AirportSize >= 5 ? 4 : 2 };
+                                    BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelFontSizeProperty, fontSizeBinding);
 
-                                var textLabelZoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = zoomLevelParameter };
-                                BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelVisibleProperty, textLabelZoomLevelBinding);
+                                    var zoomLevelParameter = item.AirportSize switch
+                                    {
+                                        6 => 0.1,
+                                        5 => 4.0,
+                                        4 => 7.0,
+                                        3 => 8.0,
+                                        _ => 10.0
+                                    };
+
+                                    var textLabelZoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = zoomLevelParameter };
+                                    BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelVisibleProperty, textLabelZoomLevelBinding);
+                                }
                             }
                         }
 
@@ -951,28 +1030,6 @@ namespace OpenSky.Client.Controls
                 {
                     viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
                 }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Simulator combo selection was changed.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 09/02/2022.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Selection changed event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void SimulatorChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (this.DataContext is MapViewViewModel viewModel)
-            {
-                viewModel.UpdateAirports(this.WpfMapView.ZoomLevel, this.WpfMapView.BoundingRectangle);
             }
         }
     }

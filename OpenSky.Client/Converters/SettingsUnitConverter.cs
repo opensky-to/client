@@ -122,6 +122,20 @@ namespace OpenSky.Client.Converters
                                 _ => throw new Exception("Unsupported distance unit")
                             };
                             break;
+                        case "shortdistance":
+                            unitValue = (ShortDistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                            {
+                                ShortDistanceUnit.feet => unitValue,
+                                ShortDistanceUnit.meters => unitValue * 0.3048,
+                                _ => throw new Exception("Unsupported short distance unit")
+                            };
+                            unitName = (ShortDistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                            {
+                                ShortDistanceUnit.feet => " ft",
+                                ShortDistanceUnit.meters => " m",
+                                _ => throw new Exception("Unsupported short distance unit")
+                            };
+                            break;
                         default:
                             return "Unsupported unit";
                     }
@@ -235,6 +249,23 @@ namespace OpenSky.Client.Converters
                                     DistanceUnit.nm => unitValue,
                                     DistanceUnit.km => unitValue * 0.539957,
                                     _ => throw new Exception("Unsupported distance unit")
+                                };
+                                break;
+                            case "shortdistance":
+                                unitName = (ShortDistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                                {
+                                    ShortDistanceUnit.feet => "ft",
+                                    ShortDistanceUnit.meters => "m",
+                                    _ => throw new Exception("Unsupported short distance unit")
+                                };
+                                valueString = valueString.Replace(unitName, string.Empty).Trim();
+                                unitValue = double.Parse(valueString);
+
+                                unitValue = (ShortDistanceUnit)Properties.Settings.Default.DistanceUnit switch
+                                {
+                                    ShortDistanceUnit.feet => unitValue,
+                                    ShortDistanceUnit.meters => unitValue * 3.281,
+                                    _ => throw new Exception("Unsupported short distance unit")
                                 };
                                 break;
                             default:

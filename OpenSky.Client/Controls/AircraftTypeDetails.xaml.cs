@@ -6,6 +6,7 @@
 
 namespace OpenSky.Client.Controls
 {
+    using System;
     using System.ComponentModel;
     using System.Windows;
 
@@ -75,11 +76,20 @@ namespace OpenSky.Client.Controls
 
             if (e.Property == AircraftTypeProperty && this.DataContext is AircraftTypeDetailsViewModel viewModel)
             {
-                viewModel.Type = e.NewValue as AircraftType;
-                this.GroupBoxHeader.InvalidateMeasure();
-                this.EngineInfo.InvalidateMeasure();
-                this.RunwayInfo.InvalidateMeasure();
-                this.ImageTags.InvalidateMeasure();
+                if (e.NewValue is AircraftType type && type.Id != Guid.Empty)
+                {
+                    viewModel.Type = type;
+                    this.GroupBoxHeader.InvalidateMeasure();
+                    this.EngineInfo.InvalidateMeasure();
+                    this.ImageTags.InvalidateMeasure();
+                }
+                else
+                {
+                    viewModel.Type = null;
+                    this.GroupBoxHeader.InvalidateMeasure();
+                    this.EngineInfo.InvalidateMeasure();
+                    this.ImageTags.InvalidateMeasure();
+                }
             }
         }
 

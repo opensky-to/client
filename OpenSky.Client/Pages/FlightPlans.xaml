@@ -75,6 +75,35 @@
                     <DataGrid.InputBindings>
                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditPlanCommand}" />
                     </DataGrid.InputBindings>
+                    <DataGrid.RowStyle>
+                        <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
+                            <Style.Setters>
+                                <Setter Property="ToolTipService.InitialShowDelay" Value="500" />
+                                <Setter Property="ToolTipService.ShowDuration" Value="15000" />
+                                <Setter Property="ToolTip">
+                                    <Setter.Value>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0" Tag="{Binding OriginICAO}">
+                                                <controls:AirportDetails Width="370" AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                            <Grid Grid.Column="1" Tag="{Binding Aircraft.Type}">
+                                                <controls:AircraftTypeDetails Width="650" AircraftType="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                            <Grid Grid.Column="2" Tag="{Binding DestinationICAO}">
+                                                <controls:AirportDetails Width="370" AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                        </Grid>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style.Setters>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Planned departure" Binding="{Binding PlannedDepartureTime.UtcDateTime, StringFormat=dd/MM/yyyy HH:mmZ}" SortDirection="Descending" />
                         <DataGridTextColumn Header="Flight#" Binding="{Binding FullFlightNumber}" />

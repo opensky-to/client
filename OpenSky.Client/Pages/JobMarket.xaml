@@ -66,11 +66,13 @@
                     <ui:CommandBar.Content>
                         <StackPanel Orientation="Horizontal">
                             <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" CharacterCasing="Upper" MinWidth="80" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Command="{Binding SearchJobsCommand}" />
-                                </TextBox.InputBindings>
-                            </TextBox>
+                            <ui:AutoSuggestBox FontFamily="Consolas" FontSize="13" MaxHeight="28" MinHeight="28" Width="90" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ToolTipService.ShowDuration="15000">
+                                <ui:AutoSuggestBox.ToolTip>
+                                    <Grid Tag="{Binding AirportICAO}">
+                                        <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
+                                    </Grid>
+                                </ui:AutoSuggestBox.ToolTip>
+                            </ui:AutoSuggestBox>
                             <Grid>
                                 <ComboBox x:Name="CategoryCombo" VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding TypeCategories}" SelectedItem="{Binding AircraftTypeCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All categories" ui:ControlHelper.PlaceholderForeground="#666" />
                                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=CategoryCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearCategoryCommand}" />
@@ -129,6 +131,28 @@
                             </DataGrid>
                         </DataTemplate>
                     </DataGrid.RowDetailsTemplate>
+                    <DataGrid.RowStyle>
+                        <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
+                            <Style.Setters>
+                                <Setter Property="ToolTipService.InitialShowDelay" Value="500" />
+                                <Setter Property="ToolTipService.ShowDuration" Value="15000" />
+                                <Setter Property="ToolTip">
+                                    <Setter.Value>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="1" Tag="{Binding Destinations}">
+                                                <controls:AirportDetails Width="370" AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" />
+                                            </Grid>
+                                        </Grid>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style.Setters>
+                        </Style>
+                    </DataGrid.RowStyle>
                 </DataGrid>
             </Grid>
         </GroupBox>
