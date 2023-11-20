@@ -77,6 +77,11 @@
                 <ui:AppBarButton Label="Start flight" ToolTip="Start flying this flight plan" Command="{Binding StartFlightCommand}">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon Glyph="&#xE709;" />
+     </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton Label="Open Tracking Agent" ToolTip="Open the OpenSky Tracking Agent" Command="{}">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon Glyph="&#xE709;" />
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarButton Icon="Delete" Label="Discard" ToolTip="Discard the flight plan" Visibility="{Binding DiscardVisibility}" Command="{Binding DiscardCommand}" />
