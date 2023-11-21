@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MapView.xaml.cs" company="OpenSky">
-// OpenSky project 2021-2022
+// OpenSky project 2021-2023
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -466,7 +466,10 @@ namespace OpenSky.Client.Controls
 
                     UpdateGUIDelegate moveMap = () =>
                     {
-                        this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
+                        if (this.WpfMapView.IsLoaded)
+                        {
+                            this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
+                        }
                     };
                     this.Dispatcher.BeginInvoke(moveMap);
                     this.userMapInteraction = false;

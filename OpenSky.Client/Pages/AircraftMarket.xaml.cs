@@ -1,11 +1,12 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AircraftMarket.xaml.cs" company="OpenSky">
-// OpenSky project 2021-2022
+// OpenSky project 2021-2023
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Pages
 {
+    using System;
     using System.Windows;
 
     using ModernWpf.Controls;
@@ -111,7 +112,13 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AutoSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            sender.Text = args.SelectedItem.ToString();
+            var selection = args.SelectedItem.ToString();
+            if (selection.Contains(" [v"))
+            {
+                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+            }
+
+            sender.Text = selection;
             sender.IsSuggestionListOpen = false;
         }
 

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SettingsViewModel.cs" company="OpenSky">
-// OpenSky project 2021-2022
+// OpenSky project 2021-2023
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -125,6 +125,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True to automatically launch agent when starting a flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool autoLaunchAgent;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="SettingsViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -193,6 +200,7 @@ namespace OpenSky.Client.Pages.Models
             this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
+            this.AutoLaunchAgent = Properties.Settings.Default.AutoLaunchAgent;
             if (Properties.Settings.Default.DefaultSimulator != -1)
             {
                 this.Simulator = (Simulator)Properties.Settings.Default.DefaultSimulator;
@@ -250,6 +258,28 @@ namespace OpenSky.Client.Pages.Models
 
                 this.airportPackageFileInfo = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether to automatically launch the agent.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool AutoLaunchAgent
+        {
+            get => this.autoLaunchAgent;
+
+            set
+            {
+                if (Equals(this.autoLaunchAgent, value))
+                {
+                    return;
+                }
+
+                this.autoLaunchAgent = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -839,6 +869,7 @@ namespace OpenSky.Client.Pages.Models
                 Properties.Settings.Default.ShortDistanceUnit = (int)this.ShortDistanceUnit;
                 Properties.Settings.Default.DefaultUTCOffset = this.UtcOffset;
                 Properties.Settings.Default.DefaultSimulator = this.Simulator.HasValue ? (int)this.Simulator.Value : -1;
+                Properties.Settings.Default.AutoLaunchAgent = this.AutoLaunchAgent;
 
                 Properties.Settings.Default.Save();
 

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MyFlightsViewModel.cs" company="OpenSky">
-// OpenSky project 2021-2022
+// OpenSky project 2021-2023
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -286,6 +286,8 @@ namespace OpenSky.Client.Pages.Models
                 if (!result.IsError)
                 {
                     this.ResumeFlightCommand.ReportProgress(() => this.RefreshFlightsCommand.DoExecute(null));
+
+                    AgentAutoLauncher.AutoLaunchAgent();
                 }
                 else
                 {
