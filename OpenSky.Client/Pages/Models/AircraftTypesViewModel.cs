@@ -1043,7 +1043,7 @@ namespace OpenSky.Client.Pages.Models
                         () =>
                         {
                             this.ExistingAircraftTypes.Clear();
-                            foreach (var type in result.Data)
+                            foreach (var type in result.Data.OrderBy(t => t.Name).ThenBy(t => t.VersionNumber))
                             {
                                 this.ExistingAircraftTypes.Add(type);
                             }
