@@ -265,13 +265,13 @@ namespace OpenSky.Client
             crashReport += "\r\n\r\n";
 
             Debug.WriteLine(crashReport);
-            var filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\OpenSky.Client.Crash.txt";
+            var filePath = Environment.ExpandEnvironmentVariables("%localappdata%\\OpenSky\\client_crash.log");
 
             try
             {
                 File.AppendAllText(filePath, crashReport);
                 ModernWpf.MessageBox.Show(
-                    e.Exception.Message + "\r\n\r\nPlease check OpenSky.Client.Crash.txt for details!",
+                    e.Exception.Message + "\r\n\r\nPlease check client_crash.log for details!",
                     "Unexpected error!",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

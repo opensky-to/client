@@ -466,7 +466,10 @@ namespace OpenSky.Client.Controls
 
                     UpdateGUIDelegate moveMap = () =>
                     {
-                        this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
+                        if (this.WpfMapView.IsLoaded)
+                        {
+                            this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
+                        }
                     };
                     this.Dispatcher.BeginInvoke(moveMap);
                     this.userMapInteraction = false;

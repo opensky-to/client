@@ -1090,6 +1090,8 @@ namespace OpenSky.Client.Pages.Models
                                 Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                                 this.ClosePage?.Invoke(this, null);
                             });
+
+                        AgentAutoLauncher.AutoLaunchAgent();
                     }
 
                     if (result.Data == StartFlightStatus.AircraftNotAtOrigin)

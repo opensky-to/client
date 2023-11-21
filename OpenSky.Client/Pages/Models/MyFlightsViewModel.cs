@@ -286,6 +286,8 @@ namespace OpenSky.Client.Pages.Models
                 if (!result.IsError)
                 {
                     this.ResumeFlightCommand.ReportProgress(() => this.RefreshFlightsCommand.DoExecute(null));
+
+                    AgentAutoLauncher.AutoLaunchAgent();
                 }
                 else
                 {

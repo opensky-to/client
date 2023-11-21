@@ -412,6 +412,7 @@ namespace OpenSky.Client.Views.Models
             };
 
             this.DockItems.Add(dockItem);
+            this.ActiveDocument = dockItem;
         }
 
         /// -------------------------------------------------------------------------------------------------

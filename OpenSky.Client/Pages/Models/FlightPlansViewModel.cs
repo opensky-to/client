@@ -367,6 +367,8 @@ namespace OpenSky.Client.Pages.Models
                                 Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                                 this.RefreshPlansCommand.DoExecute(null);
                             });
+
+                        AgentAutoLauncher.AutoLaunchAgent();
                     }
 
                     if (result.Data == StartFlightStatus.AircraftNotAtOrigin)

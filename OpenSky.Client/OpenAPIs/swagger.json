@@ -3964,6 +3964,11 @@
         ],
         "type": "object",
         "properties": {
+          "airframeHours": {
+            "type": "number",
+            "description": "Gets or sets the airframe hours.",
+            "format": "double"
+          },
           "airlineOwnerID": {
             "maxLength": 3,
             "minLength": 0,
@@ -3981,6 +3986,26 @@
             "type": "boolean",
             "description": "Can the aircraft currently start a new flight?",
             "readOnly": true
+          },
+          "engine1Hours": {
+            "type": "number",
+            "description": "Gets or sets the engine 1 hours.",
+            "format": "double"
+          },
+          "engine2Hours": {
+            "type": "number",
+            "description": "Gets or sets the engine 2 hours.",
+            "format": "double"
+          },
+          "engine3Hours": {
+            "type": "number",
+            "description": "Gets or sets the engine 3 hours.",
+            "format": "double"
+          },
+          "engine4Hours": {
+            "type": "number",
+            "description": "Gets or sets the engine 4 hours.",
+            "format": "double"
           },
           "fuel": {
             "type": "number",
@@ -5091,10 +5116,12 @@
             "format": "date-time"
           },
           "package": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the package contents (g-zipped, base64 encoded)."
           },
           "packageHash": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the package hash (SHA-256, base64 encoded)"
           }
@@ -5172,6 +5199,7 @@
         "type": "object",
         "properties": {
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the name of the application."
           }
@@ -5261,10 +5289,12 @@
         "type": "object",
         "properties": {
           "newPassword": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the password."
           },
           "password": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the password."
           },
@@ -6422,6 +6452,7 @@
             "nullable": true
           },
           "description": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the description of the record."
           },
@@ -7029,6 +7060,7 @@
             "format": "uuid"
           },
           "ident": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the ident of the fix."
           },
@@ -7043,6 +7075,7 @@
             "format": "double"
           },
           "type": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the type of the fix."
           }
@@ -7285,6 +7318,7 @@
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the email.",
             "format": "email"
@@ -7590,6 +7624,7 @@
         "type": "object",
         "properties": {
           "password": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the password."
           },
@@ -7603,6 +7638,7 @@
             "description": "Gets or sets a value indicating whether to remember the user login (extends JWT token expiry)."
           },
           "username": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the username."
           }
@@ -8009,6 +8045,7 @@
             "description": "Gets or sets a value indicating whether to purchase the aircraft for the airline or the user."
           },
           "registry": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the registry."
           },
@@ -8145,11 +8182,13 @@
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the email.",
             "format": "email"
           },
           "password": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the password."
           },
@@ -8175,6 +8214,7 @@
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the email.",
             "format": "email"
@@ -8197,11 +8237,13 @@
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the email.",
             "format": "email"
           },
           "password": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the password."
           },
@@ -8215,6 +8257,7 @@
             "description": "Gets or sets a value indicating whether to reset all OpenSky api tokens."
           },
           "token": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the token."
           }
@@ -8229,6 +8272,7 @@
         "type": "object",
         "properties": {
           "token": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the OpenSky refresh token ID to invalidate."
           }
@@ -8642,6 +8686,7 @@
             "nullable": true
           },
           "registry": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the registry of the aircraft to update."
           },
@@ -8725,6 +8770,7 @@
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the email.",
             "format": "email"
@@ -8735,6 +8781,7 @@
             "nullable": true
           },
           "token": {
+            "minLength": 1,
             "type": "string",
             "description": "Gets or sets the token."
           }
