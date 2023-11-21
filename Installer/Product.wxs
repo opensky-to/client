@@ -46,6 +46,13 @@
                     <Shortcut Id="OpenSky.Client.Shortcut" Directory="ApplicationProgramsFolder" WorkingDirectory="INSTALLFOLDER" Name="OpenSky" Icon="opensky.ico" Advertise="yes" />
                     <Shortcut Id="OpenSky.Client.DeskShortcut" Directory="DesktopFolder" WorkingDirectory="INSTALLFOLDER" Name="OpenSky" Icon="opensky.ico" Advertise="yes" />
                 </File>
+	            <RegistryKey Root="HKCR" Key="opensky-client">
+		            <RegistryValue Type="string" Value="URL:opensky-client" />
+		            <RegistryValue Type="string" Name="URL Protocol" Value="" />
+		            <RegistryKey Key="shell\open\command">
+			            <RegistryValue Type="string" Value="&quot;[#OpenSkyClientExeFile]&quot; &quot;%1&quot;" />
+		            </RegistryKey>
+	            </RegistryKey>
                 <RemoveFolder Id="RemoveProgramMenuDir" Directory="ApplicationProgramsFolder" On="uninstall" />
             </Component>
             <Component Guid="{B4D24750-9BCC-415C-BA12-D0BD5D88E989}" Win64="yes">
@@ -53,15 +60,6 @@
             </Component>
             <Component Guid="{B34B224B-1270-4846-A8F9-AAC6719B8D8A}" Win64="yes">
                 <File Source="..\changelog.txt" KeyPath="yes" />
-            </Component>
-            <Component Id="RegistryEntries" Guid="{BA1582B4-6376-4354-BF12-614A7715CCAC}" Win64="yes">
-                <RegistryKey Root="HKCR" Key="opensky-client" Action="createAndRemoveOnUninstall">
-                    <RegistryValue Type="string" Value="URL:opensky-client" />
-                    <RegistryValue Type="string" Name="URL Protocol" Value="" />
-                    <RegistryKey Key="shell\open\command">
-                        <RegistryValue Type="string" Value="&quot;[#OpenSkyClientExeFile]&quot; &quot;%1&quot;" />
-                    </RegistryKey>
-                </RegistryKey>
             </Component>
         </ComponentGroup>
         <ComponentGroup Id="OpenSky.Fonts" Directory="FontsFolder">
