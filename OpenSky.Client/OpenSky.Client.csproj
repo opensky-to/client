@@ -188,6 +188,7 @@
     <Compile Include="OpenAPIs\ModelExtensions\Job.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Payload.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\RunwaySurface.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\User.cs" />
     <Compile Include="Pages\AircraftTypes.xaml.cs">
       <DependentUpon>AircraftTypes.xaml</DependentUpon>
     </Compile>
@@ -207,6 +208,7 @@
     <Compile Include="Pages\Models\JobMarketViewModel.cs" />
     <Compile Include="Pages\Models\MyJobsViewModel.cs" />
     <Compile Include="Pages\Models\NewAircraftViewModel.cs" />
+    <Compile Include="Pages\Models\UserManagerViewModel.cs" />
     <Compile Include="Pages\Models\WelcomeViewModel.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
     <Compile Include="Pages\MyJobs.xaml.cs">
@@ -214,6 +216,9 @@
     </Compile>
     <Compile Include="Pages\NewAircraft.xaml.cs">
       <DependentUpon>NewAircraft.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\UserManager.xaml.cs">
+      <DependentUpon>UserManager.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\WorldMap.xaml.cs">
       <DependentUpon>WorldMap.xaml</DependentUpon>
@@ -428,6 +433,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\UserManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\Welcome.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -561,6 +570,9 @@
     </PackageReference>
     <PackageReference Include="DataGridExtensions">
       <Version>2.5.13</Version>
+    </PackageReference>
+    <PackageReference Include="FamFamFam.Flags.Wpf">
+      <Version>1.2.1</Version>
     </PackageReference>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf">
       <Version>1.1.0</Version>
@@ -719,6 +731,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\aircraftTypePlaceholder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\userid16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

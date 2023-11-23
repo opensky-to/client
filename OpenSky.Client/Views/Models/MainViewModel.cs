@@ -536,22 +536,31 @@ namespace OpenSky.Client.Views.Models
                 aircraftMarket.Children.Add(newAircraft);
 
                 var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
-                this.NavigationItems.Add(tools);
-                var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
-                tools.Children.Add(aircraftTypes);
+                var toolsAdded = false;
+                if (UserSessionService.Instance.IsModerator)
+                {
+                    this.NavigationItems.Add(tools);
+                    toolsAdded = true;
+
+                    var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
+                    tools.Children.Add(aircraftTypes);
+                }
 
                 if (UserSessionService.Instance.IsAdmin)
                 {
+                    if (!toolsAdded)
+                    {
+                        this.NavigationItems.Add(tools);
+                    }
+
                     var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
                     tools.Children.Add(dataImport);
 
                     var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics) };
                     tools.Children.Add(worldPopulation);
-                }
 
-                if (UserSessionService.Instance.IsModerator)
-                {
-                    // todo add moderator only navigation items, once we have some :)
+                    var userManager = new NavMenuItem { Name = "User manager", Icon = "/Resources/userid16.png", PageType = typeof(UserManager) };
+                    tools.Children.Add(userManager);
                 }
             }
 

@@ -119,6 +119,134 @@
         }
       }
     },
+    "/Account/profileImage/{userId}": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get profile image for the specified user ID.",
+        "description": "sushi.at, 23/11/2023.",
+        "operationId": "GetProfileImage",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the OpenSky user.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteArrayApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Account/users": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get the list of all OpenSky users.",
+        "description": "sushi.at, 22/11/2023.",
+        "operationId": "GetUsers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Account/moderatorRole": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Adds or removes the moderator role from the specified user.",
+        "description": "sushi.at, 21/11/2023.",
+        "operationId": "SetModeratorRole",
+        "requestBody": {
+          "description": "The moderator role model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeratorRole"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeratorRole"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeratorRole"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Account/tokenRenewalCountryVerification/{enableVerification}": {
       "put": {
         "tags": [
@@ -7707,6 +7835,25 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "ModeratorRole": {
+        "required": [
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "isModerator": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this user should be a moderator."
+          },
+          "username": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Gets or sets the username."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Moderator role model."
+      },
       "NewAircraftDeliveryOption": {
         "enum": [
           0,
@@ -8705,6 +8852,66 @@
         "additionalProperties": false,
         "description": "Update aircraft model."
       },
+      "User": {
+        "type": "object",
+        "properties": {
+          "accessFailedCount": {
+            "type": "integer",
+            "description": "Gets or sets the number of failed access attempts.",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string",
+            "description": "Gets or sets the email.",
+            "nullable": true
+          },
+          "emailConfirmed": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the user confirmed the email address."
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the user identifier.",
+            "format": "uuid"
+          },
+          "lastLogin": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the last login.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastLoginGeo": {
+            "type": "string",
+            "description": "Gets or sets the last login geo location if available.",
+            "nullable": true
+          },
+          "lastLoginIP": {
+            "type": "string",
+            "description": "Gets or sets the last login IP.",
+            "nullable": true
+          },
+          "registeredOn": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time the user registered on.",
+            "format": "date-time"
+          },
+          "username": {
+            "type": "string",
+            "description": "Gets or sets the username.",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the roles of the user.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "OpenSky user model."
+      },
       "UserAirline": {
         "type": "object",
         "properties": {
@@ -8738,6 +8945,40 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/UserAirline"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "UserIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
           },
           "errorDetails": {
             "type": "string",
