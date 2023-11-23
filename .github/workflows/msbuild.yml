@@ -1,6 +1,6 @@
 name: .net4.8
 
-on: [push]
+on: [push, pull_request]
 
 env:
   SOLUTION_FILE_PATH: .
