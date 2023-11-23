@@ -269,9 +269,15 @@ namespace OpenSky.Client
 
             try
             {
+                var openSkyFolder = Environment.ExpandEnvironmentVariables("%localappdata%\\OpenSky");
+                if (!Directory.Exists(openSkyFolder))
+                {
+                    Directory.CreateDirectory(openSkyFolder);
+                }
+
                 File.AppendAllText(filePath, crashReport);
                 ModernWpf.MessageBox.Show(
-                    e.Exception.Message + "\r\n\r\nPlease check client_crash.log for details!",
+                    $"{e.Exception.Message}\r\n\r\nPlease check {filePath} for details!",
                     "Unexpected error!",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
