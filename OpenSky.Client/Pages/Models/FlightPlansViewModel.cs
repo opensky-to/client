@@ -422,8 +422,8 @@ namespace OpenSky.Client.Pages.Models
                             {
                                 var messageBox = new OpenSkyMessageBox(
                                     "No AV gas",
-                                    "The origin airport does not sell AV gas, do you want to start the flight with the fuel already on board the aircraft?"
-                                    + "\r\n\r\nWARNING: You may not enough fuel to reach your destination!",
+                                    "The origin airport does not sell AV gas, do you want to truck the fuel in from outside the airport?"
+                                    + "\r\n\r\nWARNING: You will be charged at greatly increased rates and it will take 30 minutes for the truck to arrive!",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
                                 messageBox.Closed += (_, _) => { answer = messageBox.Result; };
@@ -455,8 +455,8 @@ namespace OpenSky.Client.Pages.Models
                             {
                                 var messageBox = new OpenSkyMessageBox(
                                     "No jet fuel",
-                                    "The origin airport does not sell jet fuel, do you want to start the flight with the fuel already on board the aircraft?"
-                                    + "\r\n\r\nWARNING: You may not enough fuel to reach your destination!",
+                                    "The origin airport does not sell jet fuel, do you want to truck the fuel in from outside the airport?"
+                                    + "\r\n\r\nWARNING: You will be charged at greatly increased rates and it will take 30 minutes for the truck to arrive!",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
                                 messageBox.Closed += (_, _) => { answer = messageBox.Result; };

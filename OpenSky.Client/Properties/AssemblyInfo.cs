@@ -16,13 +16,13 @@ using System.Windows.Markup;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OpenSky")]
 [assembly: AssemblyProduct("OpenSky")]
-[assembly: AssemblyCopyright("OpenSky project 2023")]
+[assembly: AssemblyCopyright("OpenSky project 2021-2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
-[assembly: AssemblyVersion("0.5.1")]
-[assembly: AssemblyFileVersion("0.5.1")]
+[assembly: AssemblyVersion("0.5.2")]
+[assembly: AssemblyFileVersion("0.5.2")]
 
 // This allows us to detect debug mode in XAML
 #if DEBUG
