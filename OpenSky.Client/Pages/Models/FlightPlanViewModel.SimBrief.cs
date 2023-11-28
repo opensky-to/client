@@ -203,37 +203,38 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            var url = "https://www.simbrief.com/system/dispatch.php?";
+            var url = "https://dispatch.simbrief.com/options/custom?";
             if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Iata))
+          ////new entry////
             {
-                url += $"airline={this.Airline.Iata}&";
-            }
-
-            if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Icao))
+                url += $"fltnum={this.FlightNumber}&;
+            
             {
-                url += $"airline={this.Airline.Icao}&";
-            }
+                url += $"airline={this.Airline.Icao}&;
 
-            url += $"fltnum={this.FlightNumber}&";
+            {   
+                url += $"type={this.Aircraft.Icao////OR ATC TYPE}&; <<<review>>>
 
-            if (!string.IsNullOrEmpty(this.OriginICAO))
+            {
+                url += $"reg={this.SelectedAircraft.Registry.RemoveSimPrefix()}&";
+
             {
                 url += $"orig={this.OriginICAO}&";
-            }
 
-            if (!string.IsNullOrEmpty(this.DestinationICAO))
             {
                 url += $"dest={this.DestinationICAO}&";
+
+            {
+                url += $"altn={AUTO}&";
+
+            {
+                url += $"pax={placeholdercountforpax}&";
+
+            {
+                url += $"cargo={placeholdercountforcargo}&";
             }
 
-            if (!string.IsNullOrEmpty(this.Route))
-            {
-                url += $"route={WebUtility.UrlEncode(this.Route)}&";
-            }
-
-            if (!string.IsNullOrEmpty(this.AlternateICAO))
-            {
-                url += $"altn={this.AlternateICAO}&";
+         //review above changes. this should allow auto import of all aspects for simbrief, missing a identification of the aircraft ICAO maybe use the ATC Type, message below to set payload and pax can be removed if this is implemented//       
 
                 // todo revisit alternate simBrief upload, seems to ignore all the advanced stuff and only accepts the primary
                 url += "altn_count=1&";
