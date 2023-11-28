@@ -822,6 +822,17 @@
         "summary": "Adds a new aircraft type.",
         "description": "sushi.at, 02/06/2021.",
         "operationId": "AddAircraftType",
+        "parameters": [
+          {
+            "name": "upgradeForType",
+            "in": "query",
+            "description": "The ID of the aircraft type this one is an update for (auto adjusts next version and variants).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "description": "The new aircraft type to add.",
           "content": {
@@ -848,17 +859,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/GuidApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/GuidApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringApiResponse"
+                  "$ref": "#/components/schemas/GuidApiResponse"
                 }
               }
             }
@@ -3434,6 +3445,60 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Flight/lastMinuteFuel/{flightID}/{gallons}": {
+      "post": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Purchase last minute fuel before departure at increased prices.",
+        "description": "sushi.at, 28/11/2023.",
+        "operationId": "PurchaseLastMinuteFuel",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "gallons",
+            "in": "path",
+            "description": "The gallons to purchase.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoubleApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoubleApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoubleApiResponse"
                 }
               }
             }
@@ -6384,6 +6449,37 @@
         "additionalProperties": false,
         "description": "API standard response model."
       },
+      "DoubleApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "number",
+            "description": "Gets or sets the embedded data of type T.",
+            "format": "double"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
       "EngineType": {
         "enum": [
           0,
@@ -7514,6 +7610,37 @@
         },
         "additionalProperties": false,
         "description": "Ground operations model."
+      },
+      "GuidApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Gets or sets the embedded data of type T.",
+            "format": "uuid"
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "GuidNullableApiResponse": {
         "type": "object",
