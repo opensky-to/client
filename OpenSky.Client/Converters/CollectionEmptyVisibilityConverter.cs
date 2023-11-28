@@ -52,6 +52,11 @@ namespace OpenSky.Client.Converters
         {
             if (value is ICollection collection)
             {
+                if (parameter is "invert")
+                {
+                    return collection.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+                }
+
                 return collection.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
 
