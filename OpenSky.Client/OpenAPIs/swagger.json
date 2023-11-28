@@ -616,6 +616,58 @@
         }
       }
     },
+    "/Aircraft/reregister": {
+      "put": {
+        "tags": [
+          "Aircraft"
+        ],
+        "summary": "Re-register aircraft.",
+        "description": "sushi.at, 28/11/2023.",
+        "operationId": "ReRegisterAircraft",
+        "requestBody": {
+          "description": "The re-register data.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReRegisterAircraft"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReRegisterAircraft"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReRegisterAircraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Aircraft/searchAroundAirport": {
       "post": {
         "tags": [
@@ -4960,6 +5012,7 @@
           13,
           14,
           15,
+          16,
           20,
           21,
           22,
@@ -4980,7 +5033,7 @@
           92
         ],
         "type": "integer",
-        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 50 = FinancialRecords, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
+        "description": "Airline roles. 10 = BuyAircraft, 11 = SellAircraft, 12 = RentAircraft, 13 = RentOutAircraft, 14 = AssignAircraft, 15 = RenameAircraft, 16 = ReRegisterAircraft, 20 = BuyFBO, 21 = SellFBO, 22 = RentFBO, 23 = RentOutFBO, 24 = RenameFBO, 25 = OrderFuel, 30 = AcceptJobs, 31 = Dispatch, 32 = OutsourceJobs, 33 = AbortJobs, 40 = ModifyAircraft, 41 = MaintainAircraft, 42 = ReplaceAircraftParts, 43 = PerformGroundOperations, 50 = FinancialRecords, 90 = ChangePermissions, 91 = BoardMember, 92 = AllPermissions",
         "format": "int32",
         "x-enumNames": [
           "BuyAircraft",
@@ -4989,6 +5042,7 @@
           "RentOutAircraft",
           "AssignAircraft",
           "RenameAircraft",
+          "ReRegisterAircraft",
           "BuyFBO",
           "SellFBO",
           "RentFBO",
@@ -5015,6 +5069,7 @@
           "RentOutAircraft",
           "AssignAircraft",
           "RenameAircraft",
+          "ReRegisterAircraft",
           "BuyFBO",
           "SellFBO",
           "RentFBO",
@@ -7588,6 +7643,10 @@
       "GroundOperations": {
         "type": "object",
         "properties": {
+          "allowFuelTrucking": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether we allow fuel trucking."
+          },
           "fuel": {
             "type": "number",
             "description": "Gets or sets the target fuel in gallons.",
@@ -8373,6 +8432,26 @@
         },
         "additionalProperties": false,
         "description": "Purchase new aircraft model."
+      },
+      "ReRegisterAircraft": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Gets or sets the old registry.",
+            "nullable": true
+          },
+          "inCountry": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "to": {
+            "type": "string",
+            "description": "Gets or sets the new registry.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Re-register aircraft model."
       },
       "RefreshToken": {
         "type": "object",

@@ -45,6 +45,20 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The airport doesn't sell fuel visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility airportDoesntSellFuelVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True to allow fuel trucking.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool allowFuelTrucking;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The edit aircraft variants visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -247,10 +261,52 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the airport doesn't sell fuel visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility AirportDoesntSellFuelVisibility
+        {
+            get => this.airportDoesntSellFuelVisibility;
+
+            set
+            {
+                if (Equals(this.airportDoesntSellFuelVisibility, value))
+                {
+                    return;
+                }
+
+                this.airportDoesntSellFuelVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the airport payloads.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<PlannablePayload> AirportPayloads { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether we allow fuel trucking.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool AllowFuelTrucking
+        {
+            get => this.allowFuelTrucking;
+
+            set
+            {
+                if (Equals(this.allowFuelTrucking, value))
+                {
+                    return;
+                }
+
+                this.allowFuelTrucking = value;
+                this.NotifyPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -760,6 +816,8 @@ namespace OpenSky.Client.Pages.Models
             this.GroundOperationsMaxFuelWeight = 0;
             this.GroundOperationsAircraft = null;
             this.GroundOperationsAirport = null;
+            this.AirportDoesntSellFuelVisibility = Visibility.Collapsed;
+            this.AllowFuelTrucking = false;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -1293,6 +1351,13 @@ namespace OpenSky.Client.Pages.Models
                     this.AircraftPayloads.Clear();
                     this.AircraftPayloads.AddRange(this.SelectedAircraft.Payloads);
                     this.GetPlannablePayloadsCommand.DoExecute(null);
+
+                    this.AllowFuelTrucking = false;
+                    this.AirportDoesntSellFuelVisibility = Visibility.Collapsed;
+                    if ((this.SelectedAircraft.Type.FuelType == FuelType.AvGas && this.GroundOperationsAirport?.HasAvGas != true) || (this.SelectedAircraft.Type.FuelType == FuelType.JetFuel && this.GroundOperationsAirport?.HasJetFuel != true))
+                    {
+                        this.AirportDoesntSellFuelVisibility = Visibility.Visible;
+                    }
                 });
         }
 
@@ -1313,6 +1378,7 @@ namespace OpenSky.Client.Pages.Models
 
             this.GroundOperations.Payloads = this.Payloads.ToList();
             this.GroundOperations.Fuel = this.GroundOperations.SelectedFuel;
+            this.GroundOperations.AllowFuelTrucking = this.AllowFuelTrucking;
 
             this.LoadingText = "Starting ground operations...";
             try
