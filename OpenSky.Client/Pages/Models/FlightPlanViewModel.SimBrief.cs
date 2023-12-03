@@ -249,6 +249,11 @@ namespace OpenSky.Client.Pages.Models
             url += $"deph={this.DepartureHour:00}&";
             url += $"depm={this.DepartureMinute:00}&";
 
+            if (!string.IsNullOrEmpty(this.AtcCallsign))
+            {
+                url += $"callsign={WebUtility.UrlEncode(this.AtcCallsign)}&";
+            }
+
             if (this.SelectedAircraft != null)
             {
                 url += $"reg={this.SelectedAircraft.Registry.RemoveSimPrefix()}&";
@@ -380,7 +385,7 @@ namespace OpenSky.Client.Pages.Models
                             {
                                 var messageBox = new OpenSkyMessageBox(
                                     "simBrief OFP",
-                                    "Alternate ICAO don't match this flight plan. Do you want to use the values from simBrief?",
+                                    "Alternate ICAO don't match this flight plan. Do you want to use the value from simBrief?",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
                                 messageBox.Closed += (_, _) => { answer = messageBox.Result; };
@@ -397,6 +402,48 @@ namespace OpenSky.Client.Pages.Models
                                 () =>
                                 {
                                     this.AlternateICAO = sbAlternateICAO;
+                                });
+                        }
+                    }
+                }
+
+                // Callsign
+                var sbCallSign = (string)ofp.Element("atc")?.Element("callsign");
+                if (!string.IsNullOrEmpty(sbCallSign))
+                {
+                    if (string.IsNullOrEmpty(this.AtcCallsign))
+                    {
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                this.AtcCallsign = sbCallSign;
+                            });
+                    }
+                    else if (!sbCallSign.Equals(this.AtcCallsign, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        answer = null;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox(
+                                    "simBrief OFP",
+                                    "ATC callsign don't match this flight plan. Do you want to use the value from simBrief?",
+                                    MessageBoxButton.YesNo,
+                                    ExtendedMessageBoxImage.Question);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
+                        {
+                            this.DownloadSimBriefCommand.ReportProgress(
+                                () =>
+                                {
+                                    this.AtcCallsign = sbCallSign;
                                 });
                         }
                     }
@@ -685,7 +732,7 @@ namespace OpenSky.Client.Pages.Models
             }
             catch (WebException ex)
             {
-                Debug.WriteLine("Web error received from simbrief api: " + ex);
+                Debug.WriteLine("Web error received from Simbrief api: " + ex);
                 var responseStream = ex.Response.GetResponseStream();
                 if (responseStream != null)
                 {

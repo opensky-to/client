@@ -50,20 +50,20 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Border HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="100" Height="100" CornerRadius="50,50,50,50" Name="ProfileImage" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave">
+                    <Border HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="200" Height="200" CornerRadius="100,100,100,100" Name="ProfileImage" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave">
                         <Border.Background>
                             <ImageBrush Stretch="Fill" ImageSource="{Binding ProfileImage}" />
                         </Border.Background>
                     </Border>
-                    <Canvas HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="100" Height="100" Visibility="Collapsed" Name="CameraCanvas" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave" Cursor="Hand">
+                    <Canvas HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="200" Height="200" Visibility="Collapsed" Name="CameraCanvas" MouseEnter="ProfileImageOnMouseEnter" MouseLeave="ProfileImageOnMouseLeave" Cursor="Hand">
                         <Canvas.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding UpdateProfileImageCommand}" />
                         </Canvas.InputBindings>
                         <Path Stroke="Black" StrokeThickness="1" Fill="Black" Opacity="0.8">
                             <Path.RenderTransform>
                                 <TransformGroup>
-                                    <RotateTransform Angle="90" CenterX="50" CenterY="50" />
-                                    <TranslateTransform Y="50" />
+                                    <RotateTransform Angle="90" CenterX="100" CenterY="100" />
+                                    <TranslateTransform Y="100" />
                                 </TransformGroup>
                             </Path.RenderTransform>
                             <Path.Data>
@@ -71,7 +71,7 @@
                                     <PathGeometry.Figures>
                                         <PathFigure StartPoint="0,0" >
                                             <PathFigure.Segments>
-                                                <ArcSegment Size="50,50" RotationAngle="45" IsLargeArc="True" SweepDirection="Clockwise" Point="0,100"/>
+                                                <ArcSegment Size="100,100" RotationAngle="45" IsLargeArc="True" SweepDirection="Clockwise" Point="0,200"/>
                                                 <LineSegment Point="0,0"></LineSegment>
                                             </PathFigure.Segments>
                                         </PathFigure >
@@ -79,7 +79,7 @@
                                 </PathGeometry>
                             </Path.Data>
                         </Path>
-                        <Image Source="{StaticResource Camera}" Width="20" Canvas.Bottom="20" Canvas.Left="40" />
+                        <Image Source="{StaticResource Camera}" Width="30" Canvas.Bottom="45" Canvas.Left="85" />
                     </Canvas>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">OpenSky user:</TextBlock>
@@ -112,13 +112,18 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap">A Bing Maps key is required to correctly display the maps in the various clients, if you don't already have one please visit the <Hyperlink NavigateUri="https://www.bingmapsportal.com/Application" RequestNavigate="HyperlinkOnRequestNavigate">Bing Maps Dev Center</Hyperlink> and create one.</TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0">Bing maps key:</TextBlock>
                     <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,10,0,0">You can import your simBrief flight plans into your flight plans and tracking sessions, to enable this feature please enter your account alias as shown on the <Hyperlink NavigateUri="https://www.simbrief.com/system/profile.php#settings" RequestNavigate="HyperlinkOnRequestNavigate">simBrief Account Settings</Hyperlink> page.</TextBlock>
                     <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0">simBrief user name:</TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,10,0,0">If you want to fly on Vatsim, please provide your numerical user ID here. You can find it on your <Hyperlink NavigateUri="https://my.vatsim.net/profile" RequestNavigate="HyperlinkOnRequestNavigate">Vatsim profile</Hyperlink> page.</TextBlock>
+                    <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0">Vatsim ID:</TextBlock>
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BingMapsKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,10,0,0" />
                     <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SimBriefUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,10,0,0" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding VatsimID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,10,0,0" />
                 </Grid>
             </GroupBox>
         </Grid>

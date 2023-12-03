@@ -11267,6 +11267,12 @@ namespace OpenSkyApi
         public double? Altitude { get; set; }
 
         /// <summary>
+        /// Gets or sets the atc call sign for the flight - important for online flying.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AtcCallsign { get; set; }
+
+        /// <summary>
         /// The bank angle in degrees.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("bankAngle", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -11452,6 +11458,9 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("onGround", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool OnGround { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlineNetwork OnlineNetwork { get; set; }
 
         /// <summary>
         /// Gets the name of the flight operator.
@@ -11996,6 +12005,12 @@ namespace OpenSkyApi
         public string AlternateRoute { get; set; }
 
         /// <summary>
+        /// Gets or sets the atc call sign.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AtcCallsign { get; set; }
+
+        /// <summary>
         /// Gets or sets destination airport ICAO code.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("destinationICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -12059,16 +12074,13 @@ namespace OpenSkyApi
         public System.Collections.Generic.ICollection<FlightNavlogFix> NavlogFixes { get; set; }
 
         /// <summary>
-        /// Gets or sets the payloads.
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FlightPayload> Payloads { get; set; }
-
-        /// <summary>
         /// Gets or sets the OFP HTML (most likely from simBrief).
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ofpHtml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OfpHtml { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlineNetwork OnlineNetwork { get; set; }
 
         /// <summary>
         /// Gets or sets the origin airport ICAO code.
@@ -12076,6 +12088,12 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("originICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string OriginICAO { get; set; }
+
+        /// <summary>
+        /// Gets or sets the payloads.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<FlightPayload> Payloads { get; set; }
 
         /// <summary>
         /// Gets or sets the planned departure time.
@@ -12445,6 +12463,12 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("simbriefUsername", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SimbriefUsername { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Vatsim user ID.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("vatsimID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string VatsimID { get; set; }
+
     }
 
     /// <summary>
@@ -12622,6 +12646,19 @@ namespace OpenSkyApi
         ManufacturerFerry = 1,
 
         OutsourceFerry = 2,
+
+    }
+
+    /// <summary>
+    /// Online aviation networks. 0 = Offline, 1 = Vatsim
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v11.0.0.0))")]
+    public enum OnlineNetwork
+    {
+
+        Offline = 0,
+
+        Vatsim = 1,
 
     }
 

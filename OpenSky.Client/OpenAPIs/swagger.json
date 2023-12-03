@@ -6792,6 +6792,11 @@
             "format": "double",
             "nullable": true
           },
+          "atcCallsign": {
+            "type": "string",
+            "description": "Gets or sets the atc call sign for the flight - important for online flying.",
+            "nullable": true
+          },
           "bankAngle": {
             "type": "number",
             "description": "The bank angle in degrees.",
@@ -6973,6 +6978,9 @@
           "onGround": {
             "type": "boolean",
             "description": "Is the plane on the ground?"
+          },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
           },
           "operatorName": {
             "type": "string",
@@ -7469,6 +7477,11 @@
             "description": "Gets or sets the alternate route.",
             "nullable": true
           },
+          "atcCallsign": {
+            "type": "string",
+            "description": "Gets or sets the atc call sign.",
+            "nullable": true
+          },
           "destinationICAO": {
             "maxLength": 5,
             "minLength": 3,
@@ -7526,24 +7539,27 @@
             "description": "Gets or sets the navlog fixes.",
             "nullable": true
           },
-          "payloads": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightPayload"
-            },
-            "description": "Gets or sets the payloads.",
-            "nullable": true
-          },
           "ofpHtml": {
             "type": "string",
             "description": "Gets or sets the OFP HTML (most likely from simBrief).",
             "nullable": true
+          },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
           },
           "originICAO": {
             "maxLength": 5,
             "minLength": 3,
             "type": "string",
             "description": "Gets or sets the origin airport ICAO code.",
+            "nullable": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the payloads.",
             "nullable": true
           },
           "plannedDepartureTime": {
@@ -7900,6 +7916,11 @@
             "type": "string",
             "description": "Gets or sets the Simbrief username.",
             "nullable": true
+          },
+          "vatsimID": {
+            "type": "string",
+            "description": "Gets or sets the Vatsim user ID.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -8062,6 +8083,23 @@
           "ManufacturerDeliveryAirport",
           "ManufacturerFerry",
           "OutsourceFerry"
+        ]
+      },
+      "OnlineNetwork": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "Online aviation networks. 0 = Offline, 1 = Vatsim",
+        "format": "int32",
+        "x-enumNames": [
+          "Offline",
+          "Vatsim"
+        ],
+        "x-enum-varnames": [
+          "Offline",
+          "Vatsim"
         ]
       },
       "Payload": {

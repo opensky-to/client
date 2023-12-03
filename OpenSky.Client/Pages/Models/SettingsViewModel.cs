@@ -48,6 +48,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True to automatically launch agent when starting a flight.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool autoLaunchAgent;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The Bing maps key.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -59,13 +66,6 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DistanceUnit distanceUnit;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The short distance unit.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private ShortDistanceUnit shortDistanceUnit;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -97,6 +97,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The short distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private ShortDistanceUnit shortDistanceUnit;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The simBrief username.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -118,17 +125,17 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The vatsim user ID.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string vatsimID;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The weight unit.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private WeightUnit weightUnit;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// True to automatically launch agent when starting a flight.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool autoLaunchAgent;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -200,6 +207,7 @@ namespace OpenSky.Client.Pages.Models
             this.UtcOffset = Properties.Settings.Default.DefaultUTCOffset;
             this.BingMapsKey = UserSessionService.Instance.LinkedAccounts?.BingMapsKey;
             this.SimBriefUsername = UserSessionService.Instance.LinkedAccounts?.SimbriefUsername;
+            this.VatsimID = UserSessionService.Instance.LinkedAccounts?.VatsimID;
             this.AutoLaunchAgent = Properties.Settings.Default.AutoLaunchAgent;
             if (Properties.Settings.Default.DefaultSimulator != -1)
             {
@@ -210,7 +218,7 @@ namespace OpenSky.Client.Pages.Models
             if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
             {
                 var image = new BitmapImage();
-                
+
                 // ReSharper disable once AssignNullToNotNullAttribute
                 using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
                 {
@@ -343,39 +351,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the short distance unit.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ShortDistanceUnit ShortDistanceUnit
-        {
-            get => this.shortDistanceUnit;
-
-            set
-            {
-                if (Equals(this.distanceUnit, value))
-                {
-                    return;
-                }
-
-                this.shortDistanceUnit = value;
-                this.NotifyPropertyChanged();
-                this.IsDirty = true;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the distance units.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<DistanceUnit> DistanceUnits { get; }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the short distance units.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public ObservableCollection<ShortDistanceUnit> ShortDistanceUnits { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -516,6 +495,35 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the short distance unit.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ShortDistanceUnit ShortDistanceUnit
+        {
+            get => this.shortDistanceUnit;
+
+            set
+            {
+                if (Equals(this.distanceUnit, value))
+                {
+                    return;
+                }
+
+                this.shortDistanceUnit = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the short distance units.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<ShortDistanceUnit> ShortDistanceUnits { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the simBrief username.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -607,6 +615,28 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public SortedSet<double> UtcOffsets { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the Vatsim user ID.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string VatsimID
+        {
+            get => this.vatsimID;
+
+            set
+            {
+                if (Equals(this.vatsimID, value))
+                {
+                    return;
+                }
+
+                this.vatsimID = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -893,7 +923,8 @@ namespace OpenSky.Client.Pages.Models
                 var linkedAccounts = new LinkedAccounts
                 {
                     BingMapsKey = this.BingMapsKey,
-                    SimbriefUsername = this.SimBriefUsername
+                    SimbriefUsername = this.SimBriefUsername,
+                    VatsimID = this.VatsimID
                 };
 
                 var result = OpenSkyService.Instance.UpdateLinkedAccountsAsync(linkedAccounts).Result;
@@ -994,7 +1025,7 @@ namespace OpenSky.Client.Pages.Models
                     if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
                     {
                         var image = new BitmapImage();
-                        
+
                         // ReSharper disable once AssignNullToNotNullAttribute
                         using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
                         {
@@ -1061,7 +1092,7 @@ namespace OpenSky.Client.Pages.Models
                                 if (UserSessionService.Instance.AccountOverview?.ProfileImage?.Length > 0)
                                 {
                                     var image = new BitmapImage();
-                                    
+
                                     // ReSharper disable once AssignNullToNotNullAttribute
                                     using (var mem = new MemoryStream(UserSessionService.Instance.AccountOverview?.ProfileImage))
                                     {
