@@ -4824,6 +4824,10 @@
             "nullable": true,
             "readOnly": true
           },
+          "usesStrobeForBeacon": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this aircraft uses the strobe light instead of the\r\nbeacon - most likely because it doesn't have a beacon."
+          },
           "variants": {
             "type": "array",
             "items": {

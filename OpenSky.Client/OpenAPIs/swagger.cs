@@ -9507,6 +9507,13 @@ namespace OpenSkyApi
         public string UploaderName { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this aircraft uses the strobe light instead of the
+        /// <br/>beacon - most likely because it doesn't have a beacon.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("usesStrobeForBeacon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool UsesStrobeForBeacon { get; set; }
+
+        /// <summary>
         /// Gets or sets the variants of this aircraft.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("variants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
