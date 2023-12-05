@@ -499,50 +499,53 @@ namespace OpenSky.Client.Views.Models
             this.NavigationItems.Clear();
             this.NavigationFooterItems.Clear();
 
-            var welcome = new NavMenuItem { Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome) };
+            var welcome = new NavMenuItem
+            {
+                Name = "Welcome", Icon = "/Resources/OpenSkyLogo16.png", PageType = typeof(Welcome), Tooltip = "Welcome to OpenSky, here you can find the change logs."
+            };
             this.NavigationItems.Add(welcome);
 
             if (UserSessionService.Instance.IsUserLoggedIn)
             {
-                var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap) };
+                var worldMap = new NavMenuItem { Name = "World map", Icon = "/Resources/map16.png", PageType = typeof(WorldMap), Tooltip = "Who is currently flying?" };
                 this.NavigationItems.Add(worldMap);
 
-                var financialOverview = new NavMenuItem { Name = "Finance", Icon = "/Resources/skybucks16.png", PageType = typeof(FinancialOverview) };
+                var financialOverview = new NavMenuItem { Name = "Finance", Icon = "/Resources/skybucks16.png", PageType = typeof(FinancialOverview), Tooltip = "Get a quick overview of your finances for the last 30 days."};
                 this.NavigationItems.Add(financialOverview);
 
-                var myJobs = new NavMenuItem { Name = "My jobs", Icon = "/Resources/job16.png", PageType = typeof(MyJobs) };
+                var myJobs = new NavMenuItem { Name = "My jobs", Icon = "/Resources/job16.png", PageType = typeof(MyJobs), Tooltip = "Jobs that you have accepted are listed here, don't let them expire."};
                 this.NavigationItems.Add(myJobs);
 
-                var jobMarket = new NavMenuItem { Name = "Job market", Icon = "/Resources/market16.png", PageType = typeof(JobMarket) };
+                var jobMarket = new NavMenuItem { Name = "Job market", Icon = "/Resources/market16.png", PageType = typeof(JobMarket), Tooltip = "Time to earn some money!" };
                 this.NavigationItems.Add(jobMarket);
 
-                var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights) };
+                var flights = new NavMenuItem { Name = "My flights", Icon = "/Resources/luggage16.png", PageType = typeof(MyFlights), Tooltip = "Your active and saved flights."};
                 this.NavigationItems.Add(flights);
 
-                var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans) };
+                var plans = new NavMenuItem { Name = "Flight plans", Icon = "/Resources/plan16.png", PageType = typeof(FlightPlans), Tooltip = "Plan your next adventure here." };
                 this.NavigationItems.Add(plans);
 
-                var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs) };
+                var logs = new NavMenuItem { Name = "Logbook", Icon = "/Resources/book16.png", PageType = typeof(FlightLogs), Tooltip = "Records of all your flights on OpenSky." };
                 this.NavigationItems.Add(logs);
 
-                var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet) };
+                var myFleet = new NavMenuItem { Name = "My fleet", Icon = "/Resources/aircraft16.png", PageType = typeof(MyFleet), Tooltip = "Look after them well and they will carry you to the ends of the world." };
                 this.NavigationItems.Add(myFleet);
 
-                var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", Children = new ObservableCollection<NavMenuItem>() };
+                var aircraftMarket = new NavMenuItem { Name = "Aircraft market", Icon = "/Resources/aircraftmarket16.png", Children = new ObservableCollection<NavMenuItem>(), Tooltip = "New or old, we got the right aircraft for every pilot." };
                 this.NavigationItems.Add(aircraftMarket);
-                var usedMarket = new NavMenuItem { Name = "Used aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket) };
+                var usedMarket = new NavMenuItem { Name = "Used aircraft market", Icon = "/Resources/aircraftmarket16.png", PageType = typeof(AircraftMarket), Tooltip = "Used aircraft market, look out for bargains!" };
                 aircraftMarket.Children.Add(usedMarket);
-                var newAircraft = new NavMenuItem { Name = "New aircraft", Icon = "/Resources/newaircraft16.png", PageType = typeof(NewAircraft) };
+                var newAircraft = new NavMenuItem { Name = "New aircraft", Icon = "/Resources/newaircraft16.png", PageType = typeof(NewAircraft), Tooltip = "Nothing beats that new aircraft smell." };
                 aircraftMarket.Children.Add(newAircraft);
 
-                var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>() };
+                var tools = new NavMenuItem { Name = "Tools", Icon = "/Resources/tools16.png", Children = new ObservableCollection<NavMenuItem>(), Tooltip = "Tools, tools, tools." };
                 var toolsAdded = false;
                 if (UserSessionService.Instance.IsModerator)
                 {
                     this.NavigationItems.Add(tools);
                     toolsAdded = true;
 
-                    var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes) };
+                    var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes), Tooltip = "Aircraft types manager, please keep it tidy!" };
                     tools.Children.Add(aircraftTypes);
                 }
 
@@ -553,13 +556,13 @@ namespace OpenSky.Client.Views.Models
                         this.NavigationItems.Add(tools);
                     }
 
-                    var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport) };
+                    var dataImport = new NavMenuItem { Name = "Data import", Icon = "/Resources/dataimport16.png", PageType = typeof(DataImport), Tooltip = "Big data goes in here." };
                     tools.Children.Add(dataImport);
 
-                    var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics) };
+                    var worldPopulation = new NavMenuItem { Name = "World statistics", Icon = "/Resources/world16.png", PageType = typeof(WorldStatistics), Tooltip = "Shiny graphics." };
                     tools.Children.Add(worldPopulation);
 
-                    var userManager = new NavMenuItem { Name = "User manager", Icon = "/Resources/userid16.png", PageType = typeof(UserManager) };
+                    var userManager = new NavMenuItem { Name = "User manager", Icon = "/Resources/userid16.png", PageType = typeof(UserManager), Tooltip = "How many users can my wee server handle?" };
                     tools.Children.Add(userManager);
                 }
             }

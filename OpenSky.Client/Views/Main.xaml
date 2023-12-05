@@ -34,6 +34,14 @@
                     MenuItemsSource="{Binding Children}"
                     IsExpanded="{Binding IsExpanded}"
                     SelectsOnInvoked="True">
+                <ui:NavigationViewItem.ToolTip>
+                    <ToolTip Foreground="White" Background="{StaticResource OpenSkyTealBrush}">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Tooltip}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ToolTip>
+                </ui:NavigationViewItem.ToolTip>
                 <ui:NavigationViewItem.Content>
                     <Grid x:Name="RootGrid">
                         <Grid.ColumnDefinitions>
