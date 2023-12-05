@@ -185,7 +185,6 @@
                 ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
                 dgx:DataGridFilter.IsAutoFilterEnabled="True"
                 >
-                <!--  -->
                 <DataGrid.Resources>
                     <DataTemplate x:Key="IncomeCombinedCellTemplate" DataType="openSkyApi:FinancialRecord">
                         <controls:SkybucksCurrency Currency="{Binding IncomeCombined, Converter={StaticResource ZeroToNullConverter}}" Margin="15,0" FontFamily="Consolas" FontSize="15" />
