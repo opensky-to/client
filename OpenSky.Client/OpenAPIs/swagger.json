@@ -4703,6 +4703,13 @@
             "description": "Gets a value indicating whether this aircraft type has variants.",
             "readOnly": true
           },
+          "icaoTypeDesignator": {
+            "maxLength": 4,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the ICAO type designator.",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "description": "Gets or sets the identifier.",
@@ -6793,6 +6800,8 @@
             "nullable": true
           },
           "atcCallsign": {
+            "maxLength": 8,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the atc call sign for the flight - important for online flying.",
             "nullable": true
@@ -6981,6 +6990,11 @@
           },
           "onlineNetwork": {
             "$ref": "#/components/schemas/OnlineNetwork"
+          },
+          "onlineNetworkConnectedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the seconds the player was connected to the online network for, used to\r\ncalculate 80% online requirement.",
+            "format": "int32"
           },
           "operatorName": {
             "type": "string",
@@ -8273,6 +8287,11 @@
             "type": "number",
             "description": "The bank angle in degrees.",
             "format": "double"
+          },
+          "connectedToOnlineNetworkSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the number of seconds the user was connected to an online network (in seconds).",
+            "format": "int32"
           },
           "flightPhase": {
             "$ref": "#/components/schemas/FlightPhase"

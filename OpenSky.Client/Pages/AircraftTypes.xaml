@@ -138,6 +138,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,2" Background="Transparent" BorderBrush="Gray" />
@@ -175,6 +176,7 @@
                     <Border Grid.Row="32" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
                     <Border Grid.Row="33" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
                     <Border Grid.Row="34" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
+                    <Border Grid.Row="35" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
 
                     <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,0">Manufacturer</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="2" Margin="0,5,10,0">Manufacturer airports</TextBlock>
@@ -208,10 +210,11 @@
                     <TextBlock Grid.Column="0" Grid.Row="29" Margin="0,5,10,0">Manual loading?</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="30" Margin="0,5,10,0">Max payload Δ?</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="31" Margin="0,5,10,0">Strobe for beacon?</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="32" Margin="0,5,10,0">Has image?</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="33" Margin="0,5,10,0">Uploaded by</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="34" Margin="0,5,10,0">Last edited by</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="35" Margin="0,5,10,0">Comments</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="32" Margin="0,5,10,0">ICAO type designator</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="33" Margin="0,5,10,0">Has image?</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="34" Margin="0,5,10,0">Uploaded by</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="35" Margin="0,5,10,0">Last edited by</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="36" Margin="0,5,10,0">Comments</TextBlock>
 
                     <TextBlock Grid.Column="1" Grid.Row="0" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0]}" FontWeight="Bold" />
                     <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Manufacturer.Name}" />
@@ -245,10 +248,11 @@
                     <TextBlock Grid.Column="1" Grid.Row="29" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].RequiresManualLoading}" />
                     <TextBlock Grid.Column="1" Grid.Row="30" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].MaxPayloadDeltaAllowed}" />
                     <TextBlock Grid.Column="1" Grid.Row="31" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].UsesStrobeForBeacon}" />
-                    <TextBlock Grid.Column="1" Grid.Row="32" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].HasAircraftImage}" />
-                    <TextBlock Grid.Column="1" Grid.Row="33" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].UploaderName}" />
-                    <TextBlock Grid.Column="1" Grid.Row="34" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].LastEditedByName}" />
-                    <TextBlock Grid.Column="1" Grid.Row="35" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                    <TextBlock Grid.Column="1" Grid.Row="32" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].IcaoTypeDesignator}" />
+                    <TextBlock Grid.Column="1" Grid.Row="33" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].HasAircraftImage}" />
+                    <TextBlock Grid.Column="1" Grid.Row="34" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].UploaderName}" />
+                    <TextBlock Grid.Column="1" Grid.Row="35" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].LastEditedByName}" />
+                    <TextBlock Grid.Column="1" Grid.Row="36" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[0].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
 
                     <TextBlock Grid.Column="2" Grid.Row="0" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1]}" FontWeight="Bold" />
                     <TextBlock Grid.Column="2" Grid.Row="1" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Manufacturer.Name}" />
@@ -282,12 +286,13 @@
                     <TextBlock Grid.Column="2" Grid.Row="29" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].RequiresManualLoading}" />
                     <TextBlock Grid.Column="2" Grid.Row="30" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].MaxPayloadDeltaAllowed}" />
                     <TextBlock Grid.Column="2" Grid.Row="31" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].UsesStrobeForBeacon}" />
-                    <TextBlock Grid.Column="2" Grid.Row="32" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].HasAircraftImage}" />
-                    <TextBlock Grid.Column="2" Grid.Row="33" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].UploaderName}" />
-                    <TextBlock Grid.Column="2" Grid.Row="34" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].LastEditedByName}" />
-                    <TextBlock Grid.Column="2" Grid.Row="35" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                    <TextBlock Grid.Column="2" Grid.Row="32" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].IcaoTypeDesignator}" />
+                    <TextBlock Grid.Column="2" Grid.Row="33" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].HasAircraftImage}" />
+                    <TextBlock Grid.Column="2" Grid.Row="34" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].UploaderName}" />
+                    <TextBlock Grid.Column="2" Grid.Row="35" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].LastEditedByName}" />
+                    <TextBlock Grid.Column="2" Grid.Row="36" Margin="0,5,10,0" Text="{Binding SelectedAircraftTypes[1].Comments}" MaxWidth="200" TextWrapping="Wrap" HorizontalAlignment="Left" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="36" Grid.ColumnSpan="3" Margin="0,30,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" FontSize="11">Tip: Use the CTRL key to select two aircraft types to compare them.</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="37" Grid.ColumnSpan="3" Margin="0,30,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" FontSize="11">Tip: Use the CTRL key to select two aircraft types to compare them.</TextBlock>
                 </Grid>
             </ScrollViewer>
         </GroupBox>
@@ -419,6 +424,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,5,0">ATC Type</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,5,0">ATC Model</TextBlock>
@@ -436,7 +442,7 @@
                     <TextBlock Grid.Column="0" Grid.Row="13" VerticalAlignment="Center" Margin="0,0,5,0">Manufacturer airports</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="14" VerticalAlignment="Center" Margin="0,0,5,0">Category</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="15" VerticalAlignment="Center" Margin="0,0,5,0">Engine model</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="16" VerticalAlignment="Center" Margin="0,0,5,0">Fuel type override?</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="16" VerticalAlignment="Center" Margin="0,0,5,0">Fuel type override?<LineBreak />Only for special cases!</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="17" VerticalAlignment="Center" Margin="0,0,5,0">Is vanilla?</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="18" VerticalAlignment="Center" Margin="0,0,5,0">World populate?</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="19" VerticalAlignment="Center" Margin="0,0,5,0">Is historic?</TextBlock>
@@ -451,7 +457,8 @@
                     <TextBlock Grid.Column="0" Grid.Row="28" VerticalAlignment="Center" Margin="0,0,5,0">Maximum price<LineBreak/>~110% of list</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="29" VerticalAlignment="Center" Margin="0,0,5,0">Max payload Δ lbs</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="30" VerticalAlignment="Center" Margin="0,0,5,0">Strobe for beacon?</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="31" VerticalAlignment="Center" Margin="0,0,5,0">Comments</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="31" VerticalAlignment="Center" Margin="0,0,5,0">ICAO type designator<LineBreak/>for Simbrief</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="32" VerticalAlignment="Center" Margin="0,0,5,0">Comments</TextBlock>
 
                     <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding EditedAircraftType.AtcType}" Margin="5,2" />
                     <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding EditedAircraftType.AtcModel}" Margin="5,2" />
@@ -492,8 +499,9 @@
                     <TextBox Grid.Column="1" Grid.Row="28" Text="{Binding EditedAircraftType.MaxPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Maximum price" ui:ControlHelper.PlaceholderForeground="#666" />
                     <TextBox Grid.Column="1" Grid.Row="29" Text="{Binding EditedAircraftType.MaxPayloadDeltaAllowed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="Max payload Δ" ui:ControlHelper.PlaceholderForeground="#666" />
                     <CheckBox Grid.Column="1" Grid.Row="30" IsChecked="{Binding EditedAircraftType.UsesStrobeForBeacon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Check if this aircraft has no beacon and uses the strobe instead</CheckBox>
-                    <TextBox Grid.Column="1" Grid.Row="31" Text="{Binding EditedAircraftType.Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinLines="3" ui:ControlHelper.PlaceholderText="Optional comments here" ui:ControlHelper.PlaceholderForeground="#666" />
-                    <Grid Grid.Row="32" Grid.Column="0" Grid.ColumnSpan="2">
+                    <TextBox Grid.Column="1" Grid.Row="31" Text="{Binding EditedAircraftType.IcaoTypeDesignator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="ICAO type" ui:ControlHelper.PlaceholderForeground="#666" />
+                    <TextBox Grid.Column="1" Grid.Row="32" Text="{Binding EditedAircraftType.Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinLines="3" ui:ControlHelper.PlaceholderText="Optional comments here" ui:ControlHelper.PlaceholderForeground="#666" />
+                    <Grid Grid.Row="33" Grid.Column="0" Grid.ColumnSpan="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
                             <ColumnDefinition Width="1*" />

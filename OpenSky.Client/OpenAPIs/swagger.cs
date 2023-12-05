@@ -9356,6 +9356,13 @@ namespace OpenSkyApi
         public bool HasVariants { get; set; }
 
         /// <summary>
+        /// Gets or sets the ICAO type designator.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("icaoTypeDesignator", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(4)]
+        public string IcaoTypeDesignator { get; set; }
+
+        /// <summary>
         /// Gets or sets the identifier.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -11270,6 +11277,7 @@ namespace OpenSkyApi
         /// Gets or sets the atc call sign for the flight - important for online flying.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(8)]
         public string AtcCallsign { get; set; }
 
         /// <summary>
@@ -11461,6 +11469,13 @@ namespace OpenSkyApi
 
         [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OnlineNetwork OnlineNetwork { get; set; }
+
+        /// <summary>
+        /// Gets or sets the seconds the player was connected to the online network for, used to
+        /// <br/>calculate 80% online requirement.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("onlineNetworkConnectedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int OnlineNetworkConnectedSeconds { get; set; }
 
         /// <summary>
         /// Gets the name of the flight operator.
@@ -12850,6 +12865,12 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("bankAngle", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double BankAngle { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of seconds the user was connected to an online network (in seconds).
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("connectedToOnlineNetworkSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int ConnectedToOnlineNetworkSeconds { get; set; }
 
         [Newtonsoft.Json.JsonProperty("flightPhase", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FlightPhase FlightPhase { get; set; }
