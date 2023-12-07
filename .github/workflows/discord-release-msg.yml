@@ -17,7 +17,7 @@ jobs:
           color: "1711650"
           username: "Client Release Changelog"
           avatar_url: "https://cdn.discordapp.com/icons/837475420923756544/941238cca4a5e355f16a9d710b423c0e.webp?size=96"
-          content: "||@progress_ping||"
+          content: "||<@&1179220854253559869>||"
           footer_title: "Changelog"
           footer_icon_url: "https://cdn.discordapp.com/icons/837475420923756544/941238cca4a5e355f16a9d710b423c0e.webp?size=96"
           footer_timestamp: true
