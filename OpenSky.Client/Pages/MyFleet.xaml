@@ -41,7 +41,7 @@
         <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
         <CollectionViewSource Source="{Binding Aircraft}" x:Key="AircraftViewSource">
             <CollectionViewSource.SortDescriptions>
-                <componentModel:SortDescription PropertyName="Registry" Direction="Ascending" />
+                <componentModel:SortDescription PropertyName="Type.Name" Direction="Ascending" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </UserControl.Resources>
@@ -148,10 +148,10 @@
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" SortDirection="Ascending" />
+                        <DataGridTextColumn Header="Registry" Binding="{Binding Registry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" />
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Location" Binding="{Binding AirportICAO}" FontFamily="Consolas" FontSize="16" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" SortDirection="Ascending" />
                         <DataGridTextColumn Header="Simulator" Binding="{Binding Type.Simulator}" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
                         <DataGridTemplateColumn Header="Fuel" CellTemplate="{StaticResource FuelCellTemplate}" SortMemberPath="Fuel" CanUserSort="True" />

@@ -19,6 +19,7 @@
                           xmlns:ui="http://schemas.modernwpf.com/2019"
                           xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                           xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                          xmlns:system="clr-namespace:System;assembly=mscorlib"
                           LoadingText="{Binding LoadingText}"
                           Loaded="FlightPlanOnLoaded" VerticalScrollBar="False" HorizontalScrollBar="False"
                           mc:Ignorable="d"
@@ -31,6 +32,11 @@
         <converters:NullItemToVisibilityConverter x:Key="NullItemToVisibilityConverter" />
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:AircraftRegistryConverter x:Key="AircraftRegistryConverter" />
+        <ObjectDataProvider x:Key="OnlineNetworkDataProvider" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="openSkyApi:OnlineNetwork" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}" />
@@ -99,6 +105,8 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -112,6 +120,8 @@
                         <TextBlock Grid.Row="0" Grid.Column="4" Margin="5" HorizontalAlignment="Center">Alternate</TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="5" Margin="5" HorizontalAlignment="Center">Date</TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="6" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center">Time (Utc)</TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="8" Margin="5" HorizontalAlignment="Center">Atc Callsign</TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="9" Margin="5" HorizontalAlignment="Center">Online network</TextBlock>
 
                         <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}" />
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" />
@@ -129,7 +139,7 @@
                                 </Grid>
                             </ui:AutoSuggestBox.ToolTip>
                         </ui:AutoSuggestBox>
-                    <ui:AutoSuggestBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding AlternateAirports}">
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding AlternateAirports}">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding AlternateAirport}">
                                     <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
@@ -139,6 +149,8 @@
                         <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding PlannedDepartureTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" />
                         <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding DepartureHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
                         <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding DepartureMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
+                        <TextBox Grid.Row="1" Grid.Column="8" Text="{Binding AtcCallsign, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" />
+                        <ComboBox Grid.Row="1" Grid.Column="9" HorizontalAlignment="Stretch" ItemsSource="{Binding Source={StaticResource OnlineNetworkDataProvider}}" SelectedItem="{Binding OnlineNetwork, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                         <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical">
                             <Border Background="DarkOrange" CornerRadius="5" Margin="5,0" Visibility="{Binding OriginInvalidWarningVisibility}" ToolTip="There is no matching airport for the specified ICAO code.">

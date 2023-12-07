@@ -476,7 +476,13 @@ namespace OpenSky.Client.Controls
                 }
                 else
                 {
-                    UpdateGUIDelegate resetMap = () => { this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60))); };
+                    UpdateGUIDelegate resetMap = () =>
+                    {
+                        if (this.WpfMapView.IsLoaded)
+                        {
+                            this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
+                        }
+                    };
                     this.Dispatcher.BeginInvoke(resetMap);
                     this.userMapInteraction = false;
                 }

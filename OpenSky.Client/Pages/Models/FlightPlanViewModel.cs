@@ -62,6 +62,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The ATC call sign.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string atcCallsign;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The delete visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -136,6 +143,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string loadingText;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The online network.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private OnlineNetwork onlineNetwork = OnlineNetwork.Offline;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -255,6 +269,28 @@ namespace OpenSky.Client.Pages.Models
 
                 this.airline = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the ATC callsign.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string AtcCallsign
+        {
+            get => this.atcCallsign;
+
+            set
+            {
+                if (Equals(this.atcCallsign, value))
+                {
+                    return;
+                }
+
+                this.atcCallsign = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
             }
         }
 
@@ -562,6 +598,28 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the online network.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public OnlineNetwork OnlineNetwork
+        {
+            get => this.onlineNetwork;
+
+            set
+            {
+                if (Equals(this.onlineNetwork, value))
+                {
+                    return;
+                }
+
+                this.onlineNetwork = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the planned departure time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -746,7 +804,8 @@ namespace OpenSky.Client.Pages.Models
                             this.OriginICAO = flightPlan.OriginICAO;
                             this.DestinationICAO = flightPlan.DestinationICAO;
                             this.AlternateICAO = flightPlan.AlternateICAO;
-                        }, true);
+                        },
+                        true);
                     if (!string.IsNullOrEmpty(flightPlan.Aircraft?.Registry))
                     {
                         this.SelectedAircraft = flightPlan.Aircraft;
@@ -761,6 +820,8 @@ namespace OpenSky.Client.Pages.Models
                     this.DepartureMinute = flightPlan.PlannedDepartureTime.UtcDateTime.Minute;
                     this.Route = flightPlan.Route;
                     this.AlternateRoute = flightPlan.AlternateRoute;
+                    this.AtcCallsign = flightPlan.AtcCallsign;
+                    this.OnlineNetwork = flightPlan.OnlineNetwork;
                     this.Payloads.Clear();
                     if (flightPlan.Payloads != null)
                     {
@@ -927,6 +988,8 @@ namespace OpenSky.Client.Pages.Models
                     AlternateRoute = this.AlternateRoute,
                     OfpHtml = this.OfpHtml,
                     NavlogFixes = this.navlogFixes,
+                    AtcCallsign = this.AtcCallsign,
+                    OnlineNetwork = this.OnlineNetwork,
                     Payloads = new List<FlightPayload>()
                 };
 

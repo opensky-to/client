@@ -430,12 +430,21 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void Refresh()
         {
-            this.LoadingText = "Refreshing your fleet...";
+            this.LoadingText = "Refreshing financial overview...";
             try
             {
                 var result = OpenSkyService.Instance.GetFinancialOverviewAsync().Result;
                 if (!result.IsError)
                 {
+                    // Sort the sub-records as the grid refuses to do it
+                    foreach (var financialRecord in result.Data.RecentFinancialRecords)
+                    {
+                        if (financialRecord.ChildRecords?.Count > 0)
+                        {
+                            financialRecord.ChildRecords = financialRecord.ChildRecords.OrderByDescending(r => r.Timestamp).ToList();
+                        }
+                    }
+
                     this.Overview = result.Data;
                 }
                 else

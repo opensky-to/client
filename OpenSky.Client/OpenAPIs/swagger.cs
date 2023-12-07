@@ -9272,6 +9272,7 @@ namespace OpenSkyApi
         /// Gets or sets the comments (moderation status, retired, needs fixing, etc.).
         /// </summary>
         [Newtonsoft.Json.JsonProperty("comments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
         public string Comments { get; set; }
 
         /// <summary>
@@ -9354,6 +9355,13 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hasVariants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool HasVariants { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ICAO type designator.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("icaoTypeDesignator", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(4)]
+        public string IcaoTypeDesignator { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier.
@@ -10070,7 +10078,8 @@ namespace OpenSkyApi
         /// Gets or sets the package hash (SHA-256, base64 encoded)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("packageHash", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(100)]
         public string PackageHash { get; set; }
 
     }
@@ -10804,6 +10813,7 @@ namespace OpenSkyApi
         /// Gets or sets information describing the import data source (filename, url, etc.).
         /// </summary>
         [Newtonsoft.Json.JsonProperty("importDataSource", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(50)]
         public string ImportDataSource { get; set; }
 
         [Newtonsoft.Json.JsonProperty("importStatus", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -11206,7 +11216,8 @@ namespace OpenSkyApi
         /// Gets or sets the description of the record.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(250)]
         public string Description { get; set; }
 
         /// <summary>
@@ -11258,6 +11269,7 @@ namespace OpenSkyApi
         /// Gets or sets the alternate route.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("alternateRoute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(2048)]
         public string AlternateRoute { get; set; }
 
         /// <summary>
@@ -11265,6 +11277,13 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("altitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Altitude { get; set; }
+
+        /// <summary>
+        /// Gets or sets the atc call sign for the flight - important for online flying.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(8)]
+        public string AtcCallsign { get; set; }
 
         /// <summary>
         /// The bank angle in degrees.
@@ -11285,6 +11304,7 @@ namespace OpenSkyApi
         /// Gets or sets the dispatcher remarks.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("dispatcherRemarks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
         public string DispatcherRemarks { get; set; }
 
         /// <summary>
@@ -11452,6 +11472,16 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("onGround", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool OnGround { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlineNetwork OnlineNetwork { get; set; }
+
+        /// <summary>
+        /// Gets or sets the seconds the player was connected to the online network for, used to
+        /// <br/>calculate 80% online requirement.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("onlineNetworkConnectedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int OnlineNetworkConnectedSeconds { get; set; }
 
         /// <summary>
         /// Gets the name of the flight operator.
@@ -11625,6 +11655,12 @@ namespace OpenSkyApi
         public string AlternateRoute { get; set; }
 
         /// <summary>
+        /// Gets or sets the atc callsign.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AtcCallsign { get; set; }
+
+        /// <summary>
         /// Gets or sets the Date/Time of when the flight was completed.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("completed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -11713,6 +11749,15 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("onBlockFuel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double OnBlockFuel { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlineNetwork OnlineNetwork { get; set; }
+
+        /// <summary>
+        /// Gets or sets the online network connected seconds.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("onlineNetworkConnectedSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int OnlineNetworkConnectedSeconds { get; set; }
 
         /// <summary>
         /// Gets or sets the operator.
@@ -11883,7 +11928,8 @@ namespace OpenSkyApi
         /// Gets or sets the ident of the fix.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ident", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(15)]
         public string Ident { get; set; }
 
         /// <summary>
@@ -11902,7 +11948,8 @@ namespace OpenSkyApi
         /// Gets or sets the type of the fix.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(10)]
         public string Type { get; set; }
 
     }
@@ -11996,6 +12043,12 @@ namespace OpenSkyApi
         public string AlternateRoute { get; set; }
 
         /// <summary>
+        /// Gets or sets the atc call sign.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AtcCallsign { get; set; }
+
+        /// <summary>
         /// Gets or sets destination airport ICAO code.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("destinationICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -12059,16 +12112,13 @@ namespace OpenSkyApi
         public System.Collections.Generic.ICollection<FlightNavlogFix> NavlogFixes { get; set; }
 
         /// <summary>
-        /// Gets or sets the payloads.
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FlightPayload> Payloads { get; set; }
-
-        /// <summary>
         /// Gets or sets the OFP HTML (most likely from simBrief).
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ofpHtml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OfpHtml { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("onlineNetwork", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlineNetwork OnlineNetwork { get; set; }
 
         /// <summary>
         /// Gets or sets the origin airport ICAO code.
@@ -12076,6 +12126,12 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("originICAO", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(5, MinimumLength = 3)]
         public string OriginICAO { get; set; }
+
+        /// <summary>
+        /// Gets or sets the payloads.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("payloads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<FlightPayload> Payloads { get; set; }
 
         /// <summary>
         /// Gets or sets the planned departure time.
@@ -12445,6 +12501,12 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("simbriefUsername", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SimbriefUsername { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Vatsim user ID.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("vatsimID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string VatsimID { get; set; }
+
     }
 
     /// <summary>
@@ -12622,6 +12684,19 @@ namespace OpenSkyApi
         ManufacturerFerry = 1,
 
         OutsourceFerry = 2,
+
+    }
+
+    /// <summary>
+    /// Online aviation networks. 0 = Offline, 1 = Vatsim
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v11.0.0.0))")]
+    public enum OnlineNetwork
+    {
+
+        Offline = 0,
+
+        Vatsim = 1,
 
     }
 
@@ -12813,6 +12888,12 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("bankAngle", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double BankAngle { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of seconds the user was connected to an online network (in seconds).
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("connectedToOnlineNetworkSeconds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int ConnectedToOnlineNetworkSeconds { get; set; }
 
         [Newtonsoft.Json.JsonProperty("flightPhase", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FlightPhase FlightPhase { get; set; }

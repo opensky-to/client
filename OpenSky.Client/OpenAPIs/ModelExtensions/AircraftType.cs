@@ -90,6 +90,8 @@ namespace OpenSkyApi
             this.EngineModel = copyFrom.EngineModel;
             this.OverrideFuelType = copyFrom.OverrideFuelType;
             this.IsHistoric = copyFrom.IsHistoric;
+            this.UsesStrobeForBeacon = copyFrom.UsesStrobeForBeacon;
+            this.IcaoTypeDesignator = copyFrom.IcaoTypeDesignator;
             this.DeliveryLocations = new List<AircraftManufacturerDeliveryLocation>();
             this.DeliveryLocations.AddRange(copyFrom.DeliveryLocations);
         }

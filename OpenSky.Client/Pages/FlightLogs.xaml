@@ -78,6 +78,7 @@
                     <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftRegistry, Converter={StaticResource AircraftRegistryConverter}}" FontFamily="Consolas" FontSize="16" />
                     <DataGridTextColumn Header="Simulator" Binding="{Binding Simulator}" />
                     <DataGridTextColumn Header="Landed at" Binding="{Binding LandedAtICAOCrash}" />
+                    <DataGridTextColumn Header="Online network" Binding="{Binding OnlineNetwork}" />
                     <DataGridTextColumn Header="Off block" Binding="{Binding OffBlock}" />
                     <DataGridTextColumn Header="On block" Binding="{Binding OnBlock}" />
                     <DataGridTextColumn Header="Fuel consumption" Binding="{Binding FuelConsumption, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=fuel|N1|true}" />

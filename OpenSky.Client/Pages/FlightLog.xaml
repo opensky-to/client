@@ -44,6 +44,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="1*" />
@@ -117,6 +118,28 @@
             </GroupBox>
             <GroupBox Grid.Row="3">
                 <GroupBox.Header>
+                    <TextBlock FontSize="15" FontWeight="DemiBold">Online network</TextBlock>
+                </GroupBox.Header>
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0">Network</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0">Callsign</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0">Duration</TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FlightLog.OnlineNetwork}" Margin="10,0" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FlightLog.AtcCallsign}" Margin="10,0" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FlightLog.OnlineNetworkDuration}" Margin="10,0" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="4">
+                <GroupBox.Header>
                     <TextBlock FontSize="15" FontWeight="DemiBold">Crew</TextBlock>
                 </GroupBox.Header>
                 <Grid Margin="5">
@@ -134,13 +157,13 @@
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FlightLog.Dispatcher}" Margin="10,0" />
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="4">
+            <GroupBox Grid.Row="5">
                 <GroupBox.Header>
                     <TextBlock FontSize="15" FontWeight="DemiBold">Dispatcher remarks</TextBlock>
                 </GroupBox.Header>
                 <TextBlock Margin="5" FontFamily="Consolas" Text="{Binding FlightLog.DispatcherRemarks}" FontSize="12" MaxWidth="270" HorizontalAlignment="Left" TextWrapping="Wrap" />
             </GroupBox>
-            <GroupBox Grid.Row="5">
+            <GroupBox Grid.Row="6">
                 <GroupBox.Header>
                     <TextBlock FontSize="15" FontWeight="DemiBold">Fuel</TextBlock>
                 </GroupBox.Header>
@@ -168,7 +191,7 @@
                     <TextBlock Grid.Row="2" Grid.Column="2" FontFamily="Consolas" Text="{Binding FlightLog.FuelConsumedWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F2|true}" HorizontalAlignment="Right" />
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="6">
+            <GroupBox Grid.Row="7">
                 <GroupBox.Header>
                     <TextBlock FontSize="15" FontWeight="DemiBold">Payload</TextBlock>
                 </GroupBox.Header>

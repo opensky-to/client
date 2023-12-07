@@ -4629,6 +4629,8 @@
             "$ref": "#/components/schemas/AircraftTypeCategory"
           },
           "comments": {
+            "maxLength": 200,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the comments (moderation status, retired, needs fixing, etc.).",
             "nullable": true
@@ -4702,6 +4704,13 @@
             "type": "boolean",
             "description": "Gets a value indicating whether this aircraft type has variants.",
             "readOnly": true
+          },
+          "icaoTypeDesignator": {
+            "maxLength": 4,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the ICAO type designator.",
+            "nullable": true
           },
           "id": {
             "type": "string",
@@ -5373,7 +5382,8 @@
             "description": "Gets or sets the package contents (g-zipped, base64 encoded)."
           },
           "packageHash": {
-            "minLength": 1,
+            "maxLength": 100,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the package hash (SHA-256, base64 encoded)"
           }
@@ -6338,6 +6348,8 @@
             "format": "uuid"
           },
           "importDataSource": {
+            "maxLength": 50,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets information describing the import data source (filename, url, etc.).",
             "nullable": true
@@ -6735,7 +6747,8 @@
             "nullable": true
           },
           "description": {
-            "minLength": 1,
+            "maxLength": 250,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the description of the record."
           },
@@ -6782,6 +6795,8 @@
             "$ref": "#/components/schemas/Airport"
           },
           "alternateRoute": {
+            "maxLength": 2048,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the alternate route.",
             "nullable": true
@@ -6790,6 +6805,13 @@
             "type": "number",
             "description": "Gets or sets the altitude in feet.",
             "format": "double",
+            "nullable": true
+          },
+          "atcCallsign": {
+            "maxLength": 8,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the atc call sign for the flight - important for online flying.",
             "nullable": true
           },
           "bankAngle": {
@@ -6807,6 +6829,8 @@
             "readOnly": true
           },
           "dispatcherRemarks": {
+            "maxLength": 200,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the dispatcher remarks.",
             "nullable": true
@@ -6974,6 +6998,14 @@
             "type": "boolean",
             "description": "Is the plane on the ground?"
           },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
+          },
+          "onlineNetworkConnectedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the seconds the player was connected to the online network for, used to\r\ncalculate 80% online requirement.",
+            "format": "int32"
+          },
           "operatorName": {
             "type": "string",
             "description": "Gets the name of the flight operator.",
@@ -7124,6 +7156,11 @@
             "description": "Gets or sets the alternate route.",
             "nullable": true
           },
+          "atcCallsign": {
+            "type": "string",
+            "description": "Gets or sets the atc callsign.",
+            "nullable": true
+          },
           "completed": {
             "type": "string",
             "description": "Gets or sets the Date/Time of when the flight was completed.",
@@ -7196,6 +7233,14 @@
             "type": "number",
             "description": "Gets or sets the on block fuel.",
             "format": "double"
+          },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
+          },
+          "onlineNetworkConnectedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the online network connected seconds.",
+            "format": "int32"
           },
           "operator": {
             "type": "string",
@@ -7343,7 +7388,8 @@
             "format": "uuid"
           },
           "ident": {
-            "minLength": 1,
+            "maxLength": 15,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the ident of the fix."
           },
@@ -7358,7 +7404,8 @@
             "format": "double"
           },
           "type": {
-            "minLength": 1,
+            "maxLength": 10,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the type of the fix."
           }
@@ -7469,6 +7516,11 @@
             "description": "Gets or sets the alternate route.",
             "nullable": true
           },
+          "atcCallsign": {
+            "type": "string",
+            "description": "Gets or sets the atc call sign.",
+            "nullable": true
+          },
           "destinationICAO": {
             "maxLength": 5,
             "minLength": 3,
@@ -7526,24 +7578,27 @@
             "description": "Gets or sets the navlog fixes.",
             "nullable": true
           },
-          "payloads": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlightPayload"
-            },
-            "description": "Gets or sets the payloads.",
-            "nullable": true
-          },
           "ofpHtml": {
             "type": "string",
             "description": "Gets or sets the OFP HTML (most likely from simBrief).",
             "nullable": true
+          },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
           },
           "originICAO": {
             "maxLength": 5,
             "minLength": 3,
             "type": "string",
             "description": "Gets or sets the origin airport ICAO code.",
+            "nullable": true
+          },
+          "payloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightPayload"
+            },
+            "description": "Gets or sets the payloads.",
             "nullable": true
           },
           "plannedDepartureTime": {
@@ -7900,6 +7955,11 @@
             "type": "string",
             "description": "Gets or sets the Simbrief username.",
             "nullable": true
+          },
+          "vatsimID": {
+            "type": "string",
+            "description": "Gets or sets the Vatsim user ID.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -8062,6 +8122,23 @@
           "ManufacturerDeliveryAirport",
           "ManufacturerFerry",
           "OutsourceFerry"
+        ]
+      },
+      "OnlineNetwork": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "Online aviation networks. 0 = Offline, 1 = Vatsim",
+        "format": "int32",
+        "x-enumNames": [
+          "Offline",
+          "Vatsim"
+        ],
+        "x-enum-varnames": [
+          "Offline",
+          "Vatsim"
         ]
       },
       "Payload": {
@@ -8235,6 +8312,11 @@
             "type": "number",
             "description": "The bank angle in degrees.",
             "format": "double"
+          },
+          "connectedToOnlineNetworkSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the number of seconds the user was connected to an online network (in seconds).",
+            "format": "int32"
           },
           "flightPhase": {
             "$ref": "#/components/schemas/FlightPhase"
