@@ -105,6 +105,27 @@ namespace OpenSkyApi
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the online network duration info.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string OnlineNetworkDuration
+        {
+            get
+            {
+                if (this.OnlineNetwork != OnlineNetwork.Offline)
+                {
+                    var duration = TimeSpan.FromSeconds(this.OnlineNetworkConnectedSeconds);
+                    var percentageOfFlightTime = this.OnlineNetworkConnectedSeconds / ((this.Completed - this.Started).TotalSeconds) * 100.0;
+
+                    return $"{duration}, {percentageOfFlightTime:N1} % of flight";
+                }
+
+                return string.Empty;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets information describing the time warp.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------

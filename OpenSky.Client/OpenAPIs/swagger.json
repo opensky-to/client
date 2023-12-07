@@ -4629,6 +4629,8 @@
             "$ref": "#/components/schemas/AircraftTypeCategory"
           },
           "comments": {
+            "maxLength": 200,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the comments (moderation status, retired, needs fixing, etc.).",
             "nullable": true
@@ -5380,7 +5382,8 @@
             "description": "Gets or sets the package contents (g-zipped, base64 encoded)."
           },
           "packageHash": {
-            "minLength": 1,
+            "maxLength": 100,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the package hash (SHA-256, base64 encoded)"
           }
@@ -6345,6 +6348,8 @@
             "format": "uuid"
           },
           "importDataSource": {
+            "maxLength": 50,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets information describing the import data source (filename, url, etc.).",
             "nullable": true
@@ -6742,7 +6747,8 @@
             "nullable": true
           },
           "description": {
-            "minLength": 1,
+            "maxLength": 250,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the description of the record."
           },
@@ -6789,6 +6795,8 @@
             "$ref": "#/components/schemas/Airport"
           },
           "alternateRoute": {
+            "maxLength": 2048,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the alternate route.",
             "nullable": true
@@ -6821,6 +6829,8 @@
             "readOnly": true
           },
           "dispatcherRemarks": {
+            "maxLength": 200,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the dispatcher remarks.",
             "nullable": true
@@ -7146,6 +7156,11 @@
             "description": "Gets or sets the alternate route.",
             "nullable": true
           },
+          "atcCallsign": {
+            "type": "string",
+            "description": "Gets or sets the atc callsign.",
+            "nullable": true
+          },
           "completed": {
             "type": "string",
             "description": "Gets or sets the Date/Time of when the flight was completed.",
@@ -7218,6 +7233,14 @@
             "type": "number",
             "description": "Gets or sets the on block fuel.",
             "format": "double"
+          },
+          "onlineNetwork": {
+            "$ref": "#/components/schemas/OnlineNetwork"
+          },
+          "onlineNetworkConnectedSeconds": {
+            "type": "integer",
+            "description": "Gets or sets the online network connected seconds.",
+            "format": "int32"
           },
           "operator": {
             "type": "string",
@@ -7365,7 +7388,8 @@
             "format": "uuid"
           },
           "ident": {
-            "minLength": 1,
+            "maxLength": 15,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the ident of the fix."
           },
@@ -7380,7 +7404,8 @@
             "format": "double"
           },
           "type": {
-            "minLength": 1,
+            "maxLength": 10,
+            "minLength": 0,
             "type": "string",
             "description": "Gets or sets the type of the fix."
           }
