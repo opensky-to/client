@@ -5,8 +5,14 @@ OpenSky Client Changelog
 --------------------------------------------------------------------------------------
 Version 0.5.4 (ALPHA5)
 --------------------------------------------------------------------------------------
-- Added support for ATC callsign and first online network Vatsim to flight plans
+- Added support for ATC callsign and first online network Vatsim to flight
+  plans and logs
 - Added vatsim CID as new linked account to settings
+- Fixed a mapview init crash
+- Small improvements for financial overview page
+- Added nav menu tooltips
+- Added support for ICAO type designators
+- Simbrief flight plan integration improvements
 
 --------------------------------------------------------------------------------------
 Version 0.5.3 (ALPHA5)

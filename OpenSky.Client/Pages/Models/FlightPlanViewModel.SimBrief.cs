@@ -203,7 +203,7 @@ namespace OpenSky.Client.Pages.Models
                 return;
             }
 
-            var url = "https://www.simbrief.com/system/dispatch.php?";
+            var url = "https://dispatch.simbrief.com/options/custom?";
             if (this.IsAirlineFlight && !string.IsNullOrEmpty(this.Airline.Iata))
             {
                 url += $"airline={this.Airline.Iata}&";
@@ -256,6 +256,14 @@ namespace OpenSky.Client.Pages.Models
 
             if (this.SelectedAircraft != null)
             {
+                if (!string.IsNullOrEmpty(this.SelectedAircraft.Type.IcaoTypeDesignator))
+                {
+                    url += $"type={this.SelectedAircraft.Type.IcaoTypeDesignator}&";
+                    url += $"cargo={this.PayloadWeight * 0.453592 / 1000:N3}&";
+                    url += "pax=0&";
+                    url += "units=KGS&";
+                }
+
                 url += $"reg={this.SelectedAircraft.Registry.RemoveSimPrefix()}&";
             }
 
@@ -272,13 +280,28 @@ namespace OpenSky.Client.Pages.Models
             Debug.WriteLine(url);
             Process.Start(url);
 
-            var fuelNotification = new OpenSkyNotification(
-                "simBrief OFP",
-                "If you are planning to use the fuel numbers from the simBrief OFP, please make sure you correctly set the passengers and cargo after selecting your aircraft type.",
-                MessageBoxButton.OK,
-                ExtendedMessageBoxImage.Information,
-                30);
-            Main.ShowNotificationInSameViewAs(this.ViewReference, fuelNotification);
+            if (this.SelectedAircraft == null)
+            {
+                var fuelWarning = new OpenSkyMessageBox(
+                    "simBrief OFP",
+                    "You haven't selected an aircraft yet!\r\n\r\nPlease make sure you correctly set the passengers and cargo after selecting your aircraft type on the Simbrief website.",
+                    MessageBoxButton.OK,
+                    ExtendedMessageBoxImage.Warning,
+                    30);
+                fuelWarning.SetWarningColorStyle();
+                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, fuelWarning);
+            }
+            else if (string.IsNullOrEmpty(this.SelectedAircraft.Type.IcaoTypeDesignator))
+            {
+                var fuelWarning = new OpenSkyMessageBox(
+                    "simBrief OFP",
+                    "Your selected an aircraft doesn't have an ICAO type designator.\r\n\r\nPlease make sure you correctly set the passengers and cargo after selecting your aircraft type on the Simbrief website.",
+                    MessageBoxButton.OK,
+                    ExtendedMessageBoxImage.Warning,
+                    30);
+                fuelWarning.SetWarningColorStyle();
+                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, fuelWarning);
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -727,6 +750,34 @@ namespace OpenSky.Client.Pages.Models
                                     this.SimbriefWaypointMarkers.Add(newMarker);
                                 }
                             });
+                    }
+                }
+
+                // Online network pre-file?
+                if (this.OnlineNetwork == OnlineNetwork.Vatsim)
+                {
+                    var vatsimUrl = ofp.Element("prefile").Element("vatsim").Element("link");
+                    Debug.WriteLine(vatsimUrl);
+
+                    if (!string.IsNullOrEmpty(vatsimUrl?.Value))
+                    {
+                        answer = null;
+                        this.DownloadSimBriefCommand.ReportProgress(
+                            () =>
+                            {
+                                var messageBox = new OpenSkyMessageBox("Vatsim pre-file", "Do you want to pre-file this flight plan on the Vatsim network?", MessageBoxButton.YesNo, ExtendedMessageBoxImage.Question, 10);
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                                Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                            });
+                        while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        if (answer == ExtendedMessageBoxResult.Yes)
+                        {
+                            Process.Start(vatsimUrl.Value);
+                        }
                     }
                 }
             }
