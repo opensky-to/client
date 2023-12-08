@@ -6,8 +6,11 @@
 
 namespace OpenSky.Client.Pages
 {
+    using System;
     using System.Linq;
+    using System.Reflection;
     using System.Windows;
+    using System.Windows.Input;
 
     using ModernWpf.Controls;
 
@@ -82,6 +85,89 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Airport auto suggest box lost focus, check if we need to uppercase.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Routed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AirportAutoSuggestLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is AutoSuggestBox box)
+            {
+                if (!string.Equals(box.Text, box.Text?.ToUpperInvariant()))
+                {
+                    box.Text = box.Text?.ToUpperInvariant();
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 26/07/2021.
+        /// </remarks>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="args">
+        /// Automatic suggest box query submitted event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            sender.Text = args.ChosenSuggestion.ToString().Split(':')[0];
+            sender.IsSuggestionListOpen = false;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Auto suggest box preview key down.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Key event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AutoSuggestPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is AutoSuggestBox box)
+            {
+                if (e.Key == Key.PageDown)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexIncrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+
+                if (e.Key == Key.PageUp)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexDecrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Job market on loaded.
         /// </summary>
         /// <remarks>
@@ -100,45 +186,6 @@ namespace OpenSky.Client.Pages
             {
                 viewModel.ViewReference = this;
             }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Auto suggest box suggestion chosen by user.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 26/07/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// The sender.
-        /// </param>
-        /// <param name="args">
-        /// Automatic suggest box suggestion chosen event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void AutoSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
-        {
-            sender.Text = args.SelectedItem.ToString().Split(':')[0];
-            sender.IsSuggestionListOpen = false;
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// A auto suggestion box submitted a query (aka the find button was clicked)
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 26/07/2021.
-        /// </remarks>
-        /// <param name="sender">
-        /// The sender.
-        /// </param>
-        /// <param name="args">
-        /// Automatic suggest box query submitted event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-        {
-            sender.IsSuggestionListOpen = true;
         }
     }
 }

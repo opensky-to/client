@@ -7,7 +7,9 @@
 namespace OpenSky.Client.Pages
 {
     using System;
+    using System.Reflection;
     using System.Windows;
+    using System.Windows.Input;
 
     using ModernWpf.Controls;
 
@@ -98,33 +100,32 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Auto suggest box suggestion chosen by user.
+        /// Airport auto suggest box lost focus, check if we need to uppercase.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 26/07/2021.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
-        /// The sender.
+        /// Source of the event.
         /// </param>
-        /// <param name="args">
-        /// Automatic suggest box suggestion chosen event information.
+        /// <param name="e">
+        /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void AutoSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private void AirportAutoSuggestLostFocus(object sender, RoutedEventArgs e)
         {
-            var selection = args.SelectedItem.ToString();
-            if (selection.Contains(" [v"))
+            if (sender is AutoSuggestBox box)
             {
-                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+                if (!string.Equals(box.Text, box.Text?.ToUpperInvariant()))
+                {
+                    box.Text = box.Text?.ToUpperInvariant();
+                }
             }
-
-            sender.Text = selection;
-            sender.IsSuggestionListOpen = false;
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// A auto suggestion box submitted a query (aka the find button was clicked)
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
         /// </summary>
         /// <remarks>
         /// sushi.at, 26/07/2021.
@@ -138,7 +139,52 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.IsSuggestionListOpen = true;
+            var selection = args.ChosenSuggestion.ToString();
+            if (selection.Contains(" [v"))
+            {
+                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+            }
+
+            sender.Text = selection;
+            sender.IsSuggestionListOpen = false;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Auto suggest box preview key down.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Key event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AutoSuggestPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is AutoSuggestBox box)
+            {
+                if (e.Key == Key.PageDown)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexIncrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+
+                if (e.Key == Key.PageUp)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexDecrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+            }
         }
     }
 }

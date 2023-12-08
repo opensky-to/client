@@ -66,7 +66,7 @@
                     </StackPanel>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <ui:AutoSuggestBox HorizontalAlignment="Stretch" ItemsSource="{Binding AircraftTypes}" Text="{Binding AircraftTypeSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SuggestionChosen="AircraftTypeAutoSuggestBoxOnSuggestionChosen" QueryIcon="Find" PlaceholderText="Type to search..." Grid.IsSharedSizeScope="True">
+                    <ui:AutoSuggestBox HorizontalAlignment="Stretch" ItemsSource="{Binding AircraftTypes}" Text="{Binding AircraftTypeSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Type to search..." QuerySubmitted="AircraftTypeAutoSuggestionsQuerySubmitted" Grid.IsSharedSizeScope="True" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                         <ui:AutoSuggestBox.ItemTemplate>
                             <DataTemplate DataType="openSkyApi:AircraftType">
                                 <Grid Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type ui:AutoSuggestBox}}, Path=ActualWidth}" Margin="-10,0,-10,0">
@@ -175,7 +175,7 @@
                         </RadioButton>
                         <ComboBox Margin="10,0,10,0" ItemsSource="{Binding SelectedAircraftType.DeliveryLocations}" SelectedItem="{Binding SelectedDeliveryLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock VerticalAlignment="Center">to:</TextBlock>
-                        <ui:AutoSuggestBox FontSize="14" Margin="10,0,0,0" ItemsSource="{Binding FactoryFerryAirports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" VerticalAlignment="Center" ToolTipService.ShowDuration="15000">
+                        <ui:AutoSuggestBox FontSize="14" Margin="10,0,0,0" ItemsSource="{Binding FactoryFerryAirports}" QuerySubmitted="AirportAutoSuggestionsQuerySubmitted" PlaceholderText="Type to search..." Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" VerticalAlignment="Center" ToolTipService.ShowDuration="15000" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding FactoryFerryAirportICAO}">
                                     <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
@@ -236,7 +236,7 @@
                     <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding NumberOfAircraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="Consolas" FontSize="15" Text="New" />
                     <TextBlock Grid.Row="8" Grid.Column="1" FontFamily="Consolas" FontSize="15" Text="25 % of rated maximum" />
-                    <ui:AutoSuggestBox Grid.Row="9" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding Countries}" Text="{Binding CountrySearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SuggestionChosen="CountryAutoSuggestBoxOnSuggestionChosen" QueryIcon="Find" PlaceholderText="Type to search..." Grid.IsSharedSizeScope="True" />
+                    <ui:AutoSuggestBox Grid.Row="9" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding Countries}" Text="{Binding CountrySearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Type to search..." Grid.IsSharedSizeScope="True" QuerySubmitted="CountryAutoSuggestionsQuerySubmitted" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown" />
 
                     <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,15" Grid.ColumnSpan="3" TextWrapping="Wrap"><Bold>2. Purchase Price.</Bold> Buyer will pay to Seller for the Goods and for all obligations specified in this Agreement, if any, as the full and complete purchase price, the sum of:</TextBlock>
 

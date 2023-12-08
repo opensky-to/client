@@ -125,21 +125,21 @@
 
                         <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding IsAirlineFlight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="20" HorizontalAlignment="Center" IsEnabled="{Binding Airline, Converter={StaticResource NullItemToEnabledConverter}}" />
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FlightNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" />
-                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding OriginAirports}">
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="2" FontFamily="Consolas" Text="{Binding OriginICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" ItemsSource="{Binding OriginAirports}" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding OriginAirport}">
                                     <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
                                 </Grid>
                             </ui:AutoSuggestBox.ToolTip>
                         </ui:AutoSuggestBox>
-                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding DestinationAirports}">
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="3" FontFamily="Consolas" Text="{Binding DestinationICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" ItemsSource="{Binding DestinationAirports}" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding DestinationAirport}">
                                     <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
                                 </Grid>
                             </ui:AutoSuggestBox.ToolTip>
                         </ui:AutoSuggestBox>
-                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ItemsSource="{Binding AlternateAirports}">
+                        <ui:AutoSuggestBox Grid.Row="1" Grid.Column="4" FontFamily="Consolas" Text="{Binding AlternateICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0" Width="90" ToolTipService.ShowDuration="15000" QuerySubmitted="AutoSuggestionsQuerySubmitted" ItemsSource="{Binding AlternateAirports}" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding AlternateAirport}">
                                     <controls:AirportDetails Airport="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />

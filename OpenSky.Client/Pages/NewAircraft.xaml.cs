@@ -7,7 +7,9 @@
 namespace OpenSky.Client.Pages
 {
     using System;
+    using System.Reflection;
     using System.Windows;
+    using System.Windows.Input;
 
     using ModernWpf.Controls;
 
@@ -78,61 +80,73 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Automatic suggest box on suggestion chosen.
+        /// Airport auto suggest box lost focus, check if we need to uppercase.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 16/02/2022.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
         /// </param>
-        /// <param name="args">
-        /// Automatic suggest box suggestion chosen event information.
+        /// <param name="e">
+        /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void AircraftTypeAutoSuggestBoxOnSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private void AirportAutoSuggestLostFocus(object sender, RoutedEventArgs e)
         {
-            var selection = args.SelectedItem.ToString();
-            if (selection.Contains(" [v"))
+            if (sender is AutoSuggestBox box)
             {
-                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
-            }
-
-            sender.Text = selection;
-            sender.IsSuggestionListOpen = false;
-
-            if (this.DataContext is NewAircraftViewModel viewModel && args.SelectedItem is AircraftType type)
-            {
-                viewModel.SelectedAircraftType = type;
+                if (!string.Equals(box.Text, box.Text?.ToUpperInvariant()))
+                {
+                    box.Text = box.Text?.ToUpperInvariant();
+                }
             }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Auto suggest box suggestion chosen by user.
+        /// Auto suggest box preview key down.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 05/05/2022.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
-        /// The sender.
+        /// Source of the event.
         /// </param>
-        /// <param name="args">
-        /// Automatic suggest box suggestion chosen event information.
+        /// <param name="e">
+        /// Key event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void AutoSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private void AutoSuggestPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            sender.Text = args.SelectedItem.ToString();
-            sender.IsSuggestionListOpen = false;
+            if (sender is AutoSuggestBox box)
+            {
+                if (e.Key == Key.PageDown)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexIncrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+
+                if (e.Key == Key.PageUp)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexDecrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// A auto suggestion box submitted a query (aka the find button was clicked)
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
         /// </summary>
         /// <remarks>
-        /// sushi.at, 05/05/2022.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
         /// The sender.
@@ -141,31 +155,63 @@ namespace OpenSky.Client.Pages
         /// Automatic suggest box query submitted event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        private void AircraftTypeAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.IsSuggestionListOpen = true;
+            var selection = args.ChosenSuggestion.ToString();
+            if (selection.Contains(" [v"))
+            {
+                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+            }
+
+            sender.Text = selection;
+            sender.IsSuggestionListOpen = false;
+
+            if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is AircraftType type)
+            {
+                viewModel.SelectedAircraftType = type;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Country automatic suggest box on suggestion chosen.
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
         /// </summary>
         /// <remarks>
-        /// sushi.at, 20/02/2022.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
-        /// Source of the event.
+        /// The sender.
         /// </param>
         /// <param name="args">
-        /// Automatic suggest box suggestion chosen event information.
+        /// Automatic suggest box query submitted event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void CountryAutoSuggestBoxOnSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private void AirportAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.Text = args.SelectedItem.ToString();
+            sender.Text = args.ChosenSuggestion.ToString();
+            sender.IsSuggestionListOpen = false;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="args">
+        /// Automatic suggest box query submitted event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void CountryAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            sender.Text = args.ChosenSuggestion.ToString();
             sender.IsSuggestionListOpen = false;
 
-            if (this.DataContext is NewAircraftViewModel viewModel && args.SelectedItem is CountryComboItem country)
+            if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is CountryComboItem country)
             {
                 viewModel.RegistrationCountry = country.Country;
             }

@@ -66,7 +66,7 @@
                     <ui:CommandBar.Content>
                         <StackPanel Orientation="Horizontal">
                             <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <ui:AutoSuggestBox FontFamily="Consolas" FontSize="13" MaxHeight="28" MinHeight="28" Width="90" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QueryIcon="Find" QuerySubmitted="AutoSuggestionsQuerySubmitted" SuggestionChosen="AutoSuggestionChosen" ToolTipService.ShowDuration="15000">
+                            <ui:AutoSuggestBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" Width="90" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QuerySubmitted="AutoSuggestionsQuerySubmitted" ToolTipService.ShowDuration="15000" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                                 <ui:AutoSuggestBox.ToolTip>
                                     <Grid Tag="{Binding AirportICAO}">
                                         <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
