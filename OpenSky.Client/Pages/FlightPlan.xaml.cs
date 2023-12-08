@@ -129,10 +129,10 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// An auto-suggestion box submitted a query (aka the find button was clicked)
+        /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
         /// </summary>
         /// <remarks>
-        /// sushi.at, 26/07/2021.
+        /// sushi.at, 08/12/2023.
         /// </remarks>
         /// <param name="sender">
         /// The sender.
