@@ -972,6 +972,7 @@ namespace OpenSky.Client.Pages.Models
             this.LoadingText = "Saving flight plan...";
             try
             {
+                // Changes here need to be made to start flight as well
                 var flightPlan = new FlightPlan
                 {
                     Id = this.ID,
@@ -1075,6 +1076,7 @@ namespace OpenSky.Client.Pages.Models
                 this.LoadingText = "Saving flight plan...";
                 try
                 {
+                    // Changes here need to be made to save flight as well
                     var flightPlan = new FlightPlan
                     {
                         Id = this.ID,
@@ -1091,6 +1093,8 @@ namespace OpenSky.Client.Pages.Models
                         AlternateRoute = this.AlternateRoute,
                         OfpHtml = this.OfpHtml,
                         NavlogFixes = this.navlogFixes,
+                        AtcCallsign = this.AtcCallsign,
+                        OnlineNetwork = this.OnlineNetwork,
                         Payloads = new List<FlightPayload>()
                     };
 
