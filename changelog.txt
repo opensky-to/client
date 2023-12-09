@@ -7,6 +7,7 @@ Version 0.5.5 (ALPHA5)
 --------------------------------------------------------------------------------------
 - Fixed keyboard input on all auto suggest boxes
 - Auto uppercasing of airport ICAOs
+- Fixed save flight during start not saving online network settings
 
 --------------------------------------------------------------------------------------
 Version 0.5.4 (ALPHA5)
