@@ -143,7 +143,11 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.Text = args.ChosenSuggestion.ToString().Split(':')[0];
+            if (args.ChosenSuggestion != null)
+            {
+                sender.Text = args.ChosenSuggestion.ToString().Split(':')[0];
+            }
+
             sender.IsSuggestionListOpen = false;
         }
 

@@ -139,13 +139,17 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            var selection = args.ChosenSuggestion.ToString();
-            if (selection.Contains(" [v"))
+            if (args.ChosenSuggestion != null)
             {
-                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+                var selection = args.ChosenSuggestion.ToString();
+                if (selection.Contains(" [v"))
+                {
+                    selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+                }
+
+                sender.Text = selection;
             }
 
-            sender.Text = selection;
             sender.IsSuggestionListOpen = false;
         }
 

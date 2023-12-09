@@ -178,6 +178,38 @@
                     <Border Grid.Row="34" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
                     <Border Grid.Row="35" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource GreyDottedBrush}" />
 
+                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[1]}" />
+                    <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[2]}" />
+                    <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[3]}" />
+                    <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[4]}" />
+                    <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[5]}" />
+                    <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[6]}" />
+                    <Border Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[7]}" />
+                    <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[8]}" />
+                    <Border Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[9]}" />
+                    <Border Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[12]}" />
+                    <Border Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[13]}" />
+                    <Border Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[14]}" />
+                    <Border Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[15]}" />
+                    <Border Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[16]}" />
+                    <Border Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[17]}" />
+                    <Border Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[18]}" />
+                    <Border Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[19]}" />
+                    <Border Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[20]}" />
+                    <Border Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[21]}" />
+                    <Border Grid.Row="22" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[22]}" />
+                    <Border Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[23]}" />
+                    <Border Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[24]}" />
+                    <Border Grid.Row="25" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[25]}" />
+                    <Border Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[26]}" />
+                    <Border Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[27]}" />
+                    <Border Grid.Row="28" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[28]}" />
+                    <Border Grid.Row="29" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[29]}" />
+                    <Border Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[30]}" />
+                    <Border Grid.Row="31" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[31]}" />
+                    <Border Grid.Row="32" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[32]}" />
+                    <Border Grid.Row="33" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource OpenSkyTealBrush}" Margin="0,6,0,1" Visibility="{Binding MatchingVisibilities[33]}" />
+
                     <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,0">Manufacturer</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="2" Margin="0,5,10,0">Manufacturer airports</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="3" Margin="0,5,10,0">Category</TextBlock>

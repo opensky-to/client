@@ -157,19 +157,22 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AircraftTypeAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            var selection = args.ChosenSuggestion.ToString();
-            if (selection.Contains(" [v"))
+            if (args.ChosenSuggestion != null)
             {
-                selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+                var selection = args.ChosenSuggestion.ToString();
+                if (selection.Contains(" [v"))
+                {
+                    selection = selection.Substring(0, selection.IndexOf(" [", StringComparison.Ordinal));
+                }
+
+                sender.Text = selection;
+                if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is AircraftType type)
+                {
+                    viewModel.SelectedAircraftType = type;
+                }
             }
 
-            sender.Text = selection;
             sender.IsSuggestionListOpen = false;
-
-            if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is AircraftType type)
-            {
-                viewModel.SelectedAircraftType = type;
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -188,7 +191,11 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void AirportAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.Text = args.ChosenSuggestion.ToString();
+            if (args.ChosenSuggestion != null)
+            {
+                sender.Text = args.ChosenSuggestion.ToString();
+            }
+
             sender.IsSuggestionListOpen = false;
         }
 
@@ -208,13 +215,17 @@ namespace OpenSky.Client.Pages
         /// -------------------------------------------------------------------------------------------------
         private void CountryAutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            sender.Text = args.ChosenSuggestion.ToString();
-            sender.IsSuggestionListOpen = false;
-
-            if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is CountryComboItem country)
+            if (args.ChosenSuggestion != null)
             {
-                viewModel.RegistrationCountry = country.Country;
+                sender.Text = args.ChosenSuggestion.ToString();
+
+                if (this.DataContext is NewAircraftViewModel viewModel && args.ChosenSuggestion is CountryComboItem country)
+                {
+                    viewModel.RegistrationCountry = country.Country;
+                }
             }
+
+            sender.IsSuggestionListOpen = false;
         }
 
         /// -------------------------------------------------------------------------------------------------
