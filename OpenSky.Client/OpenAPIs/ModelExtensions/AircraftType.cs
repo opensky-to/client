@@ -236,7 +236,7 @@ namespace OpenSkyApi
         /// -------------------------------------------------------------------------------------------------
         public override string ToString()
         {
-            return $"{this.Name} [v{this.VersionNumber}]";
+            return $"{this.Name} [v{this.VersionNumber}, {this.Simulator}]";
         }
 
         /// -------------------------------------------------------------------------------------------------

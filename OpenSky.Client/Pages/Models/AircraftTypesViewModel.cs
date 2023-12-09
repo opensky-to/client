@@ -114,6 +114,11 @@ namespace OpenSky.Client.Pages.Models
             this.SelectedAircraftTypes = new ObservableCollection<AircraftType>();
             this.AircraftUpgrades = new ObservableCollection<AircraftTypeUpgrade>();
             this.Manufacturers = new ObservableCollection<AircraftManufacturer>();
+            this.MatchingVisibilities = new ObservableCollection<Visibility>();
+            for (var i = 0; i < 34; i++)
+            {
+                this.MatchingVisibilities.Add(Visibility.Collapsed);
+            }
 
             this.GetUserRolesCommand = new AsynchronousCommand(this.GetUserRoles);
             this.RefreshAircraftTypesCommand = new AsynchronousCommand(this.RefreshAircraftTypes);
@@ -136,6 +141,9 @@ namespace OpenSky.Client.Pages.Models
 
             this.GetUserRolesCommand.DoExecute(null);
             this.GetAircraftManufacturersCommand.DoExecute(null);
+
+            // Make sure we can update the matches visibilities
+            this.SelectedAircraftTypes.CollectionChanged += this.SelectedAircraftTypesCollectionChanged;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -400,6 +408,13 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<AircraftManufacturer> Manufacturers { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the matching visibilities (when comparing two aircraft types).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<Visibility> MatchingVisibilities { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1163,6 +1178,75 @@ namespace OpenSky.Client.Pages.Models
             {
                 this.LoadingText = null;
             }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Selected aircraft types collection changed - let's compare what is equal and what isn't.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 09/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Notify collection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void SelectedAircraftTypesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (this.SelectedAircraftTypes.Count != 2)
+            {
+                for (var i = 0; i < 34; i++)
+                {
+                    this.MatchingVisibilities[i] = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                // 0 ... name, version, etc., doesn't make sense to compare
+                this.MatchingVisibilities[1] = !string.Equals(this.SelectedAircraftTypes[0].ManufacturerID, this.SelectedAircraftTypes[1].ManufacturerID, StringComparison.InvariantCultureIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[2] = !string.Equals(this.SelectedAircraftTypes[0].ManufacturerDeliveryLocationICAOs, this.SelectedAircraftTypes[1].ManufacturerDeliveryLocationICAOs, StringComparison.InvariantCultureIgnoreCase)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                this.MatchingVisibilities[3] = !Equals(this.SelectedAircraftTypes[0].Category, this.SelectedAircraftTypes[1].Category) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[4] = !Equals(this.SelectedAircraftTypes[0].Simulator, this.SelectedAircraftTypes[1].Simulator) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[5] = !Equals(this.SelectedAircraftTypes[0].Enabled, this.SelectedAircraftTypes[1].Enabled) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[6] = !Equals(this.SelectedAircraftTypes[0].DetailedChecksDisabled, this.SelectedAircraftTypes[1].DetailedChecksDisabled) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[7] = !Equals(this.SelectedAircraftTypes[0].IsVanilla, this.SelectedAircraftTypes[1].IsVanilla) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[8] = !Equals(this.SelectedAircraftTypes[0].IncludeInWorldPopulation, this.SelectedAircraftTypes[1].IncludeInWorldPopulation) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[9] = !Equals(this.SelectedAircraftTypes[0].IsHistoric, this.SelectedAircraftTypes[1].IsHistoric) ? Visibility.Visible : Visibility.Collapsed;
+
+                // 10 ... next version, doesn't make sense to compare
+                // 11 ... variant of, doesn't make sensor to compare
+                this.MatchingVisibilities[12] = !Equals(this.SelectedAircraftTypes[0].AtcType, this.SelectedAircraftTypes[1].AtcType) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[13] = !Equals(this.SelectedAircraftTypes[0].AtcModel, this.SelectedAircraftTypes[1].AtcModel) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[14] = !Equals(this.SelectedAircraftTypes[0].EmptyWeight, this.SelectedAircraftTypes[1].EmptyWeight) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[15] = !Equals(this.SelectedAircraftTypes[0].OverrideFuelType, this.SelectedAircraftTypes[1].OverrideFuelType) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[16] = !Equals(this.SelectedAircraftTypes[0].FuelTotalCapacity, this.SelectedAircraftTypes[1].FuelTotalCapacity) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[17] = !Equals(this.SelectedAircraftTypes[0].FuelWeightPerGallon, this.SelectedAircraftTypes[1].FuelWeightPerGallon) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[18] = !Equals(this.SelectedAircraftTypes[0].MaxGrossWeight, this.SelectedAircraftTypes[1].MaxGrossWeight) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[19] = !Equals(this.SelectedAircraftTypes[0].EngineType, this.SelectedAircraftTypes[1].EngineType) || !Equals(this.SelectedAircraftTypes[0].EngineCount, this.SelectedAircraftTypes[1].EngineCount)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                this.MatchingVisibilities[20] = !string.Equals(this.SelectedAircraftTypes[0].EngineModel, this.SelectedAircraftTypes[1].EngineModel, StringComparison.InvariantCultureIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[21] = !Equals(this.SelectedAircraftTypes[0].FlapsAvailable, this.SelectedAircraftTypes[1].FlapsAvailable) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[22] = !Equals(this.SelectedAircraftTypes[0].IsGearRetractable, this.SelectedAircraftTypes[1].IsGearRetractable) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[23] = !Equals(this.SelectedAircraftTypes[0].MinimumRunwayLength, this.SelectedAircraftTypes[1].MinimumRunwayLength) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[24] = !Equals(this.SelectedAircraftTypes[0].MinPrice, this.SelectedAircraftTypes[1].MinPrice) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[25] = !Equals(this.SelectedAircraftTypes[0].MaxPrice, this.SelectedAircraftTypes[1].MaxPrice) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[26] = !Equals(this.SelectedAircraftTypes[0].NeedsCoPilot, this.SelectedAircraftTypes[1].NeedsCoPilot) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[27] = !Equals(this.SelectedAircraftTypes[0].NeedsFlightEngineer, this.SelectedAircraftTypes[1].NeedsFlightEngineer) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[28] = !Equals(this.SelectedAircraftTypes[0].RequiresManualFuelling, this.SelectedAircraftTypes[1].RequiresManualFuelling) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[29] = !Equals(this.SelectedAircraftTypes[0].RequiresManualLoading, this.SelectedAircraftTypes[1].RequiresManualLoading) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[30] = !Equals(this.SelectedAircraftTypes[0].MaxPayloadDeltaAllowed, this.SelectedAircraftTypes[1].MaxPayloadDeltaAllowed) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[31] = !Equals(this.SelectedAircraftTypes[0].UsesStrobeForBeacon, this.SelectedAircraftTypes[1].UsesStrobeForBeacon) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[32] = !Equals(this.SelectedAircraftTypes[0].IcaoTypeDesignator, this.SelectedAircraftTypes[1].IcaoTypeDesignator) ? Visibility.Visible : Visibility.Collapsed;
+                this.MatchingVisibilities[33] = !Equals(this.SelectedAircraftTypes[0].HasAircraftImage, this.SelectedAircraftTypes[1].HasAircraftImage) ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            this.NotifyPropertyChanged(nameof(this.MatchingVisibilities));
         }
 
         /// -------------------------------------------------------------------------------------------------
