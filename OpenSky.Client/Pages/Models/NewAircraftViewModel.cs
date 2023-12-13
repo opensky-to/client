@@ -300,7 +300,7 @@ namespace OpenSky.Client.Pages.Models
                 this.Countries.Clear();
                 foreach (var country in CountryComboItem.GetCountryComboItems())
                 {
-                    if (string.IsNullOrEmpty(this.CountrySearch) || country.ToString().ToLowerInvariant().Contains(this.CountrySearch))
+                    if (string.IsNullOrEmpty(this.CountrySearch) || country.ToString().ToLowerInvariant().Contains(this.CountrySearch.ToLowerInvariant()))
                     {
                         this.Countries.Add(country);
                     }
