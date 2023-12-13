@@ -466,7 +466,7 @@ namespace OpenSky.Client.Controls
 
                     UpdateGUIDelegate moveMap = () =>
                     {
-                        if (this.WpfMapView.IsLoaded)
+                        if (this.WpfMapView.IsLoaded && this.WpfMapView.ActualWidth > 0 && this.WpfMapView.ActualHeight > 0)
                         {
                             this.WpfMapView.SetView(new LocationRect(new Location(minLat, minLon), new Location(maxLat, maxLon)));
                         }
@@ -478,7 +478,7 @@ namespace OpenSky.Client.Controls
                 {
                     UpdateGUIDelegate resetMap = () =>
                     {
-                        if (this.WpfMapView.IsLoaded)
+                        if (this.WpfMapView.IsLoaded && this.WpfMapView.ActualWidth > 0 && this.WpfMapView.ActualHeight > 0)
                         {
                             this.WpfMapView.SetView(new LocationRect(new Location(80, -50), new Location(-65, 60)));
                         }

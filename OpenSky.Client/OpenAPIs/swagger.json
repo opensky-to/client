@@ -4333,7 +4333,7 @@
           },
           "registry": {
             "maxLength": 12,
-            "minLength": 7,
+            "minLength": 6,
             "type": "string",
             "description": "Gets or sets the aircraft registration."
           },
@@ -6729,8 +6729,8 @@
         "type": "object",
         "properties": {
           "aircraftRegistry": {
-            "maxLength": 10,
-            "minLength": 5,
+            "maxLength": 12,
+            "minLength": 6,
             "type": "string",
             "description": "Gets or sets the aircraft registry (optional, if record relates to an aircraft).",
             "nullable": true
@@ -7160,6 +7160,9 @@
             "type": "string",
             "description": "Gets or sets the atc callsign.",
             "nullable": true
+          },
+          "category": {
+            "$ref": "#/components/schemas/AircraftTypeCategory"
           },
           "completed": {
             "type": "string",
@@ -8150,8 +8153,8 @@
         "type": "object",
         "properties": {
           "aircraftRegistry": {
-            "maxLength": 10,
-            "minLength": 5,
+            "maxLength": 12,
+            "minLength": 6,
             "type": "string",
             "description": "Gets or sets the aircraft registry the payload is currently loaded on, or NULL if stored at an airport.",
             "nullable": true

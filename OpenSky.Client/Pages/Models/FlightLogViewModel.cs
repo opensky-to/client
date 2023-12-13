@@ -293,7 +293,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the cross wind (only from first touchdown).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string CrossWind => this.TouchDowns.Count > 0 ? this.TouchDowns[0].CrossWind.ToString("Left, 0.00;Right, 0.00;None, 0") : "0";
+        public string CrossWind => this.TouchDowns.Count > 0 ? this.TouchDowns[0].CrossWind.ToString("Left, 0.0;Right, 0.0;None, 0") : "0";
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -339,10 +339,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the head wind (only from first touchdown).
+        /// Gets the headwind (only from first touchdown).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string HeadWind => this.TouchDowns.Count > 0 ? this.TouchDowns[0].HeadWind.ToString("Tail, 0.00;Head, 0.00;None, 0") : "0";
+        public string HeadWind => this.TouchDowns.Count > 0 ? this.TouchDowns[0].HeadWind.ToString("Tail, 0.0;Head, 0.0;None, 0") : "0";
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -356,19 +356,31 @@ namespace OpenSky.Client.Pages.Models
                 // ----------------------------------------------------
                 // Landing rate (absolute)
                 // ----------------------------------------------------
-                // A+ Butter <=60 (PISTON,TURBO)
-                // A+ Perfect >60 <=130 (JET)
-                // A- Too soft <=60 (JET)
-                // A  Good >60 <=180
-                // B  OK >180 <=240
-                // C  Hard >240 <=600
-                // D  Rough >600 <=1000 (Inspection)
+                // A+ Butter <=80 (Other)
+                // A+ Perfect <=250 >=80 (WBA)
+                // A+ Perfect <=160 >=80 (NBA)
+                // A+ Perfect <=160 >=50 (JET engine)
+                // A- Too soft <=80 (NBA, WBA)
+                // A- Too soft <=50 (JET engine)
+                // B  OK >350 (WBA)
+                // B  OK >250 (NBA)
+                // B  OK >220 (JET engine)
+                // B  OK >200 (Other)
+                // D  Hard >600 <=840 (Inspection)
+                // E  Severe Hard >840 <=1000 (Inspection, possible repair)
                 // F  Crash >1000 (Repair)
 
                 // ----------------------------------------------------
                 // G-Force
                 // ----------------------------------------------------
-                // C  Hard >2.1
+                // A  Good >=0.75 <=1.25
+                // B  OK >1.25 <=1.5
+                // B- Low-G <0.75
+                // B- Uncomfortable >1.5 <=2.1
+                // C  Rough >2.1 <=2.6
+                // D  Hard >2.6 <=2.86
+                // E  Severed Hard >2.86 (Inspection, possible repair)
+                // F  Crash >3 (Repair)
 
                 // ----------------------------------------------------
                 // Bounces
@@ -377,15 +389,15 @@ namespace OpenSky.Client.Pages.Models
                 // D  Porpoising >2
 
                 // ----------------------------------------------------
-                // Wind todo add wind ratings
+                // Wind
                 // ----------------------------------------------------
-                // E  Dangerous Cross >40 (JET) >20 (PISTON,TURBO)
-                // E  Dangerous Tail >15 (JET) >5 (PISTON,TURBO)
+                // E  Dangerous Cross >40 (Airliners) >20 (GA)
+                // E  Dangerous Tail >15
 
                 // ----------------------------------------------------
                 // Sideslip
                 // ----------------------------------------------------
-                // E  Dangerous <-15 or >15
+                // E  Dangerous <-16 or >16
 
                 // ----------------------------------------------------
                 // Bank angle
@@ -393,79 +405,173 @@ namespace OpenSky.Client.Pages.Models
                 // E  Dangerous <-5 or >5
 
                 var landingRateAbs = Math.Abs(this.MaxLandingRate);
-                var grade = "A+";
-                var desc = "Butter landing";
+                var crossWindAbs = this.TouchDowns.Count > 0 ? Math.Abs(this.TouchDowns[0].CrossWind) : 0.0;
+                var grade = "?";
+                var desc = "Unknown";
 
-                if (landingRateAbs > 1000)
+                if (landingRateAbs > 1000 || this.MaxGForce > 3)
                 {
                     grade = "F";
                     desc = "Crash landing";
                 }
 
-                if (grade == "A+" && (this.MaxBankAngle is < -5.0 or > 5.0))
+                if (grade == "?" && (this.MaxBankAngle is < -5.0 or > 5.0))
                 {
                     grade = "E";
                     desc = "Dangerous bank angle";
                 }
 
-                if (grade == "A+" && (this.MaxSideSlipAngle is < -15.0 or > 15.0))
+                if (grade == "?" && (this.MaxSideSlipAngle is < -65.0 or > 16.0))
                 {
                     grade = "E";
                     desc = "Dangerous sideslip angle";
                 }
 
-                if (grade == "A+" && landingRateAbs is > 600 and <= 1000)
+                if (grade == "?" && (landingRateAbs is > 840 and <= 1000 || this.MaxGForce > 2.86))
                 {
-                    grade = "D";
-                    desc = "Rough landing";
+                    grade = "E";
+                    desc = "Severe hard landing";
                 }
 
-                if (grade == "A+" && this.Bounces > 2)
+                if (grade == "?" && crossWindAbs > 40)
+                {
+                    grade = "E";
+                    desc = "Dangerous crosswind";
+                }
+
+                if (grade == "?" && crossWindAbs > 20 && this.FlightLog?.Category is AircraftTypeCategory.SEP or AircraftTypeCategory.MEP or AircraftTypeCategory.SET or AircraftTypeCategory.MET or AircraftTypeCategory.HEL)
+                {
+                    grade = "E";
+                    desc = "Dangerous crosswind";
+                }
+
+                if (grade == "?" && (this.TouchDowns.Count > 0 ? this.TouchDowns[0].HeadWind : 0.0) > 15)
+                {
+                    grade = "E";
+                    desc = "Dangerous tailwind";
+                }
+
+                if (grade == "A+" && (landingRateAbs is > 600 and <= 840 || this.MaxGForce is > 2.6 and <= 2.86))
+                {
+                    grade = "D";
+                    desc = "Hard landing";
+                }
+
+                if (grade == "?" && this.Bounces > 2)
                 {
                     grade = "D";
                     desc = "Porpoising landing";
                 }
 
-                if (grade == "A+" && (this.MaxGForce is < -2.1 or > 2.1))
+                if (grade == "?" && this.MaxGForce is > 2.1 and <= 2.6)
                 {
                     grade = "C";
-                    desc = "Hard landing";
+                    desc = "Rough landing";
                 }
 
-                if (grade == "A+" && landingRateAbs is > 240 and <= 600)
-                {
-                    grade = "C";
-                    desc = "Hard landing";
-                }
-
-                if (grade == "A+" && this.Bounces > 1)
+                if (grade == "?" && this.Bounces > 1)
                 {
                     grade = "C";
                     desc = "Bouncy landing";
                 }
 
-                if (grade == "A+" && landingRateAbs is > 180 and <= 240)
+                if (grade == "?" && this.MaxGForce is > 1.5 and <= 2.1)
+                {
+                    grade = "B-";
+                    desc = "Uncomfortable landing";
+                }
+
+                if (grade == "?" && this.MaxGForce is > 1.25 and <= 1.5)
                 {
                     grade = "B";
                     desc = "OK landing";
                 }
 
-                if (grade == "A+" && landingRateAbs is > 60 and <= 180)
+                if (grade == "?" && this.MinGForce >= 0.75 && this.MaxGForce <= 1.25)
                 {
                     grade = "A";
                     desc = "Good landing";
 
-                    if (landingRateAbs <= 130 && this.FlightLog?.AircraftEngineType == EngineType.Jet)
+                    if (this.FlightLog?.Category is AircraftTypeCategory.WBA)
                     {
-                        grade = "A+";
-                        desc = "Perfect landing";
+                        if (landingRateAbs > 350)
+                        {
+                            grade = "B";
+                            desc = "OK landing";
+                        }
+
+                        if (landingRateAbs is <= 250 and >= 80)
+                        {
+                            grade = "A+";
+                            desc = "Perfect landing";
+                        }
+
+                        if (landingRateAbs < 80)
+                        {
+                            grade = "A-";
+                            desc = "Lading too soft";
+                        }
+                    }
+                    else if (this.FlightLog?.Category is AircraftTypeCategory.NBA)
+                    {
+                        if (landingRateAbs > 250)
+                        {
+                            grade = "B";
+                            desc = "OK landing";
+                        }
+
+                        if (landingRateAbs is <= 160 and >= 80)
+                        {
+                            grade = "A+";
+                            desc = "Perfect landing";
+                        }
+
+                        if (landingRateAbs < 80)
+                        {
+                            grade = "A-";
+                            desc = "Lading too soft";
+                        }
+                    }
+                    else if (this.FlightLog?.AircraftEngineType == EngineType.Jet)
+                    {
+                        if (landingRateAbs > 220)
+                        {
+                            grade = "B";
+                            desc = "OK landing";
+                        }
+
+                        if (landingRateAbs is <= 160 and >= 50)
+                        {
+                            grade = "A+";
+                            desc = "Perfect landing";
+                        }
+
+                        if (landingRateAbs < 50)
+                        {
+                            grade = "A-";
+                            desc = "Lading too soft";
+                        }
+                    }
+                    else
+                    {
+                        if (landingRateAbs > 200)
+                        {
+                            grade = "B";
+                            desc = "OK landing";
+                        }
+
+                        if (landingRateAbs < 80)
+                        {
+                            grade = "A+";
+                            desc = "Butter landing";
+                        }
                     }
                 }
 
-                if (grade == "A+" && this.FlightLog?.AircraftEngineType == EngineType.Jet)
+                if (grade == "?" && this.MinGForce < 0.75)
                 {
-                    grade = "A-";
-                    desc = "Lading too soft";
+                    grade = "B-";
+                    desc = "Low-G landing";
                 }
 
                 this.LandingGradeDescription = desc;
@@ -569,7 +675,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the maximum bank angle info string.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string MaxBankAngleInfo => this.MaxBankAngle.ToString("Left, 0.00;Right, 0.00;None, 0");
+        public string MaxBankAngleInfo => this.MaxBankAngle.ToString("Left, 0.0;Right, 0.0;None, 0");
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -580,6 +686,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the minimum g-force.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double MinGForce => this.TouchDowns.Count > 0 ? this.TouchDowns.Min(lr => lr.GForce) : 0.0;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the maximum landing rate (Max landing rate is actually MIN (as landing rates are negative)).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -587,7 +700,7 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the maximum side slip angle.
+        /// Gets the maximum side-slip angle.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public double MaxSideSlipAngle
@@ -607,10 +720,10 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the maximum side slip angle info text.
+        /// Gets the maximum side-slip angle info text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public string MaxSideSlipAngleInfo => this.MaxSideSlipAngle.ToString("Left, 0.00;Right, 0.00;None, 0");
+        public string MaxSideSlipAngleInfo => this.MaxSideSlipAngle.ToString("Left, 0.0;Right, 0.0;None, 0");
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -940,13 +1053,14 @@ namespace OpenSky.Client.Pages.Models
                                 this.TouchDowns.Clear();
                                 if (flightLogXml.TouchDowns.Count > 0)
                                 {
-                                    foreach (var touchdown in flightLogXml.TouchDowns)
+                                    for (var i = flightLogXml.FinalTouchDownIndex; i < flightLogXml.TouchDowns.Count; i++)
                                     {
-                                        this.TouchDowns.Add(touchdown);
+                                        this.TouchDowns.Add(flightLogXml.TouchDowns[i]);
                                     }
 
                                     this.NotifyPropertyChanged(nameof(this.MaxLandingRate));
                                     this.NotifyPropertyChanged(nameof(this.MaxGForce));
+                                    this.NotifyPropertyChanged(nameof(this.MinGForce));
                                     this.NotifyPropertyChanged(nameof(this.MaxSideSlipAngleInfo));
                                     this.NotifyPropertyChanged(nameof(this.Bounces));
                                     this.NotifyPropertyChanged(nameof(this.MaxBankAngleInfo));

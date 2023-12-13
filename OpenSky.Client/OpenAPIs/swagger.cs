@@ -8941,7 +8941,7 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("registry", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(12, MinimumLength = 7)]
+        [System.ComponentModel.DataAnnotations.StringLength(12, MinimumLength = 6)]
         public string Registry { get; set; }
 
         /// <summary>
@@ -11200,7 +11200,7 @@ namespace OpenSkyApi
         /// Gets or sets the aircraft registry (optional, if record relates to an aircraft).
         /// </summary>
         [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.StringLength(10, MinimumLength = 5)]
+        [System.ComponentModel.DataAnnotations.StringLength(12, MinimumLength = 6)]
         public string AircraftRegistry { get; set; }
 
         [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.Always)]
@@ -11659,6 +11659,9 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("atcCallsign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AtcCallsign { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public AircraftTypeCategory Category { get; set; }
 
         /// <summary>
         /// Gets or sets the Date/Time of when the flight was completed.
@@ -12710,7 +12713,7 @@ namespace OpenSkyApi
         /// Gets or sets the aircraft registry the payload is currently loaded on, or NULL if stored at an airport.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.StringLength(10, MinimumLength = 5)]
+        [System.ComponentModel.DataAnnotations.StringLength(12, MinimumLength = 6)]
         public string AircraftRegistry { get; set; }
 
         /// <summary>
