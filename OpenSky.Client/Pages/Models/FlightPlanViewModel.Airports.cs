@@ -253,59 +253,67 @@ namespace OpenSky.Client.Pages.Models
                     return;
                 }
 
+                var needsNewSearch = !string.Equals(this.alternateICAO, value, StringComparison.InvariantCultureIgnoreCase);
                 this.alternateICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
 
-                if (!string.IsNullOrEmpty(value))
+                if (needsNewSearch)
                 {
-                    // Search for matching airports
-                    this.AlternateAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
+                    if (!string.IsNullOrEmpty(value))
                     {
-                        this.AlternateAirports.AddRange(
-                            airportPackage.Airports
-                                          .Where(
-                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
-                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-                else
-                {
-                    // Restore full list of airports
-                    this.AlternateAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
-                    {
-                        this.AlternateAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-
-                UpdateGUIDelegate updateAirports = () =>
-                {
-                    if (!this.UpdateAirportsCommand.IsExecuting)
-                    {
-                        this.UpdateAirportsCommand.DoExecute(null);
+                        // Search for matching airports
+                        this.AlternateAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.AlternateAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant())).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                            this.AlternateAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                       (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
                     else
                     {
-                        new Thread(
-                            () =>
-                            {
-                                var waited = 0;
-                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
-                                {
-                                    Thread.Sleep(100);
-                                    waited += 100;
-                                }
-
-                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
-                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
-                            }).Start();
+                        // Restore full list of airports
+                        this.AlternateAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.AlternateAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
-                };
-                Application.Current.Dispatcher.BeginInvoke(updateAirports);
+
+                    UpdateGUIDelegate updateAirports = () =>
+                    {
+                        if (!this.UpdateAirportsCommand.IsExecuting)
+                        {
+                            this.UpdateAirportsCommand.DoExecute(null);
+                        }
+                        else
+                        {
+                            new Thread(
+                                () =>
+                                {
+                                    var waited = 0;
+                                    while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                    {
+                                        Thread.Sleep(100);
+                                        waited += 100;
+                                    }
+
+                                    UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(updateAirports);
+                }
             }
         }
 
@@ -503,59 +511,67 @@ namespace OpenSky.Client.Pages.Models
                     return;
                 }
 
+                var needsNewSearch = !string.Equals(this.destinationICAO, value, StringComparison.InvariantCultureIgnoreCase);
                 this.destinationICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
 
-                if (!string.IsNullOrEmpty(value))
+                if (needsNewSearch)
                 {
-                    // Search for matching airports
-                    this.DestinationAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
+                    if (!string.IsNullOrEmpty(value))
                     {
-                        this.DestinationAirports.AddRange(
-                            airportPackage.Airports
-                                          .Where(
-                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
-                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-                else
-                {
-                    // Restore full list of airports
-                    this.DestinationAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
-                    {
-                        this.DestinationAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-
-                UpdateGUIDelegate updateAirports = () =>
-                {
-                    if (!this.UpdateAirportsCommand.IsExecuting)
-                    {
-                        this.UpdateAirportsCommand.DoExecute(null);
+                        // Search for matching airports
+                        this.DestinationAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.DestinationAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant())).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                            this.DestinationAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                       (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
                     else
                     {
-                        new Thread(
-                            () =>
-                            {
-                                var waited = 0;
-                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
-                                {
-                                    Thread.Sleep(100);
-                                    waited += 100;
-                                }
-
-                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
-                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
-                            }).Start();
+                        // Restore full list of airports
+                        this.DestinationAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.DestinationAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
-                };
-                Application.Current.Dispatcher.BeginInvoke(updateAirports);
+
+                    UpdateGUIDelegate updateAirports = () =>
+                    {
+                        if (!this.UpdateAirportsCommand.IsExecuting)
+                        {
+                            this.UpdateAirportsCommand.DoExecute(null);
+                        }
+                        else
+                        {
+                            new Thread(
+                                () =>
+                                {
+                                    var waited = 0;
+                                    while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                    {
+                                        Thread.Sleep(100);
+                                        waited += 100;
+                                    }
+
+                                    UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(updateAirports);
+                }
             }
         }
 
@@ -658,62 +674,70 @@ namespace OpenSky.Client.Pages.Models
                     return;
                 }
 
+                var needsNewSearch = !string.Equals(this.originICAO, value, StringComparison.InvariantCultureIgnoreCase);
                 this.originICAO = value;
                 this.NotifyPropertyChanged();
                 this.IsDirty = true;
 
-                if (!string.IsNullOrEmpty(value))
+                if (needsNewSearch)
                 {
-                    // Search for matching airports
-                    this.OriginAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
+                    if (!string.IsNullOrEmpty(value))
                     {
-                        this.OriginAirports.AddRange(
-                            airportPackage.Airports
-                                          .Where(
-                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
-                                                   (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-                else
-                {
-                    // Restore full list of airports
-                    this.OriginAirports.Clear();
-                    var airportPackage = AirportPackageClientHandler.GetPackage();
-                    if (airportPackage != null)
-                    {
-                        this.OriginAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
-                    }
-                }
-
-                UpdateGUIDelegate updateAirports = () =>
-                {
-                    if (!this.UpdateAirportsCommand.IsExecuting)
-                    {
-                        this.UpdateAirportsCommand.DoExecute(null);
+                        // Search for matching airports
+                        this.OriginAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.OriginAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant())).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                            this.OriginAirports.AddRange(
+                                airportPackage.Airports
+                                              .Where(
+                                                  a => a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                                       (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
                     else
                     {
-                        new Thread(
-                            () =>
-                            {
-                                var waited = 0;
-                                while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
-                                {
-                                    Thread.Sleep(100);
-                                    waited += 100;
-                                }
-
-                                UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
-                                Application.Current.Dispatcher.BeginInvoke(tryAgain);
-                            }).Start();
+                        // Restore full list of airports
+                        this.OriginAirports.Clear();
+                        var airportPackage = AirportPackageClientHandler.GetPackage();
+                        if (airportPackage != null)
+                        {
+                            this.OriginAirports.AddRange(airportPackage.Airports.Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        }
                     }
 
-                    this.UpdateAircraftDistances();
-                    this.UpdatePlannablePayloads();
-                };
-                Application.Current.Dispatcher.BeginInvoke(updateAirports);
+                    UpdateGUIDelegate updateAirports = () =>
+                    {
+                        if (!this.UpdateAirportsCommand.IsExecuting)
+                        {
+                            this.UpdateAirportsCommand.DoExecute(null);
+                        }
+                        else
+                        {
+                            new Thread(
+                                () =>
+                                {
+                                    var waited = 0;
+                                    while (this.UpdateAirportsCommand.IsExecuting && waited < 2000)
+                                    {
+                                        Thread.Sleep(100);
+                                        waited += 100;
+                                    }
+
+                                    UpdateGUIDelegate tryAgain = () => this.UpdateAirportsCommand.DoExecute(null);
+                                    Application.Current.Dispatcher.BeginInvoke(tryAgain);
+                                }).Start();
+                        }
+
+                        this.UpdateAircraftDistances();
+                        this.UpdatePlannablePayloads();
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(updateAirports);
+                }
             }
         }
 
