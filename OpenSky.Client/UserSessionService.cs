@@ -252,7 +252,7 @@ namespace OpenSky.Client
         /// </remarks>
         /// <returns>
         /// An asynchronous result that yields true if the token refresh worked, false if the token is
-        /// now invalid and the user needs to login again.
+        /// now invalid and the user needs to log in again.
         /// </returns>
         /// -------------------------------------------------------------------------------------------------
         public async Task<bool> ForceTokenRefresh()

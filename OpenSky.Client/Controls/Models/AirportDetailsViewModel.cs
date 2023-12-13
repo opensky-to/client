@@ -51,7 +51,7 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The place holder visibility.
+        /// The place-holder visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private Visibility placeHolderVisibility = Visibility.Visible;
@@ -162,7 +162,7 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the place holder visibility.
+        /// Gets or sets the place-holder visibility.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Visibility PlaceHolderVisibility
@@ -214,8 +214,12 @@ namespace OpenSky.Client.Controls.Models
                         }
                         else
                         {
-                            this.Airport = null;
-                            this.AirportPlaceholderText = $"Invalid airport {icao.ToUpperInvariant()}";
+                            this.LoadAirportCommand.ReportProgress(
+                                () =>
+                                {
+                                    this.Airport = null;
+                                    this.AirportPlaceholderText = $"Invalid airport {icao.ToUpperInvariant()}";
+                                });
                         }
                     }
                     else

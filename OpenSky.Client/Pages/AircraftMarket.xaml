@@ -102,7 +102,7 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="DemiBold">Location</TextBlock>
                 <RadioButton IsChecked="{Binding AtAirportChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="Location" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="20,3,0,3">At airport</RadioButton>
-                <ui:AutoSuggestBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Airports}" QuerySubmitted="AutoSuggestionsQuerySubmitted" PlaceholderText="Type to search..." Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" ToolTipService.ShowDuration="15000" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
+                <ui:AutoSuggestBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20,3,0,3" ItemsSource="{Binding Airports}" QuerySubmitted="AutoSuggestionsQuerySubmitted" PlaceholderText="Type to search..." Text="{Binding AirportIcao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" ToolTipService.ShowDuration="15000" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                     <ui:AutoSuggestBox.ToolTip>
                         <Grid Tag="{Binding AirportIcao}">
                             <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />
