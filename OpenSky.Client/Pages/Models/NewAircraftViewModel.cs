@@ -358,7 +358,11 @@ namespace OpenSky.Client.Pages.Models
                         this.FactoryFerryAirports.AddRange(
                             airportPackage.Airports
                                           .Where(
-                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant()) || a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
+                                              a => a.ICAO.ToLowerInvariant().Contains(value.ToLowerInvariant())).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
+                        this.FactoryFerryAirports.AddRange(
+                            airportPackage.Airports
+                                          .Where(
+                                              a => a.Name.ToLowerInvariant().Contains(value.ToLowerInvariant()) ||
                                                    (a.City != null && a.City.ToLowerInvariant().Contains(value.ToLowerInvariant()))).Select(a => $"{a.ICAO}: {a.Name}{(string.IsNullOrWhiteSpace(a.City) ? string.Empty : $" / {a.City}")}"));
                     }
                 }
