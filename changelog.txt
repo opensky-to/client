@@ -5,9 +5,10 @@ OpenSky Client Changelog
 --------------------------------------------------------------------------------------
 Version 0.5.6 (ALPHA5)
 --------------------------------------------------------------------------------------
+- Landing Analysis 2.0 support
 - Fixed auto suggest uppercase causing new search and requiring two clicks to select
   suggestions
-- Landing Analysis 2.0
+- Fixed delivery location country search casing
 
 --------------------------------------------------------------------------------------
 Version 0.5.5 (ALPHA5)
