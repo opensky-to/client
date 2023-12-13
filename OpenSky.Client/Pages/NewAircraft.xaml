@@ -66,7 +66,7 @@
                     </StackPanel>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <ui:AutoSuggestBox HorizontalAlignment="Stretch" ItemsSource="{Binding AircraftTypes}" Text="{Binding AircraftTypeSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Type to search..." QuerySubmitted="AircraftTypeAutoSuggestionsQuerySubmitted" Grid.IsSharedSizeScope="True" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
+                    <ui:AutoSuggestBox HorizontalAlignment="Stretch" ItemsSource="{Binding AircraftTypes}" Text="{Binding AircraftTypeSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Type to search..." QuerySubmitted="AircraftTypeAutoSuggestionsQuerySubmitted" Grid.IsSharedSizeScope="True" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                         <ui:AutoSuggestBox.ItemTemplate>
                             <DataTemplate DataType="openSkyApi:AircraftType">
                                 <Grid Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type ui:AutoSuggestBox}}, Path=ActualWidth}" Margin="-10,0,-10,0">
@@ -175,7 +175,7 @@
                         </RadioButton>
                         <ComboBox Margin="10,0,10,0" ItemsSource="{Binding SelectedAircraftType.DeliveryLocations}" SelectedItem="{Binding SelectedDeliveryLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock VerticalAlignment="Center">to:</TextBlock>
-                        <ui:AutoSuggestBox FontSize="14" Margin="10,0,0,0" ItemsSource="{Binding FactoryFerryAirports}" QuerySubmitted="AirportAutoSuggestionsQuerySubmitted" PlaceholderText="Type to search..." Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" VerticalAlignment="Center" ToolTipService.ShowDuration="15000" LostFocus="AirportAutoSuggestLostFocus" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
+                        <ui:AutoSuggestBox FontSize="14" Margin="10,0,0,0" ItemsSource="{Binding FactoryFerryAirports}" QuerySubmitted="AirportAutoSuggestionsQuerySubmitted" PlaceholderText="Type to search..." Text="{Binding FactoryFerryAirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" VerticalAlignment="Center" ToolTipService.ShowDuration="15000" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                             <ui:AutoSuggestBox.ToolTip>
                                 <Grid Tag="{Binding FactoryFerryAirportICAO}">
                                     <controls:AirportDetails AirportICAO="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Tag}" ShowDetailedRunwayInformation="True" />

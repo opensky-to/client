@@ -85,31 +85,6 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Airport auto suggest box lost focus, check if we need to uppercase.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 08/12/2023.
-        /// </remarks>
-        /// <param name="sender">
-        /// Source of the event.
-        /// </param>
-        /// <param name="e">
-        /// Routed event information.
-        /// </param>
-        /// -------------------------------------------------------------------------------------------------
-        private void AirportAutoSuggestLostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is AutoSuggestBox box)
-            {
-                if (!string.Equals(box.Text, box.Text?.ToUpperInvariant()))
-                {
-                    box.Text = box.Text?.ToUpperInvariant();
-                }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// An auto-suggestion box submitted a query (aka the user pressed enter or clicked an entry)
         /// </summary>
         /// <remarks>

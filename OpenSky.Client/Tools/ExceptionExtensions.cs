@@ -55,7 +55,7 @@ namespace OpenSky.Client.Tools
         /// </param>
         /// <param name="alert401">
         /// (Optional) True to alert about HTTP 401 (unauthorized) errors - letting the user know to
-        /// login again.
+        /// log in again.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
         public static void HandleApiCallException(this Exception ex, FrameworkElement viewReference, AsynchronousCommand command, string friendlyErrorMessage, bool alert401 = true)
