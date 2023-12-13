@@ -1053,9 +1053,9 @@ namespace OpenSky.Client.Pages.Models
                                 this.TouchDowns.Clear();
                                 if (flightLogXml.TouchDowns.Count > 0)
                                 {
-                                    foreach (var touchdown in flightLogXml.TouchDowns)
+                                    for (var i = flightLogXml.FinalTouchDownIndex; i < flightLogXml.TouchDowns.Count; i++)
                                     {
-                                        this.TouchDowns.Add(touchdown);
+                                        this.TouchDowns.Add(flightLogXml.TouchDowns[i]);
                                     }
 
                                     this.NotifyPropertyChanged(nameof(this.MaxLandingRate));
