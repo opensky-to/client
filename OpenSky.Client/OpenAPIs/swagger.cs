@@ -11322,6 +11322,9 @@ namespace OpenSkyApi
         [Newtonsoft.Json.JsonProperty("flightPhase", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FlightPhase FlightPhase { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("flightRule", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public FlightRule FlightRule { get; set; }
+
         /// <summary>
         /// Gets or sets the fuel in gallons.
         /// </summary>
@@ -12029,6 +12032,9 @@ namespace OpenSkyApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class FlightPlan
     {
+        [Newtonsoft.Json.JsonProperty("flightRule", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public FlightRule FlightRule { get; set; }
+
         [Newtonsoft.Json.JsonProperty("aircraft", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Aircraft Aircraft { get; set; }
 
@@ -12185,6 +12191,19 @@ namespace OpenSkyApi
         /// </summary>
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Status { get; set; }
+
+    }
+
+    /// <summary>
+    /// Flight rules. 0 = IFR, 1 = VFR
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v11.0.0.0))")]
+    public enum FlightRule
+    {
+
+        IFR = 0,
+
+        VFR = 1,
 
     }
 

@@ -7,6 +7,7 @@
 namespace OpenSky.Client.Pages
 {
     using System.Windows;
+    using System.Windows.Controls;
 
     using OpenSky.Client.Pages.Models;
 
@@ -90,6 +91,28 @@ namespace OpenSky.Client.Pages
             {
                 viewModel.ViewReference = this;
                 viewModel.RefreshPlansCommand.DoExecute(null);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Flight plans selection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Selection changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void FlightPlansSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.DataContext is FlightPlansViewModel viewModel && sender is DataGrid grid)
+            {
+                viewModel.FlightPlanSelectionChanged(grid.SelectedItems);
             }
         }
     }

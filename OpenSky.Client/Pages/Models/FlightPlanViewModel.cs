@@ -620,6 +620,35 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The flight rule.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private FlightRule flightRule;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the flight rule.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public FlightRule FlightRule
+        {
+            get => this.flightRule;
+
+            set
+            {
+                if (Equals(this.flightRule, value))
+                {
+                    return;
+                }
+
+                this.flightRule = value;
+                this.NotifyPropertyChanged();
+                this.IsDirty = true;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the planned departure time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -822,6 +851,7 @@ namespace OpenSky.Client.Pages.Models
                     this.AlternateRoute = flightPlan.AlternateRoute;
                     this.AtcCallsign = flightPlan.AtcCallsign;
                     this.OnlineNetwork = flightPlan.OnlineNetwork;
+                    this.FlightRule = flightPlan.FlightRule;
                     this.Payloads.Clear();
                     if (flightPlan.Payloads != null)
                     {
@@ -991,6 +1021,7 @@ namespace OpenSky.Client.Pages.Models
                     NavlogFixes = this.navlogFixes,
                     AtcCallsign = this.AtcCallsign,
                     OnlineNetwork = this.OnlineNetwork,
+                    FlightRule = this.FlightRule,
                     Payloads = new List<FlightPayload>()
                 };
 
@@ -1095,6 +1126,7 @@ namespace OpenSky.Client.Pages.Models
                         NavlogFixes = this.navlogFixes,
                         AtcCallsign = this.AtcCallsign,
                         OnlineNetwork = this.OnlineNetwork,
+                        FlightRule = this.FlightRule,
                         Payloads = new List<FlightPayload>()
                     };
 

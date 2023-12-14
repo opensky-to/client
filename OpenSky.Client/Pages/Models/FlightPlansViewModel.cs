@@ -7,9 +7,11 @@
 namespace OpenSky.Client.Pages.Models
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading;
     using System.Windows;
 
@@ -35,17 +37,20 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// (Immutable) Dictionary for each flight containing list of start of flight states the user
+        /// chose to override.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly Dictionary<Guid, List<StartFlightStatus>> overriddenStates = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The loading text.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string loadingText;
 
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The selected flight plan.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private FlightPlan selectedFlightPlan;
+        private IList selectedPlans;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -63,7 +68,7 @@ namespace OpenSky.Client.Pages.Models
             // Create commands
             this.RefreshPlansCommand = new AsynchronousCommand(this.RefreshPlans);
             this.NewPlanCommand = new Command(this.NewPlan);
-            this.EditPlanCommand = new Command(this.EditPlan, false);
+            this.EditPlanCommand = new AsynchronousCommand(this.EditPlan, false);
             this.StartFlightCommand = new AsynchronousCommand(this.StartFlight, false);
             this.DeletePlanCommand = new AsynchronousCommand(this.DeletePlan, false);
         }
@@ -80,7 +85,7 @@ namespace OpenSky.Client.Pages.Models
         /// Gets the edit plan command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public Command EditPlanCommand { get; }
+        public AsynchronousCommand EditPlanCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -126,34 +131,29 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the selected flight plan.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public FlightPlan SelectedFlightPlan
-        {
-            get => this.selectedFlightPlan;
-
-            set
-            {
-                if (Equals(this.selectedFlightPlan, value))
-                {
-                    return;
-                }
-
-                this.selectedFlightPlan = value;
-                this.NotifyPropertyChanged();
-                this.EditPlanCommand.CanExecute = this.SelectedFlightPlan != null;
-                this.DeletePlanCommand.CanExecute = this.SelectedFlightPlan != null;
-                this.StartFlightCommand.CanExecute = this.SelectedFlightPlan != null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the start flight command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand StartFlightCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Flight plan selection changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 14/12/2023.
+        /// </remarks>
+        /// <param name="nowSelectedPlans">
+        /// The now selected plans.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        public void FlightPlanSelectionChanged(IList nowSelectedPlans)
+        {
+            this.selectedPlans = nowSelectedPlans;
+            this.EditPlanCommand.CanExecute = this.selectedPlans?.Count > 0;
+            this.DeletePlanCommand.CanExecute = this.selectedPlans?.Count > 0;
+            this.StartFlightCommand.CanExecute = this.selectedPlans?.Count == 1;
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -165,68 +165,97 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void DeletePlan()
         {
-            if (this.SelectedFlightPlan == null)
+            if (this.selectedPlans?.Count > 0)
             {
-                return;
-            }
-
-            ExtendedMessageBoxResult? answer = null;
-            this.DeletePlanCommand.ReportProgress(
-                () =>
+                if (this.selectedPlans.Count == 1)
                 {
-                    var messageBox = new OpenSkyMessageBox(
-                        "Delete flight plan?",
-                        $"Are you sure you want to delete the flight plan {this.SelectedFlightPlan.FullFlightNumber}?",
-                        MessageBoxButton.YesNo,
-                        ExtendedMessageBoxImage.Question);
-                    messageBox.Closed += (_, _) =>
+                    if (this.selectedPlans[0] is not FlightPlan flightPlan)
                     {
-                        answer = messageBox.Result;
-                    };
-                    Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
-                });
-            while (answer == null && !SleepScheduler.IsShutdownInProgress)
-            {
-                Thread.Sleep(500);
-            }
+                        return;
+                    }
 
-            if (answer != ExtendedMessageBoxResult.Yes)
-            {
-                return;
-            }
-
-            this.LoadingText = $"Deleting flight plan {this.SelectedFlightPlan.FullFlightNumber}...";
-            try
-            {
-                var result = OpenSkyService.Instance.DeleteFlightPlanAsync(this.SelectedFlightPlan.Id).Result;
-                if (!result.IsError)
-                {
-                    this.DeletePlanCommand.ReportProgress(() => this.RefreshPlansCommand.DoExecute(null));
-                }
-                else
-                {
+                    ExtendedMessageBoxResult? answer = null;
                     this.DeletePlanCommand.ReportProgress(
                         () =>
                         {
-                            Debug.WriteLine("Error deleting flight plan: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            var notification = new OpenSkyNotification("Error deleting flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            var messageBox = new OpenSkyMessageBox(
+                                "Delete flight plan?",
+                                $"Are you sure you want to delete the flight plan {flightPlan.FullFlightNumber}?",
+                                MessageBoxButton.YesNo,
+                                ExtendedMessageBoxImage.Question);
+                            messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                         });
+                    while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                    {
+                        Thread.Sleep(500);
+                    }
+
+                    if (answer != ExtendedMessageBoxResult.Yes)
+                    {
+                        return;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.ViewReference, this.DeletePlanCommand, "Error deleting flight plan");
-            }
-            finally
-            {
-                this.LoadingText = null;
+                else
+                {
+                    ExtendedMessageBoxResult? answer = null;
+                    this.DeletePlanCommand.ReportProgress(
+                        () =>
+                        {
+                            var messageBox = new OpenSkyMessageBox(
+                                "Delete flight plans?",
+                                $"Are you sure you want to delete all the selected flight plans?",
+                                MessageBoxButton.YesNo,
+                                ExtendedMessageBoxImage.Question);
+                            messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                        });
+                    while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                    {
+                        Thread.Sleep(500);
+                    }
+
+                    if (answer != ExtendedMessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+                }
+
+                try
+                {
+                    foreach (var plan in this.selectedPlans.OfType<FlightPlan>())
+                    {
+                        this.LoadingText = $"Deleting flight plan {plan.FullFlightNumber}...";
+
+                        var result = OpenSkyService.Instance.DeleteFlightPlanAsync(plan.Id).Result;
+                        if(result.IsError)
+                        {
+                            this.DeletePlanCommand.ReportProgress(
+                                () =>
+                                {
+                                    Debug.WriteLine("Error deleting flight plan: " + result.Message);
+                                    if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                    {
+                                        Debug.WriteLine(result.ErrorDetails);
+                                    }
+
+                                    var notification = new OpenSkyNotification("Error deleting flight plan", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                    notification.SetErrorColorStyle();
+                                    Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                                });
+                        }
+                    }
+
+                    this.DeletePlanCommand.ReportProgress(() => this.RefreshPlansCommand.DoExecute(null));
+                }
+                catch (Exception ex)
+                {
+                    ex.HandleApiCallException(this.ViewReference, this.DeletePlanCommand, "Error deleting flight plan");
+                }
+                finally
+                {
+                    this.LoadingText = null;
+                }
             }
         }
 
@@ -240,10 +269,18 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void EditPlan()
         {
-            if (this.SelectedFlightPlan != null)
+            if (this.selectedPlans?.Count > 0)
             {
-                var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"Flight plan  {this.SelectedFlightPlan.FullFlightNumber}", Parameter = this.SelectedFlightPlan };
-                Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
+                foreach (var plan in this.selectedPlans.OfType<FlightPlan>())
+                {
+                    this.EditPlanCommand.ReportProgress(
+                        () =>
+                        {
+                            var navMenuItem = new NavMenuItem { Icon = "/Resources/plan16.png", PageType = typeof(Pages.FlightPlan), Name = $"Flight plan  {plan.FullFlightNumber}", Parameter = plan };
+                            Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
+                        });
+                    Thread.Sleep(200);
+                }
             }
         }
 
@@ -321,14 +358,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// (Immutable) Dictionary for each flight containing list of start of flight states the user
-        /// chose to override.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private readonly Dictionary<Guid, List<StartFlightStatus>> overriddenStates = new();
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Start the selected flight.
         /// </summary>
         /// <remarks>
@@ -337,25 +366,31 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void StartFlight()
         {
-            if (this.SelectedFlightPlan == null)
+            if (this.selectedPlans?.Count != 1)
             {
                 return;
             }
 
-            this.LoadingText = $"Starting flight {this.SelectedFlightPlan.FullFlightNumber}...";
+            if (this.selectedPlans[0] is not FlightPlan flightPlan)
+            {
+                return;
+            }
+
+            this.LoadingText = $"Starting flight {flightPlan.FullFlightNumber}...";
             try
             {
-                var flightID = this.SelectedFlightPlan.Id;
+                var flightID = flightPlan.Id;
                 if (!this.overriddenStates.ContainsKey(flightID))
                 {
                     this.overriddenStates.Add(flightID, new List<StartFlightStatus>());
                 }
 
-                var result = OpenSkyService.Instance.StartFlightAsync(new StartFlight
-                {
-                    FlightID = flightID,
-                    OverrideStates = this.overriddenStates[flightID]
-                }).Result;
+                var result = OpenSkyService.Instance.StartFlightAsync(
+                    new StartFlight
+                    {
+                        FlightID = flightID,
+                        OverrideStates = this.overriddenStates[flightID]
+                    }).Result;
                 if (!result.IsError)
                 {
                     if (result.Data == StartFlightStatus.Started)
@@ -382,10 +417,7 @@ namespace OpenSky.Client.Pages.Models
                                     "The selected aircraft is not at the selected origin airport. Do you want to create another flight plan for the positioning flight?",
                                     MessageBoxButton.YesNo,
                                     ExtendedMessageBoxImage.Question);
-                                messageBox.Closed += (_, _) =>
-                                {
-                                    answer = messageBox.Result;
-                                };
+                                messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                                 Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                             });
                         while (answer == null && !SleepScheduler.IsShutdownInProgress)
@@ -405,8 +437,8 @@ namespace OpenSky.Client.Pages.Models
                                         Parameter = new FlightPlan
                                         {
                                             Id = Guid.NewGuid(), FlightNumber = posFlightNumber, PlannedDepartureTime = DateTime.UtcNow.AddMinutes(30).RoundUp(TimeSpan.FromMinutes(5)), IsNewFlightPlan = true,
-                                            OriginICAO = this.SelectedFlightPlan.Aircraft.AirportICAO, DestinationICAO = this.SelectedFlightPlan.OriginICAO, Aircraft = this.SelectedFlightPlan.Aircraft,
-                                            FuelGallons = this.SelectedFlightPlan.Aircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {this.SelectedFlightPlan.Aircraft.Registry} FLIGHT #{this.SelectedFlightPlan.FlightNumber}"
+                                            OriginICAO = flightPlan.Aircraft.AirportICAO, DestinationICAO = flightPlan.OriginICAO, Aircraft = flightPlan.Aircraft,
+                                            FuelGallons = flightPlan.Aircraft.Fuel, DispatcherRemarks = $"REPOSITIONING FLIGHT FOR {flightPlan.Aircraft.Registry} FLIGHT #{flightPlan.FlightNumber}"
                                         }
                                     };
                                     Main.ActivateNavMenuItemInSameViewAs(this.ViewReference, navMenuItem);
