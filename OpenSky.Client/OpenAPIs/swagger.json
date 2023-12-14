@@ -6851,6 +6851,9 @@
           "flightPhase": {
             "$ref": "#/components/schemas/FlightPhase"
           },
+          "flightRule": {
+            "$ref": "#/components/schemas/FlightRule"
+          },
           "fuelGallons": {
             "type": "number",
             "description": "Gets or sets the fuel in gallons.",
@@ -7504,6 +7507,9 @@
         ],
         "type": "object",
         "properties": {
+          "flightRule": {
+            "$ref": "#/components/schemas/FlightRule"
+          },
           "aircraft": {
             "$ref": "#/components/schemas/Aircraft"
           },
@@ -7651,6 +7657,23 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "FlightRule": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "Flight rules. 0 = IFR, 1 = VFR",
+        "format": "int32",
+        "x-enumNames": [
+          "IFR",
+          "VFR"
+        ],
+        "x-enum-varnames": [
+          "IFR",
+          "VFR"
+        ]
       },
       "ForgotPassword": {
         "required": [

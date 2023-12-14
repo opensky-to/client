@@ -55,20 +55,22 @@
                      <ui:CommandBar.PrimaryCommands>
                          <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh flight plans [F5]" Command="{Binding RefreshPlansCommand}" />
                          <ui:AppBarButton Icon="Add" Label="New" ToolTip="Create a new flight plan" Command="{Binding NewPlanCommand}" />
-                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected flight plan" Command="{Binding EditPlanCommand}" />
+                         <ui:AppBarButton Icon="Edit" Label="Edit" ToolTip="Edit the selected flight plans" Command="{Binding EditPlanCommand}" />
                          <ui:AppBarButton Label="Start flight" ToolTip="Start flying the selected flight plan" Command="{Binding StartFlightCommand}">
                              <ui:AppBarButton.Icon>
                                  <ui:FontIcon Glyph="&#xE709;" />
                              </ui:AppBarButton.Icon>
                         </ui:AppBarButton>
-                         <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the selected flight plan" Command="{Binding DeletePlanCommand}" />
+                         <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete the selected flight plans" Command="{Binding DeletePlanCommand}" />
                      </ui:CommandBar.PrimaryCommands>
                  </ui:CommandBar>
+                 <!--SelectedItem="{Binding SelectedFlightPlan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"-->
+                 
                 <DataGrid
                     Grid.Row="1"
                     ItemsSource="{Binding Source={StaticResource PlansViewSource}}"
-                    SelectedItem="{Binding SelectedFlightPlan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    SelectionChanged="FlightPlansSelectionChanged"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Extended" SelectionUnit="FullRow"
                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
                     ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
                     dgx:DataGridFilter.IsAutoFilterEnabled="True">
