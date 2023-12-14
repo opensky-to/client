@@ -3,6 +3,13 @@ OpenSky Client Changelog
 ======================================================================================
 
 --------------------------------------------------------------------------------------
+Version 0.5.7 (ALPHA5)
+--------------------------------------------------------------------------------------
+- Support for editing/deleting multiple flight plans
+- Added flight rules setting to flight plans (IFR/VFR), for now you only need to set
+  VFR if you want to fly on Vatsim but not file a flight plan
+
+--------------------------------------------------------------------------------------
 Version 0.5.6 (ALPHA5)
 --------------------------------------------------------------------------------------
 - Landing Analysis 2.0 support
