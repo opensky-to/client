@@ -3,6 +3,15 @@ OpenSky Client Changelog
 ======================================================================================
 
 --------------------------------------------------------------------------------------
+Version 0.5.8 (ALPHA5)
+--------------------------------------------------------------------------------------
+- Added notifications
+- Notification management for admins and mods
+- Fixed logbook not scrolling
+- Fixed paused flights displayed on world map
+- Added fuel reset option to flight plans (reset back to current level in aircraft)
+
+--------------------------------------------------------------------------------------
 Version 0.5.7 (ALPHA5)
 --------------------------------------------------------------------------------------
 - Support for editing/deleting multiple flight plans

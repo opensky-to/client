@@ -21,7 +21,7 @@
                       xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                       xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
                       LoadingText="{Binding LoadingText}"
-                      HorizontalScrollBar="False" Loaded="FlightLogsOnLoaded"
+                      HorizontalScrollBar="False" VerticalScrollBar="False" Loaded="FlightLogsOnLoaded"
                       mc:Ignorable="d" d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:FlightLogsViewModel />

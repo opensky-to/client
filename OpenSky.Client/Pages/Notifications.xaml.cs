@@ -1,12 +1,17 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="UserManager.xaml.cs" company="OpenSky">
+// <copyright file="Notifications.xaml.cs" company="OpenSky">
 // OpenSky project 2021-2023
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace OpenSky.Client.Pages
 {
+    using System;
+    using System.Reflection;
     using System.Windows;
+    using System.Windows.Input;
+
+    using ModernWpf.Controls;
 
     using OpenSky.Client.Pages.Models;
 
@@ -14,20 +19,20 @@ namespace OpenSky.Client.Pages
 
     /// -------------------------------------------------------------------------------------------------
     /// <content>
-    /// User manager page.
+    /// Notifications page.
     /// </content>
     /// -------------------------------------------------------------------------------------------------
-    public partial class UserManager
+    public partial class Notifications
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserManager"/> class.
+        /// Initializes a new instance of the <see cref="Notifications"/> class.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 21/11/2023.
+        /// sushi.at, 18/12/2023.
         /// </remarks>
         /// -------------------------------------------------------------------------------------------------
-        public UserManager()
+        public Notifications()
         {
             this.InitializeComponent();
         }
@@ -38,7 +43,7 @@ namespace OpenSky.Client.Pages
         /// e.Cancel=true to abort closing the page.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 21/11/2023.
+        /// sushi.at, 18/12/2023.
         /// </remarks>
         /// <param name="sender">
         /// Source of the event.
@@ -58,7 +63,7 @@ namespace OpenSky.Client.Pages
         /// Method that receives an optional page parameter when the page is opened.
         /// </summary>
         /// <remarks>
-        /// sushi.at, 21/11/2023.
+        /// sushi.at, 18/12/2023.
         /// </remarks>
         /// <param name="parameter">
         /// The parameter.
@@ -72,7 +77,69 @@ namespace OpenSky.Client.Pages
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// User manager on loaded.
+        /// Automatic suggestions query submitted.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="args">
+        /// Automatic suggest box query submitted event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AutoSuggestionsQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion != null)
+            {
+                sender.Text = args.ChosenSuggestion.ToString();
+            }
+
+            sender.IsSuggestionListOpen = false;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Auto suggest box preview key down.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 08/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Key event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void AutoSuggestPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is AutoSuggestBox box)
+            {
+                if (e.Key == Key.PageDown)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexIncrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+
+                if (e.Key == Key.PageUp)
+                {
+                    var method = typeof(AutoSuggestBox).GetMethod("SelectedIndexDecrement", BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (var i = 0; i < 5; i++)
+                    {
+                        method?.Invoke(box, Array.Empty<object>());
+                    }
+                }
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Notifications on loaded.
         /// </summary>
         /// <remarks>
         /// sushi.at, 18/12/2023.
@@ -84,12 +151,12 @@ namespace OpenSky.Client.Pages
         /// Routed event information.
         /// </param>
         /// -------------------------------------------------------------------------------------------------
-        private void UserManagerOnLoaded(object sender, RoutedEventArgs e)
+        private void NotificationsOnLoaded(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is UserManagerViewModel viewModel)
+            if (this.DataContext is NotificationsViewModel viewModel)
             {
                 viewModel.ViewReference = this;
-                viewModel.RefreshUsersCommand.DoExecute(null);
+                viewModel.RefreshNotificationsCommand.DoExecute(null);
             }
         }
     }

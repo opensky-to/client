@@ -174,7 +174,7 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the user information string (user name and airline).
+        /// Gets the user information string (username and airline).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string UserInfo
@@ -496,6 +496,7 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         private void UpdateMainMenu()
         {
+            this.SelectedNavMenuItem = null;
             this.NavigationItems.Clear();
             this.NavigationFooterItems.Clear();
 
@@ -547,6 +548,9 @@ namespace OpenSky.Client.Views.Models
 
                     var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes), Tooltip = "Aircraft types manager, please keep it tidy!" };
                     tools.Children.Add(aircraftTypes);
+
+                    var notifications = new NavMenuItem { Name = "Notifications", Icon = "/Resources/notification16.png", PageType = typeof(Notifications), Tooltip = "Notifications management, for important stuff" };
+                    tools.Children.Add(notifications);
                 }
 
                 if (UserSessionService.Instance.IsAdmin)

@@ -186,6 +186,7 @@ namespace OpenSky.Client.Pages.Models
                             messageBox.Closed += (_, _) => { answer = messageBox.Result; };
                             Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
                         });
+
                     while (answer == null && !SleepScheduler.IsShutdownInProgress)
                     {
                         Thread.Sleep(500);
