@@ -19,6 +19,9 @@
                       xmlns:ui="http://schemas.modernwpf.com/2019"
                       xmlns:system="clr-namespace:System;assembly=mscorlib"
                       xmlns:openSkyApi="clr-namespace:OpenSkyApi"
+                      xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                      xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
+                      xmlns:converters="clr-namespace:OpenSky.Client.Converters"
                       mc:Ignorable="d" Loaded="NotificationsOnLoaded"
                       d:DesignHeight="450" d:DesignWidth="800"
                       HorizontalScrollBar="False" VerticalScrollBar="False" LoadingText="{Binding LoadingText}">
@@ -47,6 +50,16 @@
                 <x:Type TypeName="openSkyApi:NotificationStyle"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <CollectionViewSource Source="{Binding ActiveNotifications}" x:Key="ActiveNotificationsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Sender" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource Source="{Binding CompletedNotifications}" x:Key="CompletedNotificationsViewSource">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Sender" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -57,6 +70,116 @@
             <GroupBox.Header>
                 <TextBlock FontSize="15" FontWeight="DemiBold">Manage notifications</TextBlock>
             </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left">
+                    <ui:CommandBar.PrimaryCommands>
+                        <ui:AppBarButton Icon="Refresh" Label="Refresh" ToolTip="Refresh flight plans [F5]" Command="{Binding RefreshNotificationsCommand}" />
+                        <ui:AppBarButton Icon="Mail" Label="Email fallback" ToolTip="Fallback to email NOW" Command="{Binding FallbackEmailNowCommand}" />
+                        <ui:AppBarButton Icon="Delete" Label="Delete" ToolTip="Delete selected notification" Command="{Binding DeleteNotificationCommand}" />
+                    </ui:CommandBar.PrimaryCommands>
+                </ui:CommandBar>
+                <GroupBox Grid.Row="1" Header="Active notifications">
+                    <DataGrid
+                    ItemsSource="{Binding Source={StaticResource ActiveNotificationsViewSource}}"
+                    SelectedItem="{Binding SelectedNotification, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" SortDirection="Ascending" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="1*" />
+                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" MinWidth="80" />
+                            <DataGridTextColumn Header="Style" Binding="{Binding Style}" />
+                            <DataGridTextColumn Header="Auto hide" Binding="{Binding DisplayTimeout}" MinWidth="80" />
+                            <DataGridTextColumn Header="Expires?" Binding="{Binding Expires, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                            <DataGridTextColumn Header="Email fallback?" Binding="{Binding EmailFallback, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                            <DataGridTextColumn Header="Delivery status" Binding="{Binding DeliveryStatus}" />
+                        </DataGrid.Columns>
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate DataType="{x:Type openSkyApi:GroupedNotification}">
+                                <DataGrid
+                                ItemsSource="{Binding Recipients}"
+                                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="Column" Margin="30,20,0,40"
+                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                    <DataGrid.Resources>
+                                        <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
+                                        <DataTemplate x:Key="ClientPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding ClientPickup, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                        <DataTemplate x:Key="AgentPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding AgentPickup, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                        <DataTemplate x:Key="EmailSentCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding EmailSent, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Recipient" Binding="{Binding Name}" SortDirection="Ascending" />
+                                        <DataGridTemplateColumn Header="Client" CellTemplate="{StaticResource ClientPickupCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                        <DataGridTemplateColumn Header="Agent" CellTemplate="{StaticResource AgentPickupCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                        <DataGridTemplateColumn Header="Email" CellTemplate="{StaticResource EmailSentCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                </GroupBox>
+                <GroupBox Grid.Row="2" Header="Completed notifications">
+                    <DataGrid
+                    ItemsSource="{Binding Source={StaticResource CompletedNotificationsViewSource}}"
+                    SelectedItem="{Binding SelectedNotification, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinColumnWidth="120" HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}"
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" SortDirection="Ascending" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="1*" />
+                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" MinWidth="80" />
+                            <DataGridTextColumn Header="Style" Binding="{Binding Style}" />
+                            <DataGridTextColumn Header="Auto hide" Binding="{Binding DisplayTimeout}" MinWidth="80" />
+                            <DataGridTextColumn Header="Expires?" Binding="{Binding Expires, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                            <DataGridTextColumn Header="Email fallback?" Binding="{Binding EmailFallback, StringFormat=dd/MM/yyyy HH:mmZ}" />
+                            <DataGridTextColumn Header="Delivery status" Binding="{Binding DeliveryStatus}" />
+                        </DataGrid.Columns>
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate DataType="{x:Type openSkyApi:GroupedNotification}">
+                                <DataGrid
+                                ItemsSource="{Binding Recipients}"
+                                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                                HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="Column" Margin="30,20,0,40"
+                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                    <DataGrid.Resources>
+                                        <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
+                                        <DataTemplate x:Key="ClientPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding ClientPickup, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                        <DataTemplate x:Key="AgentPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding AgentPickup, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                        <DataTemplate x:Key="EmailSentCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
+                                            <Image Width="16" Height="16" Source="{Binding EmailSent, Converter={StaticResource BooleanToImageConverter}}" />
+                                        </DataTemplate>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Recipient" Binding="{Binding Name}" SortDirection="Ascending" />
+                                        <DataGridTemplateColumn Header="Client" CellTemplate="{StaticResource ClientPickupCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                        <DataGridTemplateColumn Header="Agent" CellTemplate="{StaticResource AgentPickupCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                        <DataGridTemplateColumn Header="Email" CellTemplate="{StaticResource EmailSentCellTemplate}" SortMemberPath="ClientPickup" CanUserSort="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                </GroupBox>
+            </Grid>
         </GroupBox>
         <GroupBox Grid.Column="1">
             <GroupBox.Header>

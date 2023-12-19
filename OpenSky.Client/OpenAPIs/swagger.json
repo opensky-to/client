@@ -4098,6 +4098,48 @@
           }
         }
       },
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get notifications for specified target.",
+        "description": "sushi.at, 18/12/2023.",
+        "operationId": "GetNotifications",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "query",
+            "description": "The target for the notification. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+            "schema": {
+              "$ref": "#/components/schemas/NotificationTarget"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Notification/{notificationID}/{target}": {
       "put": {
         "tags": [
           "Notification"
@@ -4108,8 +4150,9 @@
         "parameters": [
           {
             "name": "notificationID",
-            "in": "query",
+            "in": "path",
             "description": "Identifier for the notification.",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -4117,8 +4160,9 @@
           },
           {
             "name": "target",
-            "in": "query",
+            "in": "path",
             "description": "The target of the notification. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+            "required": true,
             "schema": {
               "$ref": "#/components/schemas/NotificationTarget"
             }
@@ -4146,21 +4190,25 @@
             }
           }
         }
-      },
-      "get": {
+      }
+    },
+    "/Notification/{groupingID}": {
+      "delete": {
         "tags": [
           "Notification"
         ],
-        "summary": "Get notifications for specified target.",
-        "description": "sushi.at, 18/12/2023.",
-        "operationId": "GetNotifications",
+        "summary": "Delete specified notification group.",
+        "description": "sushi.at, 19/12/2023.",
+        "operationId": "DeleteNotification",
         "parameters": [
           {
-            "name": "target",
-            "in": "query",
-            "description": "The target for the notification. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+            "name": "groupingID",
+            "in": "path",
+            "description": "Identifier for the grouping.",
+            "required": true,
             "schema": {
-              "$ref": "#/components/schemas/NotificationTarget"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -4170,17 +4218,93 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                  "$ref": "#/components/schemas/StringApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                  "$ref": "#/components/schemas/StringApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Notification/fallbackEmailNow/{groupingID}": {
+      "put": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Active fallback to email NOW for specified notification.",
+        "description": "sushi.at, 19/12/2023.",
+        "operationId": "FallbackNotificationToEmailNow",
+        "parameters": [
+          {
+            "name": "groupingID",
+            "in": "path",
+            "description": "Identifier for the grouping.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Notification/all": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get all currently active notifications.",
+        "description": "sushi.at, 19/12/2023.",
+        "operationId": "GetAllNotifications",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupedNotificationIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupedNotificationIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupedNotificationIEnumerableApiResponse"
                 }
               }
             }
@@ -5832,7 +5956,7 @@
         "additionalProperties": false,
         "description": "Client/Agent notification model."
       },
-      "ClientNotificationListApiResponse": {
+      "ClientNotificationIEnumerableApiResponse": {
         "type": "object",
         "properties": {
           "data": {
@@ -8052,6 +8176,129 @@
         },
         "additionalProperties": false,
         "description": "Ground operations model."
+      },
+      "GroupedNotification": {
+        "type": "object",
+        "properties": {
+          "displayTimeout": {
+            "type": "integer",
+            "description": "Gets or sets the display timeout.",
+            "format": "int32",
+            "nullable": true
+          },
+          "emailFallback": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the email fallback.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expires": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the expiration.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "groupingID": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the grouping.",
+            "format": "uuid"
+          },
+          "markedForDeletion": {
+            "type": "string",
+            "description": "Gets or sets the Date/Time of the marked for deletion time.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "recipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupedNotificationRecipient"
+            },
+            "description": "Gets or sets the recipients.",
+            "nullable": true
+          },
+          "sender": {
+            "type": "string",
+            "description": "Gets or sets the sender.",
+            "nullable": true
+          },
+          "style": {
+            "$ref": "#/components/schemas/NotificationStyle"
+          },
+          "target": {
+            "$ref": "#/components/schemas/NotificationTarget"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Grouped notification model."
+      },
+      "GroupedNotificationIEnumerableApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupedNotification"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "GroupedNotificationRecipient": {
+        "type": "object",
+        "properties": {
+          "agentPickup": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the agent has picked up the notification."
+          },
+          "clientPickup": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the client has picked up the notification."
+          },
+          "emailSent": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the email was sent."
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Grouped notification recipient."
       },
       "GuidApiResponse": {
         "type": "object",

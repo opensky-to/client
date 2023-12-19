@@ -10,6 +10,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading;
     using System.Windows;
 
     using JetBrains.Annotations;
@@ -58,6 +59,13 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The selected notification.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private GroupedNotification selectedNotification;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The username.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -83,6 +91,8 @@ namespace OpenSky.Client.Pages.Models
             // Initialize data structures
             this.Usernames = new ObservableCollection<string>();
             this.NewNotification = new AddNotification();
+            this.ActiveNotifications = new ObservableCollection<GroupedNotification>();
+            this.CompletedNotifications = new ObservableCollection<GroupedNotification>();
 
             // Create commands
             this.GetUserRolesCommand = new AsynchronousCommand(this.GetUserRoles);
@@ -90,11 +100,28 @@ namespace OpenSky.Client.Pages.Models
             this.RefreshNotificationsCommand = new AsynchronousCommand(this.RefreshNotifications);
             this.AddNotificationCommand = new AsynchronousCommand(this.AddNotification);
             this.ResetFormCommand = new Command(this.ResetForm);
+            this.DeleteNotificationCommand = new AsynchronousCommand(this.DeleteNotification, false);
+            this.FallbackEmailNowCommand = new AsynchronousCommand(this.FallbackEmailNow, false);
 
             // Run initial commands
             this.GetUserRolesCommand.DoExecute(null);
             this.GetUsernamesCommand.DoExecute(null);
         }
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the fallback email now command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand FallbackEmailNowCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the active notifications.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<GroupedNotification> ActiveNotifications { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -102,6 +129,20 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand AddNotificationCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the completed notifications.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public ObservableCollection<GroupedNotification> CompletedNotifications { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the delete notification command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand DeleteNotificationCommand { get; }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -181,6 +222,33 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public Command ResetFormCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the selected notification.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public GroupedNotification SelectedNotification
+        {
+            get => this.selectedNotification;
+
+            set
+            {
+                if (Equals(this.selectedNotification, value))
+                {
+                    return;
+                }
+
+                // Deselect to NULL first or other data grid won't deselect
+                this.selectedNotification = null;
+                this.NotifyPropertyChanged();
+                this.selectedNotification = value;
+                this.NotifyPropertyChanged();
+
+                this.DeleteNotificationCommand.CanExecute = UserSessionService.Instance.IsAdmin && value != null;
+                this.FallbackEmailNowCommand.CanExecute = UserSessionService.Instance.IsAdmin && value != null;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -264,6 +332,8 @@ namespace OpenSky.Client.Pages.Models
                     this.AddNotificationCommand.ReportProgress(
                         () =>
                         {
+                            var notification = new OpenSkyNotification("New notification", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Information, 10);
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
                             this.ResetFormCommand.DoExecute(null);
                             this.RefreshNotificationsCommand.DoExecute(null);
                         });
@@ -282,6 +352,152 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.ViewReference, this.AddNotificationCommand, "Error submitting new notification");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Fallback to email for the selected notification.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void FallbackEmailNow()
+        {
+            if (this.SelectedNotification == null)
+            {
+                return;
+            }
+
+            this.LoadingText = "Updating notification...";
+            try
+            {
+                var result = OpenSkyService.Instance.FallbackNotificationToEmailNowAsync(this.SelectedNotification.GroupingID).Result;
+                if (!result.IsError)
+                {
+                    this.FallbackEmailNowCommand.ReportProgress(
+                        () => { this.RefreshNotificationsCommand.DoExecute(null); });
+                }
+                else
+                {
+                    this.FallbackEmailNowCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Error", "Error updating notification", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.FallbackEmailNowCommand, "Error updating notification");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
+
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Delete the selected notification.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DeleteNotification()
+        {
+            if (this.SelectedNotification == null)
+            {
+                return;
+            }
+
+            if (this.SelectedNotification.MarkedForDeletion.HasValue)
+            {
+                ExtendedMessageBoxResult? answer = null;
+                this.DeleteNotificationCommand.ReportProgress(
+                    () =>
+                    {
+                        var messageBox = new OpenSkyMessageBox(
+                            "Delete notification?",
+                            $"The selected notification is already marked for deletion after {this.SelectedNotification.MarkedForDeletion:dd/MM/yyyy HH:mmZ}.\r\n\r\nAre you sure you want to delete it now?",
+                            MessageBoxButton.YesNo,
+                            ExtendedMessageBoxImage.Question);
+                        messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                        Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                    });
+
+                while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                {
+                    Thread.Sleep(500);
+                }
+
+                if (answer != ExtendedMessageBoxResult.Yes)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                var delivered = this.SelectedNotification.Recipients.Count(r => r.ClientPickup || r.AgentPickup || r.EmailSent);
+                if (delivered < this.SelectedNotification.Recipients.Count)
+                {
+                    ExtendedMessageBoxResult? answer = null;
+                    this.DeleteNotificationCommand.ReportProgress(
+                        () =>
+                        {
+                            var messageBox = new OpenSkyMessageBox(
+                                "Delete notification?",
+                                $"The selected notification has only been delivered to {delivered} out of {this.SelectedNotification.Recipients.Count} recipients.\r\n\r\nAre you sure you want to delete it now?",
+                                MessageBoxButton.YesNo,
+                                ExtendedMessageBoxImage.Question);
+                            messageBox.Closed += (_, _) => { answer = messageBox.Result; };
+                            Main.ShowMessageBoxInSaveViewAs(this.ViewReference, messageBox);
+                        });
+
+                    while (answer == null && !SleepScheduler.IsShutdownInProgress)
+                    {
+                        Thread.Sleep(500);
+                    }
+
+                    if (answer != ExtendedMessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            this.LoadingText = "Deleting selected notification...";
+            try
+            {
+                var result = OpenSkyService.Instance.DeleteNotificationAsync(this.SelectedNotification.GroupingID).Result;
+                if (!result.IsError)
+                {
+                    this.DeleteNotificationCommand.ReportProgress(
+                        () => { this.RefreshNotificationsCommand.DoExecute(null); });
+                }
+                else
+                {
+                    this.DeleteNotificationCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Error", "Error deleting notification", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.DeleteNotificationCommand, "Error deleting notification");
             }
             finally
             {
@@ -376,7 +592,40 @@ namespace OpenSky.Client.Pages.Models
         /// -------------------------------------------------------------------------------------------------
         private void RefreshNotifications()
         {
-            // todo
+            this.LoadingText = "Fetching notifications...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetAllNotificationsAsync().Result;
+                if (!result.IsError)
+                {
+                    this.RefreshNotificationsCommand.ReportProgress(
+                        () =>
+                        {
+                            this.ActiveNotifications.Clear();
+                            this.CompletedNotifications.Clear();
+                            this.ActiveNotifications.AddRange(result.Data.Where(n => !n.MarkedForDeletion.HasValue).OrderBy(n => n.Sender));
+                            this.CompletedNotifications.AddRange(result.Data.Where(n => n.MarkedForDeletion.HasValue).OrderBy(n => n.Sender));
+                        });
+                }
+                else
+                {
+                    this.RefreshNotificationsCommand.ReportProgress(
+                        () =>
+                        {
+                            var notification = new OpenSkyNotification("Error", "Error fetching notifications", MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.RefreshNotificationsCommand, "Error fetching notifications");
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------

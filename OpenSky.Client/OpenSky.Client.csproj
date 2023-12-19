@@ -186,6 +186,7 @@
     <Compile Include="OpenAPIs\ModelExtensions\Airport.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\FinancialRecord.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\GroundOperations.cs" />
+    <Compile Include="OpenAPIs\ModelExtensions\GroupedNotification.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Job.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\Payload.cs" />
     <Compile Include="OpenAPIs\ModelExtensions\RunwaySurface.cs" />
