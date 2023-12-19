@@ -7,14 +7,19 @@
 namespace OpenSky.Client.Views.Models
 {
     using System;
+    using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
     using System.Windows;
 
     using JetBrains.Annotations;
 
+    using OpenSky.Client.Controls;
+    using OpenSky.Client.Controls.Models;
     using OpenSky.Client.MVVM;
     using OpenSky.Client.Tools;
+
+    using OpenSkyApi;
 
     /// -------------------------------------------------------------------------------------------------
     /// <summary>
@@ -59,6 +64,110 @@ namespace OpenSky.Client.Views.Models
             // Check for update
             UpdateGUIDelegate autoUpdate = () => new AutoUpdate().Show();
             Application.Current.Dispatcher.BeginInvoke(autoUpdate);
+
+            // Start background worker threads
+            new Thread(this.CheckNotifications) { Name = "OpenSky.StartupViewModel.CheckNotifications" }.Start();
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Check for notifications.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 18/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void CheckNotifications()
+        {
+            // Wait for window to load up properly
+            Thread.Sleep(5000);
+
+            while (!SleepScheduler.IsShutdownInProgress)
+            {
+                if (UserSessionService.Instance.IsUserLoggedIn)
+                {
+                    try
+                    {
+                        var result = OpenSkyService.Instance.GetNotificationsAsync(NotificationTarget.Client).Result;
+                        if (!result.IsError)
+                        {
+                            if (result.Data.Count > 0)
+                            {
+                                UpdateGUIDelegate showNotifications = () =>
+                                {
+                                    foreach (var notificationData in result.Data)
+                                    {
+                                        if (notificationData.Style is NotificationStyle.ToastInfo or NotificationStyle.ToastWarning or NotificationStyle.ToastError)
+                                        {
+                                            var icon = notificationData.Style switch
+                                            {
+                                                NotificationStyle.ToastWarning => ExtendedMessageBoxImage.Warning,
+                                                NotificationStyle.ToastError => ExtendedMessageBoxImage.Error,
+                                                _ => ExtendedMessageBoxImage.Information
+                                            };
+
+                                            foreach (var mainInstance in Main.Instances)
+                                            {
+                                                var notification = new OpenSkyNotification($"Notification from \"{notificationData.Sender}\"", notificationData.Message, MessageBoxButton.OK, icon, notificationData.DisplayTimeout ?? 0);
+                                                if (notificationData.Style == NotificationStyle.ToastWarning)
+                                                {
+                                                    notification.SetWarningColorStyle();
+                                                }
+
+                                                if (notificationData.Style == NotificationStyle.ToastError)
+                                                {
+                                                    notification.SetErrorColorStyle();
+                                                }
+
+                                                mainInstance.ShowNotification(notification);
+                                            }
+                                        }
+
+                                        if (notificationData.Style is NotificationStyle.MessageBoxInfo or NotificationStyle.MessageBoxWarning or NotificationStyle.MessageBoxError)
+                                        {
+                                            var icon = notificationData.Style switch
+                                            {
+                                                NotificationStyle.MessageBoxWarning => ExtendedMessageBoxImage.Warning,
+                                                NotificationStyle.MessageBoxError => ExtendedMessageBoxImage.Error,
+                                                _ => ExtendedMessageBoxImage.Information
+                                            };
+
+                                            var messageBox = new OpenSkyMessageBox($"Notification from \"{notificationData.Sender}\"", notificationData.Message, MessageBoxButton.OK, icon, notificationData.DisplayTimeout ?? 0);
+                                            if (notificationData.Style == NotificationStyle.MessageBoxWarning)
+                                            {
+                                                messageBox.SetWarningColorStyle();
+                                            }
+
+                                            if (notificationData.Style == NotificationStyle.MessageBoxError)
+                                            {
+                                                messageBox.SetErrorColorStyle();
+                                            }
+
+                                            Main.Instances[0].ShowMessageBox(messageBox);
+                                        }
+                                    }
+                                };
+                                Application.Current.Dispatcher.BeginInvoke(showNotifications);
+
+                                foreach (var notification in result.Data)
+                                {
+                                    _ = OpenSkyService.Instance.ConfirmNotificationPickupAsync(notification.Id, NotificationTarget.Client).Result;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error checking for notifications: {result.Message}\r\n{result.ErrorDetails}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error checking for notifications: " + ex);
+                    }
+
+                    SleepScheduler.SleepFor(TimeSpan.FromMinutes(1));
+                }
+            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -110,16 +219,16 @@ namespace OpenSky.Client.Views.Models
                         // Ignore here
                     }
                 }
-                
             };
 
             // Show the splash screen for at least for 2 seconds, then open the main window and trigger the close window event
             Thread.Sleep(Math.Max(2000 - (int)(DateTime.Now - checksStarted).TotalMilliseconds, 0));
-            this.StartupChecksCommand.ReportProgress(() =>
-            {
-                new Main().Show();
-                this.CloseWindow?.Invoke(this, EventArgs.Empty);
-            });
+            this.StartupChecksCommand.ReportProgress(
+                () =>
+                {
+                    new Main().Show();
+                    this.CloseWindow?.Invoke(this, EventArgs.Empty);
+                });
         }
 
         /// -------------------------------------------------------------------------------------------------

@@ -209,6 +209,7 @@
     <Compile Include="Pages\Models\JobMarketViewModel.cs" />
     <Compile Include="Pages\Models\MyJobsViewModel.cs" />
     <Compile Include="Pages\Models\NewAircraftViewModel.cs" />
+    <Compile Include="Pages\Models\NotificationsViewModel.cs" />
     <Compile Include="Pages\Models\UserManagerViewModel.cs" />
     <Compile Include="Pages\Models\WelcomeViewModel.cs" />
     <Compile Include="Pages\Models\WorldMapViewModel.cs" />
@@ -217,6 +218,9 @@
     </Compile>
     <Compile Include="Pages\NewAircraft.xaml.cs">
       <DependentUpon>NewAircraft.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Notifications.xaml.cs">
+      <DependentUpon>Notifications.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\UserManager.xaml.cs">
       <DependentUpon>UserManager.xaml</DependentUpon>
@@ -431,6 +435,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\NewAircraft.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Notifications.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -735,6 +743,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\userid16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\notification16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

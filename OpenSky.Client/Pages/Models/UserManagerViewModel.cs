@@ -55,27 +55,6 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the selected user profile image.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public BitmapImage SelectedUserProfileImage
-        {
-            get => this.selectedUserProfileImage;
-
-            set
-            {
-                if (Equals(this.selectedUserProfileImage, value))
-                {
-                    return;
-                }
-
-                this.selectedUserProfileImage = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Initializes a new instance of the <see cref="UserManagerViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -92,8 +71,6 @@ namespace OpenSky.Client.Pages.Models
             this.ToggleModeratorRoleCommand = new AsynchronousCommand(this.ToggleModeratorRole, false);
             this.GetProfileImageForSelectedUserCommand = new AsynchronousCommand(this.GetProfileImageForSelectedUser, false);
         }
-
-
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -160,6 +137,27 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the selected user profile image.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public BitmapImage SelectedUserProfileImage
+        {
+            get => this.selectedUserProfileImage;
+
+            set
+            {
+                if (Equals(this.selectedUserProfileImage, value))
+                {
+                    return;
+                }
+
+                this.selectedUserProfileImage = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the toggle moderator role command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -171,6 +169,74 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<User> Users { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets profile image for selected user.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/11/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void GetProfileImageForSelectedUser()
+        {
+            if (this.SelectedUser == null)
+            {
+                this.GetProfileImageForSelectedUserCommand.ReportProgress(
+                    () => { this.SelectedUserProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png")); });
+                return;
+            }
+
+            this.LoadingText = "Downloading profile image...";
+            try
+            {
+                var result = OpenSkyService.Instance.GetProfileImageAsync(this.SelectedUser.Id).Result;
+                if (!result.IsError)
+                {
+                    var image = new BitmapImage();
+
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    using (var mem = new MemoryStream(result.Data))
+                    {
+                        image.BeginInit();
+                        image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.UriSource = null;
+                        image.StreamSource = mem;
+                        image.EndInit();
+                    }
+
+                    image.Freeze();
+                    this.SelectedUserProfileImage = image;
+                }
+                else
+                {
+                    this.GetProfileImageForSelectedUserCommand.ReportProgress(
+                        () =>
+                        {
+                            Debug.WriteLine("Error downloading profile image: " + result.Message);
+                            if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                Debug.WriteLine(result.ErrorDetails);
+                            }
+
+                            var notification = new OpenSkyNotification("Error downloading profile image", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                            notification.SetErrorColorStyle();
+                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.RefreshUsersCommand, "Error downloading profile image");
+                this.GetProfileImageForSelectedUserCommand.ReportProgress(
+                    () => { this.SelectedUserProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png")); });
+            }
+            finally
+            {
+                this.LoadingText = null;
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -218,80 +284,6 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.ViewReference, this.RefreshUsersCommand, "Error refreshing OpenSky users");
-            }
-            finally
-            {
-                this.LoadingText = null;
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets profile image for selected user.
-        /// </summary>
-        /// <remarks>
-        /// sushi.at, 23/11/2023.
-        /// </remarks>
-        /// -------------------------------------------------------------------------------------------------
-        private void GetProfileImageForSelectedUser()
-        {
-            if (this.SelectedUser == null)
-            {
-                this.GetProfileImageForSelectedUserCommand.ReportProgress(
-                    () =>
-                    {
-                        this.SelectedUserProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png"));
-                    });
-                return;
-            }
-
-            this.LoadingText = "Downloading profile image...";
-            try
-            {
-                var result = OpenSkyService.Instance.GetProfileImageAsync(this.SelectedUser.Id).Result;
-                if (!result.IsError)
-                {
-                    var image = new BitmapImage();
-
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    using (var mem = new MemoryStream(result.Data))
-                    {
-                        image.BeginInit();
-                        image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.UriSource = null;
-                        image.StreamSource = mem;
-                        image.EndInit();
-                    }
-
-                    image.Freeze();
-                    this.SelectedUserProfileImage = image;
-                }
-                else
-                {
-                    this.GetProfileImageForSelectedUserCommand.ReportProgress(
-                        () =>
-                        {
-                            Debug.WriteLine("Error downloading profile image: " + result.Message);
-                            if (!string.IsNullOrEmpty(result.ErrorDetails))
-                            {
-                                Debug.WriteLine(result.ErrorDetails);
-                            }
-
-                            var notification = new OpenSkyNotification("Error downloading profile image", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
-                            notification.SetErrorColorStyle();
-                            Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
-                        });
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.HandleApiCallException(this.ViewReference, this.RefreshUsersCommand, "Error downloading profile image");
-                this.GetProfileImageForSelectedUserCommand.ReportProgress(
-                    () =>
-                    {
-                        this.SelectedUserProfileImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/profile200.png"));
-                    });
             }
             finally
             {

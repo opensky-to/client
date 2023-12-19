@@ -163,6 +163,38 @@
         }
       }
     },
+    "/Account/usernames": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Gets the username list of all OpenSky users.",
+        "description": "sushi.at, 18/12/2023.",
+        "operationId": "GetUserNames",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringIEnumerableApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Account/users": {
       "get": {
         "tags": [
@@ -4015,6 +4047,147 @@
         }
       }
     },
+    "/Notification": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Add a new notification.",
+        "description": "sushi.at, 15/12/2023.",
+        "operationId": "AddNotification",
+        "requestBody": {
+          "description": "The add notification model.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddNotification"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddNotification"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddNotification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Confirm successful pickup of a notification for the specified target.",
+        "description": "sushi.at, 18/12/2023.",
+        "operationId": "ConfirmNotificationPickup",
+        "parameters": [
+          {
+            "name": "notificationID",
+            "in": "query",
+            "description": "Identifier for the notification.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "description": "The target of the notification. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+            "schema": {
+              "$ref": "#/components/schemas/NotificationTarget"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get notifications for specified target.",
+        "description": "sushi.at, 18/12/2023.",
+        "operationId": "GetNotifications",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "query",
+            "description": "The target for the notification. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+            "schema": {
+              "$ref": "#/components/schemas/NotificationTarget"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientNotificationListApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/WorldStatistics": {
       "get": {
         "tags": [
@@ -4200,6 +4373,60 @@
         },
         "additionalProperties": false,
         "description": "API standard response model."
+      },
+      "AddNotification": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "displayTimeout": {
+            "type": "integer",
+            "description": "Optional: Gets or sets the number of seconds after which to auto-dismiss the notification (or NULL for no\r\ntimeout)",
+            "format": "int32",
+            "nullable": true
+          },
+          "emailFallbackHours": {
+            "type": "integer",
+            "description": "Optional: Gets or sets the number of hours after which the message gets sent via email if no client picked it up.",
+            "format": "int32",
+            "nullable": true
+          },
+          "expiresInMinutes": {
+            "type": "integer",
+            "description": "Optional: Gets or sets the expiration in minutes.",
+            "format": "int32",
+            "nullable": true
+          },
+          "message": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the message."
+          },
+          "recipientType": {
+            "$ref": "#/components/schemas/NotificationRecipient"
+          },
+          "recipientUserName": {
+            "maxLength": 256,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the recipient username (only if recipient type is user).",
+            "nullable": true
+          },
+          "sendAsSystem": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether to send the notification as \"OpenSky System\""
+          },
+          "style": {
+            "$ref": "#/components/schemas/NotificationStyle"
+          },
+          "target": {
+            "$ref": "#/components/schemas/NotificationTarget"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Add notification model."
       },
       "Aircraft": {
         "required": [
@@ -5567,6 +5794,77 @@
         },
         "additionalProperties": false,
         "description": "Change password model."
+      },
+      "ClientNotification": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "displayTimeout": {
+            "type": "integer",
+            "description": "Optional: The number of seconds after which to auto-dismiss the notification (or NULL for no\r\ntimeout)",
+            "format": "int32",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the notification.",
+            "format": "uuid"
+          },
+          "message": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the message."
+          },
+          "sender": {
+            "maxLength": 256,
+            "minLength": 0,
+            "type": "string",
+            "description": "Gets or sets the sender (or NULL for OpenSky System).",
+            "nullable": true
+          },
+          "style": {
+            "$ref": "#/components/schemas/NotificationStyle"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Client/Agent notification model."
+      },
+      "ClientNotificationListApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientNotification"
+            },
+            "description": "Gets or sets the embedded data of type T.",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
       },
       "Country": {
         "enum": [
@@ -8148,6 +8446,84 @@
           "ManufacturerDeliveryAirport",
           "ManufacturerFerry",
           "OutsourceFerry"
+        ]
+      },
+      "NotificationRecipient": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "Notification recipients. 0 = User, 1 = Mods, 2 = Admins, 3 = Everyone",
+        "format": "int32",
+        "x-enumNames": [
+          "User",
+          "Mods",
+          "Admins",
+          "Everyone"
+        ],
+        "x-enum-varnames": [
+          "User",
+          "Mods",
+          "Admins",
+          "Everyone"
+        ]
+      },
+      "NotificationStyle": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "Notification styles. 0 = ToastInfo, 1 = MessageBoxInfo, 2 = ToastWarning, 3 = MessageBoxWarning, 4 = ToastError, 5 = MessageBoxError",
+        "format": "int32",
+        "x-enumNames": [
+          "ToastInfo",
+          "MessageBoxInfo",
+          "ToastWarning",
+          "MessageBoxWarning",
+          "ToastError",
+          "MessageBoxError"
+        ],
+        "x-enum-varnames": [
+          "ToastInfo",
+          "MessageBoxInfo",
+          "ToastWarning",
+          "MessageBoxWarning",
+          "ToastError",
+          "MessageBoxError"
+        ]
+      },
+      "NotificationTarget": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "description": "Notification targets. 0 = Client, 1 = Agent, 2 = ClientAndAgent, 3 = Email, 4 = All",
+        "format": "int32",
+        "x-enumNames": [
+          "Client",
+          "Agent",
+          "ClientAndAgent",
+          "Email",
+          "All"
+        ],
+        "x-enum-varnames": [
+          "Client",
+          "Agent",
+          "ClientAndAgent",
+          "Email",
+          "All"
         ]
       },
       "OnlineNetwork": {

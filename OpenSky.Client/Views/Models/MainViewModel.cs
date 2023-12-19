@@ -547,6 +547,9 @@ namespace OpenSky.Client.Views.Models
 
                     var aircraftTypes = new NavMenuItem { Name = "Aircraft types", Icon = "/Resources/aircraft16.png", PageType = typeof(AircraftTypes), Tooltip = "Aircraft types manager, please keep it tidy!" };
                     tools.Children.Add(aircraftTypes);
+
+                    var notifications = new NavMenuItem { Name = "Notifications", Icon = "/Resources/notification16.png", PageType = typeof(Notifications), Tooltip = "Notifications management, for important stuff" };
+                    tools.Children.Add(notifications);
                 }
 
                 if (UserSessionService.Instance.IsAdmin)

@@ -334,7 +334,7 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets a list of of the existing aircraft types.
+        /// Gets a list of the existing aircraft types.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public ObservableCollection<AircraftType> ExistingAircraftTypes { get; }
