@@ -210,6 +210,7 @@ namespace OpenSky.Client.Pages.Models
             this.StartFlightCommand = new AsynchronousCommand(this.StartFlight);
             this.UpdateAirportsCommand = new AsynchronousCommand(this.UpdateAirports);
             this.RefreshBalancesCommand = new AsynchronousCommand(this.RefreshBalances);
+            this.ResetFuelCommand = new Command(this.ResetFuel, false);
 
             // Fire off initial commands
             this.RefreshAirlineCommand.DoExecute(null);

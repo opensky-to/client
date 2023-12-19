@@ -174,7 +174,7 @@ namespace OpenSky.Client.Views.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the user information string (user name and airline).
+        /// Gets the user information string (username and airline).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public string UserInfo
@@ -496,6 +496,7 @@ namespace OpenSky.Client.Views.Models
         /// -------------------------------------------------------------------------------------------------
         private void UpdateMainMenu()
         {
+            this.SelectedNavMenuItem = null;
             this.NavigationItems.Clear();
             this.NavigationFooterItems.Clear();
 

@@ -8,6 +8,8 @@ namespace OpenSky.Client.Pages.Models
 {
     using System.Windows;
 
+    using OpenSky.Client.MVVM;
+
     using OpenSkyApi;
 
     /// -------------------------------------------------------------------------------------------------
@@ -144,5 +146,28 @@ namespace OpenSky.Client.Pages.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public double MaxFuelWeight => (this.SelectedAircraft?.Type.FuelTotalCapacity ?? 0) * (this.SelectedAircraft?.Type.FuelWeightPerGallon ?? 0);
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the reset fuel command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command ResetFuelCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Reset fuel back to current level of the aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 19/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void ResetFuel()
+        {
+            if (this.SelectedAircraft != null)
+            {
+                this.FuelGallons = this.SelectedAircraft.Fuel;
+            }
+        }
     }
 }

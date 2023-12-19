@@ -333,6 +333,7 @@
                                 <GroupBox.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontSize="12" FontWeight="DemiBold">Fuel</TextBlock>
+                                        <Button Padding="5,0" FontSize="11" Margin="5,-2,0,0" Command="{Binding ResetFuelCommand}">reset</Button>
                                     </StackPanel>
                                 </GroupBox.Header>
                                 <Grid IsEnabled="{Binding SelectedAircraft, Converter={StaticResource NullItemToEnabledConverter}}">
