@@ -13699,6 +13699,18 @@ namespace OpenSkyApi
     public partial class Payload
     {
         /// <summary>
+        /// Gets or sets the aircraft latitude (if currently loaded onto an aircraft).
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("aircraftLatitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? AircraftLatitude { get; set; }
+
+        /// <summary>
+        /// Gets or sets the aircraft longitude (if currently loaded onto an aircraft).
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("aircraftLongitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? AircraftLongitude { get; set; }
+
+        /// <summary>
         /// Gets or sets the aircraft registry the payload is currently loaded on, or NULL if stored at an airport.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("aircraftRegistry", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

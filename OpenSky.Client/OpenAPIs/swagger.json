@@ -8798,6 +8798,18 @@
         ],
         "type": "object",
         "properties": {
+          "aircraftLatitude": {
+            "type": "number",
+            "description": "Gets or sets the aircraft latitude (if currently loaded onto an aircraft).",
+            "format": "double",
+            "nullable": true
+          },
+          "aircraftLongitude": {
+            "type": "number",
+            "description": "Gets or sets the aircraft longitude (if currently loaded onto an aircraft).",
+            "format": "double",
+            "nullable": true
+          },
           "aircraftRegistry": {
             "maxLength": 12,
             "minLength": 6,

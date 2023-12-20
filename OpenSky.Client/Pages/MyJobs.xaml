@@ -35,6 +35,7 @@
         </CollectionViewSource>
         <converters:SettingsUnitConverter x:Key="SettingsUnitConverter" />
         <converters:JobTypeConverter x:Key="JobCategoryConverter" />
+        <converters:PayloadDistanceConverter x:Key="PayloadDistanceConverter" />
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshJobsCommand}" />
@@ -89,6 +90,7 @@
                         <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource JobValueCellTemplate}" SortMemberPath="Value" CanUserSort="True" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControl}" />
                         <DataGridTemplateColumn Header="Expires" CellTemplate="{StaticResource JobExpiryCellTemplate}" SortMemberPath="ExpiresAt" CanUserSort="True" />
                         <DataGridTextColumn Header="Weight" Binding="{Binding TotalWeight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControlWeight}" />
+                        <DataGridTextColumn Header="Max distance" Binding="{Binding MaxDistance, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=distance|F0|true}" dgx:DataGridFilterColumn.Template="{StaticResource MinMaxDoubleFilterWithPopupControlDistance}" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate>
                         <DataTemplate DataType="openSkyApi:Job">
@@ -99,6 +101,7 @@
                                       >
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding LocationDestinationInfo}" FontFamily="Consolas" />
+                                    <DataGridTextColumn Binding="{Binding .,Converter={StaticResource PayloadDistanceConverter}}" />
                                     <DataGridTextColumn Binding="{Binding Weight, Converter={StaticResource SettingsUnitConverter}, ConverterParameter=weight|F1|true}" Width="Auto" />
                                     <DataGridTextColumn Binding="{Binding Description}" />
                                 </DataGrid.Columns>
