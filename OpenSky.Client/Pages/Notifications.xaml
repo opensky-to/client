@@ -107,7 +107,7 @@
                                 ItemsSource="{Binding Recipients}"
                                 AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="Column" Margin="30,20,0,40"
-                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}" MaxHeight="500">
                                     <DataGrid.Resources>
                                         <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
                                         <DataTemplate x:Key="ClientPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">
@@ -155,7 +155,7 @@
                                 ItemsSource="{Binding Recipients}"
                                 AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                                 HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MinColumnWidth="80" HeadersVisibility="Column" Margin="30,20,0,40"
-                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}">
+                                ColumnHeaderStyle="{StaticResource FilteredDataGridColumnHeaderStyle}" CellStyle="{StaticResource FullRowSelectDataGridCellStyle}" MaxHeight="200">
                                     <DataGrid.Resources>
                                         <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" />
                                         <DataTemplate x:Key="ClientPickupCellTemplate" DataType="{x:Type openSkyApi:GroupedNotificationRecipient}">

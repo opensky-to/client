@@ -56,7 +56,7 @@ namespace OpenSky.Client.Converters
         {
             if (value is Payload payload)
             {
-                if (!string.IsNullOrWhiteSpace(payload.AirportICAO))
+                if (!string.IsNullOrEmpty(payload.AirportICAO))
                 {
                     var airportPackage = AirportPackageClientHandler.GetPackage();
                     var origin = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.AirportICAO);
@@ -65,6 +65,24 @@ namespace OpenSky.Client.Converters
                     if (origin != null && destination != null)
                     {
                         var distance = new GeoCoordinate(origin.Latitude, origin.Longitude).GetDistanceTo(new GeoCoordinate(destination.Latitude, destination.Longitude)) / 1852;
+                        if (targetType == typeof(string))
+                        {
+                            return new SettingsUnitConverter().Convert(distance, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture);
+                        }
+
+                        return distance;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(payload.AircraftRegistry))
+                {
+                    var airportPackage = AirportPackageClientHandler.GetPackage();
+                    var destination = airportPackage?.Airports.SingleOrDefault(a => a.ICAO == payload.DestinationICAO);
+
+                    if (destination != null)
+                    {
+                        var distance = new GeoCoordinate(payload.AircraftLatitude ?? 0, payload.AircraftLongitude ?? 0).GetDistanceTo(new GeoCoordinate(destination.Latitude, destination.Longitude)) / 1852;
+                        
                         if (targetType == typeof(string))
                         {
                             return new SettingsUnitConverter().Convert(distance, typeof(string), "distance|F0|true", CultureInfo.CurrentCulture);
