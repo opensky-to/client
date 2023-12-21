@@ -41,7 +41,7 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty AircraftPositionsProperty = DependencyProperty.Register(
-            "AircraftPositions",
+            nameof(AircraftPositions),
             typeof(ObservableCollection<AircraftPosition>),
             typeof(MapView),
             new UIPropertyMetadata(new ObservableCollection<AircraftPosition>()));
@@ -51,21 +51,21 @@ namespace OpenSky.Client.Controls
         /// The aircraft trail locations property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty AircraftTrailLocationsProperty = DependencyProperty.Register("AircraftTrailLocations", typeof(LocationCollection), typeof(MapView), new UIPropertyMetadata(new LocationCollection()));
+        public static readonly DependencyProperty AircraftTrailLocationsProperty = DependencyProperty.Register(nameof(AircraftTrailLocations), typeof(LocationCollection), typeof(MapView), new UIPropertyMetadata(new LocationCollection()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The job trails property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty JobTrailsProperty = DependencyProperty.Register("JobTrails", typeof(ObservableCollection<MapPolyline>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<MapPolyline>()));
+        public static readonly DependencyProperty JobTrailsProperty = DependencyProperty.Register(nameof(JobTrails), typeof(ObservableCollection<MapPolyline>), typeof(MapView), new UIPropertyMetadata(new ObservableCollection<MapPolyline>()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The simBrief route locations property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty SimbriefRouteLocationsProperty = DependencyProperty.Register("SimbriefRouteLocations", typeof(LocationCollection), typeof(MapView), new UIPropertyMetadata(new LocationCollection()));
+        public static readonly DependencyProperty SimbriefRouteLocationsProperty = DependencyProperty.Register(nameof(SimbriefRouteLocations), typeof(LocationCollection), typeof(MapView), new UIPropertyMetadata(new LocationCollection()));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -73,7 +73,7 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public static readonly DependencyProperty SimbriefWaypointMarkersProperty = DependencyProperty.Register(
-            "SimbriefWaypointMarkers",
+            nameof(SimbriefWaypointMarkers),
             typeof(ObservableCollection<SimbriefWaypointMarker>),
             typeof(MapView),
             new UIPropertyMetadata(new ObservableCollection<SimbriefWaypointMarker>()));
@@ -84,7 +84,7 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------T
         public static readonly DependencyProperty TrackingEventMarkersProperty = DependencyProperty.Register(
-            "TrackingEventMarkers",
+            nameof(TrackingEventMarkers),
             typeof(ObservableCollection<TrackingEventMarker>),
             typeof(MapView),
             new UIPropertyMetadata(new ObservableCollection<TrackingEventMarker>()));
@@ -126,13 +126,6 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True to show the aerial view as default, instead of road.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool aerialAsDefault;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The aircraft trail animation.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -170,27 +163,6 @@ namespace OpenSky.Client.Controls
         public MapView()
         {
             this.InitializeComponent();
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets a value indicating whether the aerial as default.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool AerialAsDefault
-        {
-            get => this.aerialAsDefault;
-
-            set
-            {
-                if (Equals(this.aerialAsDefault, value))
-                {
-                    return;
-                }
-
-                this.aerialAsDefault = value;
-                this.WpfMapView.Mode = value ? new AerialMode() : new RoadMode();
-            }
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -324,6 +296,13 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public bool ZoomForAircraftLocations { get; set; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the zoom level visibility filters are enabled.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ZoomLevelVisibilityFiltersEnabled { get; set; } = true;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -633,19 +612,55 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         private void MapTypeOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.MapType.SelectedItem is ComboBoxItem item)
+            if (this.MapType.SelectedItem is ComboBoxItem { Content: string content })
             {
-                switch (item.Content as string)
+                this.WpfMapView.Children.Remove(this.mapLayer);
+                this.mapLayer = new MapTileLayer
                 {
-                    case "Road":
-                        this.WpfMapView.Mode = new RoadMode();
+                    TileSource = new OsmTileSource(),
+                    Opacity = 1,
+                    //ShowBackgroundTiles = true
+                };
+
+                switch (content)
+                {
+                    case "Dark":
+                        this.mapLayer.TileSource.UriFormat = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
+                        break;
+                    case "Bright":
+                        this.mapLayer.TileSource.UriFormat = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png";
+                        break;
+                    case "Topo":
+                        this.mapLayer.TileSource.UriFormat = "https://tile.opentopomap.org/{z}/{x}/{y}.png";
                         break;
                     case "Aerial":
-                        this.WpfMapView.Mode = new AerialMode();
+                        this.mapLayer.TileSource.UriFormat = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
                         break;
                 }
+
+                this.WpfMapView.Children.Insert(0, this.mapLayer);
             }
         }
+
+        private MapTileLayer mapLayer = new MapTileLayer
+        {
+            TileSource = new OsmTileSource
+            {
+                UriFormat = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+            },
+            Opacity = 1,
+            ShowBackgroundTiles = true
+        };
+
+        private readonly MapTileLayer overlayLayer = new MapTileLayer
+        {
+            TileSource = new OsmTileSource()
+            {
+                // No source uri format initially for default
+            },
+            Opacity = 1,
+            ShowBackgroundTiles = true
+        };
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -663,7 +678,8 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         private void MapViewOnLoaded(object sender, RoutedEventArgs e)
         {
-            this.WpfMapView.CredentialsProvider = new ApplicationIdCredentialsProvider(UserSessionService.Instance.LinkedAccounts?.BingMapsKey);
+            this.WpfMapView.Children.Add(this.mapLayer);
+            this.WpfMapView.Children.Add(this.overlayLayer);
 
             var simbriefRoute = new MapPolyline { Stroke = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), StrokeThickness = 4, Locations = this.SimbriefRouteLocations };
             this.WpfMapView.Children.Add(simbriefRoute);
@@ -867,13 +883,6 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether the zoom level visibility filters are enabled.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool ZoomLevelVisibilityFiltersEnabled { get; set; } = true;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Tracking event markers collection changed.
         /// </summary>
         /// <remarks>
@@ -921,16 +930,27 @@ namespace OpenSky.Client.Controls
 
                                 if (item.HasDynamicFontSize)
                                 {
-                                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter, ConverterParameter = item.AirportSize >= 5 ? 4 : 2 };
+                                    var fontSizeParameter = item.AirportSize switch
+                                    {
+                                        6 => 4,
+                                        5 => 4,
+                                        4 => 2,
+                                        3 => 0,
+                                        2 => -3,
+                                        _ => -5
+                                    };
+
+                                    var fontSizeBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelFontSizeConverter, ConverterParameter = fontSizeParameter };
                                     BindingOperations.SetBinding(item, TrackingEventMarker.TextLabelFontSizeProperty, fontSizeBinding);
 
                                     var zoomLevelParameter = item.AirportSize switch
                                     {
                                         6 => 0.1,
                                         5 => 4.0,
-                                        4 => 7.0,
-                                        3 => 8.0,
-                                        _ => 10.0
+                                        4 => 6.5,
+                                        3 => 7.5,
+                                        2 => 7.5,
+                                        _ => 9.0
                                     };
 
                                     var textLabelZoomLevelBinding = new Binding { Source = this.WpfMapView, Path = new PropertyPath("ZoomLevel"), Converter = ZoomLevelVisibilityConverter, ConverterParameter = zoomLevelParameter };

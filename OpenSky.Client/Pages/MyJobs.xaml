@@ -22,7 +22,7 @@
           xmlns:openSkyApi="clr-namespace:OpenSkyApi"
           xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
           mc:Ignorable="d" Loaded="MyJobsOnLoaded"
-          LoadingText="{Binding LoadingText}"
+          LoadingText="{Binding LoadingText}" HorizontalScrollBar="False" VerticalScrollBar="False"
           d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <models:MyJobsViewModel x:Name="ViewModel" />

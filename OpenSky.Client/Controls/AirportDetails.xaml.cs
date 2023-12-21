@@ -27,14 +27,14 @@ namespace OpenSky.Client.Controls
         /// (Immutable) The airport icao property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty AirportICAOProperty = DependencyProperty.Register("AirportICAO", typeof(string), typeof(AirportDetails));
+        public static readonly DependencyProperty AirportICAOProperty = DependencyProperty.Register(nameof(AirportICAO), typeof(string), typeof(AirportDetails));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// (Immutable) The airport property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty AirportProperty = DependencyProperty.Register("Airport", typeof(Airport), typeof(AirportDetails));
+        public static readonly DependencyProperty AirportProperty = DependencyProperty.Register(nameof(Airport), typeof(Airport), typeof(AirportDetails));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

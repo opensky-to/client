@@ -141,6 +141,7 @@
     <Compile Include="Controls\Models\ExtendedMessageBoxImage.cs" />
     <Compile Include="Controls\Models\ExtendedMessageBoxResult.cs" />
     <Compile Include="Controls\Models\MapViewViewModel.cs" />
+    <Compile Include="Controls\Models\OsmTileSource.cs" />
     <Compile Include="Controls\Models\SimbriefWaypointMarker.cs" />
     <Compile Include="Controls\Models\TrackingEventMarker.cs" />
     <Compile Include="Controls\OpenSkyMessageBox.xaml.cs">

@@ -30,28 +30,21 @@
         <converters:BooleanVisibilityConverter x:Key="BooleanVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
-        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd" />
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#66000000" IsHitTestVisible="False" Visibility="{Binding DarkRoadMapVisibility}" />
+        <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd"
+                 CredentialsProvider="fArR3iVIKxkPiLfleVSt~7ukVq4lwvPH4aTvFlJByPg~AhkC97Z8SGWamMatR22bF1snD0j_26rdxLfQzKjIRM-b7IP9Cfpo1ibjMBrJOal1">
+            <wpf:Map.Mode>
+                <wpf:MercatorMode />
+            </wpf:Map.Mode>
+        </wpf:Map>
         <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=EnableUserInteraction, Converter={StaticResource BooleanVisibilityConverter}}">
-            <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged" SelectedValue="{Binding SelectedMapMode, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBox Name="MapType" HorizontalAlignment="Stretch" Margin="0,2,1,2" SelectionChanged="MapTypeOnSelectionChanged">
                 <ComboBox.Items>
-                    <ComboBoxItem IsSelected="True">Road</ComboBoxItem>
+                    <ComboBoxItem IsSelected="True">Dark</ComboBoxItem>
+                    <ComboBoxItem>Bright</ComboBoxItem>
+                    <ComboBoxItem>Topo</ComboBoxItem>
                     <ComboBoxItem>Aerial</ComboBoxItem>
                 </ComboBox.Items>
             </ComboBox>
-            <Border CornerRadius="2" Padding="8,0,8,0" BorderThickness="0.7" BorderBrush="White" Margin="1">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="#66000000"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#99000000" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <CheckBox IsChecked="{Binding DarkenRoadMap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Darken road map</CheckBox>
-            </Border>
             <Grid Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=ShowSimulatorFilter, Converter={StaticResource BooleanVisibilityConverter}}">
                 <ComboBox SelectionChanged="SimulatorChanged" Margin="0,2,1,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#CCC" />
                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />

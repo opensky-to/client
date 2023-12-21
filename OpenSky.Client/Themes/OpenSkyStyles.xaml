@@ -25,7 +25,7 @@
     <SolidColorBrush x:Key="OpenSkyWarningOrangeBrush" Color="{StaticResource OpenSkyWarningOrange}" />
     <Color x:Key="OpenSkyWarningOrangeLight">Orange</Color>
     <SolidColorBrush x:Key="OpenSkyWarningOrangeLightBrush" Color="{StaticResource OpenSkyWarningOrangeLight}" />
-    <Color x:Key="OpenSkySimBrief">Black</Color>
+    <Color x:Key="OpenSkySimBrief">#666</Color>
     <SolidColorBrush x:Key="OpenSkySimBriefBrush" Color="{StaticResource OpenSkySimBrief}" />
     <Color x:Key="OpenSkySimBriefText">White</Color>
     <SolidColorBrush x:Key="OpenSkySimBriefTextBrush" Color="{StaticResource OpenSkySimBriefText}" />

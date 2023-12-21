@@ -17,7 +17,7 @@
                       xmlns:controls="clr-namespace:OpenSky.Client.Controls"
                       xmlns:models="clr-namespace:OpenSky.Client.Pages.Models"
                       mc:Ignorable="d" 
-                      d:DesignHeight="450" d:DesignWidth="800" Loaded="WorldMapOnLoaded" Unloaded="WorldMapOnUnloaded">
+                      d:DesignHeight="450" d:DesignWidth="800" Loaded="WorldMapOnLoaded" Unloaded="WorldMapOnUnloaded" HorizontalScrollBar="False" VerticalScrollBar="False">
     <UserControl.DataContext>
         <models:WorldMapViewModel x:Name="ViewModel" />
     </UserControl.DataContext>
