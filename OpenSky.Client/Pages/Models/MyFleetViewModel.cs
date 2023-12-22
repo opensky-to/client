@@ -12,6 +12,7 @@ namespace OpenSky.Client.Pages.Models
     using System.Linq;
     using System.Threading;
     using System.Windows;
+    using System.Windows.Controls;
 
     using Microsoft.Maps.MapControl.WPF;
 
@@ -729,6 +730,18 @@ namespace OpenSky.Client.Pages.Models
                 this.PlanFlightCommand.CanExecute = value != null;
                 this.FindJobCommand.CanExecute = value != null;
                 this.SellAircraftNowCommand.CanExecute = value != null;
+
+                foreach (var aircraftPosition in this.AircraftPositions)
+                {
+                    if (value != null && aircraftPosition.Registry==value.Registry)
+                    {
+                        aircraftPosition.IsSelected = true;
+                    }
+                    else
+                    {
+                        aircraftPosition.IsSelected = false;
+                    }
+                }
             }
         }
 
@@ -1049,14 +1062,35 @@ namespace OpenSky.Client.Pages.Models
                             foreach (var aircraft in result.Data)
                             {
                                 this.Aircraft.Add(aircraft);
-                                this.AircraftPositions.Add(
-                                    new AircraftPosition
+
+                                var aircraftTypeDetails = new AircraftTypeDetails { Width = 650, AircraftType = aircraft.Type };
+                                var airportDetails = new AirportDetails { Width = 370, AirportICAO = aircraft.AirportICAO };
+                                Grid.SetColumn(aircraftTypeDetails, 0);
+                                Grid.SetColumn(airportDetails, 1);
+                                var grid = new Grid
+                                {
+                                    ColumnDefinitions =
                                     {
-                                        Heading = aircraft.Heading,
-                                        Location = new Location(aircraft.Latitude, aircraft.Longitude),
-                                        Registry = aircraft.Registry,
-                                        ToolTip = aircraft.Registry.RemoveSimPrefix()
-                                    });
+                                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) },
+                                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }
+                                    }, 
+                                    Children = { aircraftTypeDetails, airportDetails }
+                                };
+                                var header = new TextBlock { Text = $"{aircraft.Registry.RemoveSimPrefix()}: {aircraft.Status}", FontSize = 18, FontWeight = FontWeights.Bold };
+                                var groupBox = new GroupBox { Header = header, Content = grid };
+
+                                var aircraftPosition = new AircraftPosition
+                                {
+                                    Heading = aircraft.Heading,
+                                    Location = new Location(aircraft.Latitude, aircraft.Longitude),
+                                    Registry = aircraft.Registry,
+                                    ToolTip = groupBox
+                                };
+                                aircraftPosition.MouseLeftButtonDown += (_, _) =>
+                                {
+                                    this.SelectedAircraft = this.Aircraft.SingleOrDefault(a => a.Registry == aircraft.Registry);
+                                };
+                                this.AircraftPositions.Add(aircraftPosition);
                             }
                         });
                 }

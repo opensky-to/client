@@ -749,6 +749,9 @@
   <ItemGroup>
     <Resource Include="Resources\notification16.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\osm25.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(SolutionDir)changelog.txt" "$(ProjectDir)\bin\$(ConfigurationName)\"

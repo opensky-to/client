@@ -52,6 +52,13 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True if is selected, false if not.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool isSelected;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="AircraftPosition"/> class.
         /// </summary>
         /// <remarks>
@@ -82,6 +89,52 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether this aircraft is selected.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsSelected
+        {
+            get => this.isSelected;
+
+            set
+            {
+                if (Equals(this.isSelected, value))
+                {
+                    return;
+                }
+
+                this.isSelected = value;
+                this.OnPropertyChanged();
+
+                if (value)
+                {
+                    this.Width = 30;
+                    this.Height = 30;
+
+                    var rotateTransform = new RotateTransform { CenterX = 15, CenterY = 15 };
+                    var headingBinding = new Binding { Source = this, Path = new PropertyPath("Heading"), Mode = BindingMode.OneWay };
+                    BindingOperations.SetBinding(rotateTransform, RotateTransform.AngleProperty, headingBinding);
+                    this.RenderTransform = rotateTransform;
+                    var aircraftDrawingImage = this.FindResource("OpenSkyLogoPointingUpForMapSelected") as DrawingImage;
+                    this.Source = aircraftDrawingImage;
+                }
+                else
+                {
+                    this.Width = 20;
+                    this.Height = 20;
+
+                    var rotateTransform = new RotateTransform { CenterX = 10, CenterY = 10 };
+                    var headingBinding = new Binding { Source = this, Path = new PropertyPath("Heading"), Mode = BindingMode.OneWay };
+                    BindingOperations.SetBinding(rotateTransform, RotateTransform.AngleProperty, headingBinding);
+                    this.RenderTransform = rotateTransform;
+                    var aircraftDrawingImage = this.FindResource("OpenSkyLogoPointingUpForMap") as DrawingImage;
+                    this.Source = aircraftDrawingImage;
+                }
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

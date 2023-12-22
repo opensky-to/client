@@ -13425,12 +13425,6 @@ namespace OpenSkyApi
     public partial class LinkedAccounts
     {
         /// <summary>
-        /// Gets or sets the Bing maps API key.
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("bingMapsKey", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string BingMapsKey { get; set; }
-
-        /// <summary>
         /// Gets or sets the Simbrief username.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("simbriefUsername", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

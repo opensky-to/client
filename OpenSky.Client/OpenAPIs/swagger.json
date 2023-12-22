@@ -8517,11 +8517,6 @@
       "LinkedAccounts": {
         "type": "object",
         "properties": {
-          "bingMapsKey": {
-            "type": "string",
-            "description": "Gets or sets the Bing maps API key.",
-            "nullable": true
-          },
           "simbriefUsername": {
             "type": "string",
             "description": "Gets or sets the Simbrief username.",

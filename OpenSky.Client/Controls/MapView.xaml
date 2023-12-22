@@ -31,7 +31,7 @@
     </UserControl.Resources>
     <Grid>
         <wpf:Map Name="WpfMapView" ZoomLevel="13" UseInertia="False" AnimationLevel="UserInput" MouseDoubleClick="UserMapInteraction" MouseWheel="UserMapInteraction" MouseLeftButtonDown="UserMapInteraction" MouseLeftButtonUp="UserMapInteraction" TouchMove="UserMapInteraction" ViewChangeOnFrame="WpfMapViewOnViewChangeOnFrame" ViewChangeEnd="WpfMapViewOnViewChangeEnd"
-                 CredentialsProvider="fArR3iVIKxkPiLfleVSt~7ukVq4lwvPH4aTvFlJByPg~AhkC97Z8SGWamMatR22bF1snD0j_26rdxLfQzKjIRM-b7IP9Cfpo1ibjMBrJOal1">
+                 CredentialsProvider="fArR3iVIKxkPiLfleVSt~7ukVq4lwvPH4aTvFlJByPg~AhkC97Z8SGWamMatR22bF1snD0j_26rdxLfQzKjIRM-b7IP9Cfpo1ibjMBrJOal1" Background="{StaticResource OpenSkyGroupboxBackgroundBrush}">
             <wpf:Map.Mode>
                 <wpf:MercatorMode />
             </wpf:Map.Mode>
@@ -50,6 +50,7 @@
                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
             </Grid>
         </StackPanel>
+        <Image Source="/Resources/osm25.png" Width="25" Height="25" Margin="65,0,0,12" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
         <Grid Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
             <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />
             <StackPanel Orientation="Horizontal" Margin="5" >

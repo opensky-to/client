@@ -11,6 +11,7 @@ namespace OpenSky.Client.Controls
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -126,6 +127,21 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The overlay layer.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private readonly MapTileLayer overlayLayer = new MapTileLayer
+        {
+            TileSource = new OsmTileSource()
+            {
+                // No source uri format initially for default
+            },
+            Opacity = 1,
+            ShowBackgroundTiles = true
+        };
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The aircraft trail animation.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -144,6 +160,21 @@ namespace OpenSky.Client.Controls
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private DateTime lastFrameUpdate = DateTime.MinValue;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The map layer.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private MapTileLayer mapLayer = new MapTileLayer
+        {
+            TileSource = new OsmTileSource
+            {
+                UriFormat = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+            },
+            Opacity = 1,
+            ShowBackgroundTiles = true
+        };
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -619,6 +650,7 @@ namespace OpenSky.Client.Controls
                 {
                     TileSource = new OsmTileSource(),
                     Opacity = 1,
+
                     //ShowBackgroundTiles = true
                 };
 
@@ -642,26 +674,6 @@ namespace OpenSky.Client.Controls
             }
         }
 
-        private MapTileLayer mapLayer = new MapTileLayer
-        {
-            TileSource = new OsmTileSource
-            {
-                UriFormat = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
-            },
-            Opacity = 1,
-            ShowBackgroundTiles = true
-        };
-
-        private readonly MapTileLayer overlayLayer = new MapTileLayer
-        {
-            TileSource = new OsmTileSource()
-            {
-                // No source uri format initially for default
-            },
-            Opacity = 1,
-            ShowBackgroundTiles = true
-        };
-
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// Map view on loaded.
@@ -678,8 +690,15 @@ namespace OpenSky.Client.Controls
         /// -------------------------------------------------------------------------------------------------
         private void MapViewOnLoaded(object sender, RoutedEventArgs e)
         {
-            this.WpfMapView.Children.Add(this.mapLayer);
-            this.WpfMapView.Children.Add(this.overlayLayer);
+            try
+            {
+                this.WpfMapView.Children.Add(this.mapLayer);
+                this.WpfMapView.Children.Add(this.overlayLayer);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Map layer already added error.\r\n{ex}");
+            }
 
             var simbriefRoute = new MapPolyline { Stroke = new SolidColorBrush(OpenSkyColors.OpenSkySimBrief), StrokeThickness = 4, Locations = this.SimbriefRouteLocations };
             this.WpfMapView.Children.Add(simbriefRoute);
