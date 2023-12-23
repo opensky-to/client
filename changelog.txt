@@ -11,6 +11,7 @@ Version 0.5.9 (ALPHA5)
 - Aircraft on the "My fleet" page can be selected, map highlights and tooltips added
 - World map now allows selecting active flights, showing trails and flight info
 - World map can toggle airports being displayed or not
+- Fixed missing working director for agent auto-start, causing missing voice packs
 
 --------------------------------------------------------------------------------------
 Version 0.5.8 (ALPHA5)
