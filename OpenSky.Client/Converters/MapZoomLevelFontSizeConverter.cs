@@ -58,7 +58,7 @@ namespace OpenSky.Client.Converters
                 }
 
                 fontSize = Math.Max(fontSize, 6);
-                fontSize = Math.Min(fontSize, 16);
+                fontSize = Math.Min(fontSize, 18);
                 return fontSize;
             }
 

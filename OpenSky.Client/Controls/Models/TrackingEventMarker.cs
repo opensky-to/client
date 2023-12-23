@@ -39,14 +39,14 @@ namespace OpenSky.Client.Controls.Models
         /// The text label font size property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register("TextLabelFontSize", typeof(double), typeof(TrackingEventMarker), new UIPropertyMetadata(11.0));
+        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register(nameof(TextLabelFontSize), typeof(double), typeof(TrackingEventMarker), new UIPropertyMetadata(11.0));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The text label visible property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register("TextLabelVisible", typeof(Visibility), typeof(TrackingEventMarker), new UIPropertyMetadata(Visibility.Visible));
+        public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register(nameof(TextLabelVisible), typeof(Visibility), typeof(TrackingEventMarker), new UIPropertyMetadata(Visibility.Visible));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -126,7 +126,7 @@ namespace OpenSky.Client.Controls.Models
             var minSize = 12;
             if (airportSize is >= 0 and < 5)
             {
-                minSize = 20;
+                minSize = 15;
             }
 
             var zIndex = airportSize switch
@@ -180,6 +180,11 @@ namespace OpenSky.Client.Controls.Models
             this.marker.IsAirportMarker = true;
             this.FromCoordinate = location;
             this.ToCoordinate = location;
+            this.ToolTip = "Loading...";
+            this.ToolTipOpening += (_, _) =>
+            {
+                this.ToolTip = new AirportDetails { AirportICAO = airportICAO };
+            };
         }
 
         /// -------------------------------------------------------------------------------------------------

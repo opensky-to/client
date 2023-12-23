@@ -471,7 +471,7 @@
                     <TextBlock Grid.Column="0" Grid.Row="10" VerticalAlignment="Center" Margin="0,0,5,0">Name</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="11" VerticalAlignment="Center" Margin="0,0,5,0">Version</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="12" VerticalAlignment="Center" Margin="0,0,5,0">Manufacturer</TextBlock>
-                    <TextBlock Grid.Column="0" Grid.Row="13" VerticalAlignment="Center" Margin="0,0,5,0">Manufacturer airports</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.Row="13" VerticalAlignment="Center" Margin="0,0,5,0">Manufacturer airports<LineBreak />(comma separated)</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="14" VerticalAlignment="Center" Margin="0,0,5,0">Category</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="15" VerticalAlignment="Center" Margin="0,0,5,0">Engine model</TextBlock>
                     <TextBlock Grid.Column="0" Grid.Row="16" VerticalAlignment="Center" Margin="0,0,5,0">Fuel type override?<LineBreak />Only for special cases!</TextBlock>

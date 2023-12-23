@@ -3344,6 +3344,50 @@
         }
       }
     },
+    "/Flight/worldMap/trail/{flightID}": {
+      "get": {
+        "tags": [
+          "Flight"
+        ],
+        "summary": "Get the flight trail for the specified flight on the world map.",
+        "description": "sushi.at, 23/12/2023.",
+        "operationId": "GetWorldMapFlightTrail",
+        "parameters": [
+          {
+            "name": "flightID",
+            "in": "path",
+            "description": "Identifier for the flight.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightTrailApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightTrailApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorldMapFlightTrailApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Flight/pause/{flightID}": {
       "post": {
         "tags": [
@@ -8517,11 +8561,6 @@
       "LinkedAccounts": {
         "type": "object",
         "properties": {
-          "bingMapsKey": {
-            "type": "string",
-            "description": "Gets or sets the Bing maps API key.",
-            "nullable": true
-          },
           "simbriefUsername": {
             "type": "string",
             "description": "Gets or sets the Simbrief username.",
@@ -10003,7 +10042,7 @@
           },
           "destination": {
             "type": "string",
-            "description": "Gets or sets the Destination for the.",
+            "description": "Gets or sets the destination.",
             "nullable": true
           },
           "flightPhase": {
@@ -10023,6 +10062,11 @@
             "type": "number",
             "description": "The magnetic heading.",
             "format": "double"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the identifier of the flight.",
+            "format": "uuid"
           },
           "isPaused": {
             "type": "boolean",
@@ -10071,6 +10115,72 @@
             },
             "description": "Gets or sets the embedded data of type T.",
             "nullable": true
+          },
+          "errorDetails": {
+            "type": "string",
+            "description": "Gets or sets the error details (NULL if no error).",
+            "nullable": true
+          },
+          "isError": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this response is reporting an error."
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Gets or sets the status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "API standard response model."
+      },
+      "WorldMapFlightPositionReport": {
+        "type": "object",
+        "properties": {
+          "altitude": {
+            "type": "number",
+            "description": "Gets or sets the altitude.",
+            "format": "double"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Gets or sets the latitude.",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Gets or sets the longitude.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "World map flight position report model (part of the trail)"
+      },
+      "WorldMapFlightTrail": {
+        "type": "object",
+        "properties": {
+          "positionReports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorldMapFlightPositionReport"
+            },
+            "description": "Gets or sets the position reports.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "World map flight trail model."
+      },
+      "WorldMapFlightTrailApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WorldMapFlightTrail"
           },
           "errorDetails": {
             "type": "string",

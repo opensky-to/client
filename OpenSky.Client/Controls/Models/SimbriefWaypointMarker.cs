@@ -31,14 +31,14 @@ namespace OpenSky.Client.Controls.Models
         /// The text label font size property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register("TextLabelFontSize", typeof(double), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(11.0));
+        public static readonly DependencyProperty TextLabelFontSizeProperty = DependencyProperty.Register(nameof(TextLabelFontSize), typeof(double), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(11.0));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         /// The text label visible property.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register("TextLabelVisible", typeof(Visibility), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(Visibility.Visible));
+        public static readonly DependencyProperty TextLabelVisibleProperty = DependencyProperty.Register(nameof(TextLabelVisible), typeof(Visibility), typeof(SimbriefWaypointMarker), new UIPropertyMetadata(Visibility.Visible));
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>

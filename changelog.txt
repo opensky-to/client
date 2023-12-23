@@ -7,6 +7,10 @@ Version 0.5.9 (ALPHA5)
 --------------------------------------------------------------------------------------
 - Fixed max grid height in notifications page
 - Added distance information to "My jobs" page
+- Map views now using OSM, bing maps key no longer necessary, removed from settings
+- Aircraft on the "My fleet" page can be selected, map highlights and tooltips added
+- World map now allows selecting active flights, showing trails and flight info
+- World map can toggle airports being displayed or not
 
 --------------------------------------------------------------------------------------
 Version 0.5.8 (ALPHA5)

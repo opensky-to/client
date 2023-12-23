@@ -48,7 +48,6 @@
                           Width="360" 
                           Height="360" 
                           EnableUserInteraction="False" 
-                          AerialAsDefault="False"
                           ZoomLevelVisibilityFiltersEnabled="False"
                           LatitudeMargin="0.000625"
                           LongitudeMargin="0.025"

@@ -6,6 +6,7 @@
 
 namespace OpenSky.Client.Controls.Models
 {
+    using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows;
@@ -31,10 +32,38 @@ namespace OpenSky.Client.Controls.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Identifier for the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Guid? flightID;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Information describing the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string flightInfo;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The flight number (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string flightNumber;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The heading.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private double heading;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if is selected, false if not.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool isSelected;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -85,6 +114,69 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets or sets the identifier of the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Guid? FlightID
+        {
+            get => this.flightID;
+
+            set
+            {
+                if (Equals(this.flightID, value))
+                {
+                    return;
+                }
+
+                this.flightID = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets information describing the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string FlightInfo
+        {
+            get => this.flightInfo;
+
+            set
+            {
+                if (Equals(this.flightInfo, value))
+                {
+                    return;
+                }
+
+                this.flightInfo = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the flight number (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string FlightNumber
+        {
+            get => this.flightNumber;
+
+            set
+            {
+                if (Equals(this.flightNumber, value))
+                {
+                    return;
+                }
+
+                this.flightNumber = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets or sets the heading.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -101,6 +193,52 @@ namespace OpenSky.Client.Controls.Models
 
                 this.heading = value;
                 this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether this aircraft is selected.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool IsSelected
+        {
+            get => this.isSelected;
+
+            set
+            {
+                if (Equals(this.isSelected, value))
+                {
+                    return;
+                }
+
+                this.isSelected = value;
+                this.OnPropertyChanged();
+
+                if (value)
+                {
+                    this.Width = 30;
+                    this.Height = 30;
+
+                    var rotateTransform = new RotateTransform { CenterX = 15, CenterY = 15 };
+                    var headingBinding = new Binding { Source = this, Path = new PropertyPath("Heading"), Mode = BindingMode.OneWay };
+                    BindingOperations.SetBinding(rotateTransform, RotateTransform.AngleProperty, headingBinding);
+                    this.RenderTransform = rotateTransform;
+                    var aircraftDrawingImage = this.FindResource("OpenSkyLogoPointingUpForMapSelected") as DrawingImage;
+                    this.Source = aircraftDrawingImage;
+                }
+                else
+                {
+                    this.Width = 20;
+                    this.Height = 20;
+
+                    var rotateTransform = new RotateTransform { CenterX = 10, CenterY = 10 };
+                    var headingBinding = new Binding { Source = this, Path = new PropertyPath("Heading"), Mode = BindingMode.OneWay };
+                    BindingOperations.SetBinding(rotateTransform, RotateTransform.AngleProperty, headingBinding);
+                    this.RenderTransform = rotateTransform;
+                    var aircraftDrawingImage = this.FindResource("OpenSkyLogoPointingUpForMap") as DrawingImage;
+                    this.Source = aircraftDrawingImage;
+                }
             }
         }
 

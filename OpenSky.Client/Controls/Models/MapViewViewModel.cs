@@ -10,12 +10,10 @@ namespace OpenSky.Client.Controls.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Device.Location;
-    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Dynamic.Core;
     using System.Threading;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Media;
 
     using Microsoft.Maps.MapControl.WPF;
@@ -64,20 +62,6 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// True to darken road map.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool darkenRoadMap = true;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The dark road map visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private Visibility darkRoadMapVisibility = Visibility.Visible;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The last user map interaction date/time.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -85,17 +69,17 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The selected map mode.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private ComboBoxItem selectedMapMode;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The currently selected simulator, or NULL for all simulators.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private Simulator? simulator;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True to show, false to hide the airports (if enabled).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool showAirports = true;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -140,54 +124,6 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets a value indicating whether to the darken the road map.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public bool DarkenRoadMap
-        {
-            get => this.darkenRoadMap;
-
-            set
-            {
-                if (Equals(this.darkenRoadMap, value))
-                {
-                    return;
-                }
-
-                this.darkenRoadMap = value;
-                this.NotifyPropertyChanged();
-                Debug.WriteLine($"Darken road map toggled {value}");
-
-                if (this.SelectedMapMode.Content is string mode)
-                {
-                    this.DarkRoadMapVisibility = mode.Equals("Road", StringComparison.InvariantCultureIgnoreCase) && this.DarkenRoadMap ? Visibility.Visible : Visibility.Collapsed;
-                }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the dark road map visibility.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public Visibility DarkRoadMapVisibility
-        {
-            get => this.darkRoadMapVisibility;
-
-            set
-            {
-                if (Equals(this.darkRoadMapVisibility, value))
-                {
-                    return;
-                }
-
-                this.darkRoadMapVisibility = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Gets the enable airports command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
@@ -216,27 +152,26 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets or sets the selected map mode.
+        /// Gets or sets a value indicating whether the airports are shown (if enabled).
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
-        public ComboBoxItem SelectedMapMode
+        public bool ShowAirports
         {
-            get => this.selectedMapMode;
+            get => this.showAirports;
 
             set
             {
-                if (Equals(this.selectedMapMode, value))
+                if (Equals(this.showAirports, value))
                 {
                     return;
                 }
 
-                this.selectedMapMode = value;
+                this.showAirports = value;
                 this.NotifyPropertyChanged();
-                Debug.WriteLine($"Map mode changed {value.Content}");
 
-                if (this.SelectedMapMode.Content is string mode)
+                foreach (var airport in this.Airports)
                 {
-                    this.DarkRoadMapVisibility = mode.Equals("Road", StringComparison.InvariantCultureIgnoreCase) && this.DarkenRoadMap ? Visibility.Visible : Visibility.Collapsed;
+                    airport.Opacity = value ? 1 : 0;
                 }
             }
         }
@@ -355,10 +290,10 @@ namespace OpenSky.Client.Controls.Models
                                                     _ => Colors.White
                                                 };
 
-                                                var detailedAirportMarkers = new List<TrackingEventMarker> { new(add.Value, markerColor, fontColor) };
+                                                var detailedAirportMarkers = new List<TrackingEventMarker> { new(add.Value, markerColor, fontColor) { Opacity = this.ShowAirports ? 1 : 0 } };
                                                 foreach (var runway in add.Value.Runways)
                                                 {
-                                                    detailedAirportMarkers.Add(new TrackingEventMarker(runway));
+                                                    detailedAirportMarkers.Add(new TrackingEventMarker(runway) { Opacity = this.ShowAirports ? 1 : 0 });
                                                 }
 
                                                 this.detailedAirports.Add(add.Key, detailedAirportMarkers);
@@ -374,9 +309,8 @@ namespace OpenSky.Client.Controls.Models
                                     {
                                         var sizeQuery = zoomLevel switch
                                         {
-                                            < 7 => "Size = 4",
-                                            < 8 => "Size >= 3 and Size <= 4",
-                                            < 9 => "Size >= 2 and Size <= 4",
+                                            <= 8 => "Size = 4",
+                                            <= 9 => "Size >= 2 and Size <= 4",
                                             _ => "Size >= 0 and Size <= 4"
                                         };
 
@@ -435,7 +369,7 @@ namespace OpenSky.Client.Controls.Models
                                                     _ => Colors.White
                                                 };
 
-                                                this.dynamicAirports.Add(add.Key, new TrackingEventMarker(new GeoCoordinate(add.Value.Latitude, add.Value.Longitude), add.Key, markerColor, fontColor, true, add.Value.Size, add.Value.SupportsSuper));
+                                                this.dynamicAirports.Add(add.Key, new TrackingEventMarker(new GeoCoordinate(add.Value.Latitude, add.Value.Longitude), add.Key, markerColor, fontColor, true, add.Value.Size, add.Value.SupportsSuper) { Opacity = this.ShowAirports ? 1 : 0 });
                                                 this.Airports.Add(this.dynamicAirports[add.Key]);
                                             }
                                         };
@@ -487,7 +421,7 @@ namespace OpenSky.Client.Controls.Models
                                 }
                             }
                         })
-                    { Name = "MapViewViewModel.UpdateAirports" }.Start();
+                { Name = "MapViewViewModel.UpdateAirports" }.Start();
             }
         }
 
