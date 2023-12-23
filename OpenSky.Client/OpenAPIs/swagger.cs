@@ -10086,6 +10086,12 @@ namespace OpenSkyApi
         public bool DetailedChecksDisabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the automatic registry setting in the simulator is disabled.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("disableAutoRegistry", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool DisableAutoRegistry { get; set; }
+
+        /// <summary>
         /// Gets or sets the empty weight in pounds.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("emptyWeight", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

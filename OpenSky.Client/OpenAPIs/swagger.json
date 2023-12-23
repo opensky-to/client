@@ -5049,6 +5049,10 @@
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the detailed checks are TEMPORARILY disabled - only\r\nuse this on patch days until a new version of the plane can be added."
           },
+          "disableAutoRegistry": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the automatic registry setting in the simulator is disabled."
+          },
           "emptyWeight": {
             "type": "number",
             "description": "Gets or sets the empty weight in pounds.",
