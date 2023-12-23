@@ -136,8 +136,7 @@ namespace OpenSky.Client.Controls
             {
                 // No source uri format initially for default
             },
-            Opacity = 1,
-            ShowBackgroundTiles = true
+            Opacity = 1
         };
 
         /// -------------------------------------------------------------------------------------------------
@@ -172,8 +171,7 @@ namespace OpenSky.Client.Controls
             {
                 UriFormat = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
             },
-            Opacity = 1,
-            ShowBackgroundTiles = true
+            Opacity = 1
         };
 
         /// -------------------------------------------------------------------------------------------------
@@ -650,8 +648,6 @@ namespace OpenSky.Client.Controls
                 {
                     TileSource = new OsmTileSource(),
                     Opacity = 1,
-
-                    //ShowBackgroundTiles = true
                 };
 
                 switch (content)
