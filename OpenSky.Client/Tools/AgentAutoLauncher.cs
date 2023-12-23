@@ -39,7 +39,7 @@ namespace OpenSky.Client.Tools
                     var agentProcesses = Process.GetProcessesByName(agentExeFile.Replace(".exe", string.Empty));
                     if (agentProcesses.Length == 0)
                     {
-                        Process.Start(agentExeLocation);
+                        Process.Start(new ProcessStartInfo(agentExeLocation) { WorkingDirectory = Path.GetDirectoryName(agentExeLocation) ?? string.Empty });
                     }
                 }
             }
