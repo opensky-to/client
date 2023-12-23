@@ -65,7 +65,7 @@
                 <ui:CommandBar Grid.Row="0" HorizontalContentAlignment="Left" DefaultLabelPosition="Right">
                     <ui:CommandBar.Content>
                         <StackPanel Orientation="Horizontal">
-                            <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <ComboBox VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" MinWidth="120" ItemsSource="{Binding Source={StaticResource JobDirections}}" SelectedItem="{Binding SelectedJobDirection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             <ui:AutoSuggestBox FontFamily="Consolas" MaxHeight="28" MinHeight="28" Width="90" VerticalAlignment="Center" Text="{Binding AirportICAO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Airports}" QuerySubmitted="AutoSuggestionsQuerySubmitted" ToolTipService.ShowDuration="15000" UpdateTextOnSelect="False" KeyboardNavigation.AcceptsReturn="True" PreviewKeyDown="AutoSuggestPreviewKeyDown">
                                 <ui:AutoSuggestBox.ToolTip>
                                     <Grid Tag="{Binding AirportICAO}">
@@ -74,11 +74,11 @@
                                 </ui:AutoSuggestBox.ToolTip>
                             </ui:AutoSuggestBox>
                             <Grid>
-                                <ComboBox x:Name="CategoryCombo" VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding TypeCategories}" SelectedItem="{Binding AircraftTypeCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All categories" ui:ControlHelper.PlaceholderForeground="#666" />
+                                <ComboBox x:Name="CategoryCombo" VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" MinWidth="325" ItemsSource="{Binding TypeCategories}" SelectedItem="{Binding AircraftTypeCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All categories" ui:ControlHelper.PlaceholderForeground="#666" />
                                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=CategoryCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearCategoryCommand}" />
                             </Grid>
                             <Grid>
-                                <ComboBox x:Name="SimCombo"  VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#666" />
+                                <ComboBox x:Name="SimCombo"  VerticalAlignment="Center" MaxHeight="28" MinHeight="28" FontSize="13" MinWidth="130" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#666" />
                                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
                             </Grid>
                             <ui:AppBarButton Icon="Find" Label="Search" ToolTip="Search for jobs at this airport" Command="{Binding SearchJobsCommand}" Style="{StaticResource LabelOnRightAppBarButton}" />

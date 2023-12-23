@@ -6,6 +6,7 @@
 
 namespace OpenSky.Client.Controls.Models
 {
+    using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows;
@@ -31,10 +32,38 @@ namespace OpenSky.Client.Controls.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Identifier for the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Guid? flightID;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Information describing the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string flightInfo;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The flight number (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private string flightNumber;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The heading.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private double heading;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// True if is selected, false if not.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool isSelected;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -49,13 +78,6 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         private string registry;
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// True if is selected, false if not.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        private bool isSelected;
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -89,6 +111,90 @@ namespace OpenSky.Client.Controls.Models
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the identifier of the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Guid? FlightID
+        {
+            get => this.flightID;
+
+            set
+            {
+                if (Equals(this.flightID, value))
+                {
+                    return;
+                }
+
+                this.flightID = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets information describing the flight (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string FlightInfo
+        {
+            get => this.flightInfo;
+
+            set
+            {
+                if (Equals(this.flightInfo, value))
+                {
+                    return;
+                }
+
+                this.flightInfo = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the flight number (optional).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public string FlightNumber
+        {
+            get => this.flightNumber;
+
+            set
+            {
+                if (Equals(this.flightNumber, value))
+                {
+                    return;
+                }
+
+                this.flightNumber = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the heading.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public double Heading
+        {
+            get => this.heading;
+
+            set
+            {
+                if (Equals(this.heading, value))
+                {
+                    return;
+                }
+
+                this.heading = value;
+                this.OnPropertyChanged();
+            }
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -133,27 +239,6 @@ namespace OpenSky.Client.Controls.Models
                     var aircraftDrawingImage = this.FindResource("OpenSkyLogoPointingUpForMap") as DrawingImage;
                     this.Source = aircraftDrawingImage;
                 }
-            }
-        }
-
-        /// -------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the heading.
-        /// </summary>
-        /// -------------------------------------------------------------------------------------------------
-        public double Heading
-        {
-            get => this.heading;
-
-            set
-            {
-                if (Equals(this.heading, value))
-                {
-                    return;
-                }
-
-                this.heading = value;
-                this.OnPropertyChanged();
             }
         }
 

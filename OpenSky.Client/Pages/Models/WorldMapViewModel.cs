@@ -38,6 +38,20 @@ namespace OpenSky.Client.Pages.Models
     {
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The deselect aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private Visibility deselectAircraftVisibility = Visibility.Collapsed;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The selected aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private AircraftPosition selectedAircraft;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="WorldMapViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -51,6 +65,8 @@ namespace OpenSky.Client.Pages.Models
 
             // Create commands
             this.RefreshCommand = new AsynchronousCommand(this.Refresh);
+            this.DeselectAircraftCommand = new Command(this.DeselectAircraft);
+            this.RefreshAircraftTrailCommand = new AsynchronousCommand(this.RefreshAircraftTrail);
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -62,10 +78,101 @@ namespace OpenSky.Client.Pages.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Gets the aircraft trail locations.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public LocationCollection AircraftTrailLocations { get; } = new();
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the deselect aircraft command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Command DeselectAircraftCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the deselect aircraft visibility.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public Visibility DeselectAircraftVisibility
+        {
+            get => this.deselectAircraftVisibility;
+
+            set
+            {
+                if (Equals(this.deselectAircraftVisibility, value))
+                {
+                    return;
+                }
+
+                this.deselectAircraftVisibility = value;
+                this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the refresh aircraft trail command.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AsynchronousCommand RefreshAircraftTrailCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Gets the refresh command.
         /// </summary>
         /// -------------------------------------------------------------------------------------------------
         public AsynchronousCommand RefreshCommand { get; }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the select aircraft.
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public AircraftPosition SelectAircraft
+        {
+            get => this.selectedAircraft;
+
+            set
+            {
+                if (Equals(this.selectedAircraft, value))
+                {
+                    return;
+                }
+
+                this.selectedAircraft = value;
+                this.NotifyPropertyChanged();
+                this.DeselectAircraftVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
+
+                foreach (var aircraftPosition in this.AircraftPositions)
+                {
+                    if (value != null && aircraftPosition.Registry == value.Registry)
+                    {
+                        aircraftPosition.IsSelected = true;
+                    }
+                    else
+                    {
+                        aircraftPosition.IsSelected = false;
+                    }
+                }
+
+                this.RefreshAircraftTrailCommand.DoExecute(null);
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Deselect aircraft.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void DeselectAircraft()
+        {
+            this.SelectAircraft = null;
+        }
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
@@ -91,14 +198,18 @@ namespace OpenSky.Client.Pages.Models
                                 {
                                     var tooltip =
                                         $"Flight {flight.FullFlightNumber} operated by {flight.Operator}\r\n-----------------------------------------------\r\nPilot: {flight.Pilot}\r\n{flight.AircraftType} [{flight.AircraftRegistry.RemoveSimPrefix()}]\r\n{flight.Origin} ▶ {flight.Destination}\r\nPhase: {flight.FlightPhase}\r\n";
+                                    var flightInfo = $"Pilot: {flight.Pilot}\r\n{flight.AircraftType} [{flight.AircraftRegistry.RemoveSimPrefix()}]\r\n{flight.Origin} ▶ {flight.Destination}\r\nPhase: {flight.FlightPhase}\r\n";
                                     if (flight.OnGround)
                                     {
                                         tooltip += $"On the ground, {flight.GroundSpeed:F0} kts, heading: {flight.Heading:F0}";
+                                        flightInfo += $"On the ground, {flight.GroundSpeed:F0} kts, heading: {flight.Heading:F0}";
                                     }
                                     else
                                     {
                                         tooltip += $"Airborne {flight.Altitude:F0} feet, {flight.GroundSpeed:F0} kts GS, heading: {flight.Heading:F0}";
+                                        flightInfo += $"Airborne {flight.Altitude:F0} feet, {flight.GroundSpeed:F0} kts GS, heading: {flight.Heading:F0}";
                                     }
+
 
                                     var existingPosition = this.AircraftPositions.SingleOrDefault(p => p.Registry == flight.AircraftRegistry);
                                     if (existingPosition != null)
@@ -114,8 +225,12 @@ namespace OpenSky.Client.Pages.Models
                                             Heading = flight.Heading,
                                             Location = new Location(flight.Latitude, flight.Longitude, flight.Altitude),
                                             Registry = flight.AircraftRegistry,
-                                            ToolTip = tooltip
+                                            ToolTip = tooltip,
+                                            FlightID = flight.Id,
+                                            FlightNumber = flight.FullFlightNumber,
+                                            FlightInfo = flightInfo
                                         };
+                                        newPosition.MouseLeftButtonDown += (_, _) => { this.SelectAircraft = newPosition; };
                                         this.AircraftPositions.Add(newPosition);
                                     }
                                 }
@@ -131,6 +246,13 @@ namespace OpenSky.Client.Pages.Models
                                 }
 
                                 this.AircraftPositions.RemoveRange(toRemove);
+
+                                // After the aircraft are updated, update the trail - if an aircraft is currently selected
+                                this.RefreshCommand.ReportProgress(
+                                    () =>
+                                    {
+                                        this.RefreshAircraftTrailCommand.DoExecute(null);
+                                    });
                             }
                             catch (Exception ex)
                             {
@@ -158,6 +280,60 @@ namespace OpenSky.Client.Pages.Models
             catch (Exception ex)
             {
                 ex.HandleApiCallException(this.ViewReference, this.RefreshCommand, "Error refreshing world map");
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Refresh aircraft trail.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 23/12/2023.
+        /// </remarks>
+        /// -------------------------------------------------------------------------------------------------
+        private void RefreshAircraftTrail()
+        {
+            try
+            {
+                // Clear old trail
+                this.RefreshAircraftTrailCommand.ReportProgress(
+                    () =>
+                    {
+                        this.AircraftTrailLocations.Clear();
+                    });
+
+                if (this.SelectAircraft?.FlightID.HasValue == true)
+                {
+                    var result = OpenSkyService.Instance.GetWorldMapFlightTrailAsync(this.SelectAircraft.FlightID.Value).Result;
+                    if (!result.IsError)
+                    {
+                        this.RefreshAircraftTrailCommand.ReportProgress(
+                            () =>
+                            {
+                                this.AircraftTrailLocations.AddRange(result.Data.PositionReports.Select(pr => new Location(pr.Latitude, pr.Longitude, pr.Altitude)));
+                            });
+                    }
+                    else
+                    {
+                        this.RefreshAircraftTrailCommand.ReportProgress(
+                            () =>
+                            {
+                                Debug.WriteLine("Error refreshing aircraft trail: " + result.Message);
+                                if (!string.IsNullOrEmpty(result.ErrorDetails))
+                                {
+                                    Debug.WriteLine(result.ErrorDetails);
+                                }
+
+                                var notification = new OpenSkyNotification("Error refreshing aircraft trail", result.Message, MessageBoxButton.OK, ExtendedMessageBoxImage.Error, 30);
+                                notification.SetErrorColorStyle();
+                                Main.ShowNotificationInSameViewAs(this.ViewReference, notification);
+                            });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.HandleApiCallException(this.ViewReference, this.RefreshCommand, "Error refreshing aircraft trail");
             }
         }
     }

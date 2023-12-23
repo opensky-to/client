@@ -46,12 +46,13 @@
                 </ComboBox.Items>
             </ComboBox>
             <Grid Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MapView}}, Path=ShowSimulatorFilter, Converter={StaticResource BooleanVisibilityConverter}}">
-                <ComboBox SelectionChanged="SimulatorChanged" Margin="0,2,1,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#CCC" />
+                <ComboBox SelectionChanged="SimulatorChanged" Margin="0,2,1,2" MinWidth="130" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Simulators}" SelectedItem="{Binding Simulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ui:ControlHelper.PlaceholderText="All sims" ui:ControlHelper.PlaceholderForeground="#CCC" />
                 <Button Style="{StaticResource DeleteButtonStyle}" MinWidth="34" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,2, 30,2" Padding="0" Visibility="{Binding SelectedItem, ElementName=SimCombo, Converter={StaticResource NullItemToVisibilityConverter} }" Command="{Binding ClearSimulatorCommand}" />
             </Grid>
+            <CheckBox IsChecked="{Binding ShowAirports, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">Airports</CheckBox>
         </StackPanel>
         <Image Source="/Resources/osm25.png" Width="25" Height="25" Margin="65,0,0,12" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-        <Grid Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
+        <Grid Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,5,0,0">
             <Rectangle Fill="#90000000" RadiusX="3" RadiusY="3" />
             <StackPanel Orientation="Horizontal" Margin="5" >
                 <Rectangle Width="20" Height="20" Fill="{StaticResource OpenSkyTealLightBrush}" RadiusX="3" RadiusY="3" />

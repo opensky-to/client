@@ -76,6 +76,13 @@ namespace OpenSky.Client.Controls.Models
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// True to show, false to hide the airports (if enabled).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        private bool showAirports = true;
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Initializes a new instance of the <see cref="MapViewViewModel"/> class.
         /// </summary>
         /// <remarks>
@@ -140,6 +147,32 @@ namespace OpenSky.Client.Controls.Models
 
                 this.lastUserMapInteraction = value;
                 this.NotifyPropertyChanged();
+            }
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets a value indicating whether the airports are shown (if enabled).
+        /// </summary>
+        /// -------------------------------------------------------------------------------------------------
+        public bool ShowAirports
+        {
+            get => this.showAirports;
+
+            set
+            {
+                if (Equals(this.showAirports, value))
+                {
+                    return;
+                }
+
+                this.showAirports = value;
+                this.NotifyPropertyChanged();
+
+                foreach (var airport in this.Airports)
+                {
+                    airport.Opacity = value ? 1 : 0;
+                }
             }
         }
 
@@ -257,10 +290,10 @@ namespace OpenSky.Client.Controls.Models
                                                     _ => Colors.White
                                                 };
 
-                                                var detailedAirportMarkers = new List<TrackingEventMarker> { new(add.Value, markerColor, fontColor) };
+                                                var detailedAirportMarkers = new List<TrackingEventMarker> { new(add.Value, markerColor, fontColor) { Opacity = this.ShowAirports ? 1 : 0 } };
                                                 foreach (var runway in add.Value.Runways)
                                                 {
-                                                    detailedAirportMarkers.Add(new TrackingEventMarker(runway));
+                                                    detailedAirportMarkers.Add(new TrackingEventMarker(runway) { Opacity = this.ShowAirports ? 1 : 0 });
                                                 }
 
                                                 this.detailedAirports.Add(add.Key, detailedAirportMarkers);
@@ -336,7 +369,7 @@ namespace OpenSky.Client.Controls.Models
                                                     _ => Colors.White
                                                 };
 
-                                                this.dynamicAirports.Add(add.Key, new TrackingEventMarker(new GeoCoordinate(add.Value.Latitude, add.Value.Longitude), add.Key, markerColor, fontColor, true, add.Value.Size, add.Value.SupportsSuper));
+                                                this.dynamicAirports.Add(add.Key, new TrackingEventMarker(new GeoCoordinate(add.Value.Latitude, add.Value.Longitude), add.Key, markerColor, fontColor, true, add.Value.Size, add.Value.SupportsSuper) { Opacity = this.ShowAirports ? 1 : 0 });
                                                 this.Airports.Add(this.dynamicAirports[add.Key]);
                                             }
                                         };
@@ -388,7 +421,7 @@ namespace OpenSky.Client.Controls.Models
                                 }
                             }
                         })
-                    { Name = "MapViewViewModel.UpdateAirports" }.Start();
+                { Name = "MapViewViewModel.UpdateAirports" }.Start();
             }
         }
 
