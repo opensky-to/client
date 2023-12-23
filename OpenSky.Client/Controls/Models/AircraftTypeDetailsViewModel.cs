@@ -187,7 +187,7 @@ namespace OpenSky.Client.Controls.Models
                                 UpdateGUIDelegate getImage = () => this.GetAircraftImageCommand.DoExecute(null);
                                 Application.Current.Dispatcher.BeginInvoke(getImage);
                             })
-                        { Name = "AircraftTypeDetailsViewModel.WaitForGetAircraftImageCommand" }.Start();
+                    { Name = "AircraftTypeDetailsViewModel.WaitForGetAircraftImageCommand" }.Start();
                 }
             }
         }
@@ -215,24 +215,27 @@ namespace OpenSky.Client.Controls.Models
                 return;
             }
 
-            if (ImageCache.ContainsKey(typeCopy.Id))
+            lock (ImageCache)
             {
-                if (ImageCache[typeCopy.Id] != null)
+                if (ImageCache.ContainsKey(typeCopy.Id))
                 {
-                    this.AircraftImage = ImageCache[typeCopy.Id];
-                    this.AircraftImagePlaceholderText = string.Empty;
-                }
-                else
-                {
-                    this.GetAircraftImageCommand.ReportProgress(
-                        () =>
-                        {
-                            this.AircraftImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/aircraftTypePlaceholder.png"));
-                            this.AircraftImagePlaceholderText = "No image available";
-                        });
-                }
+                    if (ImageCache[typeCopy.Id] != null)
+                    {
+                        this.AircraftImage = ImageCache[typeCopy.Id];
+                        this.AircraftImagePlaceholderText = string.Empty;
+                    }
+                    else
+                    {
+                        this.GetAircraftImageCommand.ReportProgress(
+                            () =>
+                            {
+                                this.AircraftImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/aircraftTypePlaceholder.png"));
+                                this.AircraftImagePlaceholderText = "No image available";
+                            });
+                    }
 
-                return;
+                    return;
+                }
             }
 
             try
@@ -262,7 +265,10 @@ namespace OpenSky.Client.Controls.Models
 
                                     image.Freeze();
                                     this.AircraftImage = image;
-                                    ImageCache.Add(typeCopy.Id, image);
+                                    lock (ImageCache)
+                                    {
+                                        ImageCache.Add(typeCopy.Id, image);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -279,7 +285,10 @@ namespace OpenSky.Client.Controls.Models
                             {
                                 this.AircraftImage = new BitmapImage(new Uri("pack://application:,,,/OpenSky.Client;component/Resources/aircraftTypePlaceholder.png"));
                                 this.AircraftImagePlaceholderText = "No image available";
-                                ImageCache.Add(typeCopy.Id, null);
+                                lock (ImageCache)
+                                {
+                                    ImageCache.Add(typeCopy.Id, null);
+                                }
                             });
                     }
                 }
