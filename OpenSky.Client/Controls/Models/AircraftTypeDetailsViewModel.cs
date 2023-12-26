@@ -267,7 +267,10 @@ namespace OpenSky.Client.Controls.Models
                                     this.AircraftImage = image;
                                     lock (ImageCache)
                                     {
-                                        ImageCache.Add(typeCopy.Id, image);
+                                        if (!ImageCache.ContainsKey(typeCopy.Id))
+                                        {
+                                            ImageCache.Add(typeCopy.Id, image);
+                                        }
                                     }
                                 }
                                 catch (Exception ex)
@@ -287,7 +290,10 @@ namespace OpenSky.Client.Controls.Models
                                 this.AircraftImagePlaceholderText = "No image available";
                                 lock (ImageCache)
                                 {
-                                    ImageCache.Add(typeCopy.Id, null);
+                                    if (!ImageCache.ContainsKey(typeCopy.Id))
+                                    {
+                                        ImageCache.Add(typeCopy.Id, null);
+                                    }
                                 }
                             });
                     }
