@@ -825,6 +825,26 @@ namespace OpenSky.Client.Controls
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Map view size changed.
+        /// </summary>
+        /// <remarks>
+        /// sushi.at, 26/12/2023.
+        /// </remarks>
+        /// <param name="sender">
+        /// Source of the event.
+        /// </param>
+        /// <param name="e">
+        /// Size changed event information.
+        /// </param>
+        /// -------------------------------------------------------------------------------------------------
+        private void MapViewSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            this.WpfMapView.ZoomLevel += 1;
+            this.WpfMapView.ZoomLevel -= 1;
+        }
+
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>
         /// simBrief waypoint markers collection changed.
         /// </summary>
         /// <remarks>

@@ -3,6 +3,13 @@ OpenSky Client Changelog
 ======================================================================================
 
 --------------------------------------------------------------------------------------
+Version 0.5.11 (ALPHA5)
+--------------------------------------------------------------------------------------
+- Propper fix for aircraft type image caching bug
+- Map view resize will now re-render tiles
+- New aircraft dialog disabled right side of view when no type is selected yet
+
+--------------------------------------------------------------------------------------
 Version 0.5.10 (ALPHA5)
 --------------------------------------------------------------------------------------
 - Hotfix for aircraft type image caching bug

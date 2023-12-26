@@ -48,6 +48,11 @@ namespace OpenSky.Client.Converters
         /// -------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (parameter is string and "invert")
+            {
+                return value != null ? Visibility.Collapsed : Visibility.Visible;
+            }
+
             return value == null ? Visibility.Collapsed : Visibility.Visible;
         }
 

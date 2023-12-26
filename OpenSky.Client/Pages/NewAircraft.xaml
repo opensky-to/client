@@ -268,5 +268,8 @@
                 </Grid>
             </GroupBox>
         </Grid>
+        <Border Background="Black" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Opacity=".8" CornerRadius="5" Visibility="{Binding SelectedAircraftType, Converter={StaticResource NullItemToVisibilityConverter}, ConverterParameter=invert}">
+            <TextBlock Foreground="{StaticResource OpenSkyTealLightBrush}" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center">No aircraft type selected</TextBlock>
+        </Border>
     </Grid>
 </controls:OpenSkyPage>
